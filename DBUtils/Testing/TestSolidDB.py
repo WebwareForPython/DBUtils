@@ -1,0 +1,399 @@
+"""Test the SolidDB module.
+
+Note:
+We do not test any real DB-API 2 module, but we just
+mock the basic DB-API 2 connection functionality.
+
+Copyright and credit info:
+
+* This test was contributed by Christoph Zwerschke
+
+"""
+
+__version__ = '0.8.1'
+__revision__ = "$Rev$"
+__date__ = "$Date$"
+
+
+import sys
+
+# This module also serves as a mock object for the pg API module:
+
+dbapi = sys.modules[__name__]
+
+threadsafety = 1
+
+class Error(StandardError): pass
+class DatabaseError(Error): pass
+class InternalError(DatabaseError): pass
+class OperationalError(DatabaseError): pass
+
+def connect(database=None, user=None):
+	return Connection(database, user)
+
+class Connection:
+
+	def __init__(self, database=None, user=None):
+		self.database = database
+		self.user = user
+		self.open_cursors = 0
+		self.num_uses = 0
+		self.num_queries = 0
+		self.session = []
+		self.valid = 1
+
+	def close(self):
+		if not self.valid:
+			raise InternalError
+		self.open_cursors = 0
+		self.num_uses = 0
+		self.num_queries = 0
+		self.session = []
+		self.valid = 0
+
+	def commit(self):
+		self.session.append('commit')
+
+	def rollback(self):
+		self.session.append('rollback')
+
+	def cursor(self):
+		if not self.valid:
+			raise InternalError
+		return Cursor(self)
+
+class Cursor:
+
+	def __init__(self, con):
+		self.con = con
+		con.open_cursors += 1
+		self.valid = 1
+		self.result = None
+
+	def close(self):
+		if not self.valid:
+			raise InternalError
+		self.con.open_cursors -= 1
+		self.valid = 0
+
+	def execute(self, operation):
+		if not self.valid:
+			raise InternalError
+		self.con.num_uses += 1
+		if operation.startswith('select '):
+			self.con.num_queries += 1
+			self.result = operation[7:]
+		elif operation.startswith('set '):
+			self.con.session.append(operation[4:])
+			self.result = None
+		else:
+			raise DatabaseError
+
+	def fetchone(self):
+		result = self.result
+		self.result = None
+		return result
+
+	def callproc(self, procname):
+		if not self.valid:
+			raise InternalError
+		self.con.num_uses += 1
+
+	def __del__(self):
+		if self.valid:
+			self.close()
+
+
+import unittest
+sys.path.insert(1, '..')
+from SolidDB import connect as SolidDBconnect
+
+
+class TestSolidDB(unittest.TestCase):
+
+	def test0_CheckVersion(self):
+		TestSolidDBVersion = __version__
+		from SolidDB import __version__ as SolidDBVersion
+		self.assertEqual(SolidDBVersion, TestSolidDBVersion)
+
+	def test1_MockedDBConnection(self):
+		db = connect('SolidDBTestDB',
+			user='SolidDBTestUser')
+		self.assert_(hasattr(db, 'database'))
+		self.assertEqual(db.database, 'SolidDBTestDB')
+		self.assert_(hasattr(db, 'user'))
+		self.assertEqual(db.user, 'SolidDBTestUser')
+		self.assert_(hasattr(db, 'cursor'))
+		self.assert_(hasattr(db, 'close'))
+		self.assert_(hasattr(db, 'open_cursors'))
+		self.assert_(hasattr(db, 'num_uses'))
+		self.assert_(hasattr(db, 'num_queries'))
+		self.assert_(hasattr(db, 'session'))
+		self.assert_(hasattr(db, 'valid'))
+		self.assert_(db.valid)
+		self.assertEqual(db.open_cursors, 0)
+		for i in range(3):
+			cursor = db.cursor()
+			self.assertEqual(db.open_cursors, 1)
+			cursor.close()
+			self.assertEqual(db.open_cursors, 0)
+		cursor = []
+		for i in range(3):
+			cursor.append(db.cursor())
+			self.assertEqual(db.open_cursors, i + 1)
+		del cursor
+		self.assertEqual(db.open_cursors, 0)
+		cursor = db.cursor()
+		self.assert_(hasattr(cursor, 'execute'))
+		self.assert_(hasattr(cursor, 'fetchone'))
+		self.assert_(hasattr(cursor, 'callproc'))
+		self.assert_(hasattr(cursor, 'close'))
+		self.assert_(hasattr(cursor, 'valid'))
+		self.assert_(cursor.valid)
+		self.assertEqual(db.open_cursors, 1)
+		for i in range(3):
+			self.assertEqual(db.num_uses, i)
+			self.assertEqual(db.num_queries, i)
+			cursor.execute('select test%d' % i)
+			self.assertEqual(cursor.fetchone(), 'test%d' % i)
+		self.assert_(cursor.valid)
+		self.assertEqual(db.open_cursors, 1)
+		for i in range(4):
+			cursor.callproc('test')
+		cursor.close()
+		self.assert_(not cursor.valid)
+		self.assertEqual(db.open_cursors, 0)
+		self.assertEqual(db.num_uses, 7)
+		self.assertEqual(db.num_queries, 3)
+		self.assertRaises(InternalError, cursor.close)
+		self.assertRaises(InternalError, cursor.execute, 'select test')
+		self.assert_(db.valid)
+		db.close()
+		self.assert_(not db.valid)
+		self.assertEqual(db.num_uses, 0)
+		self.assertEqual(db.num_queries, 0)
+		self.assertRaises(InternalError, db.close)
+		self.assertRaises(InternalError, db.cursor)
+
+	def test2_SolidDBConnection(self):
+		db = SolidDBconnect(dbapi, 0, None,
+			'SolidDBTestDB', user='SolidDBTestUser')
+		self.assert_(hasattr(db, '_con'))
+		self.assert_(hasattr(db, '_usage'))
+		self.assertEqual(db._usage, 0)
+		self.assert_(hasattr(db._con, 'valid'))
+		self.assert_(db._con.valid)
+		self.assert_(hasattr(db._con, 'cursor'))
+		self.assert_(hasattr(db._con, 'close'))
+		self.assert_(hasattr(db._con, 'open_cursors'))
+		self.assert_(hasattr(db._con, 'num_uses'))
+		self.assert_(hasattr(db._con, 'num_queries'))
+		self.assert_(hasattr(db._con, 'session'))
+		self.assert_(hasattr(db._con, 'database'))
+		self.assertEqual(db._con.database, 'SolidDBTestDB')
+		self.assert_(hasattr(db._con, 'user'))
+		self.assertEqual(db._con.user, 'SolidDBTestUser')
+		self.assert_(hasattr(db, 'cursor'))
+		self.assert_(hasattr(db, 'close'))
+		self.assertEqual(db._con.open_cursors, 0)
+		for i in range(3):
+			cursor = db.cursor()
+			self.assertEqual(db._con.open_cursors, 1)
+			cursor.close()
+			self.assertEqual(db._con.open_cursors, 0)
+		cursor = []
+		for i in range(3):
+			cursor.append(db.cursor())
+			self.assertEqual(db._con.open_cursors, i + 1)
+		del cursor
+		self.assertEqual(db._con.open_cursors, 0)
+		cursor = db.cursor()
+		self.assert_(hasattr(cursor, 'execute'))
+		self.assert_(hasattr(cursor, 'fetchone'))
+		self.assert_(hasattr(cursor, 'callproc'))
+		self.assert_(hasattr(cursor, 'close'))
+		self.assert_(hasattr(cursor, 'valid'))
+		self.assert_(cursor.valid)
+		self.assertEqual(db._con.open_cursors, 1)
+		for i in range(3):
+			self.assertEqual(db._usage, i)
+			self.assertEqual(db._con.num_uses, i)
+			self.assertEqual(db._con.num_queries, i)
+			cursor.execute('select test%d' % i)
+			self.assertEqual(cursor.fetchone(), 'test%d' % i)
+		self.assert_(cursor.valid)
+		self.assertEqual(db._con.open_cursors, 1)
+		for i in range(4):
+			cursor.callproc('test')
+		cursor.close()
+		self.assert_(not cursor.valid)
+		self.assertEqual(db._con.open_cursors, 0)
+		self.assertEqual(db._usage, 7)
+		self.assertEqual(db._con.num_uses, 7)
+		self.assertEqual(db._con.num_queries, 3)
+		cursor.close()
+		cursor.execute('select test8')
+		self.assert_(cursor.valid)
+		self.assertEqual(db._con.open_cursors, 1)
+		self.assertEqual(cursor.fetchone(), 'test8')
+		self.assertEqual(db._usage, 8)
+		self.assertEqual(db._con.num_uses, 8)
+		self.assertEqual(db._con.num_queries, 4)
+		self.assert_(db._con.valid)
+		db.close()
+		self.assert_(not db._con.valid)
+		self.assertEqual(db._con.open_cursors, 0)
+		self.assertEqual(db._usage, 0)
+		self.assertEqual(db._con.num_uses, 0)
+		self.assertEqual(db._con.num_queries, 0)
+		self.assertRaises(InternalError, db._con.close)
+		db.close()
+		self.assertRaises(InternalError, db._con.cursor)
+		cursor = db.cursor()
+		self.assert_(db._con.valid)
+		cursor.execute('select test11')
+		self.assertEqual(cursor.fetchone(), 'test11')
+		cursor.execute('select test12')
+		self.assertEqual(cursor.fetchone(), 'test12')
+		cursor.callproc('test')
+		self.assertEqual(db._usage, 3)
+		self.assertEqual(db._con.num_uses, 3)
+		self.assertEqual(db._con.num_queries, 2)
+		cursor2 = db.cursor()
+		self.assertEqual(db._con.open_cursors, 2)
+		cursor2.execute('select test13')
+		self.assertEqual(cursor2.fetchone(), 'test13')
+		self.assertEqual(db._con.num_queries, 3)
+		db.close()
+		self.assertEqual(db._con.open_cursors, 0)
+		self.assertEqual(db._con.num_queries, 0)
+		cursor = db.cursor()
+		self.assert_(cursor.valid)
+		cursor.callproc('test')
+		cursor._cursor.valid = 0
+		self.assert_(not cursor.valid)
+		self.assertRaises(InternalError, cursor._cursor.callproc, 'test')
+		cursor.callproc('test')
+		self.assert_(cursor.valid)
+		cursor._cursor.callproc('test')
+		self.assertEqual(db._usage, 2)
+		self.assertEqual(db._con.num_uses, 3)
+		db._con.valid = cursor._cursor.valid = 0
+		cursor.callproc('test')
+		self.assert_(cursor.valid)
+		self.assertEqual(db._usage, 1)
+		self.assertEqual(db._con.num_uses, 1)
+		cursor.execute('set doit')
+		db.commit()
+		cursor.execute('set dont')
+		db.rollback()
+		self.assertEqual(db._con.session,
+			['doit', 'commit', 'dont', 'rollback'])
+
+	def test3_SolidDBConnectionMaxUsage(self):
+		db = SolidDBconnect(dbapi, 10)
+		cursor = db.cursor()
+		for i in range(100):
+			cursor.execute('select test%d' % i)
+			r = cursor.fetchone()
+			self.assertEqual(r, 'test%d' % i)
+			self.assert_(db._con.valid)
+			j = i % 10 + 1
+			self.assertEqual(db._usage, j)
+			self.assertEqual(db._con.num_uses, j)
+			self.assertEqual(db._con.num_queries, j)
+		self.assertEqual(db._con.open_cursors, 1)
+		for i in range(100):
+			cursor.callproc('test')
+			self.assert_(db._con.valid)
+			j = i % 10 + 1
+			self.assertEqual(db._usage, j)
+			self.assertEqual(db._con.num_uses, j)
+			self.assertEqual(db._con.num_queries, 0)
+		for i in range(10):
+			if i == 7:
+				db._con.valid = cursor._cursor.valid = 0
+			cursor.execute('select test%d' % i)
+			r = cursor.fetchone()
+			self.assertEqual(r, 'test%d' % i)
+			j = i % 7 + 1
+			self.assertEqual(db._usage, j)
+			self.assertEqual(db._con.num_uses, j)
+			self.assertEqual(db._con.num_queries, j)
+		for i in range(10):
+			if i == 5:
+				db._con.valid = cursor._cursor.valid = 0
+			cursor.callproc('test')
+			j = (i + (i < 5 and 3 or -5)) % 10 + 1
+			self.assertEqual(db._usage, j)
+			self.assertEqual(db._con.num_uses, j)
+			j = i < 5 and 3 or 0
+			self.assertEqual(db._con.num_queries, j)
+		db.close()
+		cursor.execute('select test1')
+		self.assertEqual(cursor.fetchone(), 'test1')
+		self.assertEqual(db._usage, 1)
+		self.assertEqual(db._con.num_uses, 1)
+		self.assertEqual(db._con.num_queries, 1)
+
+	def test4_SolidDBConnectionSetSession(self):
+		db = SolidDBconnect(dbapi, 3, ('set time zone', 'set datestyle'))
+		self.assert_(hasattr(db, '_usage'))
+		self.assertEqual(db._usage, 0)
+		self.assert_(hasattr(db._con, 'open_cursors'))
+		self.assertEqual(db._con.open_cursors, 0)
+		self.assert_(hasattr(db._con, 'num_uses'))
+		self.assertEqual(db._con.num_uses, 2)
+		self.assert_(hasattr(db._con, 'num_queries'))
+		self.assertEqual(db._con.num_queries, 0)
+		self.assert_(hasattr(db._con, 'session'))
+		self.assertEqual(tuple(db._con.session), ('time zone', 'datestyle'))
+		for i in range(11):
+			db.cursor().execute('select test')
+		self.assertEqual(db._con.open_cursors, 0)
+		self.assertEqual(db._usage, 2)
+		self.assertEqual(db._con.num_uses, 4)
+		self.assertEqual(db._con.num_queries, 2)
+		self.assertEqual(db._con.session, ['time zone', 'datestyle'])
+		db.cursor().execute('set test')
+		self.assertEqual(db._con.open_cursors, 0)
+		self.assertEqual(db._usage, 3)
+		self.assertEqual(db._con.num_uses, 5)
+		self.assertEqual(db._con.num_queries, 2)
+		self.assertEqual(db._con.session, ['time zone', 'datestyle', 'test'])
+		db.cursor().execute('select test')
+		self.assertEqual(db._con.open_cursors, 0)
+		self.assertEqual(db._usage, 1)
+		self.assertEqual(db._con.num_uses, 3)
+		self.assertEqual(db._con.num_queries, 1)
+		self.assertEqual(db._con.session, ['time zone', 'datestyle'])
+		db.cursor().execute('set test')
+		self.assertEqual(db._con.open_cursors, 0)
+		self.assertEqual(db._usage, 2)
+		self.assertEqual(db._con.num_uses, 4)
+		self.assertEqual(db._con.num_queries, 1)
+		self.assertEqual(db._con.session, ['time zone', 'datestyle', 'test'])
+		db.cursor().execute('select test')
+		self.assertEqual(db._con.open_cursors, 0)
+		self.assertEqual(db._usage, 3)
+		self.assertEqual(db._con.num_uses, 5)
+		self.assertEqual(db._con.num_queries, 2)
+		self.assertEqual(db._con.session, ['time zone', 'datestyle', 'test'])
+		db.close()
+		db.cursor().execute('set test')
+		self.assertEqual(db._con.open_cursors, 0)
+		self.assertEqual(db._usage, 1)
+		self.assertEqual(db._con.num_uses, 3)
+		self.assertEqual(db._con.num_queries, 0)
+		self.assertEqual(db._con.session, ['time zone', 'datestyle', 'test'])
+		db.close()
+		db.cursor().execute('select test')
+		self.assertEqual(db._con.open_cursors, 0)
+		self.assertEqual(db._usage, 1)
+		self.assertEqual(db._con.num_uses, 3)
+		self.assertEqual(db._con.num_queries, 1)
+		self.assertEqual(db._con.session, ['time zone', 'datestyle'])
+
+
+if __name__ == '__main__':
+	unittest.main()
