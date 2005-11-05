@@ -77,6 +77,21 @@ module allows this. If you want to have a dedicated connection, use:
 If you don't need it any more, you should immediately return it to the
 pool with db.close(). You can get another connection in the same way.
 
+Warning: In a threaded environment, never do the following:
+
+	pool.connection().cursor().execute(...)
+
+This would release the connection too early for reuse which may be
+fatal if the connections are not thread-safe. Make sure that the
+connection object stays alive as long as you are using it, like that:
+
+	db = pool.connection()
+	cur = db.cursor()
+	cur.execute(...)
+	res = cur.fetchone()
+	cur.close() # or del cur
+	db.close() # or del db
+
 
 Ideas for improvement:
 

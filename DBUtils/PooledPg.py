@@ -67,6 +67,18 @@ The connection will not be shared with other threads. If you don't need
 it any more, you should immediately return it to the pool with db.close().
 You can get another connection in the same way or with db.reopen().
 
+Warning: In a threaded environment, never do the following:
+
+	res = pool.connection().query(...).getresult()
+
+This would release the connection too early for reuse which may be
+fatal because the connections are not thread-safe. Make sure that the
+connection object stays alive as long as you are using it, like that:
+
+	db = pool.connection()
+	res = db.query(...).getresult()
+	db.close() # or del db
+
 
 Ideas for improvement:
 
