@@ -56,14 +56,16 @@ You can use these connections just as if they were ordinary
 DB-API 2 connections. Actually what you get is the hardened
 SolidDB version of the underlying DB-API 2 connection.
 
-You should not use db.close() since this would really close the
-connection and reopen it at the next usage anyway. This would
-be contrary to the intent of having persistent connections.
+Closing a persistent connection with db.close() will be silently
+ignored since it would be reopened at the next usage anyway and
+contrary to the intent of having persistent connections. Instead,
+the connection will be automatically closed when the thread dies.
+You can change this behavior be setting persist._closeable to True.
 
 
 Requirements:
 
-Python 2.4.1 recommended. Minimum requirement: Python 2.2.
+Python 2.4.2 recommended. Minimum requirement: Python 2.2.
 
 
 Ideas for improvement:
@@ -103,6 +105,7 @@ class PersistentDB:
 
 	After you have created the connection pool, you can use
 	connection() to get thread-affine, solid DB-API 2 connections.
+
 	"""
 
 	def __init__(self, dbapi,
@@ -117,6 +120,10 @@ class PersistentDB:
 			the session, e.g. ["set datestyle to ...", "set time zone ..."]
 		args, kwargs: the parameters that shall be used to establish
 			the database connections using the DB-API 2 module
+
+		Set the _closeable attribute to True or 1 to allow closing
+		connections. By default, this will be silently ignored.
+
 		"""
 		if not getattr(dbapi, 'threadsafety', None):
 			raise NotSupportedError, "Database module is not thread-safe."
@@ -124,6 +131,7 @@ class PersistentDB:
 		self._maxusage = maxusage
 		self._setsession = setsession
 		self._args, self._kwargs = args, kwargs
+		self._closeable = 0
 		self.thread = local()
 
 	def solid_connection(self):
@@ -137,9 +145,11 @@ class PersistentDB:
 		The shareable parameter exists only for compatibility with the
 		PooledDB connection method. In reality, persistent connections
 		are of course never shared with other threads.
+
 		"""
 		if not hasattr(self.thread, 'connection'):
 			self.thread.connection = self.solid_connection()
+			self.thread.connection._closeable = self._closeable
 		return self.thread.connection
 
 

@@ -34,7 +34,24 @@ class TestPersistentPg(unittest.TestCase):
 		from PersistentPg import __version__ as PersistentPgVersion
 		self.assertEqual(PersistentPgVersion, TestPersistentPgVersion)
 
-	def test1_PersistentPg(self):
+	def test1_PersistentPgClose(self):
+		for closeable in (0, 1):
+			persist = PersistentPg()
+			persist._closeable = closeable
+			db = persist.connection()
+			self.assert_(db._con.db and db._con.valid)
+			db.close()
+			self.assert_(closeable ^
+				(db._con.db is not None and db._con.valid))
+			db.close()
+			self.assert_(closeable ^
+				(db._con.db is not None and db._con.valid))
+			db._close()
+			self.assert_(not db._con.db or not db._con.valid)
+			db._close()
+			self.assert_(not db._con.db or not db._con.valid)
+
+	def test2_PersistentPgThreads(self):
 		numThreads = 3
 		persist = PersistentPg()
 		from Queue import Queue, Empty
@@ -101,7 +118,7 @@ class TestPersistentPg(unittest.TestCase):
 		for i in range(numThreads):
 			queryQueue[i].put(None, 1, 1)
 
-	def test2_PersistentPgMaxUsage(self):
+	def test3_PersistentPgMaxUsage(self):
 		persist = PersistentPg(20)
 		db = persist.connection()
 		self.assertEqual(db._maxusage, 20)
@@ -113,7 +130,7 @@ class TestPersistentPg(unittest.TestCase):
 			self.assertEqual(db._usage, j)
 			self.assertEqual(db.num_queries, j)
 
-	def test3_PersistentPgSetSession(self):
+	def test4_PersistentPgSetSession(self):
 		persist = PersistentPg(3, ('set datestyle',))
 		db = persist.connection()
 		self.assertEqual(db._maxusage, 3)

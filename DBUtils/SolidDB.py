@@ -98,6 +98,7 @@ def connect(dbapi, maxusage=0, setsession=None, *args, **kwargs):
 		the session, e.g. ["set datestyle to german", "set time zone mez"]
 	args, kwargs: the parameters that shall be used to establish the
 		connection with the connection constructor of the DB-API 2 module
+
 	"""
 	return SolidDBConnection(dbapi, maxusage, setsession, *args, **kwargs)
 
@@ -111,6 +112,7 @@ class SolidDBConnection:
 		self._maxusage = maxusage
 		self._setsession_sql = setsession
 		self._args, self._kwargs = args, kwargs
+		self._closeable = 1
 		self._usage = 0
 		self._con = dbapi.connect(*args, **kwargs)
 		self._setsession()
@@ -125,17 +127,32 @@ class SolidDBConnection:
 				cursor.execute(sql)
 			cursor.close()
 
-	def close(self):
+	def _close(self):
 		"""Close the tough connection.
 
-		You are allowed to close a tough connection.
-		It will not complain if you close it more than once.
+		You can always close a tough connection with this method
+		and it will not complain if you close it more than once.
+
 		"""
 		try:
 			self._con.close()
 		except:
 			pass
 		self._usage = 0
+
+	def close(self):
+		"""Close the tough connection.
+
+		You are allowed to close a tough connection by default
+		and it will not complain if you close it more than once.
+
+		You can disallow closing connections by setting
+		the _closeable attribute to 0 or False. In this case,
+		closing a connection will be silently ignored.
+
+		"""
+		if self._closeable:
+			self._close()
 
 	def commit(self):
 		"""Commit any pending transaction."""
@@ -166,11 +183,11 @@ class SolidDBConnection:
 				except:
 					pass
 				else:
-					self.close()
+					self._close()
 					self._con = con2
 					return r
 				try:
-					con2.close()
+					con2._close()
 				except:
 					pass
 			raise # raise the original error again
@@ -222,6 +239,7 @@ class SolidDBCursor:
 		"""Close the tough cursor.
 
 		It will not complain if you close it more than once.
+
 		"""
 		try:
 			self._cursor.close()
@@ -290,7 +308,7 @@ class SolidDBCursor:
 							pass
 						else:
 							self.close()
-							self._con.close()
+							self._con._close()
 							self._con._con, self._cursor = con2, cursor2
 							self._con._usage += 1
 							return r
@@ -299,7 +317,7 @@ class SolidDBCursor:
 						except:
 							pass
 					try:
-						con2.close()
+						con2._close()
 					except:
 						pass
 				raise # raise the original error again
@@ -309,7 +327,7 @@ class SolidDBCursor:
 		return tough_method
 
 	def __getattr__(self, name):
-		"""Inherit methods and attributes of underlying cursor"""
+		"""Inherit methods and attributes of underlying cursor."""
 		if name.startswith('execute') or name.startswith('call'):
 			# make execution methods "tough"
 			return self._get_tough_method(name)

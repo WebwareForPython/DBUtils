@@ -100,9 +100,11 @@ class SolidPgConnection:
 			the session, e.g. ["set datestyle to ...", "set time zone ..."]
 		args, kwargs: the parameters that shall be used to establish
 			the PostgreSQL connections with PyGreSQL using pg.DB()
+
 		"""
 		self._maxusage = maxusage
 		self._setsession_sql = setsession
+		self._closeable = 1
 		self._usage = 0
 		self._con = PgConnection(*args, **kwargs)
 		self._setsession()
@@ -113,17 +115,32 @@ class SolidPgConnection:
 			for sql in self._setsession_sql:
 				self._con.query(sql)
 
-	def close(self):
+	def _close(self):
 		"""Close the tough connection.
 
-		You are allowed to close a tough connection.
-		It will not complain if you close it more than once.
+		You can always close a tough connection with this method
+		and it will not complain if you close it more than once.
+
 		"""
 		try:
 			self._con.close()
 			self._usage = 0
 		except:
 			pass
+
+	def close(self):
+		"""Close the tough connection.
+
+		You are allowed to close a tough connection by default
+		and it will not complain if you close it more than once.
+
+		You can disallow closing connections by setting
+		the _closeable attribute to 0 or False. In this case,
+		closing a connection will be silently ignored.
+
+		"""
+		if self._closeable:
+			self._close()
 
 	def reopen(self):
 		"""Reopen the tough connection.
@@ -141,6 +158,7 @@ class SolidPgConnection:
 
 		If a reset is not possible, tries to reopen the connection.
 		It will not complain if the connection is already closed.
+
 		"""
 		try:
 			self._con.reset()
@@ -155,6 +173,7 @@ class SolidPgConnection:
 		The tough version checks whether the connection is bad (lost)
 		and automatically and transparently tries to reset the connection
 		if this is the case (for instance, the database has been restarted).
+
 		"""
 		def tough_method(*args, **kwargs):
 			try: # check whether connection status is bad
@@ -181,6 +200,7 @@ class SolidPgConnection:
 		"""Inherit the members of the standard connection class.
 
 		Some methods are made "tougher" than in the standard version.
+
 		"""
 		attr = getattr(self._con, name)
 		if name in ('query', 'get', 'insert', 'update', 'delete') \

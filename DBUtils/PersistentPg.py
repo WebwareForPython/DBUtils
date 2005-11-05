@@ -57,14 +57,16 @@ You can use these connections just as if they were ordinary
 classic PyGreSQL API connections. Actually what you get is the
 hardened SolidPg version of a classic PyGreSQL connection.
 
-You should not use db.close() since this would really close the
-connection and reopen it at the next usage anyway. This would
-be contrary to the intent of having persistent connections.
+Closing a persistent connection with db.close() will be silently
+ignored since it would be reopened at the next usage anyway and
+contrary to the intent of having persistent connections. Instead,
+the connection will be automatically closed when the thread dies.
+You can change this behavior be setting persist._closeable to True.
 
 
 Requirements:
 
-Python 2.4.1 and PyGreSQL 3.6.3 recommended.
+Python 2.4.2 and PyGreSQL 3.7 recommended.
 Minimum requirement Python 2.2 and PyGreSQL 3.4.
 
 
@@ -102,6 +104,7 @@ class PersistentPg:
 
 	After you have created the connection pool, you can use
 	connection() to get thread-affine, solid PostGreSQL connections.
+
 	"""
 
 	def __init__(self, maxusage=0, setsession=None, *args, **kwargs):
@@ -115,10 +118,15 @@ class PersistentPg:
 			the session, e.g. ["set datestyle to ...", "set time zone ..."]
 		args, kwargs: the parameters that shall be used to establish
 			the PostgreSQL connections using class PyGreSQL pg.DB()
+
+		Set the _closeable attribute to True or 1 to allow closing
+		connections. By default, this will be silently ignored.
+
 		"""
 		self._maxusage = maxusage
 		self._setsession = setsession
 		self._args, self._kwargs = args, kwargs
+		self._closeable = 0
 		self.thread = local()
 
 	def solid_connection(self):
@@ -130,6 +138,7 @@ class PersistentPg:
 		"""Get a solid, persistent PyGreSQL connection."""
 		if not hasattr(self.thread, 'connection'):
 			self.thread.connection = self.solid_connection()
+			self.thread.connection._closeable = self._closeable
 		return self.thread.connection
 
 

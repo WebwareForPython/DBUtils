@@ -175,7 +175,21 @@ class TestSolidDB(unittest.TestCase):
 		self.assertRaises(InternalError, db.close)
 		self.assertRaises(InternalError, db.cursor)
 
-	def test2_SolidDBConnection(self):
+	def test2_SolidDBClose(self):
+		for closeable in (0, 1):
+			db = SolidDBconnect(dbapi)
+			db._closeable = closeable
+			self.assert_(db._con.valid)
+			db.close()
+			self.assert_(closeable ^ db._con.valid)
+			db.close()
+			self.assert_(closeable ^ db._con.valid)
+			db._close()
+			self.assert_(not db._con.valid)
+			db._close()
+			self.assert_(not db._con.valid)
+
+	def test3_SolidDBConnection(self):
 		db = SolidDBconnect(dbapi, 0, None,
 			'SolidDBTestDB', user='SolidDBTestUser')
 		self.assert_(hasattr(db, '_con'))
@@ -290,7 +304,7 @@ class TestSolidDB(unittest.TestCase):
 		self.assertEqual(db._con.session,
 			['doit', 'commit', 'dont', 'rollback'])
 
-	def test3_SolidDBConnectionMaxUsage(self):
+	def test4_SolidDBConnectionMaxUsage(self):
 		db = SolidDBconnect(dbapi, 10)
 		cursor = db.cursor()
 		for i in range(100):
@@ -336,7 +350,7 @@ class TestSolidDB(unittest.TestCase):
 		self.assertEqual(db._con.num_uses, 1)
 		self.assertEqual(db._con.num_queries, 1)
 
-	def test4_SolidDBConnectionSetSession(self):
+	def test5_SolidDBConnectionSetSession(self):
 		db = SolidDBconnect(dbapi, 3, ('set time zone', 'set datestyle'))
 		self.assert_(hasattr(db, '_usage'))
 		self.assertEqual(db._usage, 0)

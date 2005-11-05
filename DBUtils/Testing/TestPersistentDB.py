@@ -43,9 +43,25 @@ class TestPersistentDB(unittest.TestCase):
 		for dbapi.threadsafety in (None, 0):
 			self.assertRaises(NotSupportedError, PersistentDB, dbapi)
 
-	def test2_PersistentDB(self):
+	def test2_PersistentDBClose(self):
+		for closeable in (0, 1):
+			persist = PersistentDB(dbapi)
+			persist._closeable = closeable
+			db = persist.connection()
+			self.assert_(db._con.valid)
+			db.close()
+			self.assert_(closeable ^ db._con.valid)
+			db.close()
+			self.assert_(closeable ^ db._con.valid)
+			db._close()
+			self.assert_(not db._con.valid)
+			db._close()
+			self.assert_(not db._con.valid)
+
+	def test3_PersistentDBThreads(self):
 		numThreads = 3
 		persist = PersistentDB(dbapi)
+		persist._closeable = 1
 		from Queue import Queue, Empty
 		queryQueue,  resultQueue = [], []
 		for i in range(numThreads):
@@ -113,7 +129,7 @@ class TestPersistentDB(unittest.TestCase):
 		for i in range(numThreads):
 			queryQueue[i].put(None, 1, 1)
 
-	def test3_PersistentDBMaxUsage(self):
+	def test4_PersistentDBMaxUsage(self):
 		persist = PersistentDB(dbapi, 20)
 		db = persist.connection()
 		self.assertEqual(db._maxusage, 20)
@@ -129,7 +145,7 @@ class TestPersistentDB(unittest.TestCase):
 			self.assertEqual(db._con.num_uses, j)
 			self.assertEqual(db._con.num_queries, j)
 
-	def test4_PersistentDBSetSession(self):
+	def test5_PersistentDBSetSession(self):
 		persist = PersistentDB(dbapi, 3, ('set datestyle',))
 		db = persist.connection()
 		self.assertEqual(db._maxusage, 3)

@@ -107,6 +107,7 @@ class PooledPg:
 
 	After you have created the connection pool, you can use
 	connection() to get pooled, solid PostGreSQL connections.
+
 	"""
 
 	def __init__(self,
@@ -133,6 +134,7 @@ class PooledPg:
 			the session, e.g. ["set datestyle to ...", "set time zone ..."]
 		args, kwargs: the parameters that shall be used to establish
 			the PostgreSQL connections using class PyGreSQL pg.DB()
+
 		"""
 		self._args, self._kwargs = args, kwargs
 		self._maxusage = maxusage
@@ -203,6 +205,7 @@ class PooledPgConnection:
 
 		pool: the corresponding PooledPg instance
 		con: the underlying SolidPg connection
+
 		"""
 		self._pool = pool
 		self._con = con

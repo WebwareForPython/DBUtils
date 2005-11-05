@@ -56,8 +56,8 @@ For instance, if you are using pgdb as your DB-API 2 database module and
 want a pool of at least five connections to your local database 'mydb':
 
 	import pgdb # import used DB-API 2 module
-	from PooledPg import PooledPg
-	pool = PooledPg(5, database='mydb')
+	from PooledDB import PooledDB
+	pool = PooledPg(pgdb, 5, database='mydb')
 
 Once you have set up the connection pool you can request
 database connections from that pool:
@@ -118,6 +118,7 @@ class PooledDB:
 
 	After you have created the connection pool, you can use
 	connection() to get pooled, solid PostGreSQL connections.
+
 	"""
 
 	def __init__(self, dbapi,
@@ -149,6 +150,7 @@ class PooledDB:
 			the session, e.g. ["set datestyle to ...", "set time zone ..."]
 		args, kwargs: the parameters that shall be used to establish
 			the PostgreSQL connections using class PyGreSQL pg.DB()
+
 		"""
 		self._dbapi = dbapi
 		# Connections can be only shareable if the underlying DB-API 2
@@ -198,6 +200,7 @@ class PooledDB:
 
 		If shareable is set and the underlying DB-API 2 allows it,
 		then the connection may be shared with other threads.
+
 		"""
 		if shareable and self._maxshared:
 			self._condition.acquire()
@@ -307,6 +310,7 @@ class PooledDedicatedDBConnection:
 
 		pool: the corresponding PooledDB instance
 		con: the underlying SolidDB connection
+
 		"""
 		self._pool = pool
 		self._con = con
@@ -337,6 +341,7 @@ class SharedDBConnection:
 		"""Create a shared connection.
 
 		con: the underlying SolidDB connection
+
 		"""
 		self.con = con
 		self.shared = 1
@@ -361,6 +366,7 @@ class PooledSharedDBConnection:
 
 		pool: the corresponding PooledDB instance
 		con: the underlying SharedDBConnection
+
 		"""
 		self._pool = pool
 		self._shared_con = shared_con

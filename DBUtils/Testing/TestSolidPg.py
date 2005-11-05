@@ -170,7 +170,23 @@ class TestSolidPg(unittest.TestCase):
 		self.assertRaises(InternalError, db.query, 'select test')
 		self.assertRaises(InternalError, db.get_tables)
 
-	def test2_SolidPgConnection(self):
+	def test2_SolidPgClose(self):
+		for closeable in (0, 1):
+			db = SolidPgConnection()
+			db._closeable = closeable
+			self.assert_(db._con.db and db._con.valid)
+			db.close()
+			self.assert_(closeable ^
+				(db._con.db is not None and db._con.valid))
+			db.close()
+			self.assert_(closeable ^
+				(db._con.db is not None and db._con.valid))
+			db._close()
+			self.assert_(not db._con.db or not db._con.valid)
+			db._close()
+			self.assert_(not db._con.db or not db._con.valid)
+
+	def test3_SolidPgConnection(self):
 		db = SolidPgConnection(0, None,
 			'SolidPgTestDB', user='SolidPgTestUser')
 		self.assert_(hasattr(db, 'db'))
@@ -249,7 +265,7 @@ class TestSolidPg(unittest.TestCase):
 		self.assertEqual(db._usage, 1)
 		self.assertEqual(db.num_queries, 0)
 
-	def test3_SolidPgConnectionMaxUsage(self):
+	def test4_SolidPgConnectionMaxUsage(self):
 		db = SolidPgConnection(10)
 		for i in range(100):
 			r = db.query('select test%d' % i)
@@ -293,7 +309,7 @@ class TestSolidPg(unittest.TestCase):
 		self.assertEqual(db._usage, 1)
 		self.assertEqual(db.num_queries, 1)
 
-	def test4_SolidPgConnectionSetSession(self):
+	def test5_SolidPgConnectionSetSession(self):
 		db = SolidPgConnection(3, ('set time zone', 'set datestyle'))
 		self.assert_(hasattr(db, 'num_queries'))
 		self.assertEqual(db.num_queries, 0)
