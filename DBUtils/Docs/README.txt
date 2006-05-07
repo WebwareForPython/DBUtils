@@ -4,8 +4,8 @@ DBUtils Project
 Common DB-API 2 versions:
 
 * SolidDB.py: Hardened DB-API 2 connections
-* PooledPg.py: Pooling for DB-API 2 connections
-* PersistentPg.py: Persistent DB-API 2  connections
+* PooledDB.py: Pooling for DB-API 2 connections
+* PersistentDB.py: Persistent DB-API 2  connections
 * SimplePooledDB.py: Simple pooling for DB-API 2
 
 Classic PyGreSQL versions:
