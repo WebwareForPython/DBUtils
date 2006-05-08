@@ -37,7 +37,7 @@ by creating an instance of PersistentDB, passing the following parameters:
 		prepare the session, e.g. ["set datestyle to german", ...].
 
 	Additionally, you have to pass the parameters for the actual
-	databse connection which are passed via the DB-API 2 module,
+	database connection which are passed via the DB-API 2 module,
 	such as the names of the host, database, user, password etc.
 
 For instance, if you are using pgdb as your DB-API 2 database module and want
@@ -65,31 +65,28 @@ You can change this behavior be setting persist._closeable to True.
 
 Requirements:
 
-Python 2.4.2 recommended. Minimum requirement: Python 2.2.
+Minimum requirement: Python 2.2. Recommended: Python 2.4.3.
 
 
 Ideas for improvement:
 
 * Add thread for monitoring and restarting bad or expired connections
-(similar to DBConnectionPool/ResourcePool by Warren Smith).
+  (similar to DBConnectionPool/ResourcePool by Warren Smith).
 * Optionally log usage, bad connections and exceeding of limits.
 
 
-Copyright and credit info:
+Copyright, credits and license:
 
 * Contributed as supplement for Webware for Python and PyGreSQL
-by Christoph Zwerschke in September 2005
+  by Christoph Zwerschke in September 2005
 * Based on an idea presented on the Webware developer mailing list
-by Geoffrey Talvola in July 2005
+  by Geoffrey Talvola in July 2005
 
-
-License and disclaimer:
-
-See http://www.webwareforpython.org/Webware/Docs/Copyright.html
+Licensed under the Open Software License version 2.1.
 
 """
 
-__version__ = '0.8.1'
+__version__ = '0.9.1'
 __revision__ = "$Rev$"
 __date__ = "$Date$"
 

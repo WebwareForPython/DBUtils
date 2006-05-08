@@ -6,16 +6,16 @@ class DBConfig(Configurable):
 	"""Database configuration."""
 
 	def defaultConfig(self):
-		"""Get the default database configuration"""
 		return {
 			'dbapi': 'pg',
 			'database': 'demo',
+			'user': 'demo',
+			'password': 'demo',
 			'mincached': 5,
 			'maxcached': 25
 		}
 
 	def configFilename(self):
-		"""Get the name of the config file"""
 		return 'Configs/Database.config'
 
 # the database tables used in this example:
@@ -46,6 +46,9 @@ class DBUtilsExample(ExamplePage):
 		if config.has_key('database'):
 			config['dbname'] = config['database']
 			del config['database']
+		if config.has_key('password'):
+			config['passwd'] = config['password']
+			del config['password']
 	else: # use a DB-API 2 compliant module
 		dbmod_name += 'DB'
 	dbapi = dbmod = dbclass = dbstatus = None

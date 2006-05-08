@@ -1,6 +1,4 @@
-# DBUtils component
-# Webware for Python
-# See Docs/index.html
+# DBUtils package
 
 __all__ = [
 	'SimplePooledPg', 'SolidPg', 'PooledPg', 'PersistentPg',

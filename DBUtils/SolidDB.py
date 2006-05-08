@@ -65,23 +65,20 @@ transparently reset in most situations, without further notice.
 Ideas for improvement:
 
 * Alternatively to the maximum number of uses,
-implement a maximum time to live for connections.
+  implement a maximum time to live for connections.
 * Optionally log usage and loss of connection.
 
 
-Copyright and credit info:
+Copyright, credits and license:
 
 * Contributed as supplement for Webware for Python and PyGreSQL
-by Christoph Zwerschke in September 2005
+  by Christoph Zwerschke in September 2005
 
-
-License and disclaimer:
-
-See http://www.webwareforpython.org/Webware/Docs/Copyright.html
+Licensed under the Open Software License version 2.1.
 
 """
 
-__version__ = '0.8.1'
+__version__ = '0.9.1'
 __revision__ = "$Rev$"
 __date__ = "$Date$"
 
@@ -162,14 +159,16 @@ class SolidDBConnection:
 		"""Rollback pending transaction."""
 		self._con.rollback()
 
-	def _cursor(self):
+	def _cursor(self, *args, **kwargs):
 		"""A "tough" version of the method cursor()."""
+		# The args and kwargs are not part of the standard,
+		# but some database modules seem to use these.
 		try:
 			if self._maxusage:
 				if self._usage >= self._maxusage:
 					# the connection was used too often
 					raise self._dbapi.OperationalError
-			r = self._con.cursor() # try to get a cursor
+			r = self._con.cursor(*args, **kwargs) # try to get a cursor
 		except (self._dbapi.OperationalError,
 			self._dbapi.InternalError): # error in getting cursor
 			try: # try to reopen the connection
@@ -179,7 +178,7 @@ class SolidDBConnection:
 				pass
 			else:
 				try: # and try one more time to get a cursor
-					r = con2.cursor()
+					r = con2.cursor(*args, **kwargs)
 				except:
 					pass
 				else:
@@ -193,19 +192,20 @@ class SolidDBConnection:
 			raise # raise the original error again
 		return r
 
-	def cursor(self):
+	def cursor(self, *args, **kwargs):
 		"""Return a new Cursor Object using the connection."""
-		return SolidDBCursor(self)
+		return SolidDBCursor(self, *args, **kwargs)
 
 
 class SolidDBCursor:
 	"""A "tough" version of DB-API 2 cursors."""
 
-	def __init__(self, con):
+	def __init__(self, con, *args, **kwargs):
 		""""Create a "tough" DB-API 2 cursor."""
 		self._con = con
+		self._args, self._kwargs = args, kwargs
 		self._clearsizes()
-		self._cursor = con._cursor()
+		self._cursor = con._cursor(*args, **kwargs)
 
 	def setinputsizes(self, sizes):
 		"""Store input sizes in case cursor needs to be reopened."""
@@ -264,7 +264,8 @@ class SolidDBCursor:
 			except (self._con._dbapi.OperationalError,
 				self._con._dbapi.InternalError): # execution error
 				try:
-					cursor2 = self._con._cursor() # open new cursor
+					cursor2 = self._con._cursor(
+						*self._args, **self._kwargs) # open new cursor
 				except:
 					pass
 				else:
@@ -287,13 +288,15 @@ class SolidDBCursor:
 					except:
 						pass
 				try: # try to reopen the connection
-					con2 = self._con._dbapi.connect(*self._con._args, **self._con._kwargs)
+					con2 = self._con._dbapi.connect(
+						*self._con._args, **self._con._kwargs)
 					self._con._setsession(con2)
 				except:
 					pass
 				else:
 					try:
-						cursor2 = con2.cursor() # open new cursor
+						cursor2 = con2.cursor(
+							*self._args, **self._kwargs) # open new cursor
 					except:
 						pass
 					else:

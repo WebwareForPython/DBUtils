@@ -83,25 +83,22 @@ connection object stays alive as long as you are using it, like that:
 Ideas for improvement:
 
 * Add thread for monitoring and restarting bad or expired connections
-(similar to DBConnectionPool/ResourcePool by Warren Smith).
+  (similar to DBConnectionPool/ResourcePool by Warren Smith).
 * Optionally log usage, bad connections and exceeding of limits.
 
 
-Copyright and credit info:
+Copyright, credits and license:
 
 * Contributed as supplement for Webware for Python and PyGreSQL
-by Christoph Zwerschke in September 2005
+  by Christoph Zwerschke in September 2005
 * Based on the code of DBPool, contributed to Webware for Python
-by Dan Green in December 2000
+  by Dan Green in December 2000
 
-
-License and disclaimer:
-
-See http://www.webwareforpython.org/Webware/Docs/Copyright.html
+Licensed under the Open Software License version 2.1.
 
 """
 
-__version__ = '0.8.1'
+__version__ = '0.9.1'
 __revision__ = "$Rev$"
 __date__ = "$Date$"
 

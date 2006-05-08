@@ -53,23 +53,20 @@ used too often, it will be automatically reset, without further notice.
 Ideas for improvement:
 
 * Alternatively to the maximum number of uses,
-implement a maximum time to live for connections.
+  implement a maximum time to live for connections.
 * Optionally log usage and loss of connection.
 
 
-Copyright and credit info:
+Copyright, credits and license:
 
 * Contributed as supplement for Webware for Python and PyGreSQL
-by Christoph Zwerschke in September 2005
+  by Christoph Zwerschke in September 2005
 
-
-License and disclaimer:
-
-See http://www.webwareforpython.org/Webware/Docs/Copyright.html
+Licensed under the Open Software License version 2.1.
 
 """
 
-__version__ = '0.8.1'
+__version__ = '0.9.1'
 __revision__ = "$Rev$"
 __date__ = "$Date$"
 

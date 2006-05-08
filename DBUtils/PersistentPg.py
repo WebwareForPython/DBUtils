@@ -66,32 +66,29 @@ You can change this behavior be setting persist._closeable to True.
 
 Requirements:
 
-Python 2.4.2 and PyGreSQL 3.7 recommended.
-Minimum requirement Python 2.2 and PyGreSQL 3.4.
+Minimum requirement: Python 2.2 and PyGreSQL 3.4.
+Recommended: Python 2.4.3 and PyGreSQL 3.8.
 
 
 Ideas for improvement:
 
 * Add thread for monitoring and restarting bad or expired connections
-(similar to DBConnectionPool/ResourcePool by Warren Smith).
+  (similar to DBConnectionPool/ResourcePool by Warren Smith).
 * Optionally log usage, bad connections and exceeding of limits.
 
 
-Copyright and credit info:
+Copyright, credits and license:
 
 * Contributed as supplement for Webware for Python and PyGreSQL
-by Christoph Zwerschke in September 2005
+  by Christoph Zwerschke in September 2005
 * Based on an idea presented on the Webware developer mailing list
-by Geoffrey Talvola in July 2005
+  by Geoffrey Talvola in July 2005
 
-
-License and disclaimer:
-
-See http://www.webwareforpython.org/Webware/Docs/Copyright.html
+Licensed under the Open Software License version 2.1.
 
 """
 
-__version__ = '0.8.1'
+__version__ = '0.9.1'
 __revision__ = "$Rev$"
 __date__ = "$Date$"
 

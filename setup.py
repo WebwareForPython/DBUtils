@@ -10,7 +10,7 @@ if sys.version < '2.2.3':
 	DistributionMetadata.classifiers = None
 	DistributionMetadata.download_url = None
 
-__version__ = '0.8.1'
+__version__ = '0.9.1'
 
 setup(
 	name='DBUtils',
@@ -25,7 +25,7 @@ DB-API 2 compliant database interfaces and the classic PyGreSQL interface.
 	classifiers=['Development Status :: 4 - Beta',
 		'Environment :: Web Environment',
 		'Intended Audience :: Developers',
-		'License :: OSI Approved :: Python License (CNRI Python License)',
+		'License :: OSI Approved :: Open Software License',
 		'Programming Language :: Python',
 		'Topic :: Database',
 		'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
@@ -36,7 +36,7 @@ DB-API 2 compliant database interfaces and the classic PyGreSQL interface.
 	url='http://www.webwareforpython.org/DBUtils',
 	download_url='http://www.webwareforpython.org/downloads/DBUtils/',
 	platforms=['any'],
-	license='CNRI Python License',
+	license='Open Software License',
 	packages=['DBUtils', 'DBUtils.Examples', 'DBUtils.Testing'],
 	package_data={'DBUtils': ['Docs/*']}
 )

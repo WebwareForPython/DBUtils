@@ -1,17 +1,17 @@
 name = 'DBUtils'
 
-version = (0, 8, 1)
+version = (0, 9, 1)
 
 docs = [
-	{'name': "README", 'file': 'README.txt'},
+	{'name': "User's Guide", 'file': 'UsersGuide.html'},
 ]
 
 status = 'beta'
 
-requiredPyVersion = (2, 0, 0)
+requiredPyVersion = (2, 2, 0)
 
 synopsis = """DBUtils provides database related support classes and functions to Webware. There is plenty of useful reusable code here."""
 
 WebKitConfig = {
-	'examplePages': [ 'DBUtilsExample' ]
+	'examplePages': ['DBUtilsExample']
 }

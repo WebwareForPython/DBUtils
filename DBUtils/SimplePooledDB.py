@@ -57,25 +57,23 @@ SimplePooledDB may still serve as a very simple reference
 and example implementation for developers.
 
 
-Copyright and credit info:
+Copyright, credits and license:
 
 * Contributed as MiscUtils/DBPool for Webware for Python
-by Dan Green, December 2000
+  by Dan Green, December 2000
 * Thread safety bug found by Tom Schwaller
 * Fixes by Geoff Talvola (thread safety in _threadsafe_getConnection())
 * Clean up by Chuck Esterbrook
 * Fix unthreadsafe functions which were leaking, Jay Love
 * Eli Green's webware-discuss comments were lifted for additional docs
 * Clean-up and detailed commenting, rename and move to DBUtils
-by Christoph Zwerschke in September 2005
+  by Christoph Zwerschke in September 2005
 
-License and disclaimer:
-
-See http://www.webwareforpython.org/Webware/Docs/Copyright.html
+Licensed under the Open Software License version 2.1.
 
 """
 
-__version__ = '0.8.1'
+__version__ = '0.9.1'
 __revision__ = "$Rev$"
 __date__ = "$Date$"
 
@@ -215,5 +213,3 @@ class PooledDB:
 		so there is no need to do anything here.
 		"""
 		pass
-
-
