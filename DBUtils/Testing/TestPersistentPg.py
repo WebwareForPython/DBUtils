@@ -55,12 +55,12 @@ class TestPersistentPg(unittest.TestCase):
 		numThreads = 3
 		persist = PersistentPg()
 		from Queue import Queue, Empty
-		queryQueue,  resultQueue = [], []
+		queryQueue, resultQueue = [], []
 		for i in range(numThreads):
 			queryQueue.append(Queue(1))
 			resultQueue.append(Queue(1))
 		def runQueries(i):
-			this_db  = persist.connection().db
+			this_db = persist.connection().db
 			while 1:
 				try:
 					q = queryQueue[i].get(1, 1)

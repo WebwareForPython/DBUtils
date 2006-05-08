@@ -63,12 +63,12 @@ class TestPersistentDB(unittest.TestCase):
 		persist = PersistentDB(dbapi)
 		persist._closeable = 1
 		from Queue import Queue, Empty
-		queryQueue,  resultQueue = [], []
+		queryQueue, resultQueue = [], []
 		for i in range(numThreads):
 			queryQueue.append(Queue(1))
 			resultQueue.append(Queue(1))
 		def runQueries(i):
-			this_db  = persist.connection()
+			this_db = persist.connection()
 			while 1:
 				try:
 					q = queryQueue[i].get(1, 1)

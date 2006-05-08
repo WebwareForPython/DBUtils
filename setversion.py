@@ -92,10 +92,10 @@ class Replacer:
 
 
 pyReplace = Replacer()
-pyReplace.add(r"(__version__\s*=\s*)'.*'",  r"\g<1>%s" % repr(versionString))
+pyReplace.add(r"(__version__\s*=\s*)'.*'", r"\g<1>%s" % repr(versionString))
 
 propReplace = Replacer()
-propReplace.add(r"(version\s*=\s*).*",  r"\g<1>%s" % repr(version))
+propReplace.add(r"(version\s*=\s*).*", r"\g<1>%s" % repr(version))
 propReplace.add(r"(releaseDate\s*=\s*).*", r"\g<1>%s" % repr(releaseDate))
 
 htmlReplace = Replacer()
