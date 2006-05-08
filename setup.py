@@ -11,8 +11,8 @@ if sys.version < '2.2.3':
 	DistributionMetadata.download_url = None
 
 __version__ = '0.9.1'
-__revision__ = "$Rev: $"
-__date__ = "$Date: $"
+__revision__ = "$Rev$"
+__date__ = "$Date$"
 
 setup(
 	name='DBUtils',
