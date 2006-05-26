@@ -186,7 +186,7 @@ class SolidDBConnection:
 					self._con = con2
 					return r
 				try:
-					con2._close()
+					con2.close()
 				except:
 					pass
 			raise # raise the original error again
@@ -320,7 +320,7 @@ class SolidDBCursor:
 						except:
 							pass
 					try:
-						con2._close()
+						con2.close()
 					except:
 						pass
 				raise # raise the original error again
