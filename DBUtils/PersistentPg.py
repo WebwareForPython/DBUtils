@@ -1,6 +1,6 @@
 """PersistentPg - persistent classic PyGreSQL connections.
 
-Implements solid, thread-affine persistent connections to a PostGreSQL
+Implements solid, thread-affine persistent connections to a PostgreSQL
 database using the classic (not DB-API 2 compliant) PyGreSQL API.
 
 This should result in a speedup for persistent applications such as the
@@ -100,7 +100,7 @@ class PersistentPg:
 	"""Generator for persistent classic PyGreSQL connections.
 
 	After you have created the connection pool, you can use
-	connection() to get thread-affine, solid PostGreSQL connections.
+	connection() to get thread-affine, solid PostgreSQL connections.
 
 	"""
 

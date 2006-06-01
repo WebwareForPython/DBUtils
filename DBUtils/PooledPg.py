@@ -115,7 +115,7 @@ class PooledPg:
 	"""Pool for classic PyGreSQL connections.
 
 	After you have created the connection pool, you can use
-	connection() to get pooled, solid PostGreSQL connections.
+	connection() to get pooled, solid PostgreSQL connections.
 
 	"""
 
