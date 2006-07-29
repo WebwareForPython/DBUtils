@@ -3,7 +3,7 @@
 Note:
 We don't test performance here, so the test does not predicate
 whether PersistentDB actually will help in improving performance or not.
-We also assume that the underlying SolidDB connections are tested.
+We also assume that the underlying SteadyDB connections are tested.
 
 Copyright and credit info:
 
@@ -11,17 +11,17 @@ Copyright and credit info:
 
 """
 
-__version__ = '0.9.1'
+__version__ = '0.9.2'
 __revision__ = "$Rev$"
 __date__ = "$Date$"
 
 
 import sys
 
-# The TestSolidDB module serves as a mock object for the DB-API 2 module:
+# The TestSteadyDB module serves as a mock object for the DB-API 2 module:
 
-import TestSolidDB
-dbapi = TestSolidDB
+import TestSteadyDB
+dbapi = TestSteadyDB
 
 import unittest
 sys.path.insert(1, '..')

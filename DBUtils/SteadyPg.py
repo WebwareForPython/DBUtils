@@ -1,6 +1,6 @@
-"""SolidPg - hardened classic PyGreSQL connections.
+"""SteadyPg - hardened classic PyGreSQL connections.
 
-Implements solid connections to a PostgreSQL database
+Implements steady connections to a PostgreSQL database
 using the classic (not DB-API 2 compliant) PyGreSQL API.
 
 The connections are transparently reopened when they are
@@ -16,7 +16,7 @@ though the database service may be already available again.
 The "hardened" connections provided by this module will
 make the database connections immediately available again.
 
-This results in a solid PostgreSQL connection that can be used
+This results in a steady PostgreSQL connection that can be used
 by PooledPg or PersistentPg to create pooled or persistent
 connections to a PostgreSQL database in a threaded environment
 such as the application server of "Webware for Python."
@@ -32,7 +32,7 @@ For more information on Webware for Python, see:
 
 Usage:
 
-You can use the class SolidPgConnection in the same way as you
+You can use the class SteadyPgConnection in the same way as you
 would use the class DB from the classic PyGreSQL API module db.
 The only difference is that you may specify a usage limit as the
 first paramenter when you open a connection (set it to 0
@@ -41,8 +41,8 @@ that may serve to prepare the session as the second parameter.
 When the connection to the PostgreSQL database is lost or has been
 used too often, it will be automatically reset, without further notice.
 
-	from SolidPg import SolidPgConnection
-	db = SolidPgConnection(10000, ["set datestyle to german"],
+	from SteadyPg import SteadyPgConnection
+	db = SteadyPgConnection(10000, ["set datestyle to german"],
 		host=..., dbname=..., user=..., ...)
 	...
 	result = db.query('...')
@@ -66,7 +66,7 @@ Licensed under the Open Software License version 2.1.
 
 """
 
-__version__ = '0.9.1'
+__version__ = '0.9.2'
 __revision__ = "$Rev$"
 __date__ = "$Date$"
 
@@ -74,12 +74,12 @@ __date__ = "$Date$"
 from pg import DB as PgConnection
 
 
-class SolidPgConnection:
-	"""Class representing solid connections to a PostgreSQL database.
+class SteadyPgConnection:
+	"""Class representing steady connections to a PostgreSQL database.
 
 	Underlying the connection is a classic PyGreSQL pg API database
 	connection which is reset if the connection is lost or used too often.
-	Thus the resulting connection is more solid ("tough and self-healing").
+	Thus the resulting connection is steadier ("tough and self-healing").
 
 	If you want the connection to be persistent in a threaded environment,
 	then you should not deal with this class directly, but use either the

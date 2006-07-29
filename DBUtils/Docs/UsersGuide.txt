@@ -1,8 +1,8 @@
 DBUtils User's Guide
 ++++++++++++++++++++
 
-:Version: 0.9.1
-:Released: 05/08/06
+:Version: 0.9.2
+:Released: 07/29/06
 
 .. contents:: Contents
 
@@ -27,7 +27,7 @@ the other one for use with the classic PyGreSQL module.
 +-------------------+------------------------------------------+
 | Universal DB-API 2 variant                                   |
 +===================+==========================================+
-| SolidDB.py        | Hardened DB-API 2 connections            |
+| SteadyDB.py       | Hardened DB-API 2 connections            |
 +-------------------+------------------------------------------+
 | PooledDB.py       | Pooling for DB-API 2 connections         |
 +-------------------+------------------------------------------+
@@ -39,7 +39,7 @@ the other one for use with the classic PyGreSQL module.
 +-------------------+------------------------------------------+
 | Classic PyGreSQL variant                                     |
 +===================+==========================================+
-| SolidPg.py        | Hardened classic PyGreSQL connections    |
+| SteadyPg.py       | Hardened classic PyGreSQL connections    |
 +-------------------+------------------------------------------+
 | PooledPg.py       | Pooling for classic PyGreSQL connections |
 +-------------------+------------------------------------------+
@@ -109,15 +109,15 @@ SimplePooledDB
 --------------
 ``DBUtils.SimplePooledDB`` is a very basic reference implementation of
 a pooled database connection. It is much less sophisticated than the
-regular ``SolidDB`` module and is particularly lacking the failover
+regular ``PooledDB`` module and is particularly lacking the failover
 functionality. ``DBUtils.SimplePooledDB`` is essentially the same as
 the ``MiscUtils.DBPool`` module that is part of Webware for Python.
 You should consider it a demonstration of concept rather than something
 that should go into production.
 
-SolidDB
--------
-``DBUtils.SolidDB`` is a module implementing "hardened" connections
+SteadyDB
+--------
+``DBUtils.SteadyDB`` is a module implementing "hardened" connections
 to a database, based on ordinary connections made by any DB-API 2
 database module. A "hardened" connection will transparently reopen upon
 access when it has been closed or the database connection has been lost
@@ -129,12 +129,12 @@ to the database, or when your application accesses a remote database in
 a network that is separated by a firewall and the firewall has been
 restarted and lost its state.
 
-Usually, you will not use the ``SolidDB`` module directly; it merely serves
+Usually, you will not use the ``SteadyDB`` module directly; it merely serves
 as a basis for the next two modules, ``PersistentDB`` and ``PooledDB``.
 
 PersistentDB
 ------------
-``DBUtils.PersistentDB`` implements solid, thread-affine, persistent
+``DBUtils.PersistentDB`` implements steady, thread-affine, persistent
 connections to a database, using any DB-API 2 database module.
 
 The following diagram shows the connection layers involved when you
@@ -160,7 +160,7 @@ transactions spreading over more than one SQL command.
 
 PooledDB
 --------
-``DBUtils.PooledDB`` implements a pool of solid, thread-safe cached
+``DBUtils.PooledDB`` implements a pool of steady, thread-safe cached
 connections to a database which are transparently reused, using any
 DB-API 2 database module.
 
@@ -253,7 +253,7 @@ database connections of that kind::
   db = persist.connection()
 
 You can use these connections just as if they were ordinary DB-API 2
-connections. Actually what you get is the hardened SolidDB version of
+connections. Actually what you get is the hardened SteadyDB version of
 the underlying DB-API 2 connection.
 
 Closing a persistent connection with ``db.close()`` will be silently
@@ -315,7 +315,7 @@ from that pool::
   db = pool.connection()
 
 You can use these connections just as if they were ordinary DB-API 2
-connections. Actually what you get is the hardened SolidDB version of
+connections. Actually what you get is the hardened SteadyDB version of
 the underlying DB-API 2 connection.
 
 Please note that the connection may be shared with other threads by default

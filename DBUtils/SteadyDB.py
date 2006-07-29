@@ -1,6 +1,6 @@
-"""SolidDB - hardened DB-API 2 connections.
+"""SteadyDB - hardened DB-API 2 connections.
 
-Implements solid connections to a database based on an
+Implements steady connections to a database based on an
 arbitrary DB-API 2 compliant database interface module.
 
 The connections are transparently reopened when they are
@@ -23,7 +23,7 @@ though the database service may be already available again.
 The "hardened" connections provided by this module will
 make the database connections immediately available again.
 
-This approach results in a solid database connection that
+This approach results in a steady database connection that
 can be used by PooledDB or PersistentDB to create pooled or
 persistent connections to a database in a threaded environment
 such as the application server of "Webware for Python."
@@ -48,7 +48,7 @@ to the database is lost or has been used too often, it will be
 transparently reset in most situations, without further notice.
 
 	import pgdb # import used DB-API 2 module
-	from SolidDB import connect
+	from SteadyDB import connect
 	db = connect(pgdb, 10000, ["set datestyle to german"],
 		host=..., database=..., user=..., ...)
 	...
@@ -78,7 +78,7 @@ Licensed under the Open Software License version 2.1.
 
 """
 
-__version__ = '0.9.1'
+__version__ = '0.9.2'
 __revision__ = "$Rev$"
 __date__ = "$Date$"
 
@@ -97,10 +97,10 @@ def connect(dbapi, maxusage=0, setsession=None, *args, **kwargs):
 		connection with the connection constructor of the DB-API 2 module
 
 	"""
-	return SolidDBConnection(dbapi, maxusage, setsession, *args, **kwargs)
+	return SteadyDBConnection(dbapi, maxusage, setsession, *args, **kwargs)
 
 
-class SolidDBConnection:
+class SteadyDBConnection:
 	"""A "tough" version of DB-API 2 connections."""
 
 	def __init__(self, dbapi, maxusage=0, setsession=None, *args, **kwargs):
@@ -194,10 +194,10 @@ class SolidDBConnection:
 
 	def cursor(self, *args, **kwargs):
 		"""Return a new Cursor Object using the connection."""
-		return SolidDBCursor(self, *args, **kwargs)
+		return SteadyDBCursor(self, *args, **kwargs)
 
 
-class SolidDBCursor:
+class SteadyDBCursor:
 	"""A "tough" version of DB-API 2 cursors."""
 
 	def __init__(self, con, *args, **kwargs):

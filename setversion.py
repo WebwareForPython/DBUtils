@@ -14,9 +14,9 @@ consistently in all files of the distribution.
 
 # Update this to change the current version and release date:
 version = ('X', 'Y', 0)
-version = (0, 9, 1)
+version = (0, 9, 2)
 releaseDate = '@@/@@/@@'
-releaseDate = '05/08/06'
+releaseDate = '07/29/06'
 
 # Verbose output (output unchanged files also):
 verbose = 1

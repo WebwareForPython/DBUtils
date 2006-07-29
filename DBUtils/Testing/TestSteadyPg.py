@@ -1,4 +1,4 @@
-"""Test the SolidPg module.
+"""Test the SteadyPg module.
 
 Note:
 We do not test the real PyGreSQL module, but we just
@@ -12,7 +12,7 @@ Copyright and credit info:
 
 """
 
-__version__ = '0.9.1'
+__version__ = '0.9.2'
 __revision__ = "$Rev$"
 __date__ = "$Date$"
 
@@ -111,20 +111,20 @@ class DB:
 
 import unittest
 sys.path.insert(1, '..')
-from SolidPg import SolidPgConnection
+from SteadyPg import SteadyPgConnection
 
 
-class TestSolidPg(unittest.TestCase):
+class TestSteadyPg(unittest.TestCase):
 
 	def test0_CheckVersion(self):
-		TestSolidPgVersion = __version__
-		from SolidPg import __version__ as SolidPgVersion
-		self.assertEqual(SolidPgVersion, TestSolidPgVersion)
+		TestSteadyPgVersion = __version__
+		from SteadyPg import __version__ as SteadyPgVersion
+		self.assertEqual(SteadyPgVersion, TestSteadyPgVersion)
 
 	def test1_MockedPgConnection(self):
 		PgConnection = DB
-		db = PgConnection('SolidPgTestDB',
-			user='SolidPgTestUser')
+		db = PgConnection('SteadyPgTestDB',
+			user='SteadyPgTestUser')
 		self.assert_(hasattr(db, 'db'))
 		self.assert_(hasattr(db.db, 'status'))
 		self.assert_(db.db.status)
@@ -136,9 +136,9 @@ class TestSolidPg(unittest.TestCase):
 		self.assert_(hasattr(db.db, 'session'))
 		self.assert_(not hasattr(db.db, 'get_tables'))
 		self.assert_(hasattr(db.db, 'db'))
-		self.assertEqual(db.db.db, 'SolidPgTestDB')
+		self.assertEqual(db.db.db, 'SteadyPgTestDB')
 		self.assert_(hasattr(db.db, 'user'))
-		self.assertEqual(db.db.user, 'SolidPgTestUser')
+		self.assertEqual(db.db.user, 'SteadyPgTestUser')
 		self.assert_(hasattr(db, 'query'))
 		self.assert_(hasattr(db, 'close'))
 		self.assert_(hasattr(db, 'reopen'))
@@ -147,9 +147,9 @@ class TestSolidPg(unittest.TestCase):
 		self.assert_(hasattr(db, 'session'))
 		self.assert_(hasattr(db, 'get_tables'))
 		self.assert_(hasattr(db, 'dbname'))
-		self.assertEqual(db.dbname, 'SolidPgTestDB')
+		self.assertEqual(db.dbname, 'SteadyPgTestDB')
 		self.assert_(hasattr(db, 'user'))
-		self.assertEqual(db.user, 'SolidPgTestUser')
+		self.assertEqual(db.user, 'SteadyPgTestUser')
 		for i in range(3):
 			self.assertEqual(db.num_queries, i)
 			self.assertEqual(db.query('select test%d' % i),
@@ -170,9 +170,9 @@ class TestSolidPg(unittest.TestCase):
 		self.assertRaises(InternalError, db.query, 'select test')
 		self.assertRaises(InternalError, db.get_tables)
 
-	def test2_SolidPgClose(self):
+	def test2_SteadyPgClose(self):
 		for closeable in (0, 1):
-			db = SolidPgConnection()
+			db = SteadyPgConnection()
 			db._closeable = closeable
 			self.assert_(db._con.db and db._con.valid)
 			db.close()
@@ -186,9 +186,9 @@ class TestSolidPg(unittest.TestCase):
 			db._close()
 			self.assert_(not db._con.db or not db._con.valid)
 
-	def test3_SolidPgConnection(self):
-		db = SolidPgConnection(0, None,
-			'SolidPgTestDB', user='SolidPgTestUser')
+	def test3_SteadyPgConnection(self):
+		db = SteadyPgConnection(0, None,
+			'SteadyPgTestDB', user='SteadyPgTestUser')
 		self.assert_(hasattr(db, 'db'))
 		self.assert_(hasattr(db, '_con'))
 		self.assertEqual(db.db, db._con.db)
@@ -203,9 +203,9 @@ class TestSolidPg(unittest.TestCase):
 		self.assert_(hasattr(db.db, 'num_queries'))
 		self.assert_(hasattr(db.db, 'session'))
 		self.assert_(hasattr(db.db, 'db'))
-		self.assertEqual(db.db.db, 'SolidPgTestDB')
+		self.assertEqual(db.db.db, 'SteadyPgTestDB')
 		self.assert_(hasattr(db.db, 'user'))
-		self.assertEqual(db.db.user, 'SolidPgTestUser')
+		self.assertEqual(db.db.user, 'SteadyPgTestUser')
 		self.assert_(not hasattr(db.db, 'get_tables'))
 		self.assert_(hasattr(db, 'query'))
 		self.assert_(hasattr(db, 'close'))
@@ -214,9 +214,9 @@ class TestSolidPg(unittest.TestCase):
 		self.assert_(hasattr(db, 'num_queries'))
 		self.assert_(hasattr(db, 'session'))
 		self.assert_(hasattr(db, 'dbname'))
-		self.assertEqual(db.dbname, 'SolidPgTestDB')
+		self.assertEqual(db.dbname, 'SteadyPgTestDB')
 		self.assert_(hasattr(db, 'user'))
-		self.assertEqual(db.user, 'SolidPgTestUser')
+		self.assertEqual(db.user, 'SteadyPgTestUser')
 		self.assert_(hasattr(db, 'get_tables'))
 		for i in range(3):
 			self.assertEqual(db._usage, i)
@@ -265,8 +265,8 @@ class TestSolidPg(unittest.TestCase):
 		self.assertEqual(db._usage, 1)
 		self.assertEqual(db.num_queries, 0)
 
-	def test4_SolidPgConnectionMaxUsage(self):
-		db = SolidPgConnection(10)
+	def test4_SteadyPgConnectionMaxUsage(self):
+		db = SteadyPgConnection(10)
 		for i in range(100):
 			r = db.query('select test%d' % i)
 			self.assertEqual(r, 'test%d' % i)
@@ -309,8 +309,8 @@ class TestSolidPg(unittest.TestCase):
 		self.assertEqual(db._usage, 1)
 		self.assertEqual(db.num_queries, 1)
 
-	def test5_SolidPgConnectionSetSession(self):
-		db = SolidPgConnection(3, ('set time zone', 'set datestyle'))
+	def test5_SteadyPgConnectionSetSession(self):
+		db = SteadyPgConnection(3, ('set time zone', 'set datestyle'))
 		self.assert_(hasattr(db, 'num_queries'))
 		self.assertEqual(db.num_queries, 0)
 		self.assert_(hasattr(db, 'session'))

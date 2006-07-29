@@ -1,8 +1,8 @@
 # DBUtils package
 
 __all__ = [
-	'SimplePooledPg', 'SolidPg', 'PooledPg', 'PersistentPg',
-	'SimplePooledDB', 'SolidDB', 'PooledDB', 'PersistentDB'
+	'SimplePooledPg', 'SteadyPg', 'PooledPg', 'PersistentPg',
+	'SimplePooledDB', 'SteadyDB', 'PooledDB', 'PersistentDB'
 ]
 
 def InstallInWebKit(appServer):

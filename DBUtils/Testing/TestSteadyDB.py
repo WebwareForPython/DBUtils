@@ -1,4 +1,4 @@
-"""Test the SolidDB module.
+"""Test the SteadyDB module.
 
 Note:
 We do not test any real DB-API 2 module, but we just
@@ -10,7 +10,7 @@ Copyright and credit info:
 
 """
 
-__version__ = '0.9.1'
+__version__ = '0.9.2'
 __revision__ = "$Rev$"
 __date__ = "$Date$"
 
@@ -106,23 +106,23 @@ class Cursor:
 
 import unittest
 sys.path.insert(1, '..')
-from SolidDB import connect as SolidDBconnect
+from SteadyDB import connect as SteadyDBconnect
 
 
-class TestSolidDB(unittest.TestCase):
+class TestSteadyDB(unittest.TestCase):
 
 	def test0_CheckVersion(self):
-		TestSolidDBVersion = __version__
-		from SolidDB import __version__ as SolidDBVersion
-		self.assertEqual(SolidDBVersion, TestSolidDBVersion)
+		TestSteadyDBVersion = __version__
+		from SteadyDB import __version__ as SteadyDBVersion
+		self.assertEqual(SteadyDBVersion, TestSteadyDBVersion)
 
 	def test1_MockedDBConnection(self):
-		db = connect('SolidDBTestDB',
-			user='SolidDBTestUser')
+		db = connect('SteadyDBTestDB',
+			user='SteadyDBTestUser')
 		self.assert_(hasattr(db, 'database'))
-		self.assertEqual(db.database, 'SolidDBTestDB')
+		self.assertEqual(db.database, 'SteadyDBTestDB')
 		self.assert_(hasattr(db, 'user'))
-		self.assertEqual(db.user, 'SolidDBTestUser')
+		self.assertEqual(db.user, 'SteadyDBTestUser')
 		self.assert_(hasattr(db, 'cursor'))
 		self.assert_(hasattr(db, 'close'))
 		self.assert_(hasattr(db, 'open_cursors'))
@@ -175,9 +175,9 @@ class TestSolidDB(unittest.TestCase):
 		self.assertRaises(InternalError, db.close)
 		self.assertRaises(InternalError, db.cursor)
 
-	def test2_SolidDBClose(self):
+	def test2_SteadyDBClose(self):
 		for closeable in (0, 1):
-			db = SolidDBconnect(dbapi)
+			db = SteadyDBconnect(dbapi)
 			db._closeable = closeable
 			self.assert_(db._con.valid)
 			db.close()
@@ -189,9 +189,9 @@ class TestSolidDB(unittest.TestCase):
 			db._close()
 			self.assert_(not db._con.valid)
 
-	def test3_SolidDBConnection(self):
-		db = SolidDBconnect(dbapi, 0, None,
-			'SolidDBTestDB', user='SolidDBTestUser')
+	def test3_SteadyDBConnection(self):
+		db = SteadyDBconnect(dbapi, 0, None,
+			'SteadyDBTestDB', user='SteadyDBTestUser')
 		self.assert_(hasattr(db, '_con'))
 		self.assert_(hasattr(db, '_usage'))
 		self.assertEqual(db._usage, 0)
@@ -204,9 +204,9 @@ class TestSolidDB(unittest.TestCase):
 		self.assert_(hasattr(db._con, 'num_queries'))
 		self.assert_(hasattr(db._con, 'session'))
 		self.assert_(hasattr(db._con, 'database'))
-		self.assertEqual(db._con.database, 'SolidDBTestDB')
+		self.assertEqual(db._con.database, 'SteadyDBTestDB')
 		self.assert_(hasattr(db._con, 'user'))
-		self.assertEqual(db._con.user, 'SolidDBTestUser')
+		self.assertEqual(db._con.user, 'SteadyDBTestUser')
 		self.assert_(hasattr(db, 'cursor'))
 		self.assert_(hasattr(db, 'close'))
 		self.assertEqual(db._con.open_cursors, 0)
@@ -304,8 +304,8 @@ class TestSolidDB(unittest.TestCase):
 		self.assertEqual(db._con.session,
 			['doit', 'commit', 'dont', 'rollback'])
 
-	def test4_SolidDBConnectionMaxUsage(self):
-		db = SolidDBconnect(dbapi, 10)
+	def test4_SteadyDBConnectionMaxUsage(self):
+		db = SteadyDBconnect(dbapi, 10)
 		cursor = db.cursor()
 		for i in range(100):
 			cursor.execute('select test%d' % i)
@@ -350,8 +350,8 @@ class TestSolidDB(unittest.TestCase):
 		self.assertEqual(db._con.num_uses, 1)
 		self.assertEqual(db._con.num_queries, 1)
 
-	def test5_SolidDBConnectionSetSession(self):
-		db = SolidDBconnect(dbapi, 3, ('set time zone', 'set datestyle'))
+	def test5_SteadyDBConnectionSetSession(self):
+		db = SteadyDBconnect(dbapi, 3, ('set time zone', 'set datestyle'))
 		self.assert_(hasattr(db, '_usage'))
 		self.assertEqual(db._usage, 0)
 		self.assert_(hasattr(db._con, 'open_cursors'))

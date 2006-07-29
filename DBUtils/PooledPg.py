@@ -1,13 +1,13 @@
 """PooledPg - pooling for classic PyGreSQL connections.
 
-Implements a pool of solid, thread-safe cached connections
+Implements a pool of steady, thread-safe cached connections
 to a PostgreSQL database which are transparently reused,
 using the classic (not DB-API 2 compliant) PyGreSQL API.
 
 This should result in a speedup for persistent applications such as the
 application server of "Webware for Python," without loss of robustness.
 
-Robustness is provided by using "hardened" SolidPg connections.
+Robustness is provided by using "hardened" SteadyPg connections.
 Even if the underlying database is restarted and all connections
 are lost, they will be automatically and transparently reopened.
 
@@ -61,7 +61,7 @@ database connections from that pool:
 
 You can use these connections just as if they were ordinary
 classic PyGreSQL API connections. Actually what you get is a
-proxy class for the hardened SolidPg version of the connection.
+proxy class for the hardened SteadyPg version of the connection.
 
 The connection will not be shared with other threads. If you don't need
 it any more, you should immediately return it to the pool with db.close().
@@ -98,12 +98,12 @@ Licensed under the Open Software License version 2.1.
 
 """
 
-__version__ = '0.9.1'
+__version__ = '0.9.2'
 __revision__ = "$Rev$"
 __date__ = "$Date$"
 
 
-from SolidPg import SolidPgConnection
+from SteadyPg import SteadyPgConnection
 from Queue import Queue, Empty, Full
 
 class PooledPgError(Exception): pass
@@ -115,7 +115,7 @@ class PooledPg:
 	"""Pool for classic PyGreSQL connections.
 
 	After you have created the connection pool, you can use
-	connection() to get pooled, solid PostgreSQL connections.
+	connection() to get pooled, steady PostgreSQL connections.
 
 	"""
 
@@ -164,20 +164,20 @@ class PooledPg:
 		# Establish an initial number of database connections:
 		[self.connection() for i in range(mincached)]
 
-	def solid_connection(self):
-		"""Get a solid, unpooled PostgreSQL connection."""
-		return SolidPgConnection(self._maxusage, self._setsession,
+	def steady_connection(self):
+		"""Get a steady, unpooled PostgreSQL connection."""
+		return SteadyPgConnection(self._maxusage, self._setsession,
 			*self._args, **self._kwargs)
 
 	def connection(self):
-		""""Get a solid, cached PostgreSQL connection from the pool."""
+		""""Get a steady, cached PostgreSQL connection from the pool."""
 		if self._connections:
 			if not self._connections.acquire(self._blocking):
 				raise TooManyConnections
 		try:
 			con = self._cache.get(0)
 		except Empty:
-			con = self.solid_connection()
+			con = self.steady_connection()
 		return PooledPgConnection(self, con)
 
 	def cache(self, con):
@@ -213,7 +213,7 @@ class PooledPgConnection:
 		"""Create a pooled DB-API 2 connection.
 
 		pool: the corresponding PooledPg instance
-		con: the underlying SolidPg connection
+		con: the underlying SteadyPg connection
 
 		"""
 		self._pool = pool

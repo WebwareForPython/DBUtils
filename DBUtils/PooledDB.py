@@ -1,13 +1,13 @@
 """PooledDB - pooling for DB-API 2 connections.
 
-Implements a pool of solid, thread-safe cached connections
+Implements a pool of steady, thread-safe cached connections
 to a database which are transparently reused,
 using an arbitrary DB-API 2 compliant database interface module.
 
 This should result in a speedup for persistent applications such as the
 application server of "Webware for Python," without loss of robustness.
 
-Robustness is provided by using "hardened" SolidDB connections.
+Robustness is provided by using "hardened" SteadyDB connections.
 Even if the underlying database is restarted and all connections
 are lost, they will be automatically and transparently reopened.
 
@@ -66,7 +66,7 @@ database connections from that pool:
 
 You can use these connections just as if they were ordinary
 DB-API 2 connections. Actually what you get is the hardened
-SolidDB version of the underlying DB-API 2 connection.
+SteadyDB version of the underlying DB-API 2 connection.
 
 Please note that the connection may be shared with other threads
 by default if you set a non-zero maxshared parameter and the DB-API 2
@@ -111,12 +111,12 @@ Licensed under the Open Software License version 2.1.
 
 """
 
-__version__ = '0.9.1'
+__version__ = '0.9.2'
 __revision__ = "$Rev$"
 __date__ = "$Date$"
 
 
-from SolidDB import connect
+from SteadyDB import connect
 from threading import Condition
 
 class PooledDBError(Exception): pass
@@ -129,7 +129,7 @@ class PooledDB:
 	"""Pool for classic PyGreSQL connections.
 
 	After you have created the connection pool, you can use
-	connection() to get pooled, solid PostgreSQL connections.
+	connection() to get pooled, steady PostgreSQL connections.
 
 	"""
 
@@ -202,13 +202,13 @@ class PooledDB:
 		# Establish an initial number of idle database connections:
 		[self.connection(0) for i in range(mincached)]
 
-	def solid_connection(self):
-		"""Get a solid, unpooled solid DB-API 2 connection."""
+	def steady_connection(self):
+		"""Get a steady, unpooled steady DB-API 2 connection."""
 		return connect(self._dbapi,
 			self._maxusage, self._setsession, *self._args, **self._kwargs)
 
 	def connection(self, shareable=1):
-		""""Get a solid, cached DB-API 2 connection from the pool.
+		""""Get a steady, cached DB-API 2 connection from the pool.
 
 		If shareable is set and the underlying DB-API 2 allows it,
 		then the connection may be shared with other threads.
@@ -225,7 +225,7 @@ class PooledDB:
 					try: # first try to get it from the idle cache
 						con = self._idle_cache.pop(0)
 					except IndexError: # else get a fresh connection
-						con = self.solid_connection()
+						con = self.steady_connection()
 					con = SharedDBConnection(con)
 					self._connections += 1
 				else: # shared cache full or no more connections allowed
@@ -248,7 +248,7 @@ class PooledDB:
 				try: # first try to get it from the idle cache
 					con = self._idle_cache.pop(0)
 				except IndexError: # else get a fresh connection
-					con = self.solid_connection()
+					con = self.steady_connection()
 				con = PooledDedicatedDBConnection(self, con)
 				self._connections += 1
 			finally:
@@ -321,7 +321,7 @@ class PooledDedicatedDBConnection:
 		"""Create a pooled dedicated connection.
 
 		pool: the corresponding PooledDB instance
-		con: the underlying SolidDB connection
+		con: the underlying SteadyDB connection
 
 		"""
 		self._pool = pool
@@ -352,7 +352,7 @@ class SharedDBConnection:
 	def __init__(self, con):
 		"""Create a shared connection.
 
-		con: the underlying SolidDB connection
+		con: the underlying SteadyDB connection
 
 		"""
 		self.con = con

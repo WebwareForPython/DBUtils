@@ -1,12 +1,12 @@
 """PersistentDB - persistent DB-API 2 connections.
 
-Implements solid, thread-affine persistent connections to a database
+Implements steady, thread-affine persistent connections to a database
 based on an arbitrary DB-API 2 compliant database interface module.
 
 This should result in a speedup for persistent applications such as the
 application server of "Webware for Python," without loss of robustness.
 
-Robustness is provided by using "hardened" SolidDB connections.
+Robustness is provided by using "hardened" SteadyDB connections.
 Even if the underlying database is restarted and all connections
 are lost, they will be automatically and transparently reopened.
 
@@ -54,7 +54,7 @@ request database connections of that kind:
 
 You can use these connections just as if they were ordinary
 DB-API 2 connections. Actually what you get is the hardened
-SolidDB version of the underlying DB-API 2 connection.
+SteadyDB version of the underlying DB-API 2 connection.
 
 Closing a persistent connection with db.close() will be silently
 ignored since it would be reopened at the next usage anyway and
@@ -86,12 +86,12 @@ Licensed under the Open Software License version 2.1.
 
 """
 
-__version__ = '0.9.1'
+__version__ = '0.9.2'
 __revision__ = "$Rev$"
 __date__ = "$Date$"
 
 
-from SolidDB import connect
+from SteadyDB import connect
 
 class PersistentDBError(Exception): pass
 class NotSupportedError(PersistentDBError): pass
@@ -101,7 +101,7 @@ class PersistentDB:
 	"""Generator for persistent DB-API 2 connections.
 
 	After you have created the connection pool, you can use
-	connection() to get thread-affine, solid DB-API 2 connections.
+	connection() to get thread-affine, steady DB-API 2 connections.
 
 	"""
 
@@ -131,13 +131,13 @@ class PersistentDB:
 		self._closeable = 0
 		self.thread = local()
 
-	def solid_connection(self):
-		"""Get a solid, non-persistent DB-API 2 connection."""
+	def steady_connection(self):
+		"""Get a steady, non-persistent DB-API 2 connection."""
 		return connect(self._dbapi,
 			self._maxusage, self._setsession, *self._args, **self._kwargs)
 
 	def connection(self, shareable=0):
-		"""Get a solid, persistent DB-API 2 connection.
+		"""Get a steady, persistent DB-API 2 connection.
 
 		The shareable parameter exists only for compatibility with the
 		PooledDB connection method. In reality, persistent connections
@@ -145,7 +145,7 @@ class PersistentDB:
 
 		"""
 		if not hasattr(self.thread, 'connection'):
-			self.thread.connection = self.solid_connection()
+			self.thread.connection = self.steady_connection()
 			self.thread.connection._closeable = self._closeable
 		return self.thread.connection
 

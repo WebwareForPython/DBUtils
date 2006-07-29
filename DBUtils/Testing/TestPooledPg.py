@@ -3,7 +3,7 @@
 Note:
 We don't test performance here, so the test does not predicate
 whether PooledPg actually will help in improving performance or not.
-We also assume that the underlying SolidPg connections are tested.
+We also assume that the underlying SteadyPg connections are tested.
 
 Copyright and credit info:
 
@@ -11,7 +11,7 @@ Copyright and credit info:
 
 """
 
-__version__ = '0.9.1'
+__version__ = '0.9.2'
 __revision__ = "$Rev$"
 __date__ = "$Date$"
 
@@ -20,7 +20,7 @@ import sys
 
 # This module also serves as a mock object for the pg API module:
 
-import TestSolidPg
+import TestSteadyPg
 
 import unittest
 sys.path.insert(1, '..')
@@ -45,8 +45,8 @@ class TestPooledPg(unittest.TestCase):
 		self.assert_(pool._setsession is None)
 		db_con = pool._cache.get(0)
 		pool._cache.put(db_con, 0)
-		from SolidPg import SolidPgConnection
-		self.assert_(isinstance(db_con, SolidPgConnection))
+		from SteadyPg import SteadyPgConnection
+		self.assert_(isinstance(db_con, SteadyPgConnection))
 		db = pool.connection()
 		self.assertEqual(pool._cache.qsize(), 0)
 		self.assert_(hasattr(db, '_con'))
@@ -85,8 +85,8 @@ class TestPooledPg(unittest.TestCase):
 		db = pool.connection()
 		self.assert_(hasattr(db, '_con'))
 		db_con = db._con
-		from SolidPg import SolidPgConnection
-		self.assert_(isinstance(db_con, SolidPgConnection))
+		from SteadyPg import SteadyPgConnection
+		self.assert_(isinstance(db_con, SteadyPgConnection))
 		self.assert_(hasattr(pool, '_cache'))
 		self.assertEqual(pool._cache.qsize(), 0)
 		self.assertEqual(db.num_queries, 0)

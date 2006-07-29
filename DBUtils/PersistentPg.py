@@ -1,12 +1,12 @@
 """PersistentPg - persistent classic PyGreSQL connections.
 
-Implements solid, thread-affine persistent connections to a PostgreSQL
+Implements steady, thread-affine persistent connections to a PostgreSQL
 database using the classic (not DB-API 2 compliant) PyGreSQL API.
 
 This should result in a speedup for persistent applications such as the
 application server of "Webware for Python," without loss of robustness.
 
-Robustness is provided by using "hardened" SolidPg connections.
+Robustness is provided by using "hardened" SteadyPg connections.
 Even if the underlying database is restarted and all connections
 are lost, they will be automatically and transparently reopened.
 
@@ -55,7 +55,7 @@ request database connections of that kind:
 
 You can use these connections just as if they were ordinary
 classic PyGreSQL API connections. Actually what you get is the
-hardened SolidPg version of a classic PyGreSQL connection.
+hardened SteadyPg version of a classic PyGreSQL connection.
 
 Closing a persistent connection with db.close() will be silently
 ignored since it would be reopened at the next usage anyway and
@@ -88,19 +88,19 @@ Licensed under the Open Software License version 2.1.
 
 """
 
-__version__ = '0.9.1'
+__version__ = '0.9.2'
 __revision__ = "$Rev$"
 __date__ = "$Date$"
 
 
-from SolidPg import SolidPgConnection
+from SteadyPg import SteadyPgConnection
 
 
 class PersistentPg:
 	"""Generator for persistent classic PyGreSQL connections.
 
 	After you have created the connection pool, you can use
-	connection() to get thread-affine, solid PostgreSQL connections.
+	connection() to get thread-affine, steady PostgreSQL connections.
 
 	"""
 
@@ -126,15 +126,15 @@ class PersistentPg:
 		self._closeable = 0
 		self.thread = local()
 
-	def solid_connection(self):
-		"""Get a solid, non-persistent PyGreSQL connection."""
-		return SolidPgConnection(
+	def steady_connection(self):
+		"""Get a steady, non-persistent PyGreSQL connection."""
+		return SteadyPgConnection(
 			self._maxusage, self._setsession, *self._args, **self._kwargs)
 
 	def connection(self):
-		"""Get a solid, persistent PyGreSQL connection."""
+		"""Get a steady, persistent PyGreSQL connection."""
 		if not hasattr(self.thread, 'connection'):
-			self.thread.connection = self.solid_connection()
+			self.thread.connection = self.steady_connection()
 			self.thread.connection._closeable = self._closeable
 		return self.thread.connection
 
