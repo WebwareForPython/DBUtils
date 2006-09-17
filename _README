@@ -1,0 +1,24 @@
+Webware for Python
+
+:Version: X.Y
+:Released: @@/@@/@@
+
+README
+
+
+Be sure to run, in this directory:
+
+	> python install.py
+
+(use "python install.py -v" to get verbose output)
+
+
+See the files:
+
+	_COPYRIGHT_ET_AL
+	Docs/index.html
+
+
+And get more information and the latest version at:
+
+	http://www.webwareforpython.org

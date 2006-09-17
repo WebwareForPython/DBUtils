@@ -1,0 +1,140 @@
+Future Work
++++++++++++
+
+Webware for Python
+
+:Version: X.Y
+:Released: @@/@@/@@
+
+Warning
+=======
+
+This document is mostly outdated and out of touch with development.
+You can find better information about known bugs and future work
+in the Wiki__ and in the `SourceForge tracker systems`__,
+both accessible from the `Webware Home Page`__.
+The SourceForge task manager is currently not used since these systems should
+be sufficient and we do not want to scatter issues in too many systems.
+
+__ http://wiki.w4py.org
+__ http://sourceforge.net/tracker/?group_id=4866
+__ http://www.webwareforpython.org
+
+Future Work/Limitations
+=======================
+
+Sprinkled throughout the code are comments tagged with ``@@`` which are
+hopefully accompanied by a date and someone's initials. These comments
+represent things to be done. The double at-sign (``@@``) convention was
+chosen because it doesn't appear to be used for anything else.
+
+In addition to the inline comments, some significant items have been
+recorded below. These are future ideas, with no commitments or timelines
+as to when/if they'll be realized. The Python WebKit is open source,
+so feel free to jump in!
+
+Known Bugs
+----------
+
+All major known bugs that existed previously have been fixed.
+
+To Do
+-----
+
+Major Items
+~~~~~~~~~~~
+* CheckSource.py: A program to check the source code conventions.
+* Role-based security and user-authentication. Goal is to eliminate,
+  as much as possible, developer-written security logic.
+  This should be provided by the WebKit and be configurable.
+* Write a custom adaptor for Apache, Netscape, MS, etc.
+* Distribution and load balancing.
+* Fault tolerance.
+* More sophisticated admin tools including password protection,
+  clearing logs, displaying a maximum of information at a time, etc.
+  Consider using module 'resource'.
+* Investigate case insensitive URLs, especially for the Windows platform.
+* Plug-ins:
+  * In ExamplePage, automatically support examples of any plug-in
+  * Better docs
+  * Properties.config. 'Load', 0, 1 or the name of the required op sys
+
+General
+~~~~~~~
+* Hunt down: ``@@`` tags (which signify "To Be Done"s), ``FUTURE`` items
+  in class doc strings, ``NotImplementedErrors``, ``--`` tags
+* Code clean up.
+* Right now, if the Application itself (as opposed to Servlets) throws
+  an exception, it doesn't get captured nicely. However, it is displayed
+  in the app server's console.
+* The exception handler is pretty nice and has features like logging,
+  e-mail, gathering debugging info, etc.
+  However, on occasions it can throw exceptions too.
+  There should be a simpler, secondary exception handler for when this happens.
+* Review the timestamp caching logic and its relation to .pyc files if any.
+* Add "Last-modified:" to generic files that are served via WebKit.
+* If a Python file has only one class that inherits from Servlet,
+  then use that as the Servlet class
+  (rather than requiring the name be the same as the file).
+
+Testing
+~~~~~~~
+* Provide testing web page where people can report their testing results
+  including version numbers, etc.
+* Provide higher level automation of testing. For example, a testing script
+  should be able to launch various app servers multiple times.
+* Provide highly automated benchmarking so we can track changes in performance.
+* Expand the regression test suite.
+
+Docs
+~~~~
+* Add a Getting Started Guide and a Screencast.
+* Beef up the User's Guide and Tutorial.
+* User's Guide: Create a caching section to discuss the virtues of doing so
+  (the Color example became 12 X faster on the server side).
+
+Food for thought, considerations, reviews
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+* Consider including FormKit, FunFormKit or FormEncode:
+  A plug-in to aid the construction and validation of forms.
+* Consider adding a simple helper lib for generating HTML
+  (such as SimpleHTMLGen) to the WebUtils package.
+* Support `WSGI <http://www.python.org/dev/peps/pep-0333/>`__.
+* Consider this statement from the FastCGI docs:
+  "Redirects are handled similar to CGI. Location headers with values
+  that begin with "/" are treated as internal-redirects; otherwise,
+  they are treated as external redirects (302)."
+* FastCGI app server:
+  The idea is that if the app server itself supports FastCGI,
+  then it can be used directly with FastCGI enabled web servers
+  sans the infamous "adapter".
+  Dan Green has brought this up in Webware-discuss.
+* Consider if we need to support ``<form action="x.py?a=1" method="post">``
+  where you will have both a query string and posted data.
+* Application modifies sys.path so that servlets can say
+  ``from SuperServlet import SuperServlet`` where SuperServlet is located in
+  the same directory as the Servlet. We'd prefer a more sophisticated technique
+  which does not modify sys.path and does not affect other servlets. (Or maybe
+  this would go away with a new one-process-per-application architecture.)
+
+Check out
+~~~~~~~~~
+* `Python Paste <http://pythonpaste.org>`__
+* `Django <http://www.djangoproject.com>`__
+* `TurboGears <http://www.turbogears.org>`__
+* `Pylons <http://pylonshq.com>`__
+* `web.py <http://webpy.org>`__
+* `Aquarium <http://aquarium.sourceforge.net>`__
+* http://www.zope.org/Members/Amos/WhatIsAcquisition
+* http://www.zope.org/Members/jim/Info/IPC8/AcquisitionAlgebra/index.html
+* FastCGI related: http://www.tfarmbruster.com/fcgi_sa.htm
+
+Down the road
+~~~~~~~~~~~~~
+* Multi-language support/localization (e.g., vend data to clients
+  in their preferred written language)
+* Consider CORBA standard RMI-IIOP and it's potential interaction with WebKit.
+  This technology has been marked for inclusion in J2EE. I imagine the idea
+  might be that an app server could be used by more than just web browsers.
+  e.g., it could be used programmatically
+  (in a more natural way than simulating a web client).

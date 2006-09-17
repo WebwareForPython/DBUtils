@@ -1,0 +1,109 @@
+<% header(name + ' 0.8 Release Notes') %>
+
+<p>Webware for Python 0.8</p>
+
+<a name="Introduction"></a><h2>Introduction</h2>
+<ul>
+	<li>Version 0.8 was released on February 9, 2003.</li>
+</ul>
+
+<a name="NewFeatures"></a><h2>New Features</h2>
+<ul>
+	<li>Added experimental HTTPAdapter.py written by Ian Bicking.  This is an adapter that serves HTTP directly, eliminating the need for a separate web server.  <b>Note that this is experimental!  Please do not use this to serve a production web site!</b></li>
+	<li><p><b>AutoReload</b> &ndash; A new setting in AppServer.config, 'AutoReload' enables the
+	AutoReloadingAppServer module..  This module is designed to notice changes
+	to source files, including servlets, PSP's templates, or changes to the Webware
+	source files, and reload the server as necessary to pick up the changes.</p>
+	<p>This uses the python FAM (fam = File Alteration Monitor) if present.
+	Otherwise it resorts to polling.  The polling interval can be
+	set with the <b>AutoReloadPollInterval</b> setting which defaults
+	to 1 second.</p></li>
+	<li>Added an adapter for Apache 2 found under WebKit/Adapters/mod_apache2/.  The release also includes a binary .dll of this so you do not need to compile it on your own. See the README in that directory for more information.</li>
+</ul>
+
+<a name="Improvements"></a><h2>Improvements and Refinements</h2>
+<ul>
+	<li>New setting 'ReportRPCExceptionsInWebKit': 1 means report exceptions in RPC servlets in the same way as exceptions in other servlets, i.e. in the logfiles, the error log, and/or by email.  0 means don't report the exceptions on the server side at all; this is useful if your RPC servlets are raising exceptions by design and you don't want to be notified.  Note that in release 0.7, there was no exception reporting on the server side in RPC servlets; if you want to get the same behavior in this release you'll have to set this setting to 0.</li>
+	<li><p>Updates to includeURL(), forward(), and callMethodOfServlet()</p>
+	<ul>
+	<li>The URL reference is now relative to the servlet, where absolute references are rooted at the context in which the servlet is running.  A URL reference of "/foo" will reference the servlet foo.py out of the context root directory.  A reference to "foo/bar" will refer to the servlet relative to the current servlet.</li>
+	<li>Note: Referencing a directory without a trailing '/' is discouraged, as it will have unusual results depending on your configuration.</li>
+	</ul></li>
+	<li><p>New methods in HTTPRequest:</p>
+	<ul>
+		<li><b>originalURLPath()</b> - Returns the URL path of the original servlet before any forwarding.</li>
+		<li><p><b>siteRoot()</b> &ndash; Returns the URL path components necessary to get back home from the current location.</p>
+			<p>Examples:</p>
+			<ul>
+			<li><code>''</code></li>
+			<li><code>'../''</code></li>
+			<li><code>'../../''</code></li>
+			</ul>
+			<p>You can use this as a prefix to a URL that you know is based off
+			the home location.  Any time you are in a servlet that may have been
+			forwarded to from another servlet at a different level,
+			you should prefix your URL's with this.  That is, if servlet "Foo/Bar"
+			forwards to "Qux", then the qux servlet should use siteRoot() to construct all
+			links to avoid broken links.  This works properly because this method
+			computes the path based on the original servlet, not the location of the
+			servlet that you have forwarded to.</p></li>
+		<li><b>siteRootFromCurrentServlet()</b> &ndash; Similar to siteRoot() but instead, it returns the site root
+			relative to the current servlet, not the original servlet.</li>
+		<li><b>servletPathFromSiteRoot()</b> &ndash; Returns the "servlet path" of this servlet relative to the siteRoot.  In
+			other words, everything after the name of the context (if present).
+			If you append this to the result of self.siteRoot() you get back to the
+			current servlet.  This is useful for saving the path to the current servlet
+			in a database, for example.</li>
+	</ul></li>
+	<li>New setting 'MaxValueLengthInExceptionReport'.  If set to an integer, it truncates values in the exception report to the specified length.  If set to None, no truncation happens.  Defaults to 500.</li>
+	<li><p>Enhancements to PickleRPCServlet (and the client library MiscUtils.PickleRPC):</p>
+	<ul>
+		<li>Now supports gzip compression of both request and response (enabled by default).</li>
+		<li>Now uses binary pickle instead of text pickle by default for improved speed and memory usage.</li>
+		<li>Now uses a "SafeUnpickler" class which allows you to specify exactly which class instances are allowed to be unpickled.
+			By default classes are not allowed to be unpickled at all for security reasons.</li>
+		<li>MiscUtils.M2PickleRPC allows you to use the M2Crypto package to do SSL-secured PickleRPC requests.</li>
+	</ul></li>
+	<li><p>New method Page.endResponse() which does the following:</p>
+	<ul>
+		<li>If called from within an awake() or sleep() method, it immediately skips all further awake(), respond(), and sleep() processing and
+			sends the accumulated response.</li>
+		<li>If called from within respond() (and this includes the writeXXX() methods called by respond()), it skips the rest of the respond()
+			processing, calls sleep(), and then sends the accumulated response.  (This is because awake() must have already succeeded, so we
+			ought to call sleep() to clean up whatever awake() did.)</li>
+	</ul>
+	<p>This is mainly useful if you want to call self.forward() or self.response().sendRedirect() within a deeply nested hierarchy of method calls
+	and skip the rest of your processing without having to contort your code.
+	It is implemented internally by raising an EndResponse exception which is silently caught at the appropriate place within Application.</p>
+	<p>Typical usage is:</p>
+<pre class="py">
+    if some_conditions_are_satisfied():
+        self.forward('some/other/servlet')
+        # or self.response().sendRedirect('somewhere')
+        self.endResponse()
+    # continue processing...
+</pre></li>
+	<li>New method Page.sendRedirectAndEnd(url) which does "self.response().sendRedirect(url); self.endResponse()".</li>
+	<li>Profiling the entire app server is now fairly easy to do. Read the doc string of Profiler.py.</li>
+	<li>Fixed handling of POST'ed variables in the LoginPage.py example servlet.  (Thanks to Steve Freitas for the fix.)</li>
+	<li><p>Any Python module can now get a reference to the app server singleton via:</p>
+<pre class="py">from WebKit.AppServer import globalAppServer</pre></li>
+	<li><a href="Source/Files/UnknownFileTypeServlet.html">UnknownFileTypeServlet</a> can now be usefully subclassed to serve files from arbitrary parts of the file system. See its doc string for an example.</li>
+	<li>The singleton <span class="name">Tombstone</span> has been deprecated in favor of <span class="name">MiscUtils.NoDefault</span>.</li>
+	<li>Added general purpose Application.handleException() which does not take a transaction.  Note that if you provide an exception handler, it must work when transaction=None.</li>
+	<li>Removed <b>ModPythonAppServer</b>. If you are running mod_python, you can use the ModPythonAdapter.   Most people use the mod_webkit, or wkcgi adapters; therefore they are probably a little better supported.</li>
+	<li>The Page.writeDocType() method has been restored to its 0.7 behavior of writing the 4.01 Transitional DocType string.  This is a change from the 0.8b1 and CVS development version behavior of the last several months.  It was originally removed because some people had reported problems with rendering in some versions of Mozilla.  However the 4.01 transitional should be a reasonable default, and Mozilla has been updated since then.  If you experience problems with rendering as a result, you will need to override this in a subclass. You can find out more about doc types by searching for DOCTYPE
+ on the web, or visiting: <a href="http://www.htmlhelp.com/tools/validator/doctype.html">http://www.htmlhelp.com/tools/validator/doctype.html</a>.</li>
+</ul>
+
+<a name="Bugfixes"></a><h2>Bugfixes</h2>
+<ul>
+	<li>Fixed a race condition that caused problems when multiple simultaneous requests were made for a servlet that hadn't yet been imported.</li>
+	<li>Fixed another rare problem that could eventually cause a servlet to hang until another request for that servlet came in.  Like the above problem, it is provoked by multiple simultaneous requests for the same servlet, but only if it happens hundreds or thousands of times.</li>
+	<li>Fixed SessionFileStore to fail safely and call the applications exception handler on a pickling error. <b>Note: While using the currently supported SessionStore settings, sessions may not contain data which can not be pickled, such as open files, or database connections. Doing so will generate an error when attempting to save the session to disk.</b></li>
+	<li>Fixed PSP so that it works with Python 2.3.</li>
+	<li>Use of the optional mx.DateTime module for cookie expiration in HTTPResponse was broken, and has been removed from this release.</li>
+	<li>Removed the Docs context from the default Application.config.  It has failed to load for some time now, and should probably be fixed to reference the main Webware Docs, rather than the WebKit Docs.</li>
+</ul>
+
+<% footer() %>

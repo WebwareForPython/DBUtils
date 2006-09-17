@@ -1,0 +1,21 @@
+Movie objects,,
+title,year,rating
+American Beauty,1999,r
+American Pie,1999,r
+
+Person objects,,
+video,name,birthDate
+1,Paul Weitz,1/1/1966
+2,Sam Mendes,9/1/1965
+,Kevin Spacey,7/26/1959
+,Mena Suvari,2/9/1979
+,Jason Biggs,5/12/1978
+,Shannon Elizabeth,9/7/1976
+
+Role objects,,
+video,karacter,person
+1,Lester Burnham,3
+1,Angela Hayes,4
+2,Jim,5
+2,Heather,4
+2,Nadia,5

@@ -1,0 +1,36 @@
+/* Style sheet for the AjaxSuggest example. */
+
+.red {
+	color: #f00;
+}
+
+.suggest_link {
+	background-color: #fff;
+	padding: 2px 4px;
+}
+
+.suggest_link_over {
+	background-color: #36c;
+	padding: 2px 4px;
+}
+
+#query {
+	padding: 2px 4px;
+	border: 2px solid #000;
+}
+
+#suggestions {
+	cursor: pointer;
+	position: absolute;
+	background-color: #fff;
+	text-align: left;
+	border: 1px solid #666;
+}
+
+.show {
+	display: block;
+}
+
+.hide {
+	display: none;
+}

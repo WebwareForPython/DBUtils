@@ -1,0 +1,15 @@
+<% header(name + ' 0.9 Release Notes') %>
+
+<p><% name %> version 0.9 released on 11/13/05</p>
+
+<a name="Changes"></a><h2>Changes</h2>
+<p>There are no major changes or new features in this version.</p>
+
+<a name="Bugfixes"></a><h2>Bugfixes</h2>
+<ul>
+	<li>One bug has been fixed that caused the Scheduler to hang forever
+    when stop() was called too quickly after start(), as it is done in
+    the checkBasics unittest case.</li>
+</ul>
+
+<% footer() %>

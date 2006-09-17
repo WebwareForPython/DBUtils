@@ -1,0 +1,17 @@
+<% header(name + ' 0.4.1 Release Notes') %>
+
+<p>Webware for Python 0.4.1</p>
+
+<a name="Changes"></a><h2>Changes</h2>
+<ul>
+	<li>Version 0.4.1 was released on 10/5/2000.</li>
+	<li>We officially support and test on Python 1.5.2 and Python 2.0b2.</li>
+	<li><p>These two items were the major drivers for the 0.4.1 release:</p>
+		<ul>
+		<li>Fixes to socket calls like connect() and bind() to support API restrictions in Python 2.0b2.</li>
+		<li>Fixes and refinements to the WebKit <a href="InstallGuide.html">Install Guide</a>.</li>
+    </ul></li>
+	<li>Also, in <code>Application.__init__()</code>, moved the creation of sessions to come after contexts, since context initialization code might be necessary for unarchiving sessions. Also moved the creation of contexts after servlet factories, in case contexts need to access them. <br> Note: As a WebKit user, you probably don't have to understand this. You'll just enjoy the smoother operation.</li>
+</ul>
+
+<% footer() %>

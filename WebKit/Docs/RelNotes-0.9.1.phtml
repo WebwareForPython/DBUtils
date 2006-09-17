@@ -1,0 +1,92 @@
+<% header(name + ' 0.9.1 Release Notes') %>
+
+<p><% name %> version 0.9.1 released on 04/23/06</p>
+
+<a name="NewFeatures"></a><h2>New Features</h2>
+<ul>
+	<li>Added new methods <code>writeMetaData()</code> and
+	<code>writeJavaScript()</code> to the <code>Page</code> class
+	that will be called by <code>writeHeadParts()</code>.</li>
+	<li>The Examples context has now a servlet <code>AjaxSuggest</code>
+	demonstrating the use of Ajax with Webware for Python.
+	A baseclass <code>AjaxPage</code> and the necessary JavaScript
+	supporting these techniques are also included in the Examples context.
+	(Thanks to John Dickinson and Robert Forkel.)</li>
+</ul>
+
+<a name="Improvements"></a><h2>Improvements and Refinements</h2>
+<ul>
+	<li>The auto reloading app server used the <code>ImportSpy</code> module
+	to keep track of which modules have been imported. <code>ImportSpy</code>
+	was based on the old <code>ihooks</code> module which could raise problems
+	with other incompatible importing mechanisms like Cheetah templates or when
+	using zipped Python eggs. This problem has been tackled from two sides,
+	first by replacing ihooks with new (PEP 302) import hooks if available (they
+	were implemented in Python 2.3), and second by allowing to suppress the use
+	of <code>ImportSpy</code> completely by setting <code>UseImportSpy</code>
+	to False in <span class="filename">AppServer.config</span>.
+	In this case, <code>sys.modules</code> will be polled regularly.
+	The <code>ImportSpy</code> module now contains only the import hooks,
+	the rest of the functionality for tracking and managing concurrent import
+	has been sourced out to the new <code>ImportManager</code> module.</li>
+	<li>The start script for RedHat/Fedora Linux has been improved. A timing issue
+	with the "restart" option has been solved (reported by Mike Trisko).</li>
+	<li>A <code>__contains__</code> method has been defined for session objects,
+	so code like "<code class="py">if key in session</code>" works as expected.
+	As an aside, we could get complete dictionary functionality by
+	defining <code>keys</code> and subclassing python's DictMixin.
+	Also, consider sessions with timeout zero to be expired. (Ken Lalonde)</li>
+	<li>Modified <span class="filename">mod_webkit</span> and
+	<span class="filename">mod_webkit2</span> to better agree with Python's
+	marshal code, for a bit of speed. Unused symbols deleted, private stuff
+	marked static. (Ken Lalonde)</li>
+	<li>Added a new <span class="filename">mod_webkit</span> apache directive:
+	<pre class="py">PassHeader Foo</pre>
+	will pass the incoming HTTP header <code>Foo</code>, if present,
+	through to the AppServer. Servlets can retrieve the value like this:
+	<pre class="py">v = self.request().environ().get('Foo')</pre>
+	This generalizes the If-Modified-Since hack.
+	You can use this, for example, to to pass Pound's "X-Forwarded-For" header
+	through, which contains the real client IP address, in order to be logged
+	by your WebKit application. Other minor changes (all by Ken Lalonde):
+	<ul>
+	<li>Debug logging is compiled out by default.</li>
+	<li>Real errors are logged as such, not at level debug (and so invisible).</li>
+	<li>Zero struct <code>sockaddr_in</code> before use.</li>
+	<li>Plug file descriptor leak: close socket after connect failure.</li>
+	<li>Pass Apache's notion of the request time, rather than time(0).</li>
+	<li>Complain if AppServer returns garbage (mod_webkit2).</li>
+	</ul></li>
+	<li>Workaround for a bug in mod_gzip in
+	<span class="filename">HTTPResponse</span> (Ken Lalonde).</li>
+	<li>Better handling of CSS in <span class="filename">SideBarPage</span>
+	(as suggested by Michael Palmer).</li>
+	<li>Batch files <span class="filename">mscvtk.bat</span> have been included
+	for building <span class="filename">mod_webkit</span> and
+	<span class="filename">mod_webkit2</span> under Windows
+	using the free Microsoft Visual C++ 2003 Toolkit compiler.
+	The <span class="filename">mod_webkit.dll</span> files have been updated.</li>
+</ul>
+
+<a name="Bugfixes"></a><h2>Bugfixes</h2>
+<ul>
+	<li>Both the monitor service and the <span class="filename">Monitor.py</span>
+	script for monitoring the application server were broken and have been
+	fixed. You need to set <code>EnableMonitor</code> to use this.</li>
+	<li>Fixed bug in HTTP server that prevented multiple cookies from being
+	set at the same time.</li>
+	<li>Fixed a race condition in SessionStore (Ben Parker).</li>
+	<li>Context and plugin paths are not correctly read in from new style
+	config files under Windows.</li>
+	<li>Include <span class="filename">apr_version.h</span> in
+	<span class="filename">mod_webkit.c</span> for Apache2 (Richard Brodie).</li>
+	<li>URL parser keeps query string when adding slash for redirect
+	(reported by Sam Nilsson).</li>
+	<li>Fixed a few issues in LoginPage and SecurePage (including a bug
+	reported by Jean-Francois Pieronne).</li>
+	<li>The exception handler now updates the linecache before printing
+	tracebacks if the Python version is before 2.4. In newer Python versions,
+	the traceback module automatically updates the linecache.</li>
+</ul>
+
+<% footer() %>

@@ -1,0 +1,6 @@
+Class,Attribute,Type,isRequired,Min,Max,Extras
+
+UserForMKTest,,,,,,
+,name,string,1,,256,
+,password,string,1,,256,
+,externalId,string,0,,256,

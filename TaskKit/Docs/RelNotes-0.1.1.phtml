@@ -1,0 +1,14 @@
+<% header(name + ' 0.1.1 Release Notes') %>
+
+<a name="ReleaseNotes"></a><h2>Release Notes</h2>
+
+<ul>
+	<li>Version 0.1.1 was released on 3/4/2001.</li>
+	<li><p>This release is mainly a cleanup of some aspects of the code.  The following changes affect the external interface.</p>
+	<ul>
+	<li>Removed the <code>close</code> parameter from TaskKit.run().  This parameter was unnecessary.  To check if the task should exit, call Task.proceed(), where a non-zero return value indicates that the task should proceed.</li>
+	<li>Various other cleanups.  None affecting the core functionality.</li>
+	</ul></li>
+</ul>
+
+<% footer() %>

@@ -1,0 +1,211 @@
+<% header('Introduction to MiddleKit', None,
+'''td.methodName {
+	font-size: 90%;
+	vertical-align: top;
+}
+td.methodDoc {
+}
+td.item {
+	font-weight: bolder;
+	vertical-align: top;
+}
+td.description {
+}
+span.bigPoint {
+	font-size: 90%;
+	font-weight: bolder;
+}''')
+%>
+
+<p class="right"><% name %> version <% versionString %></p>
+
+<!-- contents -->
+
+
+<a name="AboutMidTier"></a><h2>About the Middle Tier</h2>
+
+<p>In the world of application development, separating your software into modular components can be useful for:</p>
+
+<ul>
+	<li>improved focus on a particular type of goal</li>
+	<li>parallel development</li>
+	<li>component swapping</li>
+	<li>just plain ol' easier management</li>
+	<!-- @@ 2001-02-10 ce: there are probably more items we can put here -->
+</ul>
+
+<p>Often modern applications are divided into these three layers:</p>
+
+<ul>
+	<li>data storage and serving</li>
+	<li>middle objects</li>
+	<li>interface</li>
+</ul>
+
+<p>The data storage and serving is often a SQL database, a file system, an object-oriented (OO) database, an external data feed or some combination thereof. The interface is typically a web site, desktop GUI application or terminal interface.</p>
+
+<p>What is left is the "middle tier" which is composed of objects that represent the concepts of the application. For example, an accounting application would have classes such as Account, Ledger and Statement. A customer service application would have Customer, Incident and LogEntry.</p>
+
+<p>These objects are referred to differently by various authors:</p>
+
+<ul>
+	<li>middle objects</li>
+	<li>domain objects</li>
+	<li>business objects</li>
+	<li>problem space objects</li>
+	<li>concept objects</li>
+</ul>
+
+<p>There is a lot of value in building these middle objects for their own sake, regardless of storage and interface. The most obvious benefit is the ability to later change storage and interface strategies without having to rewrite the middle objects. For example, the accounting system might start with a GUI interface but later be migrated to a web interface. Or the storage might be changed from a SQL DB to an OO DB.</p>
+
+<p>Another benefit is that mature third party tools can often by aquired that work with the storage directly for queries, browsing and reporting.</p>
+
+<p>As with objects in general, both the data and the methods of the middle objects need to be considered. What information will the object store? For example, an Account has a name, has a balance and is either a credit or debit account. Also, what methods will an account provide? For example, an Account can provide credit(amount) and debit(amount) methods to adjust its balance.</p>
+
+<p>Note that other types of applications can be constructed using the middle tier. For example, in addition to a web interface, a monitoring program could be created to analyze data and send e-mails alerts to the appropriate users. A reporting application could be created to periodically generate static "for-the-record" HTML reports which are then stored in a known location.</p>
+
+
+<a name="AboutMK"></a><h2>About MiddleKit</h2>
+
+<p>MiddleKit is a Webware component designed to encourage the use of and ease development of the middle tier. It provides:</p>
+
+<ul>
+	<li>A useful, but light weight methodology for designing the middle tier</li>
+	<li>Automatic persistence to popular SQL databases (MySQL, PostgreSQL, MS SQL Server)</li>
+	<li>A uniform web interface for browsing middle objects</li>
+</ul>
+
+<p><i>Warning:</i> This document is light on examples and does not show you how to implement the ideas discussed. That's intentional; this document lays down the motivations and benefits of the MiddleKit approach. After reading this, go on to the <a href="QuickStart.html">Quick Start Guide</a> where your hands will get plenty dirty. After that, read through the <a href="UsersGuide.html">User's Guide</a> to round out your knowledge of MiddleKit.</p>
+
+<p>Or read the Quick Start Guide first if you like and come back here to clean your hands off. Be especially sure to revisit this introduction if at the end of the Quick Start you're wondering "what's the point?"</p>
+
+
+<a name="AMK_Designing"></a><h3>Designing Your Objects</h3>
+
+<p>The "methodology" is really quite simple and consists of creating a data-centric object model in a spreadsheet. <em>Data-centric</em> means that the model is more concerned with data attributes rather than methods. <em>Object model</em> simply means a list of the Python classes, who they inherit from, and their attributes.</p>
+
+<p>Note that these spreadsheets are actually comma separated value (CSV) files can be read and written with almost any spreadsheet program. Also, because CSV files are text files, they are amenable to text editing, source code control, etc.</p>
+
+<p>Note that MiddleKit accepts all the following items of information about attributes:</p>
+
+<ul>
+	<li>name</li>
+	<li>type</li>
+	<li>default value</li>
+	<li>min and max</li>
+	<li>required</li>
+</ul>
+
+<p>MiddleKit can use this information to provide better Python and SQL support that will save you from headaches and work. MiddleKit also tracks superclasses and which classes are abstract, which can provide for further design time and run time checks.</p>
+
+<p>And <em>you</em> can use the object model to stay in tune with what information is being tracked in your application. You may even find it useful to bring the object model to meetings with end users, either for your reference or their direct inspection.</p>
+
+
+<a name="AMK_Python"></a><h3>Providing Python Classes</h3>
+
+<p>MiddleKit uses the object model to provide Python classes to help bootstrap your project. There are actually two classes: a stub for your home grown code and a generated class for MiddleKit's generated code. For example, the Account class in the object model will produce an Account.py for your editing pleasure which inherits from GenAccount.py, which will get regenerated every time you change your model (which will be plenty).</p>
+
+<p>In Account.py, you can add, remove and edit code to your heart's content. MiddleKit generates this stub if it does not exist, but will never overwrite it.</p>
+
+<p>In GenAccount.py, there will be access methods for the attributes filled with assertions that you haven't violated the attributes definitions. For example, if an attribute is required, you cannot set its value to None without raising an exception. You also cannot set attributes to an incorrect type. There are additional methods depending on the type of attribute. For example, list attributes get an addToBars() method.</p>
+
+<p>All of these classes ultimately inherit from MiddleObject which provides some useful methods such as:</p>
+
+<table align="center" border="0" cellpadding="2" cellspacing="2" width=80%>
+	<tr><td class="methodName" nowrap>isChanged()</td><td class="methodDoc">Whether or not the object has been changed since the last time in-memory changes were saved to the persistent store.</td></tr>
+	<tr><td class="methodName" nowrap>store()</td><td class="methodDoc">Returns a reference to the object store the object belongs to.</td></tr>
+	<tr><td class="methodName" nowrap>klass()</td><td class="methodDoc">Returns the MiddleKit class definition the object was created from.</td></tr>
+	<tr><td class="methodName" nowrap>dumpAttrs()</td><td class="methodDoc">Writes the attributes in a readable format for debugging purposes.</td></tr>
+</table>
+
+
+<a name="AMK_SQL"></a><h3>Persisting to a SQL DB</h3>
+
+<p>From the object model, MiddleKit is able to provide an abstract interface for persistence and a concrete implementation of SQL DB persistence. Once your model is created, you get this practically for "free". In supporting SQL, MiddleKit does two things:</p>
+
+<table border="0" cellpadding="2" cellspacing="2">
+	<tr><td class="item" nowrap>At design time:</td>
+	<td class="description">MiddleKit generates the SQL CREATE statements needed to store the objects you have described. (And also the SQL INSERT statements if you provided sample data in another CSV file.)</td></tr>
+	<tr><td class="item" nowrap>At run time:</td>
+	<td class="description">MiddleKit interacts with a live SQL database to insert, update and delete the SQL data corresponding to your objects. All on your behalf, largely behind the scenes.</td></tr>
+</table>
+
+<p>As a programmer using MiddleKit you will not need to know or understand SQL. Your responsibilities will be to:</p>
+
+<table border=0 cellpadding=2 cellspacing=2>
+	<tr><td class="item">Connect:</td>
+	<td class="description">Provide the connection information needed by the MiddleKit object store to connect to the persistent store (typically a SQL database).</td></tr>
+	<tr><td class="item">Access:</td>
+	<td class="description">Use the accessor methods of your middle objects to get and set attributes.</td></tr>
+	<tr><td class="item">Save:</td>
+	<td class="description">Periodically invoke store.saveChanges() in order to commit changes in memory that have not yet been persisted.</td></tr>
+</table>
+
+<p>There is a notable exception concerning SQL driven by the fact that  queries are typically faster on the SQL server side, than on the client side. When fetching objects through a MiddleKit object store that is connected to a database, you can pass SELECT clauses such as WHERE and ORDER BY. The User's Guide has more information on this topic under @@.</p>
+
+<p>MiddleKit could also be extended to persist to other storage facilities such as the file system or the OODB. Switching storage facilities, whether it's a particular database, or a different type of storage altogether should require nothing more than configuration. (Again the notable exception: if you have used SELECT clauses for server side queries, your new storage facility must support those, or your store must translate them to something supported, or you must translate them in your application.)</p>
+
+<p>Note that Python's interface for databases, <a href="http://www.python.org/peps/pep-0249.html">DB API 2.0</a>, does <b>not</b> provide SQL statement independence. Only connections and cursors are standardized. The fact is that SQL varies from database to database, although you'll find that most if not all of your SELECT clauses will be portable.</p>
+
+<p>MiddleKit will also load sample middle object data from a spreadsheet that your provide. Again, if you change storage strategies, you will not need to update your sample data.</p>
+
+
+<a name="AMK_Interface"></a><h3>Providing a default interface</h3>
+
+<p>MiddleKit provides a WebKit application, called the MKBrowser, that can browse any middle kit object store when provided the object model. The application accomplishes this by using MiddleKit to deal strictly with Python objects.</p>
+
+<p>MKBrowser is great for getting you a first cut, usable interface to interact with your objects. Later, you will likely build a customized interface from scratch, according to the needs of your users.</p>
+
+<p>Currently MKBrowser only provides viewing, but a future version will also provide editing and searching.</p>
+
+
+<a name="Summary"></a><h2>Benefits of MiddleKit</h2>
+
+<p>In summary, the benefits of using MiddleKit are:</p>
+
+<ul>
+	<li><p><span class="bigPoint">Focus on the middle tier</span></p>
+	<ul>
+		<li>Improve modularity.</li>
+		<li>Increased ease in changing storage and interface strategies.</li>
+		<li>Invest more time in designing your objects</li>
+	</ul></li>
+	<li><p><span class="bigPoint">Provide an object model</span></p>
+	<ul>
+		<li>Enables MiddleKit to automate many tasks</li>
+		<li>Provides precise documentation on classes and attributes</li>
+		<li>Enhances Python programming with stronger notions of type and range checking.</li>
+	</ul></li>
+	<li><p><span class="bigPoint">Python code generation</span></p>
+	<ul>
+		<li>Automatic fetching and unarchiving of related objects.</li>
+		<li><p>Assertions:</p>
+		<ul>
+			<li>type checking</li>
+			<li>range checking</li>
+			<li>is-required checking</li>
+		</ul></li>
+	</ul></li>
+	<li><p><span class="bigPoint">SQL database persistence</span></p>
+	<ul>
+		<li>Ability to switch SQL database vendors with little or no source code changes.</li>
+		<li><p>Use SQL tools:</p>
+		<ul>
+			<li>Interactive prompt</li>
+			<li>GUI front ends</li>
+			<li>Web front ends</li>
+			<li>Reporting tools</li>
+		</ul></li>
+	</ul></li>
+	<li><p><span class="bigPoint">Web interface</span></p>
+	<ul>
+		<li>Immediately browser and interact with the objects in your application through the web.</li>
+	</ul></li>
+</ul>
+
+
+<a name="Next"></a><h2>What's Next?</h2>
+
+<p>Your next step is to read the <a href="QuickStart.html">Quick Start Guide</a> which shows step-by-step how to create and use an object model. You could even start building your custom application by following the guide as you read.</p>
+
+<% footer() %>

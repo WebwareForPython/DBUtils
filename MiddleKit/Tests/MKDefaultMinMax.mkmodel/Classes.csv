@@ -1,0 +1,8 @@
+Class,Attribute,Type,isRequired,Default,Min,Max,Extras
+Foo,,,,,,,
+,b,bool,0,1,,,
+,i,int,0,2,0,10,
+,l,long,0,3,0,10,
+,f,float,0,4,0,10,
+,s,string,0,5,5,10,
+,e,enum,0,x,,,"Enums='x, y'"

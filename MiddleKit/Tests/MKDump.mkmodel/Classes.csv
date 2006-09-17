@@ -1,0 +1,14 @@
+Class,Attribute,Type,Default,Min,Max,Extras
+Foo,,,,,,
+,text,string,,,,
+,bar,Bar,,,,
+,fruit,enum,,,,"Enums='apple,orange,banana'"
+,num,int,,,,
+,isValid,bool,,,,
+,,,,,,
+Bar,,,,,,
+,name,string,,,,
+,,,,,,
+,,,,,,
+Baz(Bar),,,,,,
+,priority,int,,,,

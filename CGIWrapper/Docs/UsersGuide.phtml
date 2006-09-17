@@ -1,0 +1,401 @@
+<% header(name + " User's Guide") %>
+
+<p class="right"><% name %> version <% versionString %></p>
+
+<!-- contents -->
+
+
+<a name="Synopsis"></a><h2>Synopsis</h2>
+
+<p>The CGI Wrapper is a CGI script used to execute other Python CGI scripts. The wrapper provides convenient access to form fields and headers, exception catching, and usage and performance logging. Hooks are provided for cookies and class-based CGI scripts.</p>
+
+
+<a name="Description"></a><h2>Description</h2>
+
+
+<a name="Overview"></a><h3>Overview</h3>
+
+<p>The CGI Wrapper is a single CGI script used to execute other Python CGI scripts. A typical URL for a site that uses the wrapper looks like this:</p>
+
+<p><code>http://www.somesite.com/server.cgi/SignUp</code></p>
+
+<p>The <em>server.cgi</em> part is the CGI Wrapper and the <em>SignUp</em> part is the target Python script, whose real filename is <em>SignUp.py</em>. Also, that file is located in a directory named <em>Scripts/</em>, but there's no need for the user of the site to know about <em>Scripts/</em> or <em>.py</em>; those are implementation details.</p>
+
+<p>The wrapper provides the following benefits:</p>
+
+<ul>
+	<li>Sets up global variables <em>headers</em>, <em>fields</em>, <em>env</em> and <em>wrapper</em> for use by the target script.</li>
+	<li>Catches exceptions that the target script doesn't in order to provide a meaningful message to the web page reader and useful debugging information to the developer.</li>
+	<li>Logs the date, time, duration and name of the target script for usage statistics and performance monitoring.</li>
+	<li>Simplifies URLs by leaving out the extension and possibly the location of the script. This also hides the nature of the implementation of the page from the browser of your site.</li>
+	<li>Provides a hook for integrating an object for cookies.</li>
+	<li>Provides a hook for class-based CGIs.</li>
+</ul>
+
+<p>You don't have to immediately write code to play with CGI Wrapper. There are several samples included. See <a href="#Running">Running and Testing</a> below.</p>
+
+
+<a name="Globals"></a><h3>Globals</h3>
+
+<p>The globals set up by the wrapper for the target CGI script are:</p>
+
+<table align="center" cellspacing="0" cellpadding="4" border="1" width="80%">
+<tr><th>Global</th> <th>Type/Class</th> <th>Description</th> </tr>
+<tr>
+	<td><code>headers</code> </td>
+	<td>dictionary </td>
+	<td>Contains all the HTTP headers that will be sent back to the client. The default contents are 'Content-type': 'text/html'. Often, the headers don't need to be modified at all. One popular use of the headers is 'Redirect': 'someURL' to point the client to a different place. </td>
+</tr>
+<tr>
+	<td><code>fields</code> </td>
+	<td>cgi.FieldStorage </td>
+	<td>This instance of FieldStorage comes from the standard Python cgi module. Typical uses include <code>fields.has_key('someField')</code> and <code>fields['someField'].value</code>. See the Python standard module documentation for cgi for more information. </td>
+</tr>
+<tr>
+	<td><code>environ</code> </td>
+	<td>dictionary </td>
+	<td>This dictionary represents the environment variables passed to the CGI scripts. Scripts should use this rather than <code>os.environ</code> since future versions of CGI Wrapper could be tightly integrated into webservers, thereby changing the nature of how environment variables get passed around (e.g., no longer through the OS). Also, note that the environment may seem a little non-standard to the target CGI script since the web server is setting it up to run the CGI Wrapper instead. In most CGI scripts (that execute under the wrapper), the environment is not even needed. </td>
+</tr>
+<tr>
+	<td><code>wrapper</code> </td>
+	<td>CGIWrapper </td>
+	<td>This is a pointer back to the CGI Wrapper instance. This allows CGI scripts to communicate with the wrapper if they want. However, this is hardly ever needed. </td>
+</tr>
+<tr>
+	<td><code>cookies</code> </td>
+	<td>Cookie </td>
+	<td>This global is <b>not</b> set up by the wrapper, but is looked for upon exit of the CGI script. See the <em>Cookies</em> section below for more information. </td>
+</tr>
+</table>
+
+
+<a name="Errors"></a><h3>Errors / Uncaught Exceptions</h3>
+
+<p>One of the main benefits of the wrapper is the handling of uncaught exceptions raised by target CGI scripts. The typical behavior of the wrapper upon detecting an uncaught exception is:</p>
+
+<ol>
+	<li>Log the time, error, script name and traceback to <code>stderr</code>. This information will typically appear in the web server's error log.</li>
+	<li>Display a web page containing an apologetic message to the user and useful debugging information for developers.</li>
+	<li>Save the above web page to a file so that developers can look at it after-the-fact. These HTML-based error messages are stored one-per-file, if the <code>SaveErrorMessages</code> setting is true (the default). They are stored in the directory named by the <code>ErrorMessagesDir</code> (defaults to 'ErrorMsgs').</li>
+	<li>Add an entry to the CGI Wrapper's error log, called <i>Errors.csv</i>.</li>
+	<li>E-mail the error message if the <code>EmailErrors</code> setting is true, using the settings <code>ErrorEmailServer</code> and <code>ErrorEmailHeaders</code>.</li>
+</ol>
+
+<p>Here is a <a href="SampleError.html">sample error page</a>.</p>
+
+<p>Archived error messages can be browsed through the <a href="#Administration">administration page</a>.</p>
+
+<p>Error handling behavior can be configured as described in <a href="#Configuration">Configuration</a>.</p>
+
+
+<a name="Configuration"></a><h3>Configuration</h3>
+
+<p>There are several configuration parameters through which you can alter how CGI Wrapper behaves. They are described below, including their default values:</p>
+
+<dl>
+<dt><b>ScriptsHomeDir</b>
+&nbsp; <code> = '/Scripts'</code></dt>
+<dd>
+This is where the wrapper always looks for the CGI scripts. There this location would <b>not</b> appear in URLs. The path can be relative to the CGI Wrapper's location, or an absolute path.
+</dd>
+</dl>
+
+<dl>
+<dt><b>ChangeDir</b>
+&nbsp; <code> = 1</code></dt>
+<dd>
+If true, the current working directory is changed to the same directory as the target script. Otherwise, the current working directory is left alone and likely to be the same as the CGI Wrapper.
+</dd>
+</dl>
+
+<dl>
+<dt><b>ExtraPaths</b>
+&nbsp; <code> = []</code></dt>
+<dd>
+A list of a strings which are inserted into <code>sys.path</code>. This setting is useful if you have one or more modules that are shared by your CGI scripts that expect to be able to import them.
+</dd>
+</dl>
+
+<dl>
+<dt><b>ExtraPathsIndex</b>
+&nbsp; <code> = 1</code></dt>
+<dd>
+This is the index into <code>sys.path</code> where the <code>ExtraPath</code> value is inserted. Often the first path in sys.path is <code>'.'</code> which is why the default value of <code>ExtraPathsIndex</code> is <code>1</code>.
+</dd>
+</dl>
+
+<dl>
+<dt><b>LogScripts</b>
+&nbsp; <code> = 1</code></dt>
+<dd>
+If true, then the execution of each script is logged with useful information such as time, duration and whether or not an error occurred.
+</dd>
+</dl>
+
+<dl>
+<dt><b>ScriptLogFilename</b>
+&nbsp; <code> = 'Scripts.csv'</code></dt>
+<dd>
+This is the name of the file that script executions are logged to if <code>LogScripts</code> is true. If the filename is not an absolute path, then it is relative to the directory of the CGI Wrapper.
+</dd>
+</dl>
+
+<dl>
+<dt><b>ScriptLogColumns</b></dt>
+<dd>
+<p style="text-align:left"><code>= ['environ.REMOTE_ADDR',
+'environ.REQUEST_METHOD', 'environ.REQUEST_URI',
+'responseSize', 'scriptName', 'serverStartTimeStamp',
+'serverDuration', 'scriptDuration', 'errorOccurred']</code></p>
+Specifies the columns that will be stored in the script log. Each column is the name of an attribute of CGI Wrapper. The <b>Introspect</b> CGI example gives a list of all CGI Wrapper attributes. Note that attributes which are dictionaries, UserDicts or subclasses of MiddleKit's KeyValueAccess class can have their attributes used through dot notation (e.g., <code>obj1.obj2.attr</code>).
+</dd>
+</dl>
+
+<dl>
+<dt><b>ClassNames</b>
+&nbsp; <code> = ['', 'Page']</code></dt>
+<dd>
+This is the list of class names that CGI Wrapper looks for after executing a script. An empty string signifies a class whose name is the same as it's script (e.g., <code>_admin</code> in <code>admin.py</code>). See <a href="#ClassBasedCGIs">Class-based CGIs</a> below.
+</dd>
+</dl>
+
+<dl>
+<dt><b>ShowDebugInfoOnErrors</b>
+&nbsp; <code> = 1</code></dt>
+<dd>
+If true, then the uncaught exceptions will not only display a message for the user, but debugging information for the developer as well. This includes the traceback, HTTP headers, CGI form fields, environment and process ids.
+</dd>
+</dl>
+
+<dl>
+<dt><b>UserErrorMessage</b></dt>
+<dd>
+<p style="text-align:left"><code>=  'The site is having technical difficulties with this page. An error has been logged, and the problem will be fixed as soon as possible. Sorry!'</code></p>
+This is the error message that is displayed to the user when an uncaught exception escapes the target CGI script.
+</dd>
+</dl>
+
+<dl>
+<dt><b>ErrorLogFilename</b>
+&nbsp; <code> = 'Errors.csv'</code></dt>
+<dd>
+This is the name of the file where CGI Wrapper logs exceptions if <code>LogErrors</code> is true. Each entry contains the date &amp; time, filename, pathname, exception name &amp; data, and the HTML error message filename (assuming there is one).
+</dd>
+</dl>
+
+<dl>
+<dt><b>SaveErrorMessages</b>
+&nbsp; <code> = 1</code></dt>
+<dd>
+If true, then errors (e.g., uncaught exceptions) will produce an HTML file with both the user message and debugging information. Developers/administrators can view these files after the fact, to see the details of what went wrong.
+</dd>
+</dl>
+
+<dl>
+<dt><b>ErrorMessagesDir</b>
+&nbsp; <code> = 'ErrorMsgs'</code></dt>
+<dd>
+This is the name of the directory where HTML error messages get stored.
+</dd>
+</dl>
+
+<dl>
+<dt><b>EmailErrors</b>
+&nbsp; <code> = 0</code></dt>
+<dd>
+If true, error messages are e-mail out according to the ErrorEmailServer and ErrorEmailHeaders settings. This setting defaults to false because the other settings need to be configured first.
+</dd>
+</dl>
+
+<dl>
+<dt><b>ErrorEmailServer</b>
+&nbsp; <code> = 'localhost'</code></dt>
+<dd>
+The SMTP server to use for sending e-mail error messages.
+</dd>
+</dl>
+
+<dl>
+<dt><b>ErrorEmailHeaders</b>
+&nbsp; <code> =</code></dt>
+<dd>
+<pre class="py">{
+    'From': 'webware@mydomain',
+    'To': [webware@mydomain'],
+    'Reply-to': 'webware@mydomain',
+    'Content-type': 'text/html',
+    'Subject': 'Error'
+}</pre>
+The e-mail MIME headers used for e-mailing error messages. Be sure to configure 'From', 'To' and 'Reply-to' before using this feature.
+</dd>
+</dl>
+
+
+<p>You can override any of these values by creating a <code>Config.dict</code> file in the same directory as the wrapper and selectively specifying values in a dictionary like so:</p>
+
+<pre class="py">{
+    'ExtraPaths':       ['Backend', 'ThirdParty'],
+    'ScriptLog':        'Logs/Scripts.csv'
+}</pre>
+
+
+<a name="Running"></a><h3>Running and Testing</h3>
+
+<p>Let's assume you have a webserver running on a UNIX box and a public HTML directory in your home directory. First, make a link from your public HTML directory to the source directory of the CGI Wrapper:</p>
+
+<code>cd ~/public_html
+<br>ln -s ~/Projects/Webware/CGIWrapper pycgi</code>
+
+<p>Note that in the Source directory there is a link to the Examples directory and that the CGI Wrapper will automatically look there (you can configure this; see <a href="#Configuration">Configuration</a>). Therefore you can type a URL like:</p>
+
+<code>http://localhost/~echuck/pycgi/server.cgi/Hello</code>
+
+<p>Note that you didn't need to include <em>Examples</em> in the page or a <em>.py</em> at the end.</p>
+
+<p>There is a special CGI example called Directory.py that lists the other examples as links you can click on to run or view source. In this way, you can see the full set of scripts.</p>
+
+<code>http://localhost/~echuck/pycgi/server.cgi/Directory</code>
+
+<p>The resulting page will look something like the following. (Note: Those links aren't real!)</p>
+
+<table cellspacing="2" align="center">
+<tr><th align="right">Size</th><th rowspan="8">&nbsp;</th><th align="left">Script</th><th rowspan="8">&nbsp;</th><th align="left">View</th></tr>
+<tr><td align="right">96</td><td><a href="Hello">Hello</a></td><td><a href="View?filename=Hello">view</a></td></tr>
+<tr><td align="right">167</td><td><a href="Time">Time</a></td><td><a href="View?filename=Time">view</a></td></tr>
+<tr><td align="right">210</td><td><a href="Error">Error</a></td><td><a href="View?filename=Error">view</a></td></tr>
+<tr><td align="right">565</td><td><a href="View">View</a></td><td><a href="View?filename=View">view</a></td></tr>
+<tr><td align="right">802</td><td><a href="Introspect">Introspect</a></td><td><a href="View?filename=Introspect">view</a></td></tr>
+<tr><td align="right">925</td><td><a href="Colors">Colors</a></td><td><a href="View?filename=Colors">view</a></td></tr>
+<tr><td align="right">1251</td><td><a href="Directory">Directory</a></td><td><a href="View?filename=Directory">view</a></td></tr>
+</table>
+
+<p>The above instructions rely on your web server executing any files that end in <code>.cgi</code>. However, some servers require that executable scripts are also located in a special directory (such as <code>cgi-bin</code>) so you may need to take that into consideration when getting CGI Wrapper to work. Please consult your web server admin or your web server docs.</p>
+
+
+<a name="Administration"></a><h3>Administration</h3>
+
+<p>CGI Wrapper comes with a script for administration purposes. You can access it by specifying the <code>_admin</code> script in the URL. You typically only have to remember <code>_admin</code> because it contains links to the other scripts.</p>
+
+<p>From the administration page, you can view the script log, the error log and the configuration of the server. The error log display also contains links to the archived error messages so that you can browse through them.</p>
+
+<p>The adminstration scripts are good examples of class-based CGIs so you may wish to read through their code.</p>
+
+<p>Here's an <a href="SampleAdmin.html">example</a> of the admin page.</p>
+
+
+<a name="ScriptLog"></a><h3>Script Log</h3>
+
+<p>The script log uses the comma-separated-value (CSV) format, which can be easily read by scripts, databases and spreadsheets. The file is located in the same directory as the CGI Wrapper. The columns are fairly self-explanatory especially once you look at actual file. The <a href="#Configuration">Configuration</a> section has more details under the ScriptLogColumns setting.</p>
+
+
+<a name="ClassBasedCGIs"></a><h3>Class-based CGIs</h3>
+
+<p>As you write CGI scripts, and especially if they are for the same site, you may find that they have several things in common. For example, the generated pages may all have a common toolbar, heading and/or footing. You might also find that you display programmatically collected data in a similiar fashion throughout your pages.</p>
+
+<p>When you see these kinds of similarities, it's time to start designing a class hierarchy that takes advantage of inheritance, encapsulation and polymorphism in order to save you from duplicative work.</p>
+
+<p>For example your base class could have methods <code>header()</code>, <code>body()</code> and <code>footer()</code> with the header and footer being fully implemented. Subclasses would then only need to override <code>body()</code> and would therefore inherit their look and feel from one source. You could take this much farther by providing several utility methods in the base class that are available to subclasses for use or customization.</p>
+
+<p>CGI Wrapper provides a hook to support such class-based CGI scripts by checking for a classes in the target script. The <code>ClassNames</code> setting, whose default value is <code>['', 'Page']</code>, controls this behavior. After a script executes, CGI Wrapper checks these classes. The empty string is a special case which specifies a class whose name is the same name as it's containing script (e.g., the class <code>_admin</code> in the script <code>_admin.py</code>).</p>
+
+<p>If a matching class is found, it is automatically instantiated so that you don't have to do so in every script. The instantiation is basically:</p>
+
+<p><code>print TheClass(info).html()</code></p>
+
+<p>Where <code>info</code> has keys ['wrapper', 'fields', 'environ', 'headers'].</p>
+
+<p>A good example of class-based CGIs are the admin pages for CGI Wrapper. Start by reading <i>AdminPage.py</i> and then continuing with the various admin scripts such as <i>_admin.py</i> and <i>_showConfig.py</i>. All of these are located in the same directory as CGI Wrapper.</p>
+
+<p>On a final note, if you find that you're developing a sophisticated web-based application with accounts, sessions, persistence, etc. then you should consider using the <a href="../../WebKit/Docs/index.html">WebKit</a>, which is analagous to Apple's WebObjects and Sun's Java Servlets.</p>
+
+
+<a name="OtherFileTypes"></a><h3>Other File Types</h3>
+
+<p>CGI Wrapper assumes that a URL with no extension (such .html) is a Python script. However, if the URL does contain an extension, the wrapper simply passes it through via HTTP redirection (e.g., the <code>Location:</code> header).</p>
+
+<p>This becomes important when one of your CGI scripts writes a relative URL to a non-CGI resource. Such a relative URL ends up forcing <code>server.cgi</code> to come into play.</p>
+
+
+<a name="Cookies"></a><h3>Cookies</h3>
+
+<p>Cookies are often an important part of web programming. CGI Wrapper does not provide explicit support for cookies, however, it provides an easily utilized hook for them.</p>
+
+<p>If upon completion, the target script has a <code>cookies</code> global variable, the CGI Wrapper will print it to stdout. This fits in nicely with the Cookie module written by Timothy O'Malley. You will find a copy of this module in the WebUtils package of Webware for Python. You could also find it by searching for "Cookie" at the Vaults of Parnassus located at <a href="http://www.vex.net/parnassus/">/www.vex.net/parnassus/</a>.</p>
+
+
+<a name="Subclassing"></a><h3>Subclassing CGI Wrapper</h3>
+
+<p>This is just a note that CGI Wrapper is a class with well defined, broken-out methods. If it doesn't behave precisely as you need, you may very well be able to subclass it and override the appropriate methods. See the source which contains numerous doc strings and comments.</p>
+
+
+<a name="PrivateScripts"></a><h3>Private Scripts</h3>
+
+<p>Any script starting with an underscore ('_') is considered private to CGI Wrapper and is expected to be found in the CGI Wrapper's directory (as opposed to the directory named by the <code>ScriptsHomeDir</code> setting).</p>
+
+<p>The most famous private script is the admin script which then contains links to others:</p>
+
+<p><code>http://localhost/~echuck/pycgi/server.cgi/_admin</code></p>
+
+<p>A second script is <code>_dumpCSV</code> which dumps the contents of a CSV file (such as the script log or the error log).</p>
+
+
+<a name="Files"></a><h3>Files</h3>
+
+<p><b>server.cgi</b> - Just a Python script with a generic name (that appears in URLs) that imports CGIWrapper.py. By keeping the CGIWrapper.py file separate we get byte code caching (CGIWrapper.pyc) and syntax highlighting when viewing or editing the script.</p>
+<p><b>CGIWrapper.py</b> - The main script that does the work.</p>
+<p><b>Config.dict</b> - An optional file containing a dictionary that overrides default configuration settings.</p>
+<p><b>Scripts.csv</b> - The log of script executions as described above.</p>
+<p><b>Errors.csv</b> - The log of uncaught exceptions including date &amp; time, script filename and archived error message filename.</p>
+<p><b>ErrorMsgs/Error-<i>scriptname</i>-<i>YYYY</i>-<i>MM</i>-<i>DD</i>-<i>*</i>.py</b> - Archived error messages.</p>
+<p><b>_*.py</b> - Administration scripts for CGI Wrapper.</p>
+
+
+<a name="ReleaseNotes"></a><h2>Release Notes</h2>
+
+<ul>
+<li><a href="RelNotes-0.2.html">Version 0.2</a></li>
+<li><a href="RelNotes-0.2.1.html">Version 0.2.1</a></li>
+<li><a href="RelNotes-0.2.2.html">Version 0.2.2</a></li>
+<li><a href="RelNotes-0.7.html">Version 0.7</a></li>
+<li><a href="RelNotes-0.8.html">Version 0.8</a></li>
+</ul>
+
+
+<a name="Limitations"></a><h2>Limitations/Future</h2>
+
+<p>Note: CGI scripts are fine for small features, but if you're developing a full blown web-based application then you typically want more support, persistence and classes. That's where other Webware components like WebKit and MiddleKit come into play.</p>
+
+<p>Here are some future ideas, with no committments or timelines as to when/if they'll be realized. This is open source, so feel free to jump in!</p>
+
+<p>The following are in approximate order of the author's perceived priority, but the numbering is mostly for reference.</p>
+
+
+<a name="ToDo"></a><h3>To Do</h3>
+
+<ol>
+	<li>Examples: Make a Cookie example. (In the meantime, just see the main doc string of Cookie.py in WebUtils.)</li>
+	<li>Wrapper: When a script produces no output, the CGI Wrapper should report that problem. (This most often happens for class based CGIs with incorrect class names.)</li>
+	<li>There should probably be an option to clear the output of a script that raised an uncaught exception. Sometimes that could help in debugging.</li>
+	<li>Admin: Create a summary page for the script and error logs.</li>
+	<li>Wrapper: It's intended that the CGIWrapper class could be embedded in a server and a single instance reused several times. The class is not quite there yet.</li>
+	<li>Wrapper: CGI scripts never get cached as byte code (.pyc) which would provide a performance boost. 2000-04-17 ce: Check out py_compile module.</li>
+	<li>Wrapper: The error log columns should be configurable just like the script log columns.</li>
+	<li>Code review: Misc functions towards bottom of CGIWrapper</li>
+	<li>Code review: Use of _realStdout and sys.stdout on multiple serve() calls.</li>
+	<li>Wrapper: Create a subclass of Python's CGI server that uses CGIWrapper. This would include caching the byte code in memory.</li>
+	<li>Wrapper: htmlErrorPageFilename() uses a "mostly works" technique that could be better. See source.</li>
+	<li>Wrapper: Keep a list of file extensions (such as .py .html .pl) mapped to their handlers. When processing a URL, iterate through the list until a file with that extension is found, then serve it up through it's handler.</li>
+	<li>There's no password protection on the administration scripts.</li>
+	<li>Provide integration (and therefore increased performance) with web servers such as Apache and AOLserver.</li>
+	<li>Wrapper: If the script log can't be opened for writing, nothing happens. What's the best action here?</li>
+	<li>Wrapper: Error e-mails are always in HTML format. It may be useful to have a plain text version for those with more primitive e-mail clients.</li>
+</ol>
+
+
+<a name="Credit"></a><h2>Credit</h2>
+
+<p>Author: Chuck Esterbrook</p>
+
+<p>The idea of a CGI wrapper is based on a WebTechniques <a href="http://www.webtechniques.com/archives/1998/02/kuchling/">article</a> by Andrew Kuchling.</p>
+
+<% footer() %>

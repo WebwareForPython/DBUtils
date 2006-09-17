@@ -1,0 +1,8 @@
+_README
+Webware/WebKit/ErrorMsgs/
+
+This directory will contain error information captured by the WebKit application server. Each error is saved in it's own HTML file.
+
+You can also access these files through the application administration pages (e.g., http://localhost/WebKit.cgi/Admin/).
+
+See ../Documentation/WebKit.html for more information.

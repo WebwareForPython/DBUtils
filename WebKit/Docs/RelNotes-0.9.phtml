@@ -1,0 +1,231 @@
+<% header(name + ' 0.9 Release Notes') %>
+
+<p><% name %> version 0.9 released on 11/13/05</p>
+
+<a name="Introduction"></a><h2>Introduction</h2>
+<p>It has taken much longer than usual to finish this release,
+and it is impossible to track and list every change.
+So the following will mention only a few of the many changes,
+improvements and bugfixes that have been made.</p>
+
+<a name="NewFeatures"></a><h2>New Features</h2>
+<ul>
+	<li>Added If-Modified-Since support to HTTPServlet. A Servlet can provide a
+	lastModified() method which returns the modification time of the data.
+	This has been integrated into the UnknownFileType servlet for handling
+	static files.</li>
+	<li>The <span class="filename">AppServer</span> script detects
+	<code>-u</code> (unbuffered output) and	<code>-O</code> (optimize)
+	parameters and passes them to Python. These parameters must precede
+	any other parameters. Other parameters will be passed to
+	<code>ThreadedAppServer</code> normally.</li>
+	<li>Configuration parameters can now be overridden with the command line.
+	You can run <span class="filename">AppServer</span> with switches in the
+	form <code>ClassName.SettingName=value</code>, e.g.
+	<code>AppServer.AdapterPort=8087</code>.</li>
+	<li>Configuration files can be written as Python modules instead of as
+	Python dictionaries. Any global variables in the module are equivalent
+	to top-level keys in the configuration dictionary.</li>
+	<li><span class="filename">MakeAppWorkDir.py</span> accepts a new option
+	<code>-d</code> allowing to point the default context to a location not
+	inside the working directory, so you can keep your code completely separate
+	from the working directory. It also accepts <code>-l</code> options to
+	add multiple application library dirs to the Python path, and options to
+	set the ownership of the working directory files. To see all options,
+	run the command without any parameters.</li>
+	<li>Added <code>EnterDebuggerOnException</code> option to
+	<span class="filename">Application.config</span>. If True, and if the
+	AppServer is running from an interactive terminal, an uncaught exception
+	will cause the AppServer to enter the debugger, allowing the developer to
+	call functions, investigate variables, etc. See Python debugger (pdb) docs
+	for more information. You will certainly want to turn this off when
+	deploying the site. Defaults to False (off).</li>
+	<li>The AppServer now includes an experimental built-in HTTP web server.
+	See the <a href="InstallGuide.html">InstallGuide</a> for more details.</li>
+	<li>Added new <span class="filename">Application.config</span> option
+	<code>UseCookieSessions</code> that defaults to True. If set to False,
+	then a session cookie will never be sent in the response. Use this along
+	with <code>UseAutomaticPathSessions</code> to <em>only</em> use path
+	sessions and never use cookie sessions.</li>
+	<li>Added <code>HTTPRequest.setSessionId()</code> method which allows
+	the use of session IDs that are sent via means other than cookies or
+	URL parameters (an example would be via an XML-RPC parameter).
+	See the docstring for more details.</li>
+ 	<li>Added <code>DebugAppServer</code>, a single-threaded app server
+	that makes it possible to debug servlets using a standard Python
+	debugger. Tested on Windows only, using both PythonWin and JEdit with
+    the JPyDbg plugin. See
+    <span class="filename">WebKit/DebugAppServer.py</span> for details.</li>
+	<li>New debugging feature: by turning on the configuration variable
+	<code>IncludeErrorLink</code> in
+	<span class="filename">Application.config</span>, an <a href="#">[edit]</a>
+	link will be put next to each line in tracebacks. That link will point
+	to a file of type <tt>application/x-webkit-edit-file</tt>, which you
+	should configure your browser to run with
+	<span class="filename">Webware/bin/editfile.py</span> (and edit
+	<span class="filename">editfile.py</span> so that it opens your
+	editor).</li>
+</ul>
+
+<a name="Improvements"></a><h2>Improvements and Refinements</h2>
+<ul>
+	<li><code>WebKit.Object</code> now inherits Python's object.
+	This affects all other classes for which Super() should now work.</li>
+	<li>Unknown file types (those for whom <code>mimetypes.guess_type()</code>
+	cannot return something meaningful) are now served up with a mime type of
+	<tt>application/octet-stream</tt> instead of <tt>text/html</tt>.</li>
+	<li>Fixed incompatibility between the NT Service code and win32all 163.</li>
+	<li>AutoReload no longer catches servlet updates (since servlets can be
+	reloaded without restarting the entire server anyway).</li>
+	<li><code>XMLRPCServlet</code> now allows <code>xmlrpclib.Fault</code>
+	exceptions to be passed through unmolested.</li>
+	<li><code>Page</code> has been refactored into <code>HTTPContent</code>
+	and <code>Page</code>. <code>HTTPContent</code> can be used as a base
+	class for servlets which generate non-HTML content. As <code>Page</code>
+	inherits from <code>HTTPContent</code> (which inherits from
+	<code>HTTPServlet</code>), <code>Page</code> still contains all the
+	methods it previously did, and this change should not require any changes
+	to end-user code.</li>
+	<li><code>XMLRPCServlets</code> are now allowed to return None as part of
+	their marshaled response. This improves usability in an all-Python
+	environment at the possible cost of compatibility problems
+	with non-Python clients. To revert to the old behavior, where an
+	attempt to respond with <code>None</code> caused an exception, add
+	<code>allow_none = False</code> to your <code>XMLRPCServlet</code>-derived
+	servlets at class level (adding <code>self.allow_none = False</code>
+	in the <code>__init__</code> should also work).</li>
+	<li>Fixed problem where SessionDynamicStore would unpickle the same object
+	twice.</li>
+	<li>Added <code>transaction()</code> method to <code>RPCServlet</code>
+	so that there's a way for a method to get the transaction object if
+	needed.</li>
+	<li><p>Previously, attempting to start an already-running AppServer
+	would fail when it couldn't grab the socket to listen on, but it would
+	have already overwritten the pid file.</p>
+	<p>Now pid file handling is much improved:</p>
+	<ul>
+		<li>The AppServer will refuse to start if it detects that the pid file
+		exists and the process is still running.</li>
+		<li>A stale pid file left over from a crash or forcible termination
+		will be detected and removed.</li>
+		<li>You can override the path of the pid file using the
+		<code>PidFile</code> setting in
+		<span class="filename">AppServer.config</span>. By default,
+		the pid is written to <span class="filename">appserverpid.txt</span>
+		in the working directory (or WebKit path if you're not using a working
+		directory).</li>
+		<li>You can disable the use of the pid file by setting it to
+		<code>None</code> in <span class="filename">AppServer.config</span>.
+		This seems to be a good idea on Windows because Windows often
+		reuses the same pid right away, so if the appserver crashes, and it
+		tries to restart and it happens to reuse the same pid, the restart
+		will fail.</li>
+	</ul></li>
+	<li><p>The shutdown handling has been improved. Sending <tt>SIGHUP</tt>
+	now results in exiting with exit code 3 which is used for reloading via
+	the AppServer script.</p></li>
+	<li>The <span class="filename">Launch.py</span> file has been improved
+	and supports several new command line options.</li>
+	<li>The <span class="filename">AppServer</span> and
+	<span class="filename">Launch.py</span> don't need to be called from
+	the working directory any more, and the location of the working
+	directory is assumed to be the location of the script,
+	and not hard coded in <span class="filename">Launch.py</span>.
+	You can still change this at the top of the script, however.</li>
+	<li>The Unix start script <span class="filename">WebKit/webkit</span>
+	which was based on RedHat Linux has been replaced by a folder
+	<span class="filename">WebKit/StartScripts</span> with a bunch of
+	start sripts for various flavors of Unix, including a "generic" version.
+	The installer will try to copy the most appropriate start script
+	to <span class="filename">WebKit/webkit</span>. If instead of copying,
+	you create a link to the start script in your working directory, it will
+	find out the location of the working directory automatically.</li>
+	<li>The Examples and Admin sections have been improved and adapted
+	to the API changes.</li>
+</ul>
+
+<a name="Changes"></a><h2>Changes</h2>
+<ul>
+	<li>The <code>Port</code> setting in
+	<span class="filename">AppServer.config</span> has been deprecated in
+	favor of the new <code>AdapterPort</code> setting. The <code>Port</code>
+	setting in your config file will still be honored, but you are encouraged
+	to update your <span class="filename">AppServer.config</span> as the
+	<code>Port</code> setting will be removed in the future.</li>
+	<li>The scripts <span class="filename">ThreadedAppServerService.py</span>
+	in the WebKit directory and <span class="filename">NTService</span> created
+	by <span class="filename">MakeAppWorkDir.py</span> were both renamed to
+	<span class="filename">AppServerService.py</span>.</li>
+	<li>Removed the <span class="filename">Application.config</span> setting
+	<code>OldStyleActions</code> and re-implemented support of the
+	<code>methodNameForAction()</code> transformation. Note that "old style"
+	actions took an additional <code>transaction</code> parameter, but
+	otherwise the action handling is now downward compatible.</li>
+	<li>In <code>WebKit.Page</code> resp. <code>WebKit.HTTPContent</code>,
+	removed both the internal method <code>_actionSet()</code> and the internal
+	dictionary <code>_actionDict</code> which cached the list of actions
+	for the servlet. This was redundant code, and its removal allows a servlet
+	to use dynamic actions (i.e. to make the action list dependent on the
+	permissions of the logged-in user).</li>
+	<li><p>The semantics for the awake-respond-sleep cycle have changed so
+	that Servlet.sleep() is <em>always</em> called, even when an unhandled
+	exception occurs in Servlet.awake() or Servlet.respond().
+	Servlet.sleep() is called even when Page.endResponse() or
+	Page.sendRedirectAndEnd() have been called to end servlet
+	processing prematurely.  This behavior differs from previous
+	versions, in which sleep() was called only if awake() succeeded.</p>
+	<p>The intent of this change is to guarantee servlets the chance to free
+	resources, without having to be prepared to catch all possible exceptions
+	within awake() to do so.</p>
+	<p>The programmer should ensure that sleep does not attempt to free
+	resources which were never allocated, as sleep() may be called even when
+	awake() did not succeed.</p>
+	<pre class="py">
+		def awake(...):
+			initialize resource A
+			initialize resource B
+
+		def sleep(...):
+			if resource B was initialized:
+				finalize resource B
+			if resource A was initialized:
+				finalize resource A
+	</pre></li>
+	<li>The PythonServletFactory had only served <tt>.py</tt> source files
+	so far. Now it will serve <tt>.pyc</tt> and <tt>.pyo</tt> files as well.
+	For the default configuration, this makes no difference, since <tt>.pyc</tt>
+	and <tt>.pyo</tt> are in both settings <tt>ExtensionsToIgnore</tt> and
+	<tt>FilesToHide</tt>, so they will not be served anyway. By removing
+	<tt>.pyc</tt> and <tt>.pyo</tt> away from these settings, you can now
+	install servlets without their source code. This will be a little bit
+	more performant in the production environment, but most of all it will
+	prevent customers and administrators from messing around with the source
+	code and give a certain level of protection as closed source (this feature
+	had been requested several times). Before, <tt>.pyc</tt> and <tt>.pyo</tt>
+	had not been executed, but delivered as unknown file types which does not
+	make much sense and can be a security problem, for instance when database
+	passwords and other information is stored in the servlets. By using
+	<tt>ExtensionCascadeOrder</tt>, you can also determine a priority, such as
+	<tt>.py</tt> first (if available), then <tt>.pyo</tt>, then <tt>.pyc</tt>.
+	However, the standard configuration still ignores/hides <tt>.pyc</tt> and
+	<tt>.pyo</tt> files completely and looks only at the <tt>.py</tt> file,
+	so you still have to change the settings explicitely in
+	<span class="filename">AppServer.config</span> if you want to use this.
+	Also, note that <tt>.pyc</tt> and <tt>.pyo</tt> files can be decompiled
+	so this will be no real unsurmountable protection.</li>
+</ul>
+
+<a name="Bugfixes"></a><h2>Bugfixes</h2>
+<ul>
+	<li>Fixed handling of expired sessions. Previously, if you tried to access
+	an expired session before the session sweeper thread had cleaned it out,
+	you'd get that expired session for one request, but on the second request
+	you'd get a new session. Now it correctly returns a new empty session with
+	a new session ID on the first request after expiration.</li>
+	<li>Fixed a bug in <tt>mod_webkit</tt> for Apache&nbsp;2.X that might
+	have been causing <tt>mod_webkit</tt> to retry connections to the app
+	server unnecessarily in some cases. (This does not apply to the
+	Apache&nbsp;1.3 version of <tt>mod_webkit</tt>.)</li>
+</ul>
+
+<% footer() %>

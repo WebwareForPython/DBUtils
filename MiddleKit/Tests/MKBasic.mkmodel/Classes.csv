@@ -1,0 +1,13 @@
+Class,Attribute,Type,Default,Min,Max,Extras
+Thing,,,,,
+,b,bool,,,
+,i,int,,,
+,l,long,,,
+,f,float,,,
+,s,string,,,100
+,d,decimal,,,,Precision=3; Scale=1
+Person,,,,,
+,id,string,,,32
+,firstName,string,,,50
+,middleName,string,,,50
+,lastName,string,,,50

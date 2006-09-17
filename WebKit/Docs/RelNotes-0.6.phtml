@@ -1,0 +1,64 @@
+<% header(name + ' 0.6 Release Notes') %>
+
+<p>Webware for Python 0.6</p>
+
+<a name="Introduction"></a><h2>Introduction</h2>
+<ul>
+	<li>Version 0.6 was released on 12/2/2001.</li>
+</ul>
+
+<a name="MajorChanges"></a><h2>Major Changes</h2>
+<ul>
+	<li><p>The Page class interface was refactored with regards to various writeFoo() methods. The changes make it much easier for a subclass to customize and extend what it inherits from its superclass.</p>
+	<p>If you have existing subclasses, you will need to make some quick changes before your pages look right. The largest change is to rename writeBody() methods to writeContent(). Also, if you override writeHeader(), you will want to refactor it, possibly by overriding writeStyleSheet() and writeHeadParts() (taking care to invoke super before adding your customizations).</p>
+	<p>Please review the Page <a href="Source/Summaries/Page.html">summary</a> and doc strings in the <a href="Source/Files/Page.html">source code</a> for details.</p>
+	<p>If you feel burdened by updating your existing page methods, you can quickly change their inheritance to Page051 (<a href="Source/Summaries/Page051.html">summary</a>, <a href="Source/Files/Page051.html">source</a>), a new class which sports the old style of write methods found in WebKit 0.5.1.</p></li>
+	<li>Removed the unstable Async*.py classes which offered a different approach to handling requests as well as implementing the HTTP protocol. As with earlier versions of WebKit, you will need to run a web server such as Apache. [Chuck]</li>
+	<li>Extracted Cans into a preliminary CanKit, delivered to Jay Love &lt;jsliv@jslove.org&gt;. These were under developed and should be a separate component anyway. [Chuck]</li>
+</ul>
+
+<a name="NewFeatures"></a><h2>New Features</h2>
+<ul>
+	<li>The app server can be run in a directory other than the WebKit directory. This allows multiple running Webware instances to share the same code. Added MakeAppWorkDir.py tool to create such a runtime environment. [Robin D]</li>
+</ul>
+
+<a name="Improvements"></a><h2>Improvements and Refinements</h2>
+<ul>
+	<li>Added settings <b>IncludeFancyTraceback</b> and <b>FancyTracebackContext</b> which affect the error report generated when WebKit catches an exception (using the cgitb.py module). See <a href="UsersGuide.html#Config_Application">Application config</a> in the User's Guide for more information.</li>
+	<li>The Request object will parse GET style variables even in a POST request.  So parameters can be passed to WebKit both as POST variables and as part of the URL in the same request.</li>
+	<li>You can use session IDs embedded in URLs instead of requiring the user to have cookies
+enabled in order to use sessions. To use it, set UseAutomaticPathSessions to 1 in Application.config. [Geoff T, Heiko Hees]</li>
+	<li>The headers in HTTPResponse are now case insensitive.</li>
+	<li>UnknownFileTypeServlet can response to HEAD and will not include the contents of the file. [Ken L]</li>
+	<li>HTTPServlet now implements a basic HEAD request. (The GNU wget program will now work on a WebKit site.) [Ken L]</li>
+	<li>WebKit now works with Python 2.2b2 and still Python 1.5.2. This is the last release (other than any 0.6.x maintenance releases) that will support Python 1.5.2. Future versions will require Python 2.0 which has been out for over a year now. [Chuck]</li>
+	<li>SecurePage is easier to use with pages that have forms. [Geoff T]</li>
+	<li>When using SessionFileStore, session writing is controlled by a lock. [Geoff T]</li>
+</ul>
+
+<a name="Security"></a><h2>Security</h2>
+
+<ul>
+	<li>Sessions ids are harder to guess. [Ken L]</li>
+</ul>
+
+<a name="MinorChanges"></a><h2>Minor API Changes</h2>
+
+<p>We don't track every change to the interface, but here are some notables:</p>
+<ul>
+	<li>Added Session.invalidate() method to clear out a session.</li>
+	<li>Added HTTPRequest.isSessionExpired(). [Geoff T]</li>
+	<li>Added dictionary style access to Session object values. [Jay L]</li>
+	<li>HTTPServlet will now invoke respondToFoo() for any FOO HTTP request method. If not implemented, the response is now an HTTP 501 Not Implemented (prior WebKits raised a SubclassResponsibilityError). [Ken L]</li>
+</ul>
+
+<a name="Bugfixes"></a><h2>Bugfixes</h2>
+<ul>
+	<li>Make Application.isSessionIDProblematic use the session's custom timeout.</li>
+	<li>Fixed bugs in cookie handling for Python 2.1 and earlier.</li>
+	<li>Fixed wkcgi.exe so that it works with IIS as well as Apache.</li>
+	<li>Fixed ThreadedAppServer.py and OneShotAdapter.py so that binary file
+uploads work properly on Windows. [Geoff]</li>
+</ul>
+
+<% footer() %>

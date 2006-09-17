@@ -1,0 +1,6 @@
+_README
+Webware/WebKit/Cache/
+
+This directory will contain a directory for each plug-in that WebKit loads.
+
+See ../Documentation/WebKit.html for more information.

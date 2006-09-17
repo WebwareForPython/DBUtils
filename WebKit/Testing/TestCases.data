@@ -1,0 +1,59 @@
+# TestCases.data
+
+# This file is used by Testing/Main.py
+# Each line describes a test case.
+# Lines that are blank or begin with '#' are ignored.
+
+# Good URLs
+/ \
+/Welcome \
+/Welcome.py \
+/Examples/Welcome \
+/Examples/ \
+/Examples/Welcome.py   --> Show /Examples/Welcome
+/Admin/ \
+/Admin/Main --> Show admin pages
+
+# Redirects
+                       --> Redirect to /
+/Admin                 --> Redirect to /Admin/
+/Examples              --> Redirect to /Examples/
+
+# Display files
+/Testing/Dir/File.html --> Display the file
+/Testing/Dir \
+/Testing/Dir/          --> Display the index file
+
+# Bad: Slashes after files
+/Welcome/ \
+/Examples/Welcome/     --> Error 404: Not Found<br>if ExtraPathInfo is not set
+
+# Bad: Unknown URLs (wrong name, slashes after files)
+/BadURL \
+/BadURL/ \
+/Examples/BadURL \
+/Examples/BadURL/ \
+/Examples/BadURL/MoreBad \
+/File.badext \
+/Examples/File.badext --> Error 404: Not Found<br>or if ExtraPathInfo is set, then<br>the Examples/Welcome page<br>displays extra path info.
+
+# Embedded Servlets
+/Testing/Servlet/ \
+/Testing/Servlet/Extra/Path/Info \
+/Testing/Servlet/Extra/Path/Info/ \
+/Testing/Servlet/More/Info? --> Error 404: Not Found<br>if ExtraPathInfo is not set,<br>otherwise the test servlet<br>displays extra path info.
+
+# Including
+/Testing/IncludeURLTest --> IncludeURLTest test
+/Testing/Dir/IncludeURLTest2 --> lower level IncludeURLTest test
+
+# Forwarding
+/Testing/Forward1 --> Forward1Target
+/Testing/Forward2 --> Dir/Forward2Target
+/Testing/Dir/Forward3 --> Forward3Target
+
+# Cookies
+/Testing/SetCookie --> Test of HTTPResponse.setCookie
+
+# If-Modified-Since
+/Testing/TestIMS --> TestIMS passed

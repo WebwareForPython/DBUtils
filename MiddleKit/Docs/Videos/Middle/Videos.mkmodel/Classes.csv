@@ -1,0 +1,18 @@
+Class,Attribute,Type,isRequired,Min,Max,Extras
+Video,,,,,,isAbstract=1
+,title,string,1,1,100,
+,directors,list of Person,0,,10,
+,cast,list of Role,0,,,
+Movie (Video),,,,,,
+,year,int,1,,,
+,rating,enum,1,,,"Enums='g, pg, pg13, r, nc17, x, nr, other'"
+TVSeries (Video),,,,,,
+,years,int,,,,Comment='@@ supposed to be pickle; a list of ints'
+Person,,,,,,
+,video,Video,0,,,Comment='back pointer to View for directors attr'
+,name,string,1,1,100,
+,birthDate,date,0,,50,
+Role,,,,,,
+,video,Video,1,,,
+,karacter,string,1,,100
+,person,Person,1,,

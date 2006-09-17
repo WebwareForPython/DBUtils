@@ -1,0 +1,75 @@
+<% header(name + ' 0.4 Release Notes') %>
+
+<p>Webware for Python 0.4</p>
+
+<a name="Introduction"></a><h2>Introduction</h2>
+<ul>
+	<li>Version 0.4 was released on 9/28/2000.</li>
+	<li>WebKit is being used for real projects now and as a result of this experience, this release is all about refinements, clean up and stability.</li>
+</ul>
+
+<a name="NewFeatures"></a><h2>New Features</h2>
+<ul>
+	<li><a href="InstallGuide.html#Adapters_OneShot">OneShot adapter</a> - This is a special version of the CGIAdapter that doesn't require a persistent AppServer process.</li>
+	<li>WebKit can now serve directories provided that they contain the appropriate file, either index.* or Main.*. Since WebKit automatically detects extensions, actual files could be index.html, Main.psp, index.py, etc. The application setting <b>DirectoryFile</b> controls these names.</li>
+	<li>You can launch the WebKit application server by typing "AppServer" at the command line from within the WebKit directory. This works on both UNIX and Windows and points to the recommended default app server.</li>
+	<li>Application now uses a dictionary-like session store object to contain sessions. There are currently two types available: SessionMemoryStore and SessionFileStore. You can control which gets used with the new SessionStore setting. See <a href="InstallGuide.html#Configuration_Sessions">Sessions</a> in the Install Guide for more info.</li>
+	<li>AppServer.config has a new <b>PlugInDirs</b> setting that is a list of directories where WebKit plug-ins are located. In each directory, the app server will scan for plug-ins and load them. You can disable a plug-in by putting a file named "dontload" in it. The default value for PlugInDirs is <code>['..']</code> which means that you can simply drop plug-ins right next to WebKit and have them load with no additional configuration.</li>
+	<li>Application.config has a new <b>Host</b> setting with defaults to 127.0.0.1.</li>
+</ul>
+
+<a name="Improvements"></a><h2>Improvements and Refinements</h2>
+<ul>
+	<li>Both the WebKit example pages and admin pages contain a list of all contexts known by the application.</li>
+	<li>The special underscore convention for admin scripts is gone now. The default WebKit admin scripts live in WebKit/Admin/. The look has been overhauled with better navigation, links to all contexts, and a couple new pages such as "Servlet cache by path".</li>
+	<li>Unknown URLs now properly return an HTTP 404: Not found, rather than generating a python exception. You can customize the response and behavior by overriding Application's handleBadURL().</li>
+	<li>AppServer has been broken down into subclasses: OneShotAppServer, ThreadedAppServer, AsyncThreadedAppServer. The middle one is the default used by the AppServer script. The first is automatically used if you make use of the OneShot.cgi adapter.</li>
+	<li>Upon loading a plug-in, the app server will create a directory for it in WebKit/Cache. This is where the plug-in is expected to keep it's temporary files, if any.</li>
+	<li>Session objects are created only on demand (or if the request came with a session id indicating that one exists).</li>
+	<li>Note that subclasses of Page should use methods to access objects, such as self.request(), self.session(), etc. (as opposed to the attributes, self._request, self._session, etc.). This is because in some cases, the methods perform non-trivial operations or book keeping that needs to be preserved. In the future, methods that currently just return the attribute could be enhanced, thereby breaking code that bypasses the method.</li>
+	<li>Moved KeyValueAccess from MiddleKit to MiscUtils and renamed it to NamedValueAccess. Both changes were simply more appropriate.</li>
+	<li>Created abstract superclass Adapter, however, only OneShotAdapter currently inherits from it. This will be expanded upon in the next release.</li>
+	<li>OneShot adapter has a config file in WebKit/Configs/ primarily for turning on a flag to capture and display standard output (e.g., print statements) to the web page.</li>
+	<li>A <b>transaction</b> global variable is passed into servlet scripts as a hook for the script to get information about the request that caused it to load. This should be rarely needed, especially with the recent addition of __init__.py support of contexts, where you can do special initialization. But in general, hooks are a good thing if they don't clutter the code or mangle the architecture. So it's there.</li>
+	<li>Application's SessionTimeout is now expressed in minutes instead of seconds.</li>
+	<li>When a session expires, Application invokes it's own handleInvalidSession() which displays a page informing the user of the event. You can override this to customize the behavior.</li>
+</ul>
+
+<a name="Documentation"></a><h2>Documentation</h2>
+<ul>
+	<li>The <a href="Source/ClassHier.html">Class Hierarchy</a> document now contains links to colorized, HTML versions of the source code files. You must run <b>install.py</b> in the Webware to see the class hierarchy and the highlighted source.</li>
+	<li>The new <a href="InstallGuide.html">Install Guide</a> gives detailed information on installing and using WebKit including notes for specific operating systems and web servers.</li>
+</ul>
+
+<a name="Testing"></a><h2>Testing</h2>
+<ul>
+	<li>Added a new <b>Testing/</b> context which you can view from either the examples or administrative pages. The testing page provides a series of links to test WebKit, mostly with regards to Application.serverSidePathForRequest() although occasionally other bugs will be detected by this suite.</li>
+</ul>
+
+<a name="APIChanges"></a><h2>API Changes</h2>
+<p>We don't track every change to the interface, but here are some notables:</p>
+<ul>
+	<li>KeyValueAccess # renamed to NamedValueAccess and moved to MiscUtils</li>
+	<li>NamedValueAccess + hasValueForName() # return 1 if the object has a value for the given name</li>
+	<li>Servlet + serverSideDir() serverSidePath() # if you need to know where the servlet lives in the file system</li>
+	<li>Page + session()  # convenience method to get current session</li>
+	<li>HTTPResponse - contents(), + rawResponse() # Returns the final contents of the response. Don't invoke this method until after deliver().</li>
+	<li>Application + context(), + hasContext(), + contexts()</li>
+	<li>HTTPRequest + adapterName()</li>
+</ul>
+
+<a name="Bugfixes"></a><h2>Bugfixes</h2>
+<ul>
+	<li>WebUtils.WebFuncs: HTMLEncode/Decode() now handle quote characters.</li>
+	<li>The CGI adapter would sometimes cut responses short on Windows.</li>
+	<li>The CGI adapter now makes use of the CONTENT_LENGTH environment variable, which is necessary when using IIS and doesn't hurt when using other servers.</li>
+	<li>URLs that map to directories and don't end in a slash are redirected in order to do so. e.g., http://host/a/b gets redirected to http://host/a/b<b>/</b> if "b" is a directory. This is absolutely essential because without it, relative web page links, such as "c.html", will get interpreted as residing in "a/" instead of "b/".</li>
+	<li>The host name in address.text is never blank since some platforms, like Windows and FreeBSD, didn't work with that.</li>
+</ul>
+
+<a name="Other"></a><h2>Other</h2>
+<ul>
+	<li>Application-serverSidePathForRequest() received a major overhaul and a new fat doc string. Please heed and update the doc string when enhancing this method.</li>
+</ul>
+
+<% footer() %>

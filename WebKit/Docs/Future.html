@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.4: http://docutils.sourceforge.net/" />
+<title>Future Work</title>
+<link rel="stylesheet" href="../../Docs/Doc.css" type="text/css" />
+</head>
+<body>
+<div class="document" id="future-work">
+<h1 class="title">Future Work</h1>
+<p>Webware for Python</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Version:</th><td class="field-body">X.Y</td>
+</tr>
+<tr class="field"><th class="field-name">Released:</th><td class="field-body">&#64;&#64;/&#64;&#64;/&#64;&#64;</td>
+</tr>
+</tbody>
+</table>
+<div class="section">
+<h1><a id="warning" name="warning">Warning</a></h1>
+<p>This document is mostly outdated and out of touch with development.
+You can find better information about known bugs and future work
+in the <a class="reference" href="http://wiki.w4py.org">Wiki</a> and in the <a class="reference" href="http://sourceforge.net/tracker/?group_id=4866">SourceForge tracker systems</a>,
+both accessible from the <a class="reference" href="http://www.webwareforpython.org">Webware Home Page</a>.
+The SourceForge task manager is currently not used since these systems should
+be sufficient and we do not want to scatter issues in too many systems.</p>
+</div>
+<div class="section">
+<h1><a id="future-work-limitations" name="future-work-limitations">Future Work/Limitations</a></h1>
+<p>Sprinkled throughout the code are comments tagged with <tt class="docutils literal"><span class="pre">&#64;&#64;</span></tt> which are
+hopefully accompanied by a date and someone's initials. These comments
+represent things to be done. The double at-sign (<tt class="docutils literal"><span class="pre">&#64;&#64;</span></tt>) convention was
+chosen because it doesn't appear to be used for anything else.</p>
+<p>In addition to the inline comments, some significant items have been
+recorded below. These are future ideas, with no commitments or timelines
+as to when/if they'll be realized. The Python WebKit is open source,
+so feel free to jump in!</p>
+<div class="section">
+<h2><a id="known-bugs" name="known-bugs">Known Bugs</a></h2>
+<p>All major known bugs that existed previously have been fixed.</p>
+</div>
+<div class="section">
+<h2><a id="to-do" name="to-do">To Do</a></h2>
+<div class="section">
+<h3><a id="major-items" name="major-items">Major Items</a></h3>
+<ul class="simple">
+<li>CheckSource.py: A program to check the source code conventions.</li>
+<li>Role-based security and user-authentication. Goal is to eliminate,
+as much as possible, developer-written security logic.
+This should be provided by the WebKit and be configurable.</li>
+<li>Write a custom adaptor for Apache, Netscape, MS, etc.</li>
+<li>Distribution and load balancing.</li>
+<li>Fault tolerance.</li>
+<li>More sophisticated admin tools including password protection,
+clearing logs, displaying a maximum of information at a time, etc.
+Consider using module 'resource'.</li>
+<li>Investigate case insensitive URLs, especially for the Windows platform.</li>
+<li>Plug-ins:
+* In ExamplePage, automatically support examples of any plug-in
+* Better docs
+* Properties.config. 'Load', 0, 1 or the name of the required op sys</li>
+</ul>
+</div>
+<div class="section">
+<h3><a id="general" name="general">General</a></h3>
+<ul class="simple">
+<li>Hunt down: <tt class="docutils literal"><span class="pre">&#64;&#64;</span></tt> tags (which signify &quot;To Be Done&quot;s), <tt class="docutils literal"><span class="pre">FUTURE</span></tt> items
+in class doc strings, <tt class="docutils literal"><span class="pre">NotImplementedErrors</span></tt>, <tt class="docutils literal"><span class="pre">--</span></tt> tags</li>
+<li>Code clean up.</li>
+<li>Right now, if the Application itself (as opposed to Servlets) throws
+an exception, it doesn't get captured nicely. However, it is displayed
+in the app server's console.</li>
+<li>The exception handler is pretty nice and has features like logging,
+e-mail, gathering debugging info, etc.
+However, on occasions it can throw exceptions too.
+There should be a simpler, secondary exception handler for when this happens.</li>
+<li>Review the timestamp caching logic and its relation to .pyc files if any.</li>
+<li>Add &quot;Last-modified:&quot; to generic files that are served via WebKit.</li>
+<li>If a Python file has only one class that inherits from Servlet,
+then use that as the Servlet class
+(rather than requiring the name be the same as the file).</li>
+</ul>
+</div>
+<div class="section">
+<h3><a id="testing" name="testing">Testing</a></h3>
+<ul class="simple">
+<li>Provide testing web page where people can report their testing results
+including version numbers, etc.</li>
+<li>Provide higher level automation of testing. For example, a testing script
+should be able to launch various app servers multiple times.</li>
+<li>Provide highly automated benchmarking so we can track changes in performance.</li>
+<li>Expand the regression test suite.</li>
+</ul>
+</div>
+<div class="section">
+<h3><a id="docs" name="docs">Docs</a></h3>
+<ul class="simple">
+<li>Add a Getting Started Guide and a Screencast.</li>
+<li>Beef up the User's Guide and Tutorial.</li>
+<li>User's Guide: Create a caching section to discuss the virtues of doing so
+(the Color example became 12 X faster on the server side).</li>
+</ul>
+</div>
+<div class="section">
+<h3><a id="food-for-thought-considerations-reviews" name="food-for-thought-considerations-reviews">Food for thought, considerations, reviews</a></h3>
+<ul class="simple">
+<li>Consider including FormKit, FunFormKit or FormEncode:
+A plug-in to aid the construction and validation of forms.</li>
+<li>Consider adding a simple helper lib for generating HTML
+(such as SimpleHTMLGen) to the WebUtils package.</li>
+<li>Support <a class="reference" href="http://www.python.org/dev/peps/pep-0333/">WSGI</a>.</li>
+<li>Consider this statement from the FastCGI docs:
+&quot;Redirects are handled similar to CGI. Location headers with values
+that begin with &quot;/&quot; are treated as internal-redirects; otherwise,
+they are treated as external redirects (302).&quot;</li>
+<li>FastCGI app server:
+The idea is that if the app server itself supports FastCGI,
+then it can be used directly with FastCGI enabled web servers
+sans the infamous &quot;adapter&quot;.
+Dan Green has brought this up in Webware-discuss.</li>
+<li>Consider if we need to support <tt class="docutils literal"><span class="pre">&lt;form</span> <span class="pre">action=&quot;x.py?a=1&quot;</span> <span class="pre">method=&quot;post&quot;&gt;</span></tt>
+where you will have both a query string and posted data.</li>
+<li>Application modifies sys.path so that servlets can say
+<tt class="docutils literal"><span class="pre">from</span> <span class="pre">SuperServlet</span> <span class="pre">import</span> <span class="pre">SuperServlet</span></tt> where SuperServlet is located in
+the same directory as the Servlet. We'd prefer a more sophisticated technique
+which does not modify sys.path and does not affect other servlets. (Or maybe
+this would go away with a new one-process-per-application architecture.)</li>
+</ul>
+</div>
+<div class="section">
+<h3><a id="check-out" name="check-out">Check out</a></h3>
+<ul class="simple">
+<li><a class="reference" href="http://pythonpaste.org">Python Paste</a></li>
+<li><a class="reference" href="http://www.djangoproject.com">Django</a></li>
+<li><a class="reference" href="http://www.turbogears.org">TurboGears</a></li>
+<li><a class="reference" href="http://pylonshq.com">Pylons</a></li>
+<li><a class="reference" href="http://webpy.org">web.py</a></li>
+<li><a class="reference" href="http://aquarium.sourceforge.net">Aquarium</a></li>
+<li><a class="reference" href="http://www.zope.org/Members/Amos/WhatIsAcquisition">http://www.zope.org/Members/Amos/WhatIsAcquisition</a></li>
+<li><a class="reference" href="http://www.zope.org/Members/jim/Info/IPC8/AcquisitionAlgebra/index.html">http://www.zope.org/Members/jim/Info/IPC8/AcquisitionAlgebra/index.html</a></li>
+<li>FastCGI related: <a class="reference" href="http://www.tfarmbruster.com/fcgi_sa.htm">http://www.tfarmbruster.com/fcgi_sa.htm</a></li>
+</ul>
+</div>
+<div class="section">
+<h3><a id="down-the-road" name="down-the-road">Down the road</a></h3>
+<ul class="simple">
+<li>Multi-language support/localization (e.g., vend data to clients
+in their preferred written language)</li>
+<li>Consider CORBA standard RMI-IIOP and it's potential interaction with WebKit.
+This technology has been marked for inclusion in J2EE. I imagine the idea
+might be that an app server could be used by more than just web browsers.
+e.g., it could be used programmatically
+(in a more natural way than simulating a web client).</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

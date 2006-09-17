@@ -1,0 +1,16 @@
+<% header(name + ' 0.8 Release Notes') %>
+
+<p>Webware for Python 0.8</p>
+
+<a name="Introduction"></a><h2>Introduction</h2>
+<ul>
+	<li>Version 0.8.1 was released on August 1, 2003.</li>
+</ul>
+
+<a name="Security"></a><h2>Security</h2>
+
+<ul>
+	<li>Removed the use of SmartCookie from WebKit. This was a major security hole, because WebKit was trying to unpickle every cookie string that it received from the client. Maliciously constructed strings can cause pickle to execute arbitrary code, so this was a bad idea. The drawback is that you can no longer store arbitrary picklable Python objects in cookies; now, only strings can be stored.</li>
+</ul>
+
+<% footer() %>

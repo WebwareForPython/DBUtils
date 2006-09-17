@@ -1,0 +1,370 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.4: http://docutils.sourceforge.net/" />
+<title>Beginner Tutorial</title>
+<link rel="stylesheet" href="../../Docs/Doc.css" type="text/css" />
+</head>
+<body>
+<div class="document" id="beginner-tutorial">
+<h1 class="title">Beginner Tutorial</h1>
+<p>Webware for Python</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Version:</th><td class="field-body">X.Y</td>
+</tr>
+<tr class="field"><th class="field-name">Released:</th><td class="field-body">&#64;&#64;/&#64;&#64;/&#64;&#64;</td>
+</tr>
+</tbody>
+</table>
+<div class="contents topic">
+<p class="topic-title first"><a id="contents" name="contents">Contents</a></p>
+<ul class="simple">
+<li><a class="reference" href="#synopsis" id="id6" name="id6">Synopsis</a></li>
+<li><a class="reference" href="#installation" id="id7" name="id7">Installation</a></li>
+<li><a class="reference" href="#setting-up-your-environment" id="id8" name="id8">Setting Up Your Environment</a><ul>
+<li><a class="reference" href="#creating-a-working-directory" id="id9" name="id9">Creating a Working Directory</a></li>
+<li><a class="reference" href="#changing-webware-configuration" id="id10" name="id10">Changing Webware Configuration</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#creating-and-understanding-the-servlet" id="id11" name="id11">Creating and Understanding the Servlet</a></li>
+<li><a class="reference" href="#a-brief-introduction-to-the-servlet" id="id12" name="id12">A Brief Introduction to the Servlet</a></li>
+<li><a class="reference" href="#a-photo-album" id="id13" name="id13">A Photo Album</a><ul>
+<li><a class="reference" href="#iteration-1-displaying-files" id="id14" name="id14">Iteration 1: Displaying Files</a></li>
+<li><a class="reference" href="#iteration-2-uploading-files" id="id15" name="id15">Iteration 2: Uploading Files</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section">
+<h1><a class="toc-backref" href="#id6" id="synopsis" name="synopsis">Synopsis</a></h1>
+<p>We present a tutorial on making a Webware script, and some guidance on turning
+that into a web application.</p>
+</div>
+<div class="section">
+<h1><a class="toc-backref" href="#id7" id="installation" name="installation">Installation</a></h1>
+<p>This document does not cover the basic installation. See the <a class="reference" href="InstallGuide.html">Install Guide</a>
+-- you should be able to open up the WebKit Examples context in you browser
+before you continue. For the beginning, you can use the built-in HTTP server,
+but in a production environment you should use a real web server like Apache.</p>
+</div>
+<div class="section">
+<h1><a class="toc-backref" href="#id8" id="setting-up-your-environment" name="setting-up-your-environment">Setting Up Your Environment</a></h1>
+<div class="section">
+<h2><a class="toc-backref" href="#id9" id="creating-a-working-directory" name="creating-a-working-directory">Creating a Working Directory</a></h2>
+<p>We'll first set up a directory dedicated to your application. Run this command:</p>
+<pre class="literal-block">
+$ cd ~
+$ python /path/to/Webware/bin/MakeAppWorkDir.py -c Context -l Lib \
+    --cvsignore WebwareTest
+</pre>
+<p>You'll now have a directory WebwareTest in your home directory (or of course
+you can put it in some other location). Inside this directory will be several
+subdirectories and a couple files. The only file we'll worry about is
+<tt class="docutils literal"><span class="pre">AppServer</span></tt> (or <tt class="docutils literal"><span class="pre">AppServer.bat</span></tt> if you're on Windows). The directories of
+interest are <tt class="docutils literal"><span class="pre">Context</span></tt> (that you specified with <tt class="docutils literal"><span class="pre">-C</span> <span class="pre">context</span></tt>) where you'll
+be putting your servlets; <tt class="docutils literal"><span class="pre">Configs</span></tt> that holds some configuration files;
+and <tt class="docutils literal"><span class="pre">Lib</span></tt> where you can put your non-servlet code.</p>
+<p>For more information about the working directory and setting up the file
+structure for your application, see <a class="reference" href="ApplicationDevelopment.html">Application Development</a>.</p>
+</div>
+<div class="section">
+<h2><a class="toc-backref" href="#id10" id="changing-webware-configuration" name="changing-webware-configuration">Changing Webware Configuration</a></h2>
+<p>For the most part the configuration is fine, but we'll make a couple changes to
+make it easier to develop. For more information on configuration see the
+<a class="reference" href="Configuration.html">Configuration Guide</a>.</p>
+<p>In the file <tt class="docutils literal"><span class="pre">AppServer.config</span></tt>, change this line:</p>
+<pre class="literal-block">
+# Original (default setting):
+    AutoReload = False
+# To:
+    AutoReload = True
+</pre>
+<p>This will cause the AppServer to restart if any loaded files are changed --
+without this you may edit a file and your application won't see the updated
+version until you manually restart the AppServer.</p>
+<p>The other change you may want to make to allow you to use more interesting URLs.
+In Application.config:</p>
+<pre class="literal-block">
+# Original (default setting):
+    ExtraPathInfo = False
+# To:
+    ExtraPathInfo = True
+</pre>
+<p>Otherwise the settings should be appropriate for development.
+(There are several setting you would want to change before deploying the
+application in a production environment).</p>
+</div>
+</div>
+<div class="section">
+<h1><a class="toc-backref" href="#id11" id="creating-and-understanding-the-servlet" name="creating-and-understanding-the-servlet">Creating and Understanding the Servlet</a></h1>
+<p>Webware's core concept for serving pages is the <em>servlet</em>. This is a class that
+creates a response given a request.</p>
+<p>The core classes to understanding the servlet are <tt class="docutils literal"><span class="pre">Servlet</span></tt>, <tt class="docutils literal"><span class="pre">HTTPServlet</span></tt>,
+and <tt class="docutils literal"><span class="pre">Page</span></tt>. Also of interest would be the request (<tt class="docutils literal"><span class="pre">Request</span></tt> and
+<tt class="docutils literal"><span class="pre">HTTPRequest</span></tt>) and the response (<tt class="docutils literal"><span class="pre">Response</span></tt> and <tt class="docutils literal"><span class="pre">HTTPResponse</span></tt>)
+-- the <tt class="docutils literal"><span class="pre">HTTP-</span></tt> versions of these classes are more interesting.
+There is also a <tt class="docutils literal"><span class="pre">Transaction</span></tt> object, which is solely a container for the
+request and response.</p>
+<p>While there are several levels you can work on while creating your servlet,
+in this tutorial we will work solely with subclassing the <tt class="docutils literal"><span class="pre">Page</span></tt> class.
+This class defines a more high-level interface, appropriate for generating HTML
+(though it can be used with any content type). It also provides a number of
+convenience methods.</p>
+</div>
+<div class="section">
+<h1><a class="toc-backref" href="#id12" id="a-brief-introduction-to-the-servlet" name="a-brief-introduction-to-the-servlet">A Brief Introduction to the Servlet</a></h1>
+<p>Each servlet is a plain Python class. There is no Webware magic (except perhaps
+for the level one <em>import module based on URL</em> spell). <a class="reference" href="../../PSP/Docs/index.html">PSP</a> has more magic,
+but that's a topic for another day.</p>
+<p>An extremely simple servlet might look like:</p>
+<pre class="literal-block">
+from WebKit.Page import Page
+
+class MyServlet(Page):
+
+    def title(self):
+        return 'My Sample Servlet'
+
+    def writeContent(self):
+        self.write('Hello world!')
+</pre>
+<p>This would be placed in <tt class="docutils literal"><span class="pre">MyServlet.py</span></tt>.
+Webware will create a pool of <tt class="docutils literal"><span class="pre">MyServlet</span></tt> instances, which will be reused.
+Servlets &quot;write&quot; the text of the response (like <tt class="docutils literal"><span class="pre">self.write(&quot;some</span> <span class="pre">text&quot;)</span></tt>).
+Webware calls the servlet like this:</p>
+<ul class="simple">
+<li>An unused servlet is taken from the pool, or another servlet is created.</li>
+<li><tt class="docutils literal"><span class="pre">awake(transaction)</span></tt> is called. This is a good place to set up data for
+your servlet. You can put information in instance variables for use later
+on. But be warned -- those instance variables will hang around potentially
+for a long time if you don't delete them later (in <tt class="docutils literal"><span class="pre">sleep</span></tt>).</li>
+<li>Several low-level methods are called, which Page isolates you from. We will
+ignore these.</li>
+<li><tt class="docutils literal"><span class="pre">writeHTML()</span></tt> is called. <tt class="docutils literal"><span class="pre">Page</span></tt> implements this just fine, but you can
+override it if you want total control, or if you want to output something
+other than HTML.</li>
+<li><tt class="docutils literal"><span class="pre">writeDocType()</span></tt> would write something like
+<tt class="docutils literal"><span class="pre">&lt;!DOCTYPE</span> <span class="pre">HTML</span> <span class="pre">PUBLIC</span> <span class="pre">&quot;-//W3C//DTD</span> <span class="pre">HTML</span> <span class="pre">4.01</span> <span class="pre">Transitional//EN&quot;</span>
+<span class="pre">&quot;http://www.w3.org/TR/html4/loose.dtd&quot;&gt;</span></tt></li>
+<li>The &lt;head&gt; section of the page is written. <tt class="docutils literal"><span class="pre">title()</span></tt> gives the title, and
+you probably want to override it.</li>
+<li><tt class="docutils literal"><span class="pre">writeStyleSheet()</span></tt> is called, if you want to write that or anything else
+in the &lt;head&gt; section.</li>
+<li>The &lt;body&gt; tag is written. Have <tt class="docutils literal"><span class="pre">htBodyArgs()</span></tt> return anything you want in
+the &lt;body&gt; tag (like <tt class="docutils literal"><span class="pre">onLoad=&quot;loadImages()&quot;</span></tt>).</li>
+<li><tt class="docutils literal"><span class="pre">writeBodyParts()</span></tt> is called, which you may want to override if you want
+to create a template for other servlets.</li>
+<li><tt class="docutils literal"><span class="pre">writeContent()</span></tt> should write the main content for the page. This is where
+you do most of your display work.</li>
+<li>The response is packaged up, the headers put on the front, cookies handled,
+and it's sent to the browser. This is all done for you.</li>
+<li><tt class="docutils literal"><span class="pre">sleep(transaction)</span></tt> is called. This is where you should clean up anything
+you might have set up earlier -- open files, open database connections, etc.
+Often it's empty. Note that <tt class="docutils literal"><span class="pre">sleep()</span></tt> is called even if an exception was
+raised at any point in the servlet processing, so it should (if necessary)
+check that each resource was in fact acquired before trying to release it.</li>
+<li>The servlet is placed back into the pool, to be used again. This only happens
+after the transaction is complete -- the servlet won't get reused any earlier.</li>
+</ul>
+<p>You only have to override the portions that you want to. It is not uncommon to
+only override the <tt class="docutils literal"><span class="pre">writeContent()</span></tt> method in a servlet, for instance.</p>
+<p>You'll notice a file <tt class="docutils literal"><span class="pre">context/Main.py</span></tt> in your working directory. You can look
+at it to get a feel for what a servlet might look like. (As an aside, a servlet
+called <tt class="docutils literal"><span class="pre">Main</span></tt> or <tt class="docutils literal"><span class="pre">index</span></tt> will be used analogous to the <tt class="docutils literal"><span class="pre">index.html</span></tt> file).
+You can look at it for a place to start experimenting, but here we'll work on
+developing an entire (small) application, introducing the other concepts as we
+go along.</p>
+</div>
+<div class="section">
+<h1><a class="toc-backref" href="#id13" id="a-photo-album" name="a-photo-album">A Photo Album</a></h1>
+<p>If you look online, you'll see a huge number of web applications available for
+an online photo album. The world needs one more!</p>
+<p>You will need the <a class="reference" href="http://www.pythonware.com/products/pil/">Python Imaging Library</a> (PIL) installed for this example.
+First we'll use it to find the sizes of the images, and later we will use it to
+create thumbnails.</p>
+<p>We'll develop the application in two iterations.</p>
+<div class="section">
+<h2><a class="toc-backref" href="#id14" id="iteration-1-displaying-files" name="iteration-1-displaying-files">Iteration 1: Displaying Files</a></h2>
+<p>For simplicity, we will store image files in a subdirectory <tt class="docutils literal"><span class="pre">Pics</span></tt> of the
+default context directory <tt class="docutils literal"><span class="pre">WebwareTest/Context</span></tt> and let the AppServer deliver
+the files. In a production environment, you would place the <tt class="docutils literal"><span class="pre">Pics</span></tt> directory
+outside of the context and let the web server deliver the files directly.</p>
+<p>For the first iteration, we'll display files that you upload by hand to
+the <tt class="docutils literal"><span class="pre">Pics</span></tt> directory.</p>
+<p>We do this with two servlets -- one servlet <tt class="docutils literal"><span class="pre">Main.py</span></tt> to show the entire
+album, and another <tt class="docutils literal"><span class="pre">View.py</span></tt> for individual pictures. Place these two servlets
+in the default context directory. First, <tt class="docutils literal"><span class="pre">Main.py</span></tt>:</p>
+<pre class="literal-block">
+from WebKit.Page import Page # the base class for web pages
+import os
+import Image # the Python Imaging Library
+from urllib import quote as urlEncode
+dir = os.path.join(os.path.dirname(__file__), 'Pics')
+
+class Main(Page):
+
+    def title(self):
+        # It's nice to give a real title, otherwise &quot;Main&quot; would be used.
+        return 'Photo Album'
+
+    def writeContent(self):
+        # We'll format these simpy, one thumbnail per line:
+        for filename in os.listdir(dir):
+            im = Image.open(os.path.join(dir, filename))
+            x, y = im.size
+            # Here we figure out the scaled-down size of the image,
+            # so that we preserve the aspect ratio. We'll use fake
+            # thumbnails, where the image is scaled down by the browser.
+            x, y = x * 100 / y, 100
+            # Note that we are just using % substitution to generate
+            # the HTML. There's other ways, but this works well enough.
+            # We're linking to the View servlet which we'll show later.
+            # Notice we use urlEncode -- otherwise we'll encounter bugs if
+            # there's a file with an embedded space or other character in it.
+            url = urlEncode(filename)
+            self.writeln('&lt;p&gt;&lt;a href=&quot;View?filename=%s&quot;&gt;'
+                '&lt;img src=&quot;Pics/%s&quot; width=&quot;%i&quot; height=&quot;%i&quot;&gt;&lt;/a&gt;&lt;/p&gt;'
+                % (url, url, x, y))
+</pre>
+<p>The servlet <tt class="docutils literal"><span class="pre">View</span></tt> takes one URL parameter of <tt class="docutils literal"><span class="pre">filename</span></tt>. You can get
+the value of a URL parameter like <tt class="docutils literal"><span class="pre">self.request().field('filename')</span></tt> or,
+if you want a default value, you can use <tt class="docutils literal"><span class="pre">self.request().field('filename',</span>
+<span class="pre">defaultValue)</span></tt>. In the likely case you don't want to write <tt class="docutils literal"><span class="pre">self.request()</span></tt>
+before retrieving each value, do:</p>
+<pre class="literal-block">
+req = self.request()
+self.write(req.field('username'))
+
+# Even more compactly:
+field = self.request().field
+self.write(field('username'))
+</pre>
+<p>So here is our complete <tt class="docutils literal"><span class="pre">View</span></tt> servlet:</p>
+<pre class="literal-block">
+from WebKit.Page import Page
+import os
+import Image
+from urllib import quote as urlEncode
+dir = os.path.join(os.path.dirname(__file__), 'Pics')
+
+class View(Page):
+
+    def title(self):
+        return 'View: %s' \
+               % self.htmlEncode(self.request().field('filename'))
+
+    def writeContent(self):
+        filename = self.request().field('filename')
+        im = Image.open(os.path.join(dir, filename))
+        self.writeln('&lt;div style=&quot;text-align:center&quot;&gt;')
+        self.writeln('&lt;h4&gt;%s&lt;/h4&gt;' % filename)
+        self.writeln('&lt;img src=&quot;Pics/%s&quot; width=&quot;%i&quot; height=&quot;%i&quot;&gt;'
+                   % (self.urlEncode(filename), im.size[0], im.size[1]))
+        self.writeln('&lt;p&gt;&lt;a href=&quot;Main&quot;&gt;Return to Index&lt;/a&gt;&lt;/p&gt;')
+        self.writeln('&lt;/div&gt;')
+</pre>
+</div>
+<div class="section">
+<h2><a class="toc-backref" href="#id15" id="iteration-2-uploading-files" name="iteration-2-uploading-files">Iteration 2: Uploading Files</a></h2>
+<p>That was fairly simple -- but usually you want to upload files, potentially
+through a web interface. Along the way we'll add thumbnail generation using
+PIL, and slighly improve the image index.</p>
+<p>We'll generate thumbnails kind of on demand, so you can still upload files
+manually -- thumbnails will be put in the directory <tt class="docutils literal"><span class="pre">Thumbs</span></tt> and have <tt class="docutils literal"><span class="pre">-tn</span></tt>
+appended to the name just to avoid confusion:</p>
+<pre class="literal-block">
+from WebKit.Page import Page # the base page class
+import os
+import Image # the Python Imaging Library
+from urllib import quote as urlEncode
+baseDir = os.path.dirname(__file__)
+picsDir = os.path.join(baseDir, 'Pics')
+thumbsDir = os.path.join(baseDir, 'Thumbs')
+
+class Main(Page):
+
+    def title(self):
+        return 'Photo Album'
+
+    def writeContent(self):
+        # The heading:
+        self.writeln('&lt;h1 style=&quot;text-align:center&quot;&gt;%s&lt;/h1&gt;' % self.title())
+        # We'll format these in a table, two columns wide
+        self.writeln('&lt;table width=&quot;100%&quot;&gt;')
+        col = 0 # will be 0 for the left and 1 for the right column
+        filenames = os.listdir(picsDir)
+        # We'll sort the files, case-insensitive
+        filenames.sort(lambda a, b: cmp(a.lower(), b.lower()))
+        for filename in filenames:
+            if not col: # left column
+                self.write('&lt;tr style=&quot;text-align:center&quot;&gt;')
+            thumbFilename = os.path.splitext(filename)
+            thumbFilename = '%s-tn%s' % thumbFilename
+            if not os.path.exists(os.path.join(thumbsDir, thumbFilename)):
+                # No thumbnail exists -- we have to generate one
+                if not os.path.exists(thumbsDir):
+                    # Not even the Thumbs directory exists -- make it
+                    os.mkdir(thumbsDir)
+                im = Image.open(os.path.join(picsDir, filename))
+                im.thumbnail((250, 100))
+                im.save(os.path.join(thumbsDir, thumbFilename))
+            else:
+                im = Image.open(os.path.join(thumbsDir, thumbFilename))
+            url = urlEncode(filename)
+            self.writeln('&lt;td&gt;&lt;p&gt;&lt;a href=&quot;View?filename=%s&quot;&gt;'
+                '&lt;img src=&quot;Pics/%s&quot; width=&quot;%i&quot; height=&quot;%i&quot;&gt;&lt;/a&gt;&lt;/p&gt;'
+                '&lt;p&gt;Filename: %s&lt;br&gt;Size: %i Bytes&lt;/p&gt;'
+                % (url, url, im.size[0], im.size[1], filename,
+                os.stat(os.path.join(picsDir, filename)).st_size))
+            if col: # right column
+                self.writeln('&lt;/tr&gt;')
+            col = not col
+        self.write('&lt;/table&gt;')
+        self.write('&lt;p style=&quot;text-align:center&quot;&gt;'
+            '&lt;a href=&quot;Upload&quot;&gt;Upload an image&lt;/a&gt;&lt;/p&gt;')
+</pre>
+<p>The <tt class="docutils literal"><span class="pre">View</span></tt> servlet we'll leave just like it was.</p>
+<p>We'll add an <tt class="docutils literal"><span class="pre">Upload</span></tt> servlet. Notice we use <tt class="docutils literal"><span class="pre">enctype=&quot;multipart/form-data&quot;</span></tt>
+in the <tt class="docutils literal"><span class="pre">&lt;form&gt;</span></tt> tag -- this is an HTMLism for file uploading (otherwise
+you'll just get the filename and not the file contents). Finally, when the form
+is finished and we have uploaded the image, we redirect them to the viewing
+page by using <tt class="docutils literal"><span class="pre">self.response().sendRedirect(url)</span></tt>:</p>
+<pre class="literal-block">
+from WebKit.Page import Page
+import os
+from urllib import quote as urlEncode
+dir = os.path.join(os.path.dirname(__file__), 'Pics')
+
+class Upload(Page):
+
+    def writeContent(self):
+        if self.request().hasField('imageFile'):
+            self.doUpload()
+            return
+
+        self.writeln('''
+        &lt;h3&gt;Upload your image:&lt;/h3&gt;
+        &lt;form action=&quot;Upload&quot; method=&quot;post&quot; enctype=&quot;multipart/form-data&quot;&gt;
+        &lt;input type=&quot;file&quot; name=&quot;imageFile&quot;&gt;
+        &lt;input type=&quot;submit&quot; value=&quot;Upload&quot;&gt;
+        &lt;/form&gt;''')
+
+    def doUpload(self):
+        file = self.request().field('imageFile')
+        # Because it's a file upload, we don't get a string back.
+        # So to get the value we do this:
+        filename, contents = file.filename, file.value
+        open(os.path.join(dir, filename), 'wb').write(contents)
+        url = 'View?filename=' + urlEncode(filename)
+        self.response().sendRedirect(url)
+</pre>
+</div>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,15 @@
+<% header(name + ' 0.7 Release Notes') %>
+
+<p>Webware for Python 0.7</p>
+
+<a name="ReleaseNotes"></a><h2>Release Notes</h2>
+
+<ul>
+	<li><p>New default behavior for handling whitespace that is between two script tags. If two consecutive script blocks are found and the only characters between the two script blocks are whitespace (string.whitespce), then that whitespace will be ignored.  For example,if you are writing an if/else block, you would have your first script block that starts the if, and then you would end that block and start a new script block that contains the else portion.  If there is any whitespace between these two script blocks, and gobbleWhitespace is turned off, then the parser will add a write statement between the two blocks to output the whitespace into the page.  The problem is that the write statement will have the indentation level of the start of the if block.  So when the else statement starts, it will not be properly associated with the preceding if, and you'll get an error.</p>
+	<p>If you do need whitespace between two script blocks, use the &amp;nbsp; code.</p>
+	<p>The <i>gobblewhitespace</i> attribute of the <i>page</i> directive tells the PSP
+ parser whether it can safely assume that whitespace characters that it finds between two script tags can be safely ignored.  This is a special case directive.  It applies when there are two script tags of some kind, and there is only whitespace characters between the two tags.  If there is only whitespace, the parser will ignore the whitespace.  This is necessary for multipart blocks to function correctly. The default is "yes".</p></li>
+ 	<li>New <i>formatter</i> attribute of the <i>page</i> directive can be used to specify a function to use instead of str() when formatting expression blocks (i.e. <b>&lt;%= ... %&gt;</b> blocks).</li>
+</ul>
+
+<% footer() %>

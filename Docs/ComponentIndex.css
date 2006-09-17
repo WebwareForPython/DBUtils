@@ -1,0 +1,37 @@
+/*
+	This is the style sheet for Webware's ComponentIndex.html.
+	It is not for the index.html files of varous components.
+	We assume that "Doc.css" is linked to before we are.
+*/
+
+body {
+	font-size: 11pt;
+}
+td, th {
+	font-size: 10pt;
+}
+td.InfoSummary {
+	font-size: 10pt;
+}
+p {
+	padding-left: 0;
+}
+.ComponentHeadings {
+	font-weight: bold;
+	color: white;
+	background-color: #6666FF;
+}
+.ComponentRow1 {
+	background-color: #E8E8FF;
+}
+.ComponentRow2 {
+	background-color: #F0F0FF;
+}
+.NameVersionCell {
+}
+.Name {
+	font-weight: bold;
+}
+.Version {
+}
+

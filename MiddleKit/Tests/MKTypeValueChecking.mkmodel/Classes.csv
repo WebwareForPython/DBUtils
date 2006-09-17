@@ -1,0 +1,15 @@
+Class,Attribute,Type,Default,Min,Max,Extras
+Foo,,,,,,
+,b,bool,,,,
+,i,int,,,,
+,l,long,,,,
+,f,float,,,,
+,s,string,,,100,
+,d,date,,,,
+,t,time,,,,
+,dt,datetime,,,,
+,e,enum,,,,"Enums='a, b'"
+,bar,Bar,,,,
+Bar,,,,,,
+,x,int,,,,
+,y,int,,,,

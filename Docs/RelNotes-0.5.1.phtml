@@ -1,0 +1,38 @@
+<% header(name + ' 0.5.1 Release Notes') %>
+
+<p>Webware for Python 0.5.1</p>
+
+<a name="Introduction"></a><h2>Introduction</h2>
+<ul>
+	<li>Version 0.5.1 was released on 3/11/2001.</li>
+	<li>This is a bugfix release.</li>
+</ul>
+
+<h2>API Changes</h2>
+
+<ul>
+	<li><p><i> This change occurred in the last release (0.5), but was not documented in the release notes. We include it here as a reminder:</i></p>
+<p>The proper way to import modules from WebKit, such as Page, is by qualifying the module with <code>WebKit.</code> For example, this:</p>
+<pre class="py">from Page import Page</pre>
+<p>now becomes:</p>
+<pre class="py">from WebKit.Page import Page</pre>
+<p>If you previously had WebKit in your Python path please remove it.</p></li>
+</ul>
+
+<h2>Bugfixes</h2>
+
+<ul>
+	<li> The Admin context was not password protected, with the exception of the AppControl servlet.  Protection has been added to the other servlets in the Admin context.  Also, the Security servlet for the Admin context shared a session variable with the example security servlet, meaning that a client which tried out the security servlet was also given access to the Admin servlets.  We found this disturbing and corrected it.</li>
+	<li> The servlet used to view the source code of the examples was also able to view any file on the system to which the WebKit process had access.  This has been corrected so that only files in the Examples dirtectory can be viewed.  A similar issue existed in the PSP Examples context and was also corrected.</li>
+	<li> The SessionFileStore.keys() method incorrectly put a slash at the beginning of every key. This affected the other flavors of session storage, which use SessionFileStore for various purposes.</li>
+	<li> The XMLRPC servlet in the 0.5.0 release was non-functioning.  It is now functional.</li>
+	<li> <span class="filename">Testing/stress.py</span> now works properly (by killing HTTP cookies, in the test requests, which contain stale session ids).</li>
+	<li> The FastCGI adapter was not functional in the last release.  It works now.  However, we discovered in the process of fixing this that the FastCGI library we are using does not work on Windows.  We have no plans to rectify this situation at the moment.</li>
+	<li>AsyncHTTPThreadedAppServer: Changed environ var REMOTE_HOST to REMOTE_ADDR. This makes more sense, since the value is an IP address and not a name. It also matches Apache. It also enables HTTPRequest.remoteAddr() which worked for all the other app server deployment methods.</li>
+	<li> HTTPResponse: sendRedirect() didn't set the Status: header which cause problems with non-CGI adapters.</li>
+	<li> Added some error checking for socket communications.</li>
+	<li> Improved the format of some Status: HTTP headers.</li>
+	<li> News notes in the Install Guide about using the mod_[python|snake] adapters.</li>
+</ul>
+
+<% footer() %>

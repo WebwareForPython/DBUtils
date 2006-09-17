@@ -1,0 +1,157 @@
+#!/bin/sh
+#
+# WebKit application server
+# part of Webware for Python
+# www.webwareforpython.org
+#
+# /etc/init.d/webkit
+#
+# Generic init.d shell start script for Unix
+#
+# Note: You will find more sophisticated start scripts
+# for various Unix flavors in the StartScripts folder.
+#
+
+# START LOCAL CONFIGURATION
+
+# If you store this script in your Webware working directory
+# and create a symlink to it as /etc/init.d/webkit_appname,
+# it will try to guess your configuration parameters. You can
+# make changes either directly here or you can also override
+# the configuration in the Launch.py script.
+
+# The name of your Webware application:
+APP_NAME=`basename "$0"`
+
+# The location of the start sript:
+if [ -h "$0" ]; then
+	# Get the target file if start script is given as a link:
+	START_SCRIPT=`echo "import os;p='$0'
+while os.path.islink(p):
+	p = os.path.join(os.path.dirname(p), os.readlink(p))
+print p" | python`
+else
+	START_SCRIPT="$0"
+fi
+
+# The working directory or path to WebKit:
+WORK_DIR=`dirname "$START_SCRIPT"`
+# Make sure to have the absolute path:
+test -d "$WORK_DIR" || exit 5
+WORK_DIR=`cd "$WORK_DIR" 2>/dev/null && pwd`
+
+# The app server launch script:
+APP_SERVER="$WORK_DIR/AppServer"
+test -x "$APP_SERVER" || exit 5
+
+# The WebKit app server log file
+# (you can set this in Launch.py as well):
+#LOG_FILE="/var/log/$APP_NAME.log"
+LOG_FILE="$WORK_DIR/Logs/webkit.log"
+# Use this extension if you want to move the last log away
+# (also consider using logrotate or something similar):
+LOG_OLD=".old"
+
+# The app server process id file
+# (you can set this in Launch.py as well):
+#PID_FILE="/var/run/$APP_NAME.pid"
+PID_FILE="$WORK_DIR/webkit.pid"
+
+# The user to run the app server
+# (you can set this in Launch.py as well).
+# If undefined, it will be the user
+# running the start script (usually root).
+# You should use a low-privilege account,
+# like the work dir owner, wwwrun or nobody.
+# This will use the owner of the AppServer script:
+WEBWARE_USER=`echo "import os,pwd;
+print pwd.getpwuid(os.stat('$APP_SERVER')[4])[0]" | python`
+
+# Unset the following variable if you want to store the
+# pid and log files as the user running the start script
+# (usually root) or set it if you want these files to be
+# written after switching to the WEBWARE_USER.
+LAUNCH_AS_WEBWARE="yes"
+
+# Additional options -u or -O to be passed on to Python:
+PYTHONOPTS=
+# Additional libraries to be included in the Python path:
+PYTHONPATH=
+export PYTHONPATH
+
+# END LOCAL CONFIGURATION
+
+case "$1" in
+	start)
+	printf "Starting $APP_NAME ... "
+	# Keep backup of last log file:
+	if [ "$LOG_OLD" -a -f "$LOG_FILE" ]; then
+		if [ -s "$LOG_FILE" ]; then
+			mv -f "$LOG_FILE" "$LOG_FILE$LOG_OLD"
+		else
+			rm -f "$LOG_FILE"
+		fi
+	fi
+	# Check if the server is already running:
+	if [ -f "$PID_FILE" ] ; then
+		PID=`cat "$PID_FILE"`
+		if [ "$PID" ]; then
+			# Check on the command line if it is really our pid file
+			# (MacOs has only "command", SunOS has only "args"):
+			if (ps -o command= -p $PID 2>/dev/null \
+					|| ps -o args= -p $PID 2>/dev/null) \
+					| grep -q " -i $PID_FILE "; then
+				echo "already running"
+				exit 0
+			fi
+		fi
+		rm -f "$PID_FILE"
+	fi
+	if [ -z "$WEBWARE_USER" -o "$WEBWARE_USER" = "$USER" ]; then
+		"$APP_SERVER" $PYTHONOPTS -i "$PID_FILE" \
+			-d "$WORK_DIR" -o "$LOG_FILE" > /dev/null &
+	else
+		if [ "$LAUNCH_AS_WEBWARE" ]; then
+			# Switch user first, then create pid and log files:
+			CMD="\"$APP_SERVER\" $PYTHONOPTS"
+			CMD="$CMD -i \"$PID_FILE\" -d \"$WORK_DIR\" -o \"$LOG_FILE\""
+			su $WEBWARE_USER -c "$CMD" > /dev/null &
+		else
+			# Create pid and log files first, then switch user:
+			"$APP_SERVER" $PYTHONOPTS -i "$PID_FILE" \
+				-d "$WORK_DIR" -u $WEBWARE_USER >> "$LOG_FILE" 2>&1 &
+		fi
+	fi
+	echo "done"
+	;;
+	stop)
+	printf "Stopping $APP_NAME ... "
+	if [ -f "$PID_FILE" ] ; then
+		PID=`cat "$PID_FILE"`
+		if [ "$PID" ]; then
+			if (ps -o command= -p $PID 2>/dev/null \
+					|| ps -o args= -p $PID 2>/dev/null) \
+					| grep -q " -i $PID_FILE "; then
+				if kill $PID > /dev/null 2>&1 ; then
+					echo "done"
+				else
+					echo "error"
+					echo "Could not kill process $PID named in $PID_FILE"
+					exit 1
+				fi
+			else
+				echo "not running (removing stale pid file)"
+			fi
+		else
+			echo "not running (removing empty pid file)"
+		fi
+		rm -f "$PID_FILE"
+	else
+		echo "not running"
+	fi
+	;;
+	*)
+	echo "Usage: $0 {start|stop}"
+	exit 1
+	;;
+esac

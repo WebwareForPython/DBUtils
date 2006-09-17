@@ -1,0 +1,6 @@
+Class,Attribute,Type,Default,Min,Max
+Thing,,,,,
+,a,string,,,
+,b,string,,,
+Foo(Thing),,,,,
+,x,int,,,

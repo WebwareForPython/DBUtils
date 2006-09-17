@@ -1,0 +1,3 @@
+
+def InstallInWebKit(appserver):
+    pass

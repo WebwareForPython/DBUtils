@@ -1,0 +1,80 @@
+<% header(name + ' 0.5 Release Notes') %>
+
+<p>Webware for Python 0.5</p>
+
+<a name="Introduction"></a><h2>Introduction</h2>
+<ul>
+	<li>Version 0.5 was released on 3/1/2001.</li>
+</ul>
+
+<a name="NewFeatures"></a><h2>New Features</h2>
+<ul>
+	<li>Added a new admin page: AppControl. User name and password are admin/webware. This Page allows you to shutdown the running AppServer cleanly, without interrupting any current sessions.  This is now the recommended way to shut down the AppServers. [Jay L]</li>
+	<li>There is a new SecurePage example for securing pages with a login id and password. [Geoff T]</li>
+	<li>There is a new ThreadedAppServerService.py, which is a Windows NT/2K Service version of ThreadedAppServer. This lets you install WebKit as a service that will start automatically when your machine is rebooted, and can be accessed via the Control Panel like any other service. [Geoff T]</li>
+	<li>Added <span class="filename">XMLRPCServlet.py</span>, a base class for servlets that act as XML-RPC servers. This is also a <span class="filename">XMLRPCExample.py</span>. If you need programmatic access to your WebKit server, this is a great and easy way to do it. [Geoff T]</li>
+	<li>Added AsyncThreadedHTTPServer which is standalone combination web server and app server. [Geoff T]</li>
+	<li><p>Application.config now has these settings: [Chuck]</p>
+<pre class="py">
+    'UnknownFileTypes': {
+        'ReuseServlets': 1,
+
+        # Technique choices:
+        # serveContent, redirectSansAdapter
+        'Technique': 'serveContent',
+
+        # If serving content:
+        'CacheContent': 1,
+        'CheckDate': 1,
+    },
+</pre>
+	<p>So by default, a particular file with an unknown type (*.html, *.gif, etc.):</p>
+	<ul>
+		<li>gets its own servlet cached in memory</li>
+		<li>the servlet reads the content and serves it</li>
+		<li>the contents of the file are cached in memory</li>
+		<li>the date of the file is checked on every request</li>
+	</ul>
+	<p>The previous version of all this never cached the contents of the file.</p>
+	<p>Note that 'CheckDate'=0 is currently circumvented, because the application always checks the date of the server side file and makes a new servlet if it's newer. I think that behavior is ultimately "wrong" and needs further investigation.</p>
+	<p><span class="name">RedirectSansAdapter</span> is not likely to be a popular option, but I still provided it. Docs can be found in UnknownFileTypeServlet.py:UnknownFileTypeServlet.redirectSansAdapter().</p></li>
+	<li>Added options <span class="name">CacheServletClasses</span> and <span class="name">CacheServletInstances</span>. See the <a href="UsersGuide.html#Configuration">Configuration</a> section of the User's Guide for more info. [Jay L]</li>
+	<li><p>Added <span class="name">SessionDynamicStore</span> and made it the default session store. It will move inactive, but unexpired sessions out of memory and onto disk. In support of this functionality, the following configuration options have been added to Application.config: [Jay L]</p>
+	<ul>
+		<li>"DynamicSessionTimeout": After how much time (in minutes) without activity should a session be moved from Memory to File.  Default is 15 minutes.</li>
+		<li>"MaxDynamicMemorySessions":  The maximum number of sessions to have in memory. Default is 10,000.</li>
+	</ul></li>
+	<li>Added Session.sessionEncode() function which takes a string containing a URL/I as a parameter and returns that string with the session ID added as a get parameter.  This will enable WebKit's session functionality to function with clients that don't accept cookies.  This can also be accessed through Page.sessionEncode() (as a convenience). [Jay L]</li>
+	<li>Added the mod_webkit adapter. This is a native apache module for communicating with the AppServer. See <span class="filename">Webware/WebKit/mod_webkit/README</span> for more details. [Jay L]</li>
+	<li>Added the ModSnakeAdapter adapter. This is an adapter for the mod_snake Apache module. [Jon Travis, author of ModSnake]</li>
+</ul>
+
+<a name="Improvements"></a><h2>Improvements and Refinements</h2>
+<ul>
+	<li>The adapters will now retry if they can't get to the app server.  This is configurable via settings <span class="name">NumRetries</span> and <span class="name">SecondsBetweenRetries</span>. This improves reliability and gives you, as an admin, the opportunity to shutdown and restart the app server if necessary, with less chance of losing connections to clients. [Geoff T]</li>
+	<li>SessionMemoryStore: The backup-to-disk format now matches SessionFileStore (as well as SessionDynamicStore) so that you can switch session stores without losing data. [Jay L]</li>
+	<li>Plug-ins (which are Python packages) now have a 'plugIn' variable set to point to the PlugIn object created in WebKit. We're not even sure what this could be used for yet, but it makes sense to have this pointer as hook that can be used as needed. [Chuck]</li>
+	<li>The usual slew of code clean-ups. [everyone]</li>
+<!-- Very important to us developers, but doesn't seem important to users. 2002-02-25 ce
+	<li>The communications protocol between the Adapters and the AppServers has been refined in preparation for adding buffering functionality in the next release.
+-->
+</ul>
+
+<a name="APICHanges"></a><h2>API Changes</h2>
+<p>We don't track every change to the interface, but here are some notables:</p>
+<ul>
+	<li>The method serverSidePath() has been implemented for AppServer, Application, Servlet, HTTPRequest and PlugIn. You can pass an optional relative path to the method which is then joined with the server side path. This method is useful for locating files on the server that are located relative to a particular object such as a servlet or the application. [Chuck]</li>
+	<li>The Configurable class has moved to <a href="../../MiscUtils/Docs/index.html">MiscUtils</a> since it is generic enough to be used in other places. [Chuck]</li>
+	<li>Added Object.deprecated() which includes a doc string. For developers of WebKit, be sure to use this in the future if you deprecate any API calls. [Chuck]</li>
+</ul>
+
+<a name="Bugfixes"></a><h2>Bugfixes</h2>
+<ul>
+	<li>A URL such as <span class="filename">http://localhost/WebKit.cgi/File.badext</span> raised a Python exception when it should have return a 404 error. The trick to triggering this bug was to specify an extension that did not exist. [Chuck]</li>
+	<li>ThreadedAppServer would sometimes degenerate into a mode where it stopped handling requests in a timely manner.  This behavior could be provoked by hitting it with more simultaneous requests than it could handle at once. [Geoff T]</li>
+	<li>Application now properly destroys all servlets upon exiting. [Geoff T]</li>
+	<li>ThreadedAppServer is now smarter about how it handles the requestQueue during shutdown, eliminating a source of hanging problems when the request queue was full and the app server was stopped. [Geoff T]</li>
+	<li>The app servers now shut down cleanly on a Control-C. [Geoff T, Jay L]</li>
+</ul>
+
+<% footer() %>

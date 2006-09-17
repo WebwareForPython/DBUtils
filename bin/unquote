@@ -1,0 +1,4 @@
+#!/usr/local/bin/perl -pi
+use strict;
+
+s|"""|'''|g;

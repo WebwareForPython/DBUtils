@@ -1,0 +1,87 @@
+<% header(name + ' 0.2 Release Notes') %>
+
+<p>Webware for Python 0.2</p>
+
+<a name="Changes"></a><h2>Changes</h2>
+<ul>
+	<li>Version 0.2 was released on 5/12/2000</li>
+	<li>handleException()
+		<ul>
+		<li>Added settings: ErrorLogFilename, SaveErrorMessages, ErrorMessagesDir.</li>
+		<li>Added error logging to 'Errors.csv'.</li>
+		<li>HTML error message pages are now saved to a file that can reviewed later by the developer/administrator.</li>
+		<li>Broke out the functionality of handleException() into methods that can be overriden.</li>
+		</ul></li>
+	<li>Renamed ErrorMessage setting to UserErrorMessage.</li>
+	<li>Added "e-mail errors" feature.</li>
+	<li>Logs now get a header row (with column titles).</li>
+	<li>The Scripts.csv log can now be configured by the ScriptLogColumns setting which is an array of names.</li>
+	<li>Removed special __info__ URL and added _admin page which shows basic info and a menu for the script log, error log and configuration. Added _dumpCSV and _config. Created AdminPage base class for all admin scripts.</li>
+	<li>The integration with class-based CGIs can now be configured with the 'ClassNames' setting which is an array of names attempted in order. The empty string means the same name as the script.</li>
+	<li>Found a bad glitch: a relative URL that points to a non-script file that is embedded in a page from a CGI script will end up hitting "server.cgi" which then barfs on the non-script. I fixed up CGI Wrapper. The new policy is that anything with an extension is re-served with a "Location:" header. Anything without an extension is assumed to be a Python script.</li>
+	<li>sys.exit(0), which throws an exception, is now detected and handled gracefully. i.e., the wrapper no longer reports it as an error when a target CGI script does this.</li>
+	<li>Various code clean up and documentation improvements.</li>
+</ul>
+
+<a name="Earlier"></a><h2>Earlier Changes</h2>
+<ul>
+	<li><p>2000-04-25:</p><ul>
+	<li>sys.exit(0), which throws an exception, is now detected and handled gracefully. i.e., the wrapper no longer reports it as an error</li>
+	<li>Major updates to the documentation to reflect the past few days work, plus table of contents, section anchors, etc.</li>
+	<li>Killed ClassExample.py. See _admin.py and other "underscore" scripts for a good example of class-cased CGIs.</li>
+	<li>Enhanced the admin error log to provide a link to the archived error messages (which are plain HTML files). This was prompted the discovery and fix described just below.</li>
+	<li>Found a bad glitch: a relative URL that points to a non-script file that is embedded in a page from a CGI script will end up hitting "server.cgi" which then barfs on the non-script. I fixed up CGI Wrapper. The new policy is that anything with an extension is re-served with a "Location:" header. Anything without an extension is assumed to be a Python script.</li>
+	<li>Got rid of special __info__ URL and supporting showInfo() method. Use _admin URL and look at _admin.py script instead.</li>
+	<li>Pulled CGIWrapperUtils.py into CGIWrapper.</li>
+	<li>The integration with class-based CGIs can now be configured with the 'ClassNames' setting which is an array of names attempted in order. The empty string means the same name as the script.</li>
+	<li>Use cStringIO, but catch ImportError and use StringIO if it's not avail. Haven't compared performance.</li>
+	<li>The Scripts.csv log can now be configured by the ScriptLogColumns setting which is an array of names. I used KeyValueAccess for this. Pretty sweet.</li>
+	</ul></li>
+	<li><p>2000-04-23:</p><ul>
+	<li>Created KeyValueAccess class in Webware's MiddleKit package and made that the superclass of CGIWrapper. (The purpose being for the new ScriptLogColumns setting.)</li>
+	<li>Added "e-mail errors" feature.</li>
+	<li>Renamed go() to serve().</li>
+	</ul></li>
+	<li><p>2000-04-21:</p><ul>
+	<li>Removed special __info__ URL and added _admin page which shows basic info and a menu for the script log, error log and configuration. Added _dumpCSV and _config. Created AdminPage base class for all admin scripts.</li>
+	<li>Scripts that start with an underscore should be run out of the CGI Wrapper's directory. This will be used for CGI Wrapper support scripts.</li>
+	<li>Wrapper: The script log should print a header line the first time the file ever gets written to.</li>
+	<li>Renamed ErrorMessage setting to UserErrorMessage.</li>
+	<li>handleException():<ul>
+		<li>Added settings, ErrorLogFilename, SaveErrorMessages, ErrorMessagesDir.</li>
+		<li>Added error logging to 'Errors.csv'.
+		<li>HTML error message pages are now saved to a file that can reviewed later by the developer/administrator.
+		<li>Broke out the functionality of handleException() into methods that can be overriden.
+		</ul></li>
+	<li>Docs: Should include an example error page.</li>
+	</ul></li>
+	<li><p>2000-04-16:</p><ul>
+	<li>Document the OO hook.</li>
+	<li>The traceback on errors is not colorized like in WebKit.</li>
+	<li>Message to stderr should include a timestamp.</li>
+	<li>Review the names of the settings.</li>
+	<li>Add a special version URL that reports the version of the CGI wrapper.</li>
+	<li>Describe the hook for cookies.</li>
+	<li>Rename 'env' global to 'environ' to match os.</li>
+	</ul></li>
+	<li><p>2000-04-15:</p><ul>
+	<li>Document the globals that are passed to the CGI script and that scripts should use 'env'.</li>
+	<li>Revamp the CGI Wrapper into a class that could then be subclassed and customized.</li>
+	<li>The target script should also have a "wrapper" variable that points back to the CGI Wrapper.</li>
+	<li>The current directory is not changed to the location of the script.</li>
+	<li>The Colors example script does not compute brightness correctly.</li>
+	<li>Some of the config info is hard coded so you have to change the script source.</li>
+	<li>Import target scripts rather than reading &amp; execing their source. Note: Python doesn't seem to allow any backdoors for passing global vars to an import, so this may not be reasonably possible. Looks like execfile() can take care of this.
+	<li>Explain in docs that Server.cgi also forces byte code caching of server.py.</li>
+	<li>The View example script should probably accept a variable tabsize and then use string.expandtabs.
+	<li>The View example script doesn't do its HTML encoding very well. Also, maybe it should use WebUtils.
+	</ul>
+	<li><p>2000-04-10:</p><ul>
+	<li>There's a bug in writing the script log at run time.</li>
+	</ul></li>
+	<li>before 2000-04-10:</p><ul>
+	<li>A bunch of stuff.
+	</ul></li>
+</ul>
+
+<% footer() %>

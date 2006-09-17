@@ -1,0 +1,13 @@
+<% header(name + ' 0.7 Release Notes') %>
+
+<p>Webware for Python 0.7</p>
+
+<a name="Changes"></a><h2>Changes</h2>
+<ul>
+	<li>New versioning strategy: all Webware components will now have their version numbers updated in lock-step.</li>
+	<li>A new <i>isIndexed=1</i> flag can be set for each attribute, which results in a SQL index. This is also for speed up especially when used on "list back references".</li>
+	<li><kbd>store.deleteObject()</kbd> is now an order of magnitude faster.</li>
+	<li><kbd>store.fetchObjectsOfKlass()</kbd> is now over twice as fast.</li>
+</ul>
+
+<% footer() %>

@@ -1,0 +1,6 @@
+Class,Attribute,Type,isRequired,Min,Max
+Foo,,,,,
+,max100,string,,,100
+,max500,string,,,500
+,max70000,string,,,70000
+,min10,string,0,10,100

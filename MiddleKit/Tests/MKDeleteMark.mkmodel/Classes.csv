@@ -1,0 +1,37 @@
+Class,Attribute,Type,Default,Min,Max,Extras
+Foo,,,,,,
+,bar,Bar,,,,
+,listOfI,list of I,,,,
+,listOfJ,list of J,,,,onDeleteSelf='deny'
+,listOfK,list of K,,,,onDeleteSelf='detach'
+,listOfL,list of L,,,,onDeleteSelf='cascade'
+
+Bar,,,,,,
+,x,int,,,,
+
+A,,,,,,
+,foo,Foo,,,,
+B,,,,,,
+,foo,Foo,,,,onDeleteOther='deny'
+C,,,,,,
+,foo,Foo,,,,onDeleteOther='detach'
+D,,,,,,
+,foo,Foo,,,,onDeleteOther='cascade'
+
+E,,,,,,
+,foo,Foo,,,,
+F,,,,,,
+,foo,Foo,,,,onDeleteSelf='deny'
+G,,,,,,
+,foo,Foo,,,,onDeleteSelf='detach'
+H,,,,,,
+,foo,Foo,,,,onDeleteSelf='cascade'
+
+I,,,,,,
+,foo,Foo,,,,onDeleteOther='detach'
+J,,,,,,
+,foo,Foo,,,,onDeleteOther='detach'
+K,,,,,,
+,foo,Foo,,,,onDeleteOther='detach'
+L,,,,,,
+,foo,Foo,,,,onDeleteOther='detach'

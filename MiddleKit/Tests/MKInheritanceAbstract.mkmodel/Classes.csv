@@ -1,0 +1,24 @@
+Class,Attribute,Type,Default,Min,Max,Sample1,Extras
+Shape,,,,,,,isAbstract
+OpenShape (Shape),,,,,,,isAbstract
+Line (OpenShape),,,,,,,
+,x1,float,,,,,
+,y1,float,,,,,
+,x2,float,,,,,
+,y2,float,,,,,
+Squiggle (Line),,,,,,,
+,cx1,float,,,,,
+,cy1,float,,,,,
+,cx2,float,,,,,
+,cy2,float,,,,,
+ClosedShape (Shape),,,,,,,isAbstract
+,area,float,,,,,
+Rectangle (ClosedShape),,,,,,,
+,x1,float
+,y1,float
+,x2,float
+,y2,float
+Circle (ClosedShape),,
+,x1,float
+,y1,float
+,radius,float

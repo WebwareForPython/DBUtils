@@ -1,0 +1,57 @@
+UserKit
+TO DO
+
+
+<major>
+
+	[ ] Roles: Implement and test. These might be done as mix-ins.
+
+	[ ] Timeouts: We have the settings, but not the implementation
+		[ ] modified users get persisted
+		[ ] inactive users get pushed out of memory
+		[ ] inactive users get logged out
+
+	[ ] MiddleKit integration:
+		[ ] Should the manager be stored as an MK object?
+		[ ] Is there a conflict regarding accessor methods between User and what MiddleKit does?
+
+	[ ] WebKit integration
+		[ ] Make a UserPage(Page) class for WebKit. Or perhaps a UserServletMixIn. Hmmmm.
+		[ ] Add a UserManager admin page.
+
+	[ ] Consider implementing Tom's suggestion for manager interface
+
+	[ ] Docs: User's Guide
+
+	[ ] Upload to CVS
+
+</major>
+
+
+<refinements/improvements>
+
+	[ ] Consider making roles case insensitive.
+
+	[ ] For that matter, should user names be case insensitive?
+		- If so, provide for an option to be case sensitive. Some users want that, especially if they are porting an existing app.
+
+	[ ] UserManagerToFile
+		[ ] Iterating through all users means pulling them all into memory (until the inactive user timeout pushes them out)
+		[ ] No indexes on externalId or name. So a linear search is required (after checking memory). On the other hand, what do you expect with simple file based storage?
+
+</refinements/improvements>
+
+
+<testing>
+
+	[ ] case: retrieve users from the middlekit store, totally fresh.
+
+	[ ] Test the various "default" parameters of all the methods.
+
+	[ ] cover all methods
+
+	[ ] Add more subtle and complex tests.
+
+	[ ] test externalId
+
+</testing>

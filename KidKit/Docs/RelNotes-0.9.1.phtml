@@ -1,0 +1,22 @@
+<% header(name + ' 0.9.1 Release Notes') %>
+
+<p><% name %> version 0.9.1 released on 04/23/06</p>
+
+<a name="Security"></a><h2>Security</h2>
+<ul>
+	<li>If the KidKit Plugin cannot be installed (e.g. if Kid is not available),
+	then the <span class="filename">.kid</span> extension will be disabled for
+	delivery. If it would stay enabled and KidKit is not active, Kid templates
+	containing passwords or other sensitive information would be delivered
+	unparsed to the client.</li>
+</ul>
+
+<a name="Bugfixes"></a><h2>Bugfixes</h2>
+<ul>
+	<li>The output method could only be changed for every template individually.
+	Changing the default output method by setting <code>KidOutputMethod</code>
+	in <span class="filename">Application.config</span> now works as well.
+	(Reported by Frank Barknecht.)</li>
+</ul>
+
+<% footer() %>

@@ -1,0 +1,30 @@
+<% header(name + ' 0.5 Release Notes') %>
+
+<p>Webware for Python 0.5</p>
+
+<a name="General"></a><h2>General</h2>
+<ul>
+	<li>Version 0.5 was released on 3/1/2001.</li>
+	<li>The following additions generally come with good doc strings which explain their purpose and use. Please consult the .py files to read the doc strings.
+	<ul>
+		<li>Added <span class="filename">Configurable.py</span> which previously resided in <a href="../../WebKit/Docs/index.html">WebKit</a>. [Chuck]</li>
+		<li>Added <span class="filename">Error.py</span>. [Chuck]</li>
+		<li>Added <span class="filename">Funcs.py</span> with various functions such as commas(), charWrap() and timestamp(). [Chuck]</li>
+		<li>Added <span class="filename">DBPool.py</span>. [Dan G, Tom S, Geoff T]</li>
+		<li>Added <span class="filename">MixIn.py</span>. [Chuck]</li>
+		<li>Added <span class="filename">unittest.py</span> from <a href="http://pyunit.sourceforge.net">http://pyunit.sourceforge.net/</a>. If you develop Webware, please add new test cases to Webware components when adding new features.</li>
+		<li>Added <span class="filename">PropertiesObject.py</span> for reading the various <span class="filename">Properties.py</span> files of the Webware components. Most Webware users won't need or care about this class, but we use it internally. [Chuck]</li>
+	</ul></li>
+	<li>Removed the CSV module which has been subsumed by the more powerful DataTable module. [Chuck]</li>
+	<li>Added <span class="name">NoDefault</span> directly in the package. See the doc string for it in <span class="filename">__init__.py</span>.</li>
+</ul>
+
+<a name="DataTable"></a><h2>DataTable</h2>
+<ul>
+	<li>DataTable.TableRecord: Added has_key(), asList() and asDict(). [Chuck]</li>
+	<li>Record-like objects added to a table must respond to hasValueForKey() and valueForKey() rather than hasValueForField() and valueForField(). Note that the "key" methods are implemented as a mix-in in NamedValueAccess (although you can certainly write your own). [Chuck]</li>
+	<li>Bugfix: CSV files couldn't have quotation marks around heading names. [Chuck]</li>
+	<li>Improved the docs and test suite. [Chuck]</li>
+</ul>
+
+<% footer() %>
