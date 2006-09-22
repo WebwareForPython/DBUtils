@@ -16,10 +16,10 @@ consistently in all files of the distribution.
 version = ('X', 'Y', 0)
 version = (0, 9, 2)
 releaseDate = '@@/@@/@@'
-releaseDate = '07/29/06'
+releaseDate = '09/22/06'
 
 # Verbose output (output unchanged files also):
-verbose = 1
+verbose = 0
 
 from glob import glob
 import os, sys, re
