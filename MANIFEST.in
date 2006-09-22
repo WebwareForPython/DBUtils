@@ -1,0 +1,2 @@
+include DBUtils/Docs/*
+prune DBUtils/Docs/.svn

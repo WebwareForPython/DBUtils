@@ -1,9 +1,0 @@
-LIBRARY wk_isapi
-
-DESCRIPTION "An ISAPI Extension for WebKit"
-
-EXPORTS
-
-	GetExtensionVersion
-	HttpExtensionProc
-
