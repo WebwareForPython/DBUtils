@@ -5,6 +5,8 @@ Create a new DBUtils release:
 
 * Run all tests in DBUtils/Testing.
 
+* Update and check the Release Notes.
+
 * Set version number and release date with setversion.py.
 
 * Build html pages using buildhtml.py.
