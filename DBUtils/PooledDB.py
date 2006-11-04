@@ -56,7 +56,7 @@ For instance, if you are using pgdb as your DB-API 2 database module and
 want a pool of at least five connections to your local database 'mydb':
 
 	import pgdb # import used DB-API 2 module
-	from PooledDB import PooledDB
+	from DBUtils.PooledDB import PooledDB
 	pool = PooledPg(pgdb, 5, database='mydb')
 
 Once you have set up the connection pool you can request

@@ -48,7 +48,7 @@ to the database is lost or has been used too often, it will be
 transparently reset in most situations, without further notice.
 
 	import pgdb # import used DB-API 2 module
-	from SteadyDB import connect
+	from DBUtils.SteadyDB import connect
 	db = connect(pgdb, 10000, ["set datestyle to german"],
 		host=..., database=..., user=..., ...)
 	...

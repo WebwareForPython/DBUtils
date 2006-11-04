@@ -41,7 +41,7 @@ that may serve to prepare the session as the second parameter.
 When the connection to the PostgreSQL database is lost or has been
 used too often, it will be automatically reset, without further notice.
 
-	from SteadyPg import SteadyPgConnection
+	from DBUtils.SteadyPg import SteadyPgConnection
 	db = SteadyPgConnection(10000, ["set datestyle to german"],
 		host=..., dbname=..., user=..., ...)
 	...

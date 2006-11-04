@@ -51,7 +51,7 @@ an instance of PooledPg, passing the following parameters:
 For instance, if you want a pool of at least five connections
 to your local database 'mydb':
 
-	from PooledPg import PooledPg
+	from DBUtils.PooledPg import PooledPg
 	pool = PooledPg(5, dbname='mydb')
 
 Once you have set up the connection pool you can request

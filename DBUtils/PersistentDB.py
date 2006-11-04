@@ -44,7 +44,7 @@ For instance, if you are using pgdb as your DB-API 2 database module and want
 every connection to your local database 'mydb' to be reused 1000 times:
 
 	import pgdb # import used DB-API 2 module
-	from PersistentDB import PersistentDB
+	from DBUtils.PersistentDB import PersistentDB
 	persist = PersistentDB(pgdb, 1000, database='mydb')
 
 Once you have set up the generator with these parameters, you can

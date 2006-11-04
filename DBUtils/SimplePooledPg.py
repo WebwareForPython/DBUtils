@@ -26,7 +26,7 @@ After you have established your connection pool, stating the
 number of connections to be cached in the pool and the
 connection parameters, e.g.
 
-	from SimplePooledPg import PooledPg
+	from DBUtils.SimplePooledPg import PooledPg
 	dbpool = PooledPg(5, host=..., database=..., user=..., ...)
 
 you can demand database connections from that pool,

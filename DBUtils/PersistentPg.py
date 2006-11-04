@@ -45,7 +45,7 @@ by creating an instance of PersistentPg, passing the following parameters:
 For instance, if you want every connection to your local database 'mydb'
 to be reused 1000 times:
 
-	from PersistentPg import PersistentPg
+	from DBUtils.PersistentPg import PersistentPg
 	persist = PersistentPg(5, dbname='mydb')
 
 Once you have set up the generator with these parameters, you can
