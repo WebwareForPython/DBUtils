@@ -3,7 +3,7 @@ Create a new DBUtils release:
 
 * Check the documentation.
 
-* Run all tests in DBUtils/Testing.
+* Run all tests in DBUtils/Testing with Python version from 2.2 to 2.5.
 
 * Update and check the Release Notes.
 

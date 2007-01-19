@@ -40,5 +40,6 @@ DB-API 2 compliant database interfaces and the classic PyGreSQL interface.
 	platforms=['any'],
 	license='Open Software License',
 	packages=['DBUtils', 'DBUtils.Examples', 'DBUtils.Testing'],
-	package_data={'DBUtils': ['Docs/*']}
+	package_data={'DBUtils': ['Docs/*']},
+	zip_safe=1
 )
