@@ -126,10 +126,10 @@ class InvalidConnection(PooledDBError): pass
 
 
 class PooledDB:
-	"""Pool for classic PyGreSQL connections.
+	"""Pool for DB-API 2 connections.
 
 	After you have created the connection pool, you can use
-	connection() to get pooled, steady PostgreSQL connections.
+	connection() to get pooled, steady DB-API 2 connections.
 
 	"""
 
@@ -138,7 +138,7 @@ class PooledDB:
 		maxshared=0, maxconnections=0, blocking=0,
 		maxusage=0, setsession=None,
 		*args, **kwargs):
-		"""Set up the PostgreSQL connection pool.
+		"""Set up the DB-API 2 connection pool.
 
 		dbapi: the DB-API 2 compliant database module to be used
 		mincached: initial number of idle connections in the pool
@@ -161,7 +161,7 @@ class PooledDB:
 		setsession: optional list of SQL commands that may serve to prepare
 			the session, e.g. ["set datestyle to ...", "set time zone ..."]
 		args, kwargs: the parameters that shall be used to establish
-			the PostgreSQL connections using class PyGreSQL pg.DB()
+			the DB-API 2 connections using the DB-API 2 module
 
 		"""
 		self._dbapi = dbapi
