@@ -307,7 +307,7 @@ want a pool of at least five connections to your local database ``mydb``::
 
   import pgdb # import used DB-API 2 module
   from DBUtils.PooledDB import PooledDB
-  pool = PooledPg(pgdb, 5, database='mydb')
+  pool = PooledDB(pgdb, 5, database='mydb')
 
 Once you have set up the connection pool you can request database connections
 from that pool::
