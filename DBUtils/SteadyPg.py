@@ -90,7 +90,7 @@ class SteadyPgConnection:
 	def __init__(self, maxusage=0, setsession=None, *args, **kwargs):
 		"""Create a "tough" PostgreSQL connection.
 
-		maxusage: maximum usage limit for the underlying PygreSQL connection
+		maxusage: maximum usage limit for the underlying PyGreSQL connection
 			(number of uses, 0 or False means unlimited usage)
 			When this limit is reached, the connection is automatically reset.
 		setsession: optional list of SQL commands that may serve to prepare
@@ -122,7 +122,7 @@ class SteadyPgConnection:
 		try:
 			self._con.close()
 			self._usage = 0
-		except:
+		except Exception:
 			pass
 
 	def close(self):
@@ -147,7 +147,7 @@ class SteadyPgConnection:
 			self._con.reopen()
 			self._setsession()
 			self._usage = 0
-		except:
+		except Exception:
 			pass
 
 	def reset(self):
@@ -161,7 +161,7 @@ class SteadyPgConnection:
 			self._con.reset()
 			self._setsession()
 			self._usage = 0
-		except:
+		except Exception:
 			self.reopen()
 
 	def _get_tough_method(self, method):
@@ -179,18 +179,18 @@ class SteadyPgConnection:
 				if self._maxusage: # or connection used too often
 					if self._usage >= self._maxusage:
 						raise AttributeError
-			except:
+			except Exception:
 				self.reset() # then reset the connection
 			try:
-				r = method(*args, **kwargs) # try connection method
-			except: # error in query
+				result = method(*args, **kwargs) # try connection method
+			except Exception: # error in query
 				if self._con.db.status: # if it was not a connection problem
 					raise # then propagate the error
 				else: # otherwise
 					self.reset() # reset the connection
-					r = method(*args, **kwargs) # and try one more time
+					result = method(*args, **kwargs) # and try one more time
 			self._usage += 1
-			return r
+			return result
 		return tough_method
 
 	def __getattr__(self, name):

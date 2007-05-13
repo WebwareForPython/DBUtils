@@ -43,8 +43,8 @@ class Connection:
 
 
 import unittest
-sys.path.insert(1, '..')
-import SimplePooledDB
+sys.path.insert(1, '../..')
+from DBUtils import SimplePooledDB
 
 
 class TestSimplePooledDB(unittest.TestCase):

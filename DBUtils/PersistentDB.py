@@ -29,16 +29,19 @@ Usage:
 First you need to set up a generator for your kind of database connections
 by creating an instance of PersistentDB, passing the following parameters:
 
-	dbapi: the DB-API 2 compliant database module to be used
+	creator: either an arbitrary function returning new DB-API 2
+		connection objects or a DB-API 2 compliant database module
 	maxusage: the maximum number of reuses of a single connection
 		(the default of 0 or False means unlimited reuse)
 		Whenever the limit is reached, the connection will be reset.
 	setsession: an optional list of SQL commands that may serve to
 		prepare the session, e.g. ["set datestyle to german", ...].
 
-	Additionally, you have to pass the parameters for the actual
-	database connection which are passed via the DB-API 2 module,
-	such as the names of the host, database, user, password etc.
+	The creator function or the connect function of the DB-API 2 compliant
+	database module specified as the creator will receive any additional
+	parameters such as the host, database, user, password etc. You may
+	choose some or all of these parameters in your own creator function,
+	allowing for sophisticated failover and load-balancing mechanisms.
 
 For instance, if you are using pgdb as your DB-API 2 database module and want
 every connection to your local database 'mydb' to be reused 1000 times:
@@ -91,10 +94,13 @@ __revision__ = "$Rev$"
 __date__ = "$Date$"
 
 
-from SteadyDB import connect
+from DBUtils.SteadyDB import connect
 
-class PersistentDBError(Exception): pass
-class NotSupportedError(PersistentDBError): pass
+class PersistentDBError(Exception):
+	"""General PersistentDB error."""
+
+class NotSupportedError(PersistentDBError):
+	"""DB-API module not supported by PersistentDB."""
 
 
 class PersistentDB:
@@ -105,26 +111,34 @@ class PersistentDB:
 
 	"""
 
-	def __init__(self, dbapi,
+	def __init__(self, creator,
 		maxusage=0, setsession=None, *args, **kwargs):
 		"""Set up the persistent DB-API 2 connection generator.
 
-		dbapi: the DB-API 2 compliant database module to be used
+		creator: either an arbitrary function returning new DB-API 2
+			connection objects or a DB-API 2 compliant database module
 		maxusage: maximum number of reuses of a single connection
 			(number of database operations, 0 or False means unlimited)
 			Whenever the limit is reached, the connection will be reset.
 		setsession: optional list of SQL commands that may serve to prepare
 			the session, e.g. ["set datestyle to ...", "set time zone ..."]
-		args, kwargs: the parameters that shall be used to establish
-			the database connections using the DB-API 2 module
+		args, kwargs: the parameters that shall be passed to the creator
+			function or the connection constructor of the DB-API 2 module
 
 		Set the _closeable attribute to True or 1 to allow closing
 		connections. By default, this will be silently ignored.
 
 		"""
-		if not getattr(dbapi, 'threadsafety', None):
-			raise NotSupportedError, "Database module is not thread-safe."
-		self._dbapi = dbapi
+		try:
+			threadsafety = creator.threadsafety
+		except AttributeError:
+			try:
+				threadsafety = callable(creator.connect) and 0 or 1
+			except AttributeError:
+				threadsafety = 1
+		if not threadsafety:
+			raise NotSupportedError("Database module is not thread-safe.")
+		self._creator = creator
 		self._maxusage = maxusage
 		self._setsession = setsession
 		self._args, self._kwargs = args, kwargs
@@ -133,7 +147,7 @@ class PersistentDB:
 
 	def steady_connection(self):
 		"""Get a steady, non-persistent DB-API 2 connection."""
-		return connect(self._dbapi,
+		return connect(self._creator,
 			self._maxusage, self._setsession, *self._args, **self._kwargs)
 
 	def connection(self, shareable=0):
@@ -144,28 +158,33 @@ class PersistentDB:
 		are of course never shared with other threads.
 
 		"""
-		if not hasattr(self.thread, 'connection'):
-			self.thread.connection = self.steady_connection()
-			self.thread.connection._closeable = self._closeable
-		return self.thread.connection
+		try:
+			con = self.thread.connection
+		except AttributeError:
+			con = self.steady_connection()
+			if not con.threadsafety():
+				raise NotSupportedError("Database module is not thread-safe.")
+			con._closeable = self._closeable
+			self.thread.connection = con
+		return con
 
 
 try: # import a class for representing thread-local objects
 	from threading import local
-except: # for Python < 2.4, use the following simple implementation
+except ImportError: # for Python < 2.4, use the following simple implementation
 	from threading import currentThread, enumerate, RLock
 	class _localbase(object):
 		__slots__ = '_local__key', '_local__args', '_local__lock'
-		def __new__(cls, *args, **kw):
+		def __new__(cls, *args, **kwargs):
 			self = object.__new__(cls)
 			key = '_local__key', 'thread.local.' + str(id(self))
 			object.__setattr__(self, '_local__key', key)
-			object.__setattr__(self, '_local__args', (args, kw))
+			object.__setattr__(self, '_local__args', (args, kwargs))
 			object.__setattr__(self, '_local__lock', RLock())
-			if args or kw and (cls.__init__ is object.__init__):
+			if args or kwargs and (cls.__init__ is object.__init__):
 				raise TypeError("Initialization arguments are not supported")
-			dict = object.__getattribute__(self, '__dict__')
-			currentThread().__dict__[key] = dict
+			d = object.__getattribute__(self, '__dict__')
+			currentThread().__dict__[key] = d
 			return self
 	def _patch(self):
 		key = object.__getattribute__(self, '_local__key')
@@ -176,8 +195,8 @@ except: # for Python < 2.4, use the following simple implementation
 			object.__setattr__(self, '__dict__', d)
 			cls = type(self)
 			if cls.__init__ is not object.__init__:
-				args, kw = object.__getattribute__(self, '_local__args')
-				cls.__init__(self, *args, **kw)
+				args, kwargs = object.__getattribute__(self, '_local__args')
+				cls.__init__(self, *args, **kwargs)
 		else:
 			object.__setattr__(self, '__dict__', d)
 	class local(_localbase):
@@ -212,7 +231,7 @@ except: # for Python < 2.4, use the following simple implementation
 				key = __getattribute__(self, '_local__key')
 				try:
 					threads = list(threading_enumerate())
-				except:
+				except Exception:
 					return
 				for thread in threads:
 					try:

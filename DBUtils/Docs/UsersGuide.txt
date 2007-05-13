@@ -226,7 +226,8 @@ In order to make use of the ``PersistentDB`` module, you first need to set
 up a generator for your kind of database connections by creating an instance
 of ``PersistentDB``, passing the following parameters:
 
-* ``dbapi``: the DB-API 2 compliant database module to be used
+* ``creator``: either an arbitrary function returning new DB-API 2
+  connection objects or a DB-API 2 compliant database module
 
 * ``maxusage``: the maximum number of reuses of a single connection
   (the default of ``0`` or ``False`` means unlimited reuse)
@@ -236,9 +237,11 @@ of ``PersistentDB``, passing the following parameters:
 * ``setsession``: an optional list of SQL commands that may serve to
   prepare the session, e.g. ``["set datestyle to german", ...]``.
 
-* Additionally, you have to pass the parameters for the actual
-  database connection which are passed via the DB-API 2 module,
-  such as the names of the host, database, user, password etc.
+* The creator function or the connect function of the DB-API 2 compliant
+  database module specified as the creator will receive any additional
+  parameters such as the host, database, user, password etc. You may
+  choose some or all of these parameters in your own creator function,
+  allowing for sophisticated failover and load-balancing mechanisms.
 
 For instance, if you are using ``pgdb`` as your DB-API 2 database module and
 want every connection to your local database ``mydb`` to be reused 1000 times::
@@ -268,7 +271,8 @@ In order to make use of the ``PooledDB`` module, you first need to set up the
 database connection pool by creating an instance of ``PooledDB``, passing the
 following parameters:
 
-* ``dbapi``: the DB-API 2 compliant database module to be used
+* ``creator``: either an arbitrary function returning new DB-API 2
+  connection objects or a DB-API 2 compliant database module
 
 * ``mincached`` : the initial number of idle connections in the pool
   (the default of ``0`` means no connections are made at startup)
@@ -298,9 +302,11 @@ following parameters:
 * ``setsession``: an optional list of SQL commands that may serve to
   prepare the session, e.g. ``["set datestyle to german", ...]``.
 
-* Additionally, you have to pass the parameters for the actual
-  database connection which are passed via the DB-API 2 module,
-  such as the names of the host, database, user, password etc.
+* The creator function or the connect function of the DB-API 2 compliant
+  database module specified as the creator will receive any additional
+  parameters such as the host, database, user, password etc. You may
+  choose some or all of these parameters in your own creator function,
+  allowing for sophisticated failover and load-balancing mechanisms.
 
 For instance, if you are using ``pgdb`` as your DB-API 2 database module and
 want a pool of at least five connections to your local database ``mydb``::
@@ -369,9 +375,9 @@ the "Pooled" variant, otherwise it will use the "Persistent" variant.
 
 Notes
 =====
-If you are using the popular object relational manager SQLObject_,
-you won't need DBUtils, since it comes with its own connection pool.
-`SQLObject 2`_ (SQL-API_) is actually borrowing some code
+If you are using one of the popular object-relational mappers SQLObject_
+or SQLAlchemy_, you won't need DBUtils, since they come with their own
+connection pools. `SQLObject 2`_ (SQL-API_) is actually borrowing some code
 from DBUtils to split the pooling out into a separate layer.
 
 
@@ -415,7 +421,8 @@ Some links to related and alternative software:
 * Python `DB-API 2`_
 * PostgreSQL_ database
 * PyGreSQL_ adapter
-* SQLObject_ interface
+* SQLObject_ object-relational mapper
+* SQLAlchemy_ object-relational mapper
 
 .. _DBUtils: http://www.webwareforpython.org/DBUtils
 .. _Python: http://www.python.org
@@ -428,6 +435,7 @@ Some links to related and alternative software:
 .. _SQLObject: http://www.sqlobject.org
 .. _SQLObject 2: http://www.sqlobject.org/2/
 .. _SQL-API: http://www.sqlobject.org/sqlapi/
+.. _SQLAlchemy: http://www.sqlalchemy.org
 
 
 Credits
@@ -437,8 +445,8 @@ Credits
 
 :Contributions: DBUtils uses code, input and suggestions made by
   Ian Bicking, Chuck Esterbrook (Webware for Python), Dan Green (DBTools),
-  Jay Love, Michael Palmer, Tom Schwaller, Geoffrey Talvola
-  and Warren Smith (DbConnectionPool).
+  Jay Love, Michael Palmer, Tom Schwaller, Geoffrey Talvola,
+  Warren Smith (DbConnectionPool) and Ezio Vernacotola.
 
 
 Copyright and License

@@ -17,21 +17,19 @@ __date__ = "$Date$"
 
 
 import sys
-
-# This module also serves as a mock object for the pg API module:
-
-import TestSteadyPg
-
 import unittest
-sys.path.insert(1, '..')
-from PersistentPg import PersistentPg
+
+sys.path.insert(1, '../..')
+# The TestSteadyPg module serves as a mock object for the pg API module:
+from DBUtils.Testing import TestSteadyPg
+from DBUtils.PersistentPg import PersistentPg
 
 
 class TestPersistentPg(unittest.TestCase):
 
 	def test0_CheckVersion(self):
 		TestPersistentPgVersion = __version__
-		from PersistentPg import __version__ as PersistentPgVersion
+		from DBUtils.PersistentPg import __version__ as PersistentPgVersion
 		self.assertEqual(PersistentPgVersion, TestPersistentPgVersion)
 
 	def test1_PersistentPgClose(self):

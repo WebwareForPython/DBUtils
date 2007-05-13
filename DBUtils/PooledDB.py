@@ -27,7 +27,8 @@ Usage:
 First you need to set up the database connection pool by creating
 an instance of PooledDB, passing the following parameters:
 
-	dbapi: the DB-API 2 compliant database module to be used
+	creator: either an arbitrary function returning new DB-API 2
+		connection objects or a DB-API 2 compliant database module
 	mincached: the initial number of idle connections in the pool
 		(the default of 0 means no connections are made at startup)
 	maxcached: the maximum number of idle connections in the pool
@@ -48,9 +49,11 @@ an instance of PooledDB, passing the following parameters:
 	setsession: an optional list of SQL commands that may serve to
 		prepare the session, e.g. ["set datestyle to german", ...]
 
-	Additionally, you have to pass the parameters for the actual
-	database connection which are passed via the DB-API 2 module,
-	such as the names of the host, database, user, password etc.
+	The creator function or the connect function of the DB-API 2 compliant
+	database module specified as the creator will receive any additional
+	parameters such as the host, database, user, password etc. You may
+	choose some or all of these parameters in your own creator function,
+	allowing for sophisticated failover and load-balancing mechanisms.
 
 For instance, if you are using pgdb as your DB-API 2 database module and
 want a pool of at least five connections to your local database 'mydb':
@@ -116,13 +119,21 @@ __revision__ = "$Rev$"
 __date__ = "$Date$"
 
 
-from SteadyDB import connect
 from threading import Condition
 
-class PooledDBError(Exception): pass
-class NotSupportedError(PooledDBError): pass
-class TooManyConnections(PooledDBError): pass
-class InvalidConnection(PooledDBError): pass
+from DBUtils.SteadyDB import connect
+
+class PooledDBError(Exception):
+	"""General PooledDB error."""
+
+class InvalidConnection(PooledDBError):
+	"""Database connection is invalid."""
+
+class NotSupportedError(PooledDBError):
+	"""DB-API module not supported by PooledDB."""
+
+class TooManyConnections(PooledDBError):
+	"""Too many database connections were opened."""
 
 
 class PooledDB:
@@ -133,14 +144,15 @@ class PooledDB:
 
 	"""
 
-	def __init__(self, dbapi,
+	def __init__(self, creator,
 		mincached=0, maxcached=0,
 		maxshared=0, maxconnections=0, blocking=0,
 		maxusage=0, setsession=None,
 		*args, **kwargs):
 		"""Set up the DB-API 2 connection pool.
 
-		dbapi: the DB-API 2 compliant database module to be used
+		creator: either an arbitrary function returning new DB-API 2
+			connection objects or a DB-API 2 compliant database module
 		mincached: initial number of idle connections in the pool
 			(0 means no connections are made at startup)
 		maxcached: maximum number of idle connections in the pool
@@ -160,16 +172,20 @@ class PooledDB:
 			the connection is automatically reset (closed and reopened).
 		setsession: optional list of SQL commands that may serve to prepare
 			the session, e.g. ["set datestyle to ...", "set time zone ..."]
-		args, kwargs: the parameters that shall be used to establish
-			the DB-API 2 connections using the DB-API 2 module
+		args, kwargs: the parameters that shall be passed to the creator
+			function or the connection constructor of the DB-API 2 module
 
 		"""
-		self._dbapi = dbapi
-		# Connections can be only shareable if the underlying DB-API 2
-		# module is thread-safe at the connection level:
-		threadsafety = getattr(dbapi, 'threadsafety', None)
+		try:
+			threadsafety = creator.threadsafety
+		except AttributeError:
+			try:
+				threadsafety = callable(creator.connect) and 0 or 2
+			except AttributeError:
+				threadsafety = 2
 		if not threadsafety:
-			raise NotSupportedError, "Database module is not thread-safe."
+			raise NotSupportedError("Database module is not thread-safe.")
+		self._creator = creator
 		self._args, self._kwargs = args, kwargs
 		self._maxusage = maxusage
 		self._setsession = setsession
@@ -203,8 +219,8 @@ class PooledDB:
 		[self.connection(0) for i in range(mincached)]
 
 	def steady_connection(self):
-		"""Get a steady, unpooled steady DB-API 2 connection."""
-		return connect(self._dbapi,
+		"""Get a steady, unpooled DB-API 2 connection."""
+		return connect(self._creator,
 			self._maxusage, self._setsession, *self._args, **self._kwargs)
 
 	def connection(self, shareable=1):
@@ -281,7 +297,8 @@ class PooledDB:
 					con.rollback() # perform a rollback
 					# in order to prevent uncommited actions from being
 					# unintentionally commited by some other thread
-				except: # if an error occurs (no transaction, not supported)
+				except Exception:
+					# if an error occurs (no transaction, not supported)
 					pass # then it will be silently ignored
 				self._idle_cache.append(con) # append it to the idle cache
 			else: # if the idle cache is already full,
@@ -324,6 +341,8 @@ class PooledDedicatedDBConnection:
 		con: the underlying SteadyDB connection
 
 		"""
+		if not con.threadsafety():
+			raise NotSupportedError("Database module is not thread-safe.")
 		self._pool = pool
 		self._con = con
 
@@ -345,6 +364,7 @@ class PooledDedicatedDBConnection:
 	def __del__(self):
 		"""Delete the pooled connection."""
 		self.close()
+
 
 class SharedDBConnection:
 	"""Auxiliary class for shared connections."""
@@ -370,6 +390,7 @@ class SharedDBConnection:
 		"""Decrease the share of this connection."""
 		self.shared -= 1
 
+
 class PooledSharedDBConnection:
 	"""Auxiliary proxy class for pooled shared connections."""
 
@@ -380,9 +401,12 @@ class PooledSharedDBConnection:
 		con: the underlying SharedDBConnection
 
 		"""
+		con = shared_con.con
+		if not con.threadsafety() > 1:
+			raise NotSupportedError("Database connection is not thread-safe.")
 		self._pool = pool
 		self._shared_con = shared_con
-		self._con = shared_con.con
+		self._con = con
 
 	def close(self):
 		"""Close the pooled shared connection."""

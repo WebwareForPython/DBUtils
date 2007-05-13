@@ -78,8 +78,11 @@ __revision__ = "$Rev$"
 __date__ = "$Date$"
 
 
-class PooledDBError(Exception): pass
-class NotSupportedError(PooledDBError): pass
+class PooledDBError(Exception):
+	"""General PooledDB error."""
+
+class NotSupportedError(PooledDBError):
+	"""DB-API module not supported by PooledDB."""
 
 
 class PooledDBConnection:
@@ -87,6 +90,7 @@ class PooledDBConnection:
 
 	You don't normally deal with this class directly,
 	but use PooledDB to get new connections.
+
 	"""
 
 	def __init__(self, pool, con):
@@ -114,6 +118,7 @@ class PooledDB:
 
 	After you have created the connection pool,
 	you can get connections using getConnection().
+
 	"""
 
 	def __init__(self, dbapi, maxconnections, *args, **kwargs):
@@ -123,14 +128,15 @@ class PooledDB:
 		maxconnections: the number of connections cached in the pool
 		args, kwargs: the parameters that shall be used to establish
 			the database connections using connect()
+
 		"""
 		try:
 			threadsafety = dbapi.threadsafety
-		except:
+		except Exception:
 			threadsafety = None
 		if threadsafety == 0:
-			raise NotSupportedError, \
-				"Database module does not support any level of threading."
+			raise NotSupportedError(
+				"Database module does not support any level of threading.")
 		elif threadsafety == 1:
 			# If there is no connection level safety, build
 			# the pool using the synchronized queue class
@@ -146,14 +152,14 @@ class PooledDB:
 			# We only need a minimum of locking in this case.
 			from threading import Lock
 			self._lock = Lock() # create a lock object to be used later
-			self._nextCon = 0 # the index of the next connection to be used
+			self._nextConnection = 0 # index of the next connection to be used
 			self._connections = [] # the list of connections
 			self.connection = self._threadsafe_get_connection
 			self.addConnection = self._threadsafe_add_connection
 			self.returnConnection = self._threadsafe_return_connection
 		else:
-			raise NotSupportedError, \
-				"Database module threading support cannot be determined."
+			raise NotSupportedError(
+				"Database module threading support cannot be determined.")
 		# Establish all database connections (it would be better to
 		# only establish a part of them now, and the rest on demand).
 		for i in range(maxconnections):
@@ -180,6 +186,7 @@ class PooledDB:
 		back into the queue after they have been used.
 		This is done automatically when the connection is closed
 		and should never be called explicitly outside of this module.
+
 		"""
 		self._unthreadsafe_add_connection(con)
 
@@ -192,12 +199,12 @@ class PooledDB:
 		""""Get a connection from the pool."""
 		self._lock.acquire()
 		try:
-			next = self._nextCon
+			next = self._nextConnection
 			con = PooledDBConnection(self, self._connections[next])
 			next += 1
 			if next >= len(self._connections):
 				next = 0
-			self._nextCon = next
+			self._nextConnection = next
 			return con
 		finally:
 			self._lock.release()
@@ -211,5 +218,6 @@ class PooledDB:
 
 		In this case, the connections always stay in the pool,
 		so there is no need to do anything here.
+
 		"""
 		pass

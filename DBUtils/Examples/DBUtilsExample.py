@@ -18,6 +18,7 @@ class DBConfig(Configurable):
 	def configFilename(self):
 		return 'Configs/Database.config'
 
+
 # the database tables used in this example:
 tables = ('''seminars (
     id varchar(4) primary key,
@@ -64,23 +65,27 @@ class DBUtilsExample(ExamplePage):
 				dbclass = getattr(dbmod, dbmod_name)(**config)
 			except dbapi.Error, error:
 				dbstatus = str(error)
-			except:
+			except Exception:
 				dbstatus = 'Could not connect to the database.'
-		except:
+		except Exception:
 			dbstatus = 'Could not import DBUtils.%s.' % dbmod_name
-	except:
+	except Exception:
 		dbstatus = 'Could not import %s.' % dbapi_name
 
 	# Initialize the buttons
-	_actions = [ 'create_tables',
-		'list_seminars', 'list_attendees',
-		'new_seminar', 'new_attendee']
-	buttons = []
-	for action in (_actions):
-		value = action.replace('_', ' ').capitalize()
-		buttons.append('<input name="_action_%s" '
+	_actions = []
+	_buttons = []
+	for action in ('create tables',
+			'list seminars', 'list attendees',
+			'new seminar', 'new attendee'):
+		value = action.capitalize()
+		action = action.split()
+		action[1] = action[1].capitalize()
+		action = ''.join(action)
+		_actions.append(action)
+		_buttons.append('<input name="_action_%s" '
 			'type="submit" value="%s">' % (action, value))
-	buttons = tuple(buttons)
+	_buttons = tuple(_buttons)
 
 	def title(self):
 		return "DBUtils Example"
@@ -90,15 +95,18 @@ class DBUtilsExample(ExamplePage):
 
 	def awake(self, transaction):
 		ExamplePage.awake(self, transaction)
-		self.output = []
+		self._output = []
 
 	def postAction(self, actionName):
 		self.writeBody()
-		del self.output
+		del self._output
 		ExamplePage.postAction(self, actionName)
 
+	def output(self, s):
+		self._output.append(s)
+
 	def outputMsg(self, msg, error=0):
-		self.output.append('<p style="color:%s">%s</p>'
+		self._output.append('<p style="color:%s">%s</p>'
 			% (error and 'red' or 'green', msg))
 
 	def connection(self, shareable=1):
@@ -112,20 +120,22 @@ class DBUtilsExample(ExamplePage):
 					return self.dbclass.connection()
 			except self.dbapi.Error, error:
 				error = str(error)
-			except:
+			except Exception:
 				error = 'Cannot connect to the database.'
 		self.outputMsg(error, 1)
 
 	def sqlEncode(self, s):
-		if s is None: return 'null'
-		s = s.replace('\\','\\\\').replace('\'','\\\'')
+		if s is None:
+			return 'null'
+		s = s.replace('\\', '\\\\').replace('\'', '\\\'')
 		return "'%s'" % s
 
-	def create_tables(self):
+	def createTables(self):
 		db = self.connection(0)
-		if not db: return
+		if not db:
+			return
 		for table in tables:
-			self.output.append('<p>Creating the following table:</p>'
+			self._output.append('<p>Creating the following table:</p>'
 				'<pre>%s</pre>' % table)
 			ddl = 'create table ' + table
 			try:
@@ -137,12 +147,12 @@ class DBUtilsExample(ExamplePage):
 			except self.dbapi.Error, error:
 				if self.dbapi_name != 'pg':
 					db.rollback()
-				self.outputMsg(error , 1)
+				self.outputMsg(error, 1)
 			else:
 				self.outputMsg('The table was successfully created.')
 		db.close()
 
-	def list_seminars(self):
+	def listSeminars(self):
 		id = self.request().field('id', None)
 		if id:
 			if type(id) != type([]):
@@ -150,7 +160,8 @@ class DBUtilsExample(ExamplePage):
 			cmd = ','.join(map(self.sqlEncode, id))
 			cmd = 'delete from seminars where id in (%s)' % cmd
 			db = self.connection(0)
-			if not db: return
+			if not db:
+				return
 			try:
 				if self.dbapi_name == 'pg':
 					db.query('begin')
@@ -165,14 +176,15 @@ class DBUtilsExample(ExamplePage):
 						db.query('end')
 					else:
 						db.rollback()
-				except:
+				except Exception:
 					pass
-				self.outputMsg(error , 1)
+				self.outputMsg(error, 1)
 				return
 			else:
 				self.outputMsg('Entries deleted: %d' % len(id))
 		db = self.connection()
-		if not db: return
+		if not db:
+			return
 		query = ('select id, title, cost, places_left from seminars '
 			'order by title')
 		try:
@@ -184,13 +196,13 @@ class DBUtilsExample(ExamplePage):
 				result = cursor.fetchall()
 				cursor.close()
 		except self.dbapi.Error, error:
-			self.outputMsg(error , 1)
+			self.outputMsg(error, 1)
 			return
 		if not result:
 			self.outputMsg('There are no seminars in the database.', 1)
 			return
-		wr = self.output.append
-		button = self.buttons[1].replace('List seminars', 'Delete')
+		wr = self.output
+		button = self._buttons[1].replace('List seminars', 'Delete')
 		wr('<h4>List of seminars in the database:</h4>')
 		wr('<form><table border="1" cellspacing="0" cellpadding="2">'
 			'<tr><th>ID</th><th>Seminar title</th><th>Cost</th><th>Places left</th>'
@@ -205,14 +217,14 @@ class DBUtilsExample(ExamplePage):
 				'</td></tr>' % (id, title, cost, places, id))
 		wr('</table></form>')
 
-	def list_attendees(self):
+	def listAttendees(self):
 		id = self.request().field('id', None)
 		if id:
 			if type(id) != type([]):
 				id = [id]
-			cmd = ','.join(map(self.sqlEncode, id))
-			cmd = ['delete from attendees '
-				'where rpad(seminar,4)||name in (%s)' % cmd]
+			cmds = ['delete from attendees '
+				'where rpad(seminar,4)||name in (%s)'
+				% ','.join(map(self.sqlEncode, id))]
 			places = {}
 			for i in id:
 				i = i[:4].rstrip()
@@ -221,31 +233,33 @@ class DBUtilsExample(ExamplePage):
 				else:
 					places[i] = 1
 			for i, n in places.items():
-				cmd.append("update seminars set places_left=places_left+%d "
+				cmds.append("update seminars set places_left=places_left+%d "
 				"where id=%s" % (n, self.sqlEncode(i)))
 			db = self.connection(0)
-			if not db: return
+			if not db:
+				return
 			try:
 				if self.dbapi_name == 'pg':
 					db.query('begin')
-					for c in cmd:
-						db.query(c)
+					for cmd in cmds:
+						db.query(cmd)
 					db.query('end')
 				else:
-					for c in cmd:
-						db.cursor().execute(c)
+					for cmd in cmds:
+						db.cursor().execute(cmd)
 					db.commit()
 			except self.dbapi.Error, error:
 				if self.dbapi_name == 'pg':
 					db.query('end')
 				else:
 					db.rollback()
-				self.outputMsg(error , 1)
+				self.outputMsg(error, 1)
 				return
 			else:
 				self.outputMsg('Entries deleted: %d' % len(id))
 		db = self.connection()
-		if not db: return
+		if not db:
+			return
 		query = ('select a.name, s.id, s.title, a.paid '
 			' from attendees a,seminars s'
 			' where s.id=a.seminar'
@@ -259,13 +273,13 @@ class DBUtilsExample(ExamplePage):
 				result = cursor.fetchall()
 				cursor.close()
 		except self.dbapi.Error, error:
-			self.outputMsg(error , 1)
+			self.outputMsg(error, 1)
 			return
 		if not result:
-			self.outputMsg('There are no attendees in the database.' ,1)
+			self.outputMsg('There are no attendees in the database.', 1)
 			return
-		wr = self.output.append
-		button = self.buttons[2].replace('List attendees', 'Delete')
+		wr = self.output
+		button = self._buttons[2].replace('List attendees', 'Delete')
 		wr('<h4>List of attendees in the database:</h4>')
 		wr('<form><table border="1" cellspacing="0" cellpadding="2">'
 			'<tr><th>Name</th><th>Seminar</th><th>Paid</th>'
@@ -278,8 +292,8 @@ class DBUtilsExample(ExamplePage):
 				'</tr>' % (name, title, paid, id))
 		wr('</table></form>')
 
-	def new_seminar(self):
-		wr = self.output.append
+	def newSeminar(self):
+		wr = self.output
 		wr('<h4>Create a new seminar entry in the database:</h4>')
 		wr('<form><table>'
 			'<tr><th>ID</th><td><input name="id" type="text" '
@@ -291,19 +305,23 @@ class DBUtilsExample(ExamplePage):
 			'<tr><th>Places</th><td><input name="places" type="text" '
 			'size="20" maxlength="20"></td></tr>'
 			'<td colspan="2" align="right">%s</td>'
-			'</table></form>' % self.buttons[3])
+			'</table></form>' % self._buttons[3])
 		request = self.request()
-		if not request.hasField('id'): return
+		if not request.hasField('id'):
+			return
 		values = []
 		for name in ('id', 'title', 'cost', 'places'):
 			values.append(request.field(name, '').strip())
 		if not values[0] or not values[1]:
 			self.outputMsg('You must enter a seminar ID and a title!')
 			return
-		if not values[2]: values[2] = None
-		if not values[3]: values[3] = None
+		if not values[2]:
+			values[2] = None
+		if not values[3]:
+			values[3] = None
 		db = self.connection(0)
-		if not db: return
+		if not db:
+			return
 		cmd = ('insert into seminars values (%s,%s,%s,%s)'
 			% tuple(map(self.sqlEncode, values)))
 		try:
@@ -319,14 +337,15 @@ class DBUtilsExample(ExamplePage):
 				db.query('end')
 			else:
 				db.rollback()
-			self.outputMsg(error , 1)
+			self.outputMsg(error, 1)
 		else:
 			self.outputMsg('"%s" added to seminars.' % values[1])
 		db.close()
 
-	def new_attendee(self):
+	def newAttendee(self):
 		db = self.connection()
-		if not db: return
+		if not db:
+			return
 		query = ('select id, title from seminars '
 			'where places_left is null or places_left>0 order by title')
 		try:
@@ -338,7 +357,7 @@ class DBUtilsExample(ExamplePage):
 				result = cursor.fetchall()
 				cursor.close()
 		except self.dbapi.Error, error:
-			self.outputMsg(error , 1)
+			self.outputMsg(error, 1)
 			return
 		if not result:
 			self.outputMsg('You have to define seminars first.')
@@ -348,7 +367,7 @@ class DBUtilsExample(ExamplePage):
 			sem.append('<option value="%s">%s</option>' % (id, title))
 		sem.append('</select>')
 		sem = ''.join(sem)
-		wr = self.output.append
+		wr = self.output
 		wr('<h4>Create a new attendee entry in the database:</h4>')
 		wr('<form><table>'
 			'<tr><th>Name</th><td><input name="name" type="text" '
@@ -358,9 +377,10 @@ class DBUtilsExample(ExamplePage):
 			'<input type="radio" name="paid" value="t">Yes '
 			'<input type="radio" name="paid" value="f" checked="1">No'
 			'</td></tr><td colspan="2" align="right">%s</td>'
-			'</table></form>' % (sem, self.buttons[4]))
+			'</table></form>' % (sem, self._buttons[4]))
 		request = self.request()
-		if not request.hasField('name'): return
+		if not request.hasField('name'):
+			return
 		values = []
 		for name in ('name', 'seminar', 'paid'):
 			values.append(request.field(name, '').strip())
@@ -368,7 +388,8 @@ class DBUtilsExample(ExamplePage):
 			self.outputMsg('You must enter a name and a seminar!')
 			return
 		db = self.connection(0)
-		if not db: return
+		if not db:
+			return
 		try:
 			if self.dbapi_name == 'pg':
 				db.query('begin')
@@ -378,7 +399,7 @@ class DBUtilsExample(ExamplePage):
 				cmd = ("select places_left from seminars "
 					"where id=%s" % self.sqlEncode(values[1]))
 				if (db.query(cmd).getresult()[0][0] or 0) < 0:
-					raise self.dbapi.Error, 'No more places left.'
+					raise self.dbapi.Error("No more places left.")
 				cmd = ("insert into attendees values (%s,%s,%s)"
 					% tuple(map(self.sqlEncode, values)))
 				db.query(cmd)
@@ -392,7 +413,7 @@ class DBUtilsExample(ExamplePage):
 					"where id=%s" % self.sqlEncode(values[1]))
 				cursor.execute(cmd)
 				if (cursor.fetchone()[0] or 0) < 0:
-					raise self.dbapi.Error, 'No more places left.'
+					raise self.dbapi.Error("No more places left.")
 				cmd = ("insert into attendees values (%s,%s,%s)"
 					% tuple(map(self.sqlEncode, values)))
 				db.cursor().execute(cmd)
@@ -403,15 +424,15 @@ class DBUtilsExample(ExamplePage):
 				db.query('end')
 			else:
 				db.rollback()
-			self.outputMsg(error , 1)
+			self.outputMsg(error, 1)
 		else:
 			self.outputMsg('%s added to attendees.' % values[0])
 		db.close()
 
 	def writeContent(self):
 		wr = self.writeln
-		if self.output:
-			wr('\n'.join(self.output))
+		if self._output:
+			wr('\n'.join(self._output))
 			wr('<p><a href="DBUtilsExample">Back</a></p>')
 		else:
 			wr('<h2>Welcome to the %s!</h2>' % self.title())
@@ -426,4 +447,4 @@ class DBUtilsExample(ExamplePage):
 				'<p>%s (create the needed database tables first)</p>'
 				'<p>%s %s (list all database entries)</p>'
 				'<p>%s %s (create new entries)</p>'
-				'</form>' % self.buttons)
+				'</form>' % self._buttons)

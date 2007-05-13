@@ -17,11 +17,11 @@ __date__ = "$Date$"
 
 import sys
 
-# This module also serves as a mock object for the pg API module:
+# This module also serves as a mock object for the DB-API 2 module:
 
 dbapi = sys.modules[__name__]
 
-threadsafety = 1
+threadsafety = 2
 
 class Error(StandardError): pass
 class DatabaseError(Error): pass
@@ -105,15 +105,15 @@ class Cursor:
 
 
 import unittest
-sys.path.insert(1, '..')
-from SteadyDB import connect as SteadyDBconnect
+sys.path.insert(1, '../..')
+from DBUtils.SteadyDB import connect as SteadyDBconnect
 
 
 class TestSteadyDB(unittest.TestCase):
 
 	def test0_CheckVersion(self):
 		TestSteadyDBVersion = __version__
-		from SteadyDB import __version__ as SteadyDBVersion
+		from DBUtils.SteadyDB import __version__ as SteadyDBVersion
 		self.assertEqual(SteadyDBVersion, TestSteadyDBVersion)
 
 	def test1_MockedDBConnection(self):
@@ -304,7 +304,20 @@ class TestSteadyDB(unittest.TestCase):
 		self.assertEqual(db._con.session,
 			['doit', 'commit', 'dont', 'rollback'])
 
-	def test4_SteadyDBConnectionMaxUsage(self):
+	def test4_SteadyDBConnectionCreatorFunction(self):
+		db1 = SteadyDBconnect(dbapi, 0, None,
+			'SteadyDBTestDB', user='SteadyDBTestUser')
+		db2 = SteadyDBconnect(connect, 0, None,
+			'SteadyDBTestDB', user='SteadyDBTestUser')
+		self.assertEqual(db1.dbapi(), db2.dbapi())
+		self.assertEqual(db1.threadsafety(), db2.threadsafety())
+		self.assertEqual(db1._creator, db2._creator)
+		self.assertEqual(db1._args, db2._args)
+		self.assertEqual(db1._kwargs, db2._kwargs)
+		db2.close()
+		db1.close()
+
+	def test5_SteadyDBConnectionMaxUsage(self):
 		db = SteadyDBconnect(dbapi, 10)
 		cursor = db.cursor()
 		for i in range(100):
@@ -350,7 +363,7 @@ class TestSteadyDB(unittest.TestCase):
 		self.assertEqual(db._con.num_uses, 1)
 		self.assertEqual(db._con.num_queries, 1)
 
-	def test5_SteadyDBConnectionSetSession(self):
+	def test6_SteadyDBConnectionSetSession(self):
 		db = SteadyDBconnect(dbapi, 3, ('set time zone', 'set datestyle'))
 		self.assert_(hasattr(db, '_usage'))
 		self.assertEqual(db._usage, 0)

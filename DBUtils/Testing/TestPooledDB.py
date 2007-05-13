@@ -17,26 +17,23 @@ __date__ = "$Date$"
 
 
 import sys
-
-# The TestSteadyDB module serves as a mock object for the DB-API 2 module:
-
-import TestSteadyDB
-dbapi = TestSteadyDB
-
 import unittest
-sys.path.insert(1, '..')
-from PooledDB import PooledDB
+
+sys.path.insert(1, '../..')
+# The TestSteadyDB module serves as a mock object for the DB-API 2 module:
+from DBUtils.Testing import TestSteadyDB as dbapi
+from DBUtils.PooledDB import PooledDB
 
 
 class TestPooledDB(unittest.TestCase):
 
 	def test00_CheckVersion(self):
 		TestPooledDBVersion = __version__
-		from PooledDB import __version__ as PooledDBVersion
+		from DBUtils.PooledDB import __version__ as PooledDBVersion
 		self.assertEqual(PooledDBVersion, TestPooledDBVersion)
 
 	def test01_NoThreadsafety(self):
-		from PooledDB import NotSupportedError
+		from DBUtils.PooledDB import NotSupportedError
 		for threadsafety in (None, 0):
 			dbapi.threadsafety = threadsafety
 			self.assertRaises(NotSupportedError, PooledDB, dbapi)
@@ -71,7 +68,7 @@ class TestPooledDB(unittest.TestCase):
 			self.assert_(hasattr(pool, '_setsession'))
 			self.assert_(pool._setsession is None)
 			con = pool._idle_cache[0]
-			from SteadyDB import SteadyDBConnection
+			from DBUtils.SteadyDB import SteadyDBConnection
 			self.assert_(isinstance(con, SteadyDBConnection))
 			self.assert_(hasattr(con, '_maxusage'))
 			self.assertEqual(con._maxusage, 0)
@@ -157,7 +154,7 @@ class TestPooledDB(unittest.TestCase):
 				self.assertEqual(shared_con.shared, 1)
 				self.assert_(hasattr(shared_con, 'con'))
 				self.assertEqual(shared_con.con, con)
-			from SteadyDB import SteadyDBConnection
+			from DBUtils.SteadyDB import SteadyDBConnection
 			self.assert_(isinstance(con, SteadyDBConnection))
 			self.assert_(hasattr(con, '_con'))
 			db_con = con._con
@@ -590,7 +587,7 @@ class TestPooledDB(unittest.TestCase):
 				'doit2', 'commit', 'rollback'])
 
 	def test12_MaxConnections(self):
-		from PooledDB import TooManyConnections
+		from DBUtils.PooledDB import TooManyConnections
 		for threadsafety in (1, 2):
 			dbapi.threadsafety = threadsafety
 			shareable = threadsafety > 1

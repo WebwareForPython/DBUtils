@@ -37,8 +37,8 @@ class DB:
 
 
 import unittest
-sys.path.insert(1, '..')
-import SimplePooledPg
+sys.path.insert(1, '../..')
+from DBUtils import SimplePooledPg
 
 
 class TestSimplePooledPg(unittest.TestCase):

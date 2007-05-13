@@ -103,12 +103,18 @@ __revision__ = "$Rev$"
 __date__ = "$Date$"
 
 
-from SteadyPg import SteadyPgConnection
 from Queue import Queue, Empty, Full
 
-class PooledPgError(Exception): pass
-class InvalidConnection(PooledPgError): pass
-class TooManyConnections(PooledPgError): pass
+from DBUtils.SteadyPg import SteadyPgConnection
+
+class PooledPgError(Exception):
+	"""General PooledPg error."""
+
+class InvalidConnection(PooledPgError):
+	"""Database connection is invalid."""
+
+class TooManyConnections(PooledPgError):
+	"""Too many database connections were opened."""
 
 
 class PooledPg:

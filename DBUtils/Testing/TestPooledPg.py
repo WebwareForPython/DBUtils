@@ -17,21 +17,19 @@ __date__ = "$Date$"
 
 
 import sys
-
-# This module also serves as a mock object for the pg API module:
-
-import TestSteadyPg
-
 import unittest
-sys.path.insert(1, '..')
-from PooledPg import PooledPg
+
+sys.path.insert(1, '../..')
+# The TestSteadyPg module serves as a mock object for the pg API module:
+from DBUtils.Testing import TestSteadyPg
+from DBUtils.PooledPg import PooledPg
 
 
 class TestPooledPg(unittest.TestCase):
 
 	def test0_CheckVersion(self):
 		TestPooledPgVersion = __version__
-		from PooledPg import __version__ as PooledPgVersion
+		from DBUtils.PooledPg import __version__ as PooledPgVersion
 		self.assertEqual(PooledPgVersion, TestPooledPgVersion)
 
 	def test1_CreateConnection(self):
@@ -45,7 +43,7 @@ class TestPooledPg(unittest.TestCase):
 		self.assert_(pool._setsession is None)
 		db_con = pool._cache.get(0)
 		pool._cache.put(db_con, 0)
-		from SteadyPg import SteadyPgConnection
+		from DBUtils.SteadyPg import SteadyPgConnection
 		self.assert_(isinstance(db_con, SteadyPgConnection))
 		db = pool.connection()
 		self.assertEqual(pool._cache.qsize(), 0)
@@ -85,7 +83,7 @@ class TestPooledPg(unittest.TestCase):
 		db = pool.connection()
 		self.assert_(hasattr(db, '_con'))
 		db_con = db._con
-		from SteadyPg import SteadyPgConnection
+		from DBUtils.SteadyPg import SteadyPgConnection
 		self.assert_(isinstance(db_con, SteadyPgConnection))
 		self.assert_(hasattr(pool, '_cache'))
 		self.assertEqual(pool._cache.qsize(), 0)
@@ -161,7 +159,7 @@ class TestPooledPg(unittest.TestCase):
 		self.assertEqual(pool._cache.qsize(), 5)
 
 	def test4_MaxConnections(self):
-		from PooledPg import TooManyConnections
+		from DBUtils.PooledPg import TooManyConnections
 		pool = PooledPg(1, 2, 3)
 		self.assertEqual(pool._cache.qsize(), 1)
 		cache = []

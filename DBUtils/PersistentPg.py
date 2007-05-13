@@ -93,7 +93,7 @@ __revision__ = "$Rev$"
 __date__ = "$Date$"
 
 
-from SteadyPg import SteadyPgConnection
+from DBUtils.SteadyPg import SteadyPgConnection
 
 
 class PersistentPg:
@@ -133,28 +133,31 @@ class PersistentPg:
 
 	def connection(self):
 		"""Get a steady, persistent PyGreSQL connection."""
-		if not hasattr(self.thread, 'connection'):
-			self.thread.connection = self.steady_connection()
-			self.thread.connection._closeable = self._closeable
-		return self.thread.connection
+		try:
+			con = self.thread.connection
+		except AttributeError:
+			con = self.steady_connection()
+			con._closeable = self._closeable
+			self.thread.connection = con
+		return con
 
 
 try: # import a class for representing thread-local objects
 	from threading import local
-except: # for Python < 2.4, use the following simple implementation
+except ImportError: # for Python < 2.4, use the following simple implementation
 	from threading import currentThread, enumerate, RLock
 	class _localbase(object):
 		__slots__ = '_local__key', '_local__args', '_local__lock'
-		def __new__(cls, *args, **kw):
+		def __new__(cls, *args, **kwargs):
 			self = object.__new__(cls)
 			key = '_local__key', 'thread.local.' + str(id(self))
 			object.__setattr__(self, '_local__key', key)
-			object.__setattr__(self, '_local__args', (args, kw))
+			object.__setattr__(self, '_local__args', (args, kwargs))
 			object.__setattr__(self, '_local__lock', RLock())
-			if args or kw and (cls.__init__ is object.__init__):
+			if args or kwargs and (cls.__init__ is object.__init__):
 				raise TypeError("Initialization arguments are not supported")
-			dict = object.__getattribute__(self, '__dict__')
-			currentThread().__dict__[key] = dict
+			d = object.__getattribute__(self, '__dict__')
+			currentThread().__dict__[key] = d
 			return self
 	def _patch(self):
 		key = object.__getattribute__(self, '_local__key')
@@ -165,8 +168,8 @@ except: # for Python < 2.4, use the following simple implementation
 			object.__setattr__(self, '__dict__', d)
 			cls = type(self)
 			if cls.__init__ is not object.__init__:
-				args, kw = object.__getattribute__(self, '_local__args')
-				cls.__init__(self, *args, **kw)
+				args, kwargs = object.__getattribute__(self, '_local__args')
+				cls.__init__(self, *args, **kwargs)
 		else:
 			object.__setattr__(self, '__dict__', d)
 	class local(_localbase):
@@ -201,7 +204,7 @@ except: # for Python < 2.4, use the following simple implementation
 				key = __getattribute__(self, '_local__key')
 				try:
 					threads = list(threading_enumerate())
-				except:
+				except Exception:
 					return
 				for thread in threads:
 					try:

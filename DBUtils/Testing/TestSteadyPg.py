@@ -95,7 +95,7 @@ class DB:
 			self.close()
 		try:
 			self.db = connect(*self.__args[0], **self.__args[1])
-		except:
+		except Exception:
 			self.db = None
 			raise
 
@@ -110,15 +110,15 @@ class DB:
 		return 'test'
 
 import unittest
-sys.path.insert(1, '..')
-from SteadyPg import SteadyPgConnection
+sys.path.insert(1, '../..')
+from DBUtils.SteadyPg import SteadyPgConnection
 
 
 class TestSteadyPg(unittest.TestCase):
 
 	def test0_CheckVersion(self):
 		TestSteadyPgVersion = __version__
-		from SteadyPg import __version__ as SteadyPgVersion
+		from DBUtils.SteadyPg import __version__ as SteadyPgVersion
 		self.assertEqual(SteadyPgVersion, TestSteadyPgVersion)
 
 	def test1_MockedPgConnection(self):
@@ -246,6 +246,7 @@ class TestSteadyPg(unittest.TestCase):
 		self.assert_(not status)
 		self.assert_(hasattr(db._con, 'close'))
 		self.assert_(hasattr(db._con, 'query'))
+		InternalError = sys.modules[db._con.__module__].InternalError
 		self.assertRaises(InternalError, db._con.close)
 		self.assertRaises(InternalError, db._con.query, 'select test')
 		self.assertEqual(db.query('select test'), 'test')

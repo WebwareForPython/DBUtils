@@ -17,7 +17,7 @@ to recover the state of the cursor in such a situation.
 A typical situation where database connections are lost
 is when the database server or an intervening firewall is
 shutdown and restarted for maintenance reasons. In such a
-case, all database connections would become unusuable, even
+case, all database connections would become unusable, even
 though the database service may be already available again.
 
 The "hardened" connections provided by this module will
@@ -37,15 +37,20 @@ For information on Webware for Python, see:
 
 Usage:
 
-You can use the connection construtctor connect() in the same
-way as you would use the same constructor of the DB-API 2 module.
-The only difference is that you have to specify the DB-API 2
-module to be used as a first parameter, and you may also specify
-a usage limit as the second paramenter (set it to 0 if you prefer
-unlimited usage), and an optional list of commands that may serve
-to prepare the session as a third parameter. When the connection
-to the database is lost or has been used too often, it will be
-transparently reset in most situations, without further notice.
+You can use the connection constructor connect() in the same
+way as you would use the connection constructor of a DB-API 2
+module if you specify the DB-API 2 module to be used as the
+first parameter, or alternatively you can specify an arbitrary
+constructor function returning new DB-API 2 compliant connection
+objects as the first parameter. Passing just a function allows
+implementing failover mechanisms and load balancing strategies.
+
+You may also specify a usage limit as the second parameter
+(set it to 0 if you prefer unlimited usage), and an optional
+list of commands that may serve to prepare the session as a
+third parameter. When the connection to the database is lost
+or has been used too often, it will be transparently reset
+in most situations, without further notice.
 
 	import pgdb # import used DB-API 2 module
 	from DBUtils.SteadyDB import connect
@@ -73,6 +78,8 @@ Copyright, credits and license:
 
 * Contributed as supplement for Webware for Python and PyGreSQL
   by Christoph Zwerschke in September 2005
+* Allowing creator functions as first parameter as in SQLAlchemy
+  suggested by Ezio Vernacotola in December 2006
 
 Licensed under the Open Software License version 2.1.
 
@@ -83,36 +90,57 @@ __revision__ = "$Rev$"
 __date__ = "$Date$"
 
 
-def connect(dbapi, maxusage=0, setsession=None, *args, **kwargs):
+import sys
+
+
+def connect(creator, maxusage=0, setsession=None, *args, **kwargs):
 	"""A tough version of the connection constructor of a DB-API 2 module.
 
-	dbapi: the DB-API 2 compliant database module to be used
+	creator: either an arbitrary function returning new DB-API 2 compliant
+		connection objects or a DB-API 2 compliant database module
 	maxusage: maximum usage limit for the underlying DB-API 2 connection
 		(number of database operations, 0 or False means unlimited usage)
 		callproc(), execute() and executemany() count as one operation
 		When the limit is reached, the connection is automatically reset.
 	setsession: an optional list of SQL commands that may serve to prepare
 		the session, e.g. ["set datestyle to german", "set time zone mez"]
-	args, kwargs: the parameters that shall be used to establish the
-		connection with the connection constructor of the DB-API 2 module
+	args, kwargs: the parameters that shall be passed to the creator
+		function or the connection constructor of the DB-API 2 module
 
 	"""
-	return SteadyDBConnection(dbapi, maxusage, setsession, *args, **kwargs)
+	return SteadyDBConnection(creator, maxusage, setsession, *args, **kwargs)
 
 
 class SteadyDBConnection:
 	"""A "tough" version of DB-API 2 connections."""
 
-	def __init__(self, dbapi, maxusage=0, setsession=None, *args, **kwargs):
+	def __init__(self, creator, maxusage=0, setsession=None, *args, **kwargs):
 		""""Create a "tough" DB-API 2 connection."""
-		self._dbapi = dbapi
+		try:
+			self._creator = creator.connect
+			self._dbapi = creator
+		except AttributeError:
+			self._creator = creator
+			try:
+				self._dbapi = sys.modules[creator.__module__]
+				if self._dbapi.connect != creator:
+					raise AttributeError
+			except (AttributeError, KeyError):
+				self._dbapi = None
+		if not callable(self._creator):
+			raise TypeError("%r is not a connection provider." % (creator,))
 		self._maxusage = maxusage
 		self._setsession_sql = setsession
 		self._args, self._kwargs = args, kwargs
 		self._closeable = 1
 		self._usage = 0
-		self._con = dbapi.connect(*args, **kwargs)
-		self._setsession()
+		self._store(self._create())
+
+	def _create(self):
+		"""Create a new connection using the creator function."""
+		con = self._creator(*self._args, **self._kwargs)
+		self._setsession(con)
+		return con
 
 	def _setsession(self, con=None):
 		"""Execute the SQL commands for session preparation."""
@@ -124,6 +152,20 @@ class SteadyDBConnection:
 				cursor.execute(sql)
 			cursor.close()
 
+	def _store(self, con):
+		"""Store a database connection for subsequent use."""
+		self._con = con
+		try:
+			if self._dbapi.connect != self._creator:
+				raise AttributeError
+		except AttributeError:
+			try:
+				self._dbapi = sys.modules[con.__module__]
+				if not callable(self._dbapi.connect):
+					raise AttributeError
+			except (AttributeError, KeyError):
+				raise TypeError("Cannot determine DB-API 2 module.")
+
 	def _close(self):
 		"""Close the tough connection.
 
@@ -133,9 +175,20 @@ class SteadyDBConnection:
 		"""
 		try:
 			self._con.close()
-		except:
+		except Exception:
 			pass
 		self._usage = 0
+
+	def dbapi(self):
+		"""Return the underlying DB-API 2 module of the connection."""
+		return self._dbapi
+
+	def threadsafety(self):
+		"""Return the thread safety level of the connection."""
+		try:
+			return self._dbapi.threadsafety
+		except AttributeError:
+			return 0
 
 	def close(self):
 		"""Close the tough connection.
@@ -168,29 +221,28 @@ class SteadyDBConnection:
 				if self._usage >= self._maxusage:
 					# the connection was used too often
 					raise self._dbapi.OperationalError
-			r = self._con.cursor(*args, **kwargs) # try to get a cursor
+			cursor = self._con.cursor(*args, **kwargs) # try to get a cursor
 		except (self._dbapi.OperationalError,
 			self._dbapi.InternalError): # error in getting cursor
 			try: # try to reopen the connection
-				con2 = self._dbapi.connect(*self._args, **self._kwargs)
-				self._setsession(con2)
-			except:
+				con2 = self._create()
+			except Exception:
 				pass
 			else:
 				try: # and try one more time to get a cursor
-					r = con2.cursor(*args, **kwargs)
-				except:
+					cursor = con2.cursor(*args, **kwargs)
+				except Exception:
 					pass
 				else:
 					self._close()
-					self._con = con2
-					return r
+					self._store(con2)
+					return cursor
 				try:
 					con2.close()
-				except:
+				except Exception:
 					pass
 			raise # raise the original error again
-		return r
+		return cursor
 
 	def cursor(self, *args, **kwargs):
 		"""Return a new Cursor Object using the connection."""
@@ -243,7 +295,7 @@ class SteadyDBCursor:
 		"""
 		try:
 			self._cursor.close()
-		except:
+		except Exception:
 			pass
 
 	def _get_tough_method(self, name):
@@ -258,7 +310,7 @@ class SteadyDBCursor:
 				if execute:
 					self._setsizes()
 				method = getattr(self._cursor, name)
-				r = method(*args, **kwargs) # try to execute
+				result = method(*args, **kwargs) # try to execute
 				if execute:
 					self._clearsizes()
 			except (self._con._dbapi.OperationalError,
@@ -266,67 +318,66 @@ class SteadyDBCursor:
 				try:
 					cursor2 = self._con._cursor(
 						*self._args, **self._kwargs) # open new cursor
-				except:
+				except Exception:
 					pass
 				else:
 					try: # and try one more time to execute
 						if execute:
 							self._setsizes(cursor2)
 						method = getattr(cursor2, name)
-						r = method(*args, **kwargs)
+						result = method(*args, **kwargs)
 						if execute:
 							self._clearsizes()
-					except:
+					except Exception:
 						pass
 					else:
 						self.close()
 						self._cursor = cursor2
 						self._con._usage += 1
-						return r
+						return result
 					try:
 						cursor2.close()
-					except:
+					except Exception:
 						pass
 				try: # try to reopen the connection
-					con2 = self._con._dbapi.connect(
-						*self._con._args, **self._con._kwargs)
-					self._con._setsession(con2)
-				except:
+					con2 = self._con._create()
+				except Exception:
 					pass
 				else:
 					try:
 						cursor2 = con2.cursor(
 							*self._args, **self._kwargs) # open new cursor
-					except:
+					except Exception:
 						pass
 					else:
 						try: # try one more time to execute
 							if execute:
 								self._setsizes(cursor2)
 							method2 = getattr(cursor2, name)
-							r = method2(*args, **kwargs)
+							result = method2(*args, **kwargs)
 							if execute:
 								self._clearsizes()
-						except:
+						except Exception:
 							pass
 						else:
 							self.close()
 							self._con._close()
-							self._con._con, self._cursor = con2, cursor2
+							self._con._store(con2)
+							self._cursor = cursor2
 							self._con._usage += 1
-							return r
+							return result
 						try:
 							cursor2.close()
-						except:
+						except Exception:
 							pass
 					try:
 						con2.close()
-					except:
+					except Exception:
 						pass
 				raise # raise the original error again
 			else:
 				self._con._usage += 1
-				return r
+				return result
 		return tough_method
 
 	def __getattr__(self, name):

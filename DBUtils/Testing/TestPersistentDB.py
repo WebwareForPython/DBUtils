@@ -17,15 +17,12 @@ __date__ = "$Date$"
 
 
 import sys
-
-# The TestSteadyDB module serves as a mock object for the DB-API 2 module:
-
-import TestSteadyDB
-dbapi = TestSteadyDB
-
 import unittest
-sys.path.insert(1, '..')
-from PersistentDB import PersistentDB
+
+sys.path.insert(1, '../..')
+# The TestSteadyDB module serves as a mock object for the DB-API 2 module:
+from DBUtils.Testing import TestSteadyDB as dbapi
+from DBUtils.PersistentDB import PersistentDB
 
 
 class TestPersistentDB(unittest.TestCase):
@@ -35,11 +32,11 @@ class TestPersistentDB(unittest.TestCase):
 
 	def test0_CheckVersion(self):
 		TestPersistentDBVersion = __version__
-		from PersistentDB import __version__ as PersistentDBVersion
+		from DBUtils.PersistentDB import __version__ as PersistentDBVersion
 		self.assertEqual(PersistentDBVersion, TestPersistentDBVersion)
 
 	def test1_NoThreadsafety(self):
-		from PersistentDB import NotSupportedError
+		from DBUtils.PersistentDB import NotSupportedError
 		for dbapi.threadsafety in (None, 0):
 			self.assertRaises(NotSupportedError, PersistentDB, dbapi)
 
