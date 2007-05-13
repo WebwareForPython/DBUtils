@@ -2,12 +2,27 @@ try:
 	from setuptools import setup
 except ImportError:
 	from distutils.core import setup
-	import sys
-	# patch distutils if it can't cope with the "classifiers" keyword
-	if sys.version < '2.2.3':
+	try:
 		from distutils.dist import DistributionMetadata
-		DistributionMetadata.classifiers = None
-		DistributionMetadata.download_url = None
+	except ImportError:
+		pass
+	else:
+		try:
+			DistributionMetadata.classifiers
+		except AttributeError:
+			DistributionMetadata.classifiers = None
+		try:
+			DistributionMetadata.download_url
+		except AttributeError:
+			DistributionMetadata.download_url = None
+		try:
+			DistributionMetadata.package_data
+		except AttributeError:
+			DistributionMetadata.package_data = None
+		try:
+			DistributionMetadata.zip_safe
+		except AttributeError:
+			DistributionMetadata.zip_safe = None
 
 import warnings
 warnings.filterwarnings('ignore', 'Unknown distribution option')
