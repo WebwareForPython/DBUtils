@@ -31,30 +31,31 @@
 <li><a class="reference" href="#installation-as-a-webware-for-python-subpackage-plug-in" id="id9" name="id9">Installation as a Webware for Python subpackage (plug-in)</a></li>
 </ul>
 </li>
-<li><a class="reference" href="#functionality" id="id10" name="id10">Functionality</a><ul>
-<li><a class="reference" href="#simplepooleddb" id="id11" name="id11">SimplePooledDB</a></li>
-<li><a class="reference" href="#steadydb" id="id12" name="id12">SteadyDB</a></li>
-<li><a class="reference" href="#persistentdb" id="id13" name="id13">PersistentDB</a></li>
-<li><a class="reference" href="#pooleddb" id="id14" name="id14">PooledDB</a></li>
-<li><a class="reference" href="#which-one-to-use" id="id15" name="id15">Which one to use?</a></li>
+<li><a class="reference" href="#requirements" id="id10" name="id10">Requirements</a></li>
+<li><a class="reference" href="#functionality" id="id11" name="id11">Functionality</a><ul>
+<li><a class="reference" href="#simplepooleddb" id="id12" name="id12">SimplePooledDB</a></li>
+<li><a class="reference" href="#steadydb" id="id13" name="id13">SteadyDB</a></li>
+<li><a class="reference" href="#persistentdb" id="id14" name="id14">PersistentDB</a></li>
+<li><a class="reference" href="#pooleddb" id="id15" name="id15">PooledDB</a></li>
+<li><a class="reference" href="#which-one-to-use" id="id16" name="id16">Which one to use?</a></li>
 </ul>
 </li>
-<li><a class="reference" href="#usage" id="id16" name="id16">Usage</a><ul>
-<li><a class="reference" href="#id1" id="id17" name="id17">PersistentDB</a></li>
-<li><a class="reference" href="#id2" id="id18" name="id18">PooledDB</a></li>
-<li><a class="reference" href="#usage-in-webware-for-python" id="id19" name="id19">Usage in Webware for Python</a></li>
+<li><a class="reference" href="#usage" id="id17" name="id17">Usage</a><ul>
+<li><a class="reference" href="#id1" id="id18" name="id18">PersistentDB</a></li>
+<li><a class="reference" href="#id2" id="id19" name="id19">PooledDB</a></li>
+<li><a class="reference" href="#usage-in-webware-for-python" id="id20" name="id20">Usage in Webware for Python</a></li>
 </ul>
 </li>
-<li><a class="reference" href="#notes" id="id20" name="id20">Notes</a></li>
-<li><a class="reference" href="#future" id="id21" name="id21">Future</a></li>
-<li><a class="reference" href="#bug-reports-and-feedback" id="id22" name="id22">Bug reports and feedback</a></li>
-<li><a class="reference" href="#links" id="id23" name="id23">Links</a></li>
-<li><a class="reference" href="#credits" id="id24" name="id24">Credits</a></li>
-<li><a class="reference" href="#copyright-and-license" id="id25" name="id25">Copyright and License</a></li>
+<li><a class="reference" href="#notes" id="id21" name="id21">Notes</a></li>
+<li><a class="reference" href="#future" id="id22" name="id22">Future</a></li>
+<li><a class="reference" href="#bug-reports-and-feedback" id="id23" name="id23">Bug reports and feedback</a></li>
+<li><a class="reference" href="#links" id="id24" name="id24">Links</a></li>
+<li><a class="reference" href="#credits" id="id25" name="id25">Credits</a></li>
+<li><a class="reference" href="#copyright-and-license" id="id26" name="id26">Copyright and License</a></li>
 </ul>
 </div>
 <div class="section">
-<h1><a class="toc-backref" href="#id4" id="synopsis" name="synopsis">Synopsis</a></h1>
+<h1><a id="synopsis" name="synopsis">Synopsis</a></h1>
 <p><a class="reference" href="http://www.webwareforpython.org/DBUtils">DBUtils</a> is a suite of Python modules allowing to connect in a safe and
 efficient way between a threaded <a class="reference" href="http://www.python.org">Python</a> application and a database. DBUtils
 has been written in view of <a class="reference" href="http://www.webwareforpython.org">Webware for Python</a> as the application and
@@ -62,7 +63,7 @@ has been written in view of <a class="reference" href="http://www.webwareforpyth
 for any other Python application and <a class="reference" href="http://www.python.org/dev/peps/pep-0249/">DB-API 2</a> conformant database adapter.</p>
 </div>
 <div class="section">
-<h1><a class="toc-backref" href="#id5" id="modules" name="modules">Modules</a></h1>
+<h1><a id="modules" name="modules">Modules</a></h1>
 <p>The DBUtils suite is realized as a Python package containing
 two subsets of modules, one for use with arbitrary DB-API 2 modules,
 the other one for use with the classic PyGreSQL module.</p>
@@ -122,7 +123,7 @@ are similar:</p>
 <img alt="pgdep.gif" src="pgdep.gif" />
 </div>
 <div class="section">
-<h1><a class="toc-backref" href="#id6" id="download" name="download">Download</a></h1>
+<h1><a id="download" name="download">Download</a></h1>
 <p>You can download the actual version of DBUtils
 from the Webware for Python homepage at:</p>
 <blockquote>
@@ -133,9 +134,9 @@ from the Webware for Python homepage at:</p>
 <a class="reference" href="http://www.python.org/pypi/DBUtils/">http://www.python.org/pypi/DBUtils/</a></blockquote>
 </div>
 <div class="section">
-<h1><a class="toc-backref" href="#id7" id="installation" name="installation">Installation</a></h1>
+<h1><a id="installation" name="installation">Installation</a></h1>
 <div class="section">
-<h2><a class="toc-backref" href="#id8" id="installation-as-a-standalone-toplevel-package" name="installation-as-a-standalone-toplevel-package">Installation as a standalone (toplevel) package</a></h2>
+<h2><a id="installation-as-a-standalone-toplevel-package" name="installation-as-a-standalone-toplevel-package">Installation as a standalone (toplevel) package</a></h2>
 <p>If you intend to use DBUtils from other applications than Webware for Python,
 it is recommended to install the package in the usual way:</p>
 <pre class="literal-block">
@@ -143,7 +144,7 @@ python setup.py install
 </pre>
 </div>
 <div class="section">
-<h2><a class="toc-backref" href="#id9" id="installation-as-a-webware-for-python-subpackage-plug-in" name="installation-as-a-webware-for-python-subpackage-plug-in">Installation as a Webware for Python subpackage (plug-in)</a></h2>
+<h2><a id="installation-as-a-webware-for-python-subpackage-plug-in" name="installation-as-a-webware-for-python-subpackage-plug-in">Installation as a Webware for Python subpackage (plug-in)</a></h2>
 <p>If you want to use DBUtils as a supplement for the Webware for Python
 framework only, you should install it as a Webware plug-in:</p>
 <pre class="literal-block">
@@ -160,11 +161,18 @@ python install.py
 </div>
 </div>
 <div class="section">
-<h1><a class="toc-backref" href="#id10" id="functionality" name="functionality">Functionality</a></h1>
+<h1><a id="requirements" name="requirements">Requirements</a></h1>
+<p>DBUtils runs with <a class="reference" href="http://www.python.org">Python</a> version 2.2 and above. The modules in the classic
+PyGreSQL variant need <a class="reference" href="http://www.pygresql.org">PyGreSQL</a> version 3.4 or above, while the modules in
+the universal DB-API 2 variant run with any Python <a class="reference" href="http://www.python.org/dev/peps/pep-0249/">DB-API 2</a> compliant
+database interface module.</p>
+</div>
+<div class="section">
+<h1><a id="functionality" name="functionality">Functionality</a></h1>
 <p>This section will refer to the names in the DB-API 2 variant only,
 but the same applies to the classic PyGreSQL variant.</p>
 <div class="section">
-<h2><a class="toc-backref" href="#id11" id="simplepooleddb" name="simplepooleddb">SimplePooledDB</a></h2>
+<h2><a id="simplepooleddb" name="simplepooleddb">SimplePooledDB</a></h2>
 <p><tt class="docutils literal"><span class="pre">DBUtils.SimplePooledDB</span></tt> is a very basic reference implementation of
 a pooled database connection. It is much less sophisticated than the
 regular <tt class="docutils literal"><span class="pre">PooledDB</span></tt> module and is particularly lacking the failover
@@ -174,7 +182,7 @@ You should consider it a demonstration of concept rather than something
 that should go into production.</p>
 </div>
 <div class="section">
-<h2><a class="toc-backref" href="#id12" id="steadydb" name="steadydb">SteadyDB</a></h2>
+<h2><a id="steadydb" name="steadydb">SteadyDB</a></h2>
 <p><tt class="docutils literal"><span class="pre">DBUtils.SteadyDB</span></tt> is a module implementing &quot;hardened&quot; connections
 to a database, based on ordinary connections made by any DB-API 2
 database module. A &quot;hardened&quot; connection will transparently reopen upon
@@ -189,7 +197,7 @@ restarted and lost its state.</p>
 as a basis for the next two modules, <tt class="docutils literal"><span class="pre">PersistentDB</span></tt> and <tt class="docutils literal"><span class="pre">PooledDB</span></tt>.</p>
 </div>
 <div class="section">
-<h2><a class="toc-backref" href="#id13" id="persistentdb" name="persistentdb">PersistentDB</a></h2>
+<h2><a id="persistentdb" name="persistentdb">PersistentDB</a></h2>
 <p><tt class="docutils literal"><span class="pre">DBUtils.PersistentDB</span></tt> implements steady, thread-affine, persistent
 connections to a database, using any DB-API 2 database module.</p>
 <p>The following diagram shows the connection layers involved when you
@@ -210,7 +218,7 @@ avoid problems when other threads change the database session or perform
 transactions spreading over more than one SQL command.</p>
 </div>
 <div class="section">
-<h2><a class="toc-backref" href="#id14" id="pooleddb" name="pooleddb">PooledDB</a></h2>
+<h2><a id="pooleddb" name="pooleddb">PooledDB</a></h2>
 <p><tt class="docutils literal"><span class="pre">DBUtils.PooledDB</span></tt> implements a pool of steady, thread-safe cached
 connections to a database which are transparently reused, using any
 DB-API 2 database module.</p>
@@ -235,7 +243,7 @@ connections whenever you change the database session or perform transactions
 spreading over more than one SQL command.</p>
 </div>
 <div class="section">
-<h2><a class="toc-backref" href="#id15" id="which-one-to-use" name="which-one-to-use">Which one to use?</a></h2>
+<h2><a id="which-one-to-use" name="which-one-to-use">Which one to use?</a></h2>
 <p>Both <tt class="docutils literal"><span class="pre">PersistentDB</span></tt> and <tt class="docutils literal"><span class="pre">PooledDB</span></tt> serve the same purpose to improve
 the database access performance by recycling database connections, while
 preserving stability even if database connection will be disrupted.</p>
@@ -251,7 +259,7 @@ one to the other and check which one will suit better.</p>
 </div>
 </div>
 <div class="section">
-<h1><a class="toc-backref" href="#id16" id="usage" name="usage">Usage</a></h1>
+<h1><a id="usage" name="usage">Usage</a></h1>
 <p>The usage of all the modules is similar, but there are also some differences
 in the initialization between the &quot;Pooled&quot; and &quot;Persistent&quot; variants and also
 between the universal DB-API 2 and the classic PyGreSQL variants.</p>
@@ -264,7 +272,7 @@ works analogously for the other modules):</p>
 help(PooledDB)
 </pre>
 <div class="section">
-<h2><a class="toc-backref" href="#id17" id="id1" name="id1">PersistentDB</a></h2>
+<h2><a id="id1" name="id1">PersistentDB</a></h2>
 <p>In order to make use of the <tt class="docutils literal"><span class="pre">PersistentDB</span></tt> module, you first need to set
 up a generator for your kind of database connections by creating an instance
 of <tt class="docutils literal"><span class="pre">PersistentDB</span></tt>, passing the following parameters:</p>
@@ -308,7 +316,7 @@ the connection will be automatically closed when the thread dies.
 You can change this behavior be setting <tt class="docutils literal"><span class="pre">persist._closeable</span></tt> to <tt class="docutils literal"><span class="pre">True</span></tt>.</p>
 </div>
 <div class="section">
-<h2><a class="toc-backref" href="#id18" id="id2" name="id2">PooledDB</a></h2>
+<h2><a id="id2" name="id2">PooledDB</a></h2>
 <p>In order to make use of the <tt class="docutils literal"><span class="pre">PooledDB</span></tt> module, you first need to set up the
 database connection pool by creating an instance of <tt class="docutils literal"><span class="pre">PooledDB</span></tt>, passing the
 following parameters:</p>
@@ -389,7 +397,7 @@ db.close() # or del db
 </pre>
 </div>
 <div class="section">
-<h2><a class="toc-backref" href="#id19" id="usage-in-webware-for-python" name="usage-in-webware-for-python">Usage in Webware for Python</a></h2>
+<h2><a id="usage-in-webware-for-python" name="usage-in-webware-for-python">Usage in Webware for Python</a></h2>
 <p>If you are using DBUtils in order to access a database from <a class="reference" href="http://www.webwareforpython.org">Webware
 for Python</a> servlets, you need to make sure that you set up your
 database connection generators only once when the application starts,
@@ -412,14 +420,14 @@ the &quot;Pooled&quot; variant, otherwise it will use the &quot;Persistent&quot;
 </div>
 </div>
 <div class="section">
-<h1><a class="toc-backref" href="#id20" id="notes" name="notes">Notes</a></h1>
+<h1><a id="notes" name="notes">Notes</a></h1>
 <p>If you are using one of the popular object-relational mappers <a class="reference" href="http://www.sqlobject.org">SQLObject</a>
 or <a class="reference" href="http://www.sqlalchemy.org">SQLAlchemy</a>, you won't need DBUtils, since they come with their own
 connection pools. <a class="reference" href="http://www.sqlobject.org/2/">SQLObject 2</a> (<a class="reference" href="http://www.sqlobject.org/sqlapi/">SQL-API</a>) is actually borrowing some code
 from DBUtils to split the pooling out into a separate layer.</p>
 </div>
 <div class="section">
-<h1><a class="toc-backref" href="#id21" id="future" name="future">Future</a></h1>
+<h1><a id="future" name="future">Future</a></h1>
 <p>Some ideas for future improvements:</p>
 <ul class="simple">
 <li>Alternatively to the maximum number of uses of a connection,
@@ -440,14 +448,14 @@ the connection pool every day shortly before the users arrive.</li>
 </ul>
 </div>
 <div class="section">
-<h1><a class="toc-backref" href="#id22" id="bug-reports-and-feedback" name="bug-reports-and-feedback">Bug reports and feedback</a></h1>
+<h1><a id="bug-reports-and-feedback" name="bug-reports-and-feedback">Bug reports and feedback</a></h1>
 <p>Please send bug reports, patches and feedback directly to the author
 (using the email address given below).</p>
 <p>If there are Webware related problems, these can also be discussed in
 the <a class="reference" href="https://lists.sourceforge.net/lists/listinfo/webware-discuss">Webware for Python mailing list</a>.</p>
 </div>
 <div class="section">
-<h1><a class="toc-backref" href="#id23" id="links" name="links">Links</a></h1>
+<h1><a id="links" name="links">Links</a></h1>
 <p>Some links to related and alternative software:</p>
 <ul class="simple">
 <li><a class="reference" href="http://www.webwareforpython.org/DBUtils">DBUtils</a></li>
@@ -461,7 +469,7 @@ the <a class="reference" href="https://lists.sourceforge.net/lists/listinfo/webw
 </ul>
 </div>
 <div class="section">
-<h1><a class="toc-backref" href="#id24" id="credits" name="credits">Credits</a></h1>
+<h1><a id="credits" name="credits">Credits</a></h1>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -477,7 +485,7 @@ Warren Smith (DbConnectionPool) and Ezio Vernacotola.</td>
 </table>
 </div>
 <div class="section">
-<h1><a class="toc-backref" href="#id25" id="copyright-and-license" name="copyright-and-license">Copyright and License</a></h1>
+<h1><a id="copyright-and-license" name="copyright-and-license">Copyright and License</a></h1>
 <p>Copyright © 2005-2007 by Christoph Zwerschke.
 All Rights Reserved.</p>
 <p>DBUtils is free and open source software,

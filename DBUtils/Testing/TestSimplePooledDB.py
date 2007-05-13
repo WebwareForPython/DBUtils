@@ -127,13 +127,23 @@ class TestSimplePooledDB(unittest.TestCase):
 		thread1 = Thread(target=connection).start()
 		thread2 = Thread(target=connection).start()
 		thread3 = Thread(target=connection).start()
-		db1 = queue.get(1, 1)
-		db2 = queue.get(1, 1)
+		try:
+			db1 = queue.get(1, 1)
+			db2 = queue.get(1, 1)
+		except TypeError:
+			db1 = queue.get(1)
+			db2 = queue.get(1)
 		self.assertNotEqual(db1, db2)
 		self.assertNotEqual(db1._con, db2._con)
-		self.assertRaises(Empty, queue.get, 1, 0.1)
+		try:
+			self.assertRaises(Empty, queue.get, 1, 0.1)
+		except TypeError:
+			self.assertRaises(Empty, queue.get, 0)
 		db2.close()
-		db3 = queue.get(1, 1)
+		try:
+			db3 = queue.get(1, 1)
+		except TypeError:
+			db3 = queue.get(1)
 		self.assertNotEqual(db1, db3)
 		self.assertNotEqual(db1._con, db3._con)
 

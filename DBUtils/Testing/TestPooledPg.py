@@ -237,19 +237,32 @@ class TestPooledPg(unittest.TestCase):
 		from Queue import Queue, Empty
 		queue = Queue(3)
 		def connection():
-			queue.put(pool.connection(), 1, 0.1)
+			try:
+				queue.put(pool.connection(), 1, 0.1)
+			except TypeError:
+				queue.put(pool.connection(), 1)
 		from threading import Thread
 		for i in range(3):
 			Thread(target=connection).start()
-		db1 = queue.get(1, 0.1)
-		db2 = queue.get(1, 0.1)
+		try:
+			db1 = queue.get(1, 0.1)
+			db2 = queue.get(1, 0.1)
+		except TypeError:
+			db1 = queue.get(1)
+			db2 = queue.get(1)
 		db1_con = db1._con
 		db2_con = db2._con
 		self.assertNotEqual(db1, db2)
 		self.assertNotEqual(db1_con, db2_con)
-		self.assertRaises(Empty, queue.get, 1, 0.1)
+		try:
+			self.assertRaises(Empty, queue.get, 1, 0.1)
+		except TypeError:
+			self.assertRaises(Empty, queue.get, 0)
 		del db1
-		db1 = queue.get(1, 0.1)
+		try:
+			db1 = queue.get(1, 0.1)
+		except TypeError:
+			db1 = queue.get(1)
 		self.assertNotEqual(db1, db2)
 		self.assertNotEqual(db1._con, db2._con)
 		self.assertEqual(db1._con, db1_con)

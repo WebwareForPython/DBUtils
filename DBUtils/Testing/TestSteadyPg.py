@@ -27,8 +27,8 @@ class Error(StandardError): pass
 class DatabaseError(Error): pass
 class InternalError(DatabaseError): pass
 
-def connect(*args, **kw):
-	return pgConnection(*args, **kw)
+def connect(*args, **kwargs):
+	return pgConnection(*args, **kwargs)
 
 
 class pgConnection:

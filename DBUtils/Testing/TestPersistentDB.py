@@ -68,10 +68,14 @@ class TestPersistentDB(unittest.TestCase):
 			this_db = persist.connection()
 			while 1:
 				try:
-					q = queryQueue[i].get(1, 1)
+					try:
+						q = queryQueue[i].get(1, 1)
+					except TypeError:
+						q = queryQueue[i].get(1)
 				except Empty:
 					q = None
-				if not q: break
+				if not q:
+					break
 				db = persist.connection()
 				if db != this_db:
 					r = 'error - not persistent'
@@ -87,7 +91,10 @@ class TestPersistentDB(unittest.TestCase):
 						r = cursor.fetchone()
 						cursor.close()
 				r = '%d(%d): %s' % (i, db._usage, r)
-				resultQueue[i].put(r, 1, 0.1)
+				try:
+					resultQueue[i].put(r, 1, 0.1)
+				except TypeError:
+					resultQueue[i].put(r, 1)
 			db.close()
 		from threading import Thread
 		threads = []
@@ -96,35 +103,68 @@ class TestPersistentDB(unittest.TestCase):
 			threads.append(thread)
 			thread.start()
 		for i in range(numThreads):
-			queryQueue[i].put('ping', 1, 0.1)
+			try:
+				queryQueue[i].put('ping', 1, 0.1)
+			except TypeError:
+				queryQueue[i].put('ping', 1)
 		for i in range(numThreads):
-			r = resultQueue[i].get(1, 0.1)
+			try:
+				r = resultQueue[i].get(1, 0.1)
+			except TypeError:
+				r = resultQueue[i].get(1)
 			self.assertEqual(r, '%d(0): ok - thread alive' % i)
 			self.assert_(threads[i].isAlive())
 		for i in range(numThreads):
 			for j in range(i + 1):
-				queryQueue[i].put('select test%d' % j, 1, 0.1)
-				r = resultQueue[i].get(1, 0.1)
+				try:
+					queryQueue[i].put('select test%d' % j, 1, 0.1)
+					r = resultQueue[i].get(1, 0.1)
+				except TypeError:
+					queryQueue[i].put('select test%d' % j, 1)
+					r = resultQueue[i].get(1)
 				self.assertEqual(r, '%d(%d): test%d' % (i, j + 1, j))
-		queryQueue[1].put('select test4', 1, 0.1)
-		r = resultQueue[1].get(1, 0.1)
+		try:
+			queryQueue[1].put('select test4', 1, 0.1)
+		except TypeError:
+			queryQueue[1].put('select test4', 1)
+		try:
+			r = resultQueue[1].get(1, 0.1)
+		except TypeError:
+			r = resultQueue[1].get(1)
 		self.assertEqual(r, '1(3): test4')
-		queryQueue[1].put('close', 1, 0.1)
-		r = resultQueue[1].get(1, 0.1)
+		try:
+			queryQueue[1].put('close', 1, 0.1)
+			r = resultQueue[1].get(1, 0.1)
+		except TypeError:
+			queryQueue[1].put('close', 1)
+			r = resultQueue[1].get(1)
 		self.assertEqual(r, '1(0): ok - connection closed')
 		for j in range(2):
-			queryQueue[1].put('select test%d' % j, 1, 0.1)
-			r = resultQueue[1].get(1, 0.1)
+			try:
+				queryQueue[1].put('select test%d' % j, 1, 0.1)
+				r = resultQueue[1].get(1, 0.1)
+			except TypeError:
+				queryQueue[1].put('select test%d' % j, 1)
+				r = resultQueue[1].get(1)
 			self.assertEqual(r, '1(%d): test%d' % (j + 1, j))
 		for i in range(numThreads):
 			self.assert_(threads[i].isAlive())
-			queryQueue[i].put('ping', 1, 0.1)
+			try:
+				queryQueue[i].put('ping', 1, 0.1)
+			except TypeError:
+				queryQueue[i].put('ping', 1)
 		for i in range(numThreads):
-			r = resultQueue[i].get(1, 0.1)
+			try:
+				r = resultQueue[i].get(1, 0.1)
+			except TypeError:
+				r = resultQueue[i].get(1)
 			self.assertEqual(r, '%d(%d): ok - thread alive' % (i, i + 1))
 			self.assert_(threads[i].isAlive())
 		for i in range(numThreads):
-			queryQueue[i].put(None, 1, 1)
+			try:
+				queryQueue[i].put(None, 1, 1)
+			except TypeError:
+				queryQueue[i].put(None, 1)
 
 	def test4_PersistentDBMaxUsage(self):
 		persist = PersistentDB(dbapi, 20)

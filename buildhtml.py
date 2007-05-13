@@ -10,7 +10,7 @@ publish_file(writer_name='html',
     source=open('DBUtils/Docs/UsersGuide.txt', 'r'),
     destination=open('DBUtils/Docs/UsersGuide.html', 'w'),
     settings_overrides = dict(
-        stylesheet_path='Doc.css',
-        embed_stylesheet=False))
+        stylesheet_path='Doc.css', embed_stylesheet=False,
+        toc_backlinks=False))
 
 print "Done."

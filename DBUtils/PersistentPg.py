@@ -201,8 +201,8 @@ except ImportError: # for Python < 2.4, use the following simple implementation
 			threading_enumerate = enumerate
 			__getattribute__ = object.__getattribute__
 			def __del__(self):
-				key = __getattribute__(self, '_local__key')
 				try:
+					key = __getattribute__(self, '_local__key')
 					threads = list(threading_enumerate())
 				except Exception:
 					return
