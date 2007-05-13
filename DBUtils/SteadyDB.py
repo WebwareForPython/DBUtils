@@ -248,6 +248,11 @@ class SteadyDBConnection:
 		"""Return a new Cursor Object using the connection."""
 		return SteadyDBCursor(self, *args, **kwargs)
 
+	def __del__(self):
+		"""Delete the steady connection."""
+		if hasattr(self, '_con'):
+			del self._con
+
 
 class SteadyDBCursor:
 	"""A "tough" version of DB-API 2 cursors."""
@@ -387,3 +392,8 @@ class SteadyDBCursor:
 			return self._get_tough_method(name)
 		else:
 			return getattr(self._cursor, name)
+
+	def __del__(self):
+		"""Delete the steady cursor."""
+		if hasattr(self, '_cursor'):
+			del self._cursor

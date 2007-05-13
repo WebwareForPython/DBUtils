@@ -204,3 +204,8 @@ class SteadyPgConnection:
 			or name.startswith('get_'):
 			attr = self._get_tough_method(attr)
 		return attr
+
+	def __del__(self):
+		"""Delete the steady connection."""
+		if hasattr(self, '_con'):
+			del self._con
