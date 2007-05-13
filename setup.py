@@ -1,14 +1,16 @@
-from distutils.core import setup
+try:
+	from setuptools import setup
+except ImportError:
+	from distutils.core import setup
+	import sys
+	# patch distutils if it can't cope with the "classifiers" keyword
+	if sys.version < '2.2.3':
+		from distutils.dist import DistributionMetadata
+		DistributionMetadata.classifiers = None
+		DistributionMetadata.download_url = None
 
 import warnings
 warnings.filterwarnings('ignore', 'Unknown distribution option')
-
-import sys
-# patch distutils if it can't cope with the "classifiers" keyword
-if sys.version < '2.2.3':
-	from distutils.dist import DistributionMetadata
-	DistributionMetadata.classifiers = None
-	DistributionMetadata.download_url = None
 
 __version__ = '0.9.2'
 __revision__ = "$Rev$"
@@ -41,5 +43,5 @@ DB-API 2 compliant database interfaces and the classic PyGreSQL interface.
 	license='Open Software License',
 	packages=['DBUtils', 'DBUtils.Examples', 'DBUtils.Testing'],
 	package_data={'DBUtils': ['Docs/*']},
-	zip_safe=1
+	zip_safe=0
 )
