@@ -14,9 +14,9 @@ consistently in all files of the distribution.
 
 # Update this to change the current version and release date:
 version = ('X', 'Y', 0)
-version = (0, 9, 2)
+version = (0, 9, 3)
 releaseDate = '@@/@@/@@'
-releaseDate = '09/22/06'
+releaseDate = '05/18/07'
 
 # Verbose output (output unchanged files also):
 verbose = 0
@@ -55,10 +55,10 @@ versionString = versionString(version)
 
 if versionString == 'X.Y':
 	print "Please set the version."
-	# sys.exit(1)
+	sys.exit(1)
 if releaseDate == '@@/@@/@@':
 	print "Please set the release date."
-	# sys.exit(1)
+	sys.exit(1)
 
 
 class Replacer:
@@ -105,8 +105,8 @@ htmlReplace.add(r"<!--\s*relDate\s*-->[^<]*<!--\s*/relDate\s*-->",
 		r"<!-- relDate --> %s <!-- /relDate -->" % releaseDate)
 
 rstReplace = Replacer()
-rstReplace.add(r"^:Version:.*$", ":Version: %s" % versionString)
-rstReplace.add(r"^:Released:.*$", ":Released: %s" % releaseDate)
+rstReplace.add(r"^:(.+)?: (X|\d+)\.(Y|\d+)\.\d+$", r":\1: %s" % versionString)
+rstReplace.add(r"^:(.+)?: (@|\d){2}/(@|\d){2}/(@|\d){2}$", r":\1: %s" % releaseDate)
 
 # Replace in Python files:
 pyReplace.replaceGlob('*.py')
