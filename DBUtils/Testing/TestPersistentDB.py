@@ -138,7 +138,7 @@ class TestPersistentDB(unittest.TestCase):
 		except TypeError:
 			queryQueue[1].put('close', 1)
 			r = resultQueue[1].get(1)
-		self.assertEqual(r, '1(0): ok - connection closed')
+		self.assertEqual(r, '1(3): ok - connection closed')
 		for j in range(2):
 			try:
 				queryQueue[1].put('select test%d' % j, 1, 0.1)

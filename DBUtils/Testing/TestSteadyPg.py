@@ -26,6 +26,7 @@ sys.modules['pg'] = sys.modules[__name__]
 class Error(StandardError): pass
 class DatabaseError(Error): pass
 class InternalError(DatabaseError): pass
+class ProgrammingError(DatabaseError): pass
 
 def connect(*args, **kwargs):
 	return pgConnection(*args, **kwargs)
@@ -39,6 +40,10 @@ class pgConnection:
 		self.user = user
 		self.num_queries = 0
 		self.session = []
+		if dbname == 'error':
+			self.status = 0
+			self.valid = 0
+			raise InternalError
 		self.status = 1
 		self.valid = 1
 
@@ -66,7 +71,7 @@ class pgConnection:
 			self.session.append(qstr[4:])
 			return None
 		else:
-			raise DatabaseError
+			raise ProgrammingError
 
 
 class DB:
@@ -170,7 +175,16 @@ class TestSteadyPg(unittest.TestCase):
 		self.assertRaises(InternalError, db.query, 'select test')
 		self.assertRaises(InternalError, db.get_tables)
 
-	def test2_SteadyPgClose(self):
+	def test2_BrokenPgConnection(self):
+		db = SteadyPgConnection(dbname='ok')
+		InternalError = sys.modules[db._con.__module__].InternalError
+		for i in range(3):
+			db.close()
+		del db
+		self.assertRaises(InternalError, SteadyPgConnection,
+			dbname='error')
+
+	def test3_SteadyPgClose(self):
 		for closeable in (0, 1):
 			db = SteadyPgConnection()
 			db._closeable = closeable
@@ -186,7 +200,7 @@ class TestSteadyPg(unittest.TestCase):
 			db._close()
 			self.assert_(not db._con.db or not db._con.valid)
 
-	def test3_SteadyPgConnection(self):
+	def test4_SteadyPgConnection(self):
 		db = SteadyPgConnection(0, None,
 			'SteadyPgTestDB', user='SteadyPgTestUser')
 		self.assert_(hasattr(db, 'db'))
@@ -266,7 +280,7 @@ class TestSteadyPg(unittest.TestCase):
 		self.assertEqual(db._usage, 1)
 		self.assertEqual(db.num_queries, 0)
 
-	def test4_SteadyPgConnectionMaxUsage(self):
+	def test5_SteadyPgConnectionMaxUsage(self):
 		db = SteadyPgConnection(10)
 		for i in range(100):
 			r = db.query('select test%d' % i)
@@ -310,7 +324,7 @@ class TestSteadyPg(unittest.TestCase):
 		self.assertEqual(db._usage, 1)
 		self.assertEqual(db.num_queries, 1)
 
-	def test5_SteadyPgConnectionSetSession(self):
+	def test6_SteadyPgConnectionSetSession(self):
 		db = SteadyPgConnection(3, ('set time zone', 'set datestyle'))
 		self.assert_(hasattr(db, 'num_queries'))
 		self.assertEqual(db.num_queries, 0)

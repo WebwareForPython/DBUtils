@@ -87,6 +87,8 @@ class SteadyPgConnection:
 
 	"""
 
+	_closed = True
+
 	def __init__(self, maxusage=0, setsession=None, *args, **kwargs):
 		"""Create a "tough" PostgreSQL connection.
 
@@ -102,9 +104,10 @@ class SteadyPgConnection:
 		self._maxusage = maxusage
 		self._setsession_sql = setsession
 		self._closeable = 1
-		self._usage = 0
 		self._con = PgConnection(*args, **kwargs)
+		self._closed = False
 		self._setsession()
+		self._usage = 0
 
 	def _setsession(self):
 		"""Execute the SQL commands for session preparation."""
@@ -119,11 +122,12 @@ class SteadyPgConnection:
 		and it will not complain if you close it more than once.
 
 		"""
-		try:
-			self._con.close()
-			self._usage = 0
-		except Exception:
-			pass
+		if not self._closed:
+			try:
+				self._con.close()
+			except Exception:
+				pass
+			self._closed = True
 
 	def close(self):
 		"""Close the tough connection.
@@ -142,13 +146,17 @@ class SteadyPgConnection:
 	def reopen(self):
 		"""Reopen the tough connection.
 
-		It will not complain if the connection cannot be reopened."""
+		It will not complain if the connection cannot be reopened.
+
+		"""
 		try:
 			self._con.reopen()
-			self._setsession()
-			self._usage = 0
 		except Exception:
 			pass
+		else:
+			self._closed = False
+			self._setsession()
+			self._usage = 0
 
 	def reset(self):
 		"""Reset the tough connection.
@@ -207,5 +215,4 @@ class SteadyPgConnection:
 
 	def __del__(self):
 		"""Delete the steady connection."""
-		if hasattr(self, '_con'):
-			del self._con
+		self._close() # make sure the connection is closed
