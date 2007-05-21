@@ -3,7 +3,7 @@ DBUtils 用户指南
 ====================
 
 :版本: 0.9.3
-:发行版: 05/18/07
+:发行版: 05/21/07
 :翻译: English_ Chinese
 
 .. _English: UsersGuide.html

@@ -114,6 +114,8 @@ def connect(creator, maxusage=0, setsession=None, *args, **kwargs):
 class SteadyDBConnection:
 	"""A "tough" version of DB-API 2 connections."""
 
+	_closed = True
+
 	def __init__(self, creator, maxusage=0, setsession=None, *args, **kwargs):
 		""""Create a "tough" DB-API 2 connection."""
 		try:
@@ -133,13 +135,31 @@ class SteadyDBConnection:
 		self._setsession_sql = setsession
 		self._args, self._kwargs = args, kwargs
 		self._closeable = 1
-		self._usage = 0
 		self._store(self._create())
 
 	def _create(self):
 		"""Create a new connection using the creator function."""
 		con = self._creator(*self._args, **self._kwargs)
-		self._setsession(con)
+		try:
+			try:
+				if self._dbapi.connect != self._creator:
+					raise AttributeError
+			except AttributeError:
+				try:
+					self._dbapi = sys.modules[con.__module__]
+					if not callable(self._dbapi.connect):
+						raise AttributeError
+				except (AttributeError, KeyError):
+					raise TypeError("Cannot determine DB-API 2 module.")
+			self._setsession(con)
+		except Exception, error:
+			# the database module could not be determined
+			# or the session could not be prepared
+			try: # close the connection first
+				con.close()
+			except Exception:
+				pass
+			raise error # reraise the original error again
 		return con
 
 	def _setsession(self, con=None):
@@ -155,16 +175,8 @@ class SteadyDBConnection:
 	def _store(self, con):
 		"""Store a database connection for subsequent use."""
 		self._con = con
-		try:
-			if self._dbapi.connect != self._creator:
-				raise AttributeError
-		except AttributeError:
-			try:
-				self._dbapi = sys.modules[con.__module__]
-				if not callable(self._dbapi.connect):
-					raise AttributeError
-			except (AttributeError, KeyError):
-				raise TypeError("Cannot determine DB-API 2 module.")
+		self._closed = False
+		self._usage = 0
 
 	def _close(self):
 		"""Close the tough connection.
@@ -173,11 +185,12 @@ class SteadyDBConnection:
 		and it will not complain if you close it more than once.
 
 		"""
-		try:
-			self._con.close()
-		except Exception:
-			pass
-		self._usage = 0
+		if not self._closed:
+			try:
+				self._con.close()
+			except Exception:
+				pass
+			self._closed = True
 
 	def dbapi(self):
 		"""Return the underlying DB-API 2 module of the connection."""
@@ -223,7 +236,7 @@ class SteadyDBConnection:
 					raise self._dbapi.OperationalError
 			cursor = self._con.cursor(*args, **kwargs) # try to get a cursor
 		except (self._dbapi.OperationalError,
-			self._dbapi.InternalError): # error in getting cursor
+				self._dbapi.InternalError), error: # error in getting cursor
 			try: # try to reopen the connection
 				con2 = self._create()
 			except Exception:
@@ -241,7 +254,7 @@ class SteadyDBConnection:
 					con2.close()
 				except Exception:
 					pass
-			raise # raise the original error again
+			raise error # reraise the original error again
 		return cursor
 
 	def cursor(self, *args, **kwargs):
@@ -250,12 +263,13 @@ class SteadyDBConnection:
 
 	def __del__(self):
 		"""Delete the steady connection."""
-		if hasattr(self, '_con'):
-			del self._con
+		self._close() # make sure the connection is closed
 
 
 class SteadyDBCursor:
 	"""A "tough" version of DB-API 2 cursors."""
+
+	_closed = True
 
 	def __init__(self, con, *args, **kwargs):
 		""""Create a "tough" DB-API 2 cursor."""
@@ -263,6 +277,7 @@ class SteadyDBCursor:
 		self._args, self._kwargs = args, kwargs
 		self._clearsizes()
 		self._cursor = con._cursor(*args, **kwargs)
+		self._closed = False
 
 	def setinputsizes(self, sizes):
 		"""Store input sizes in case cursor needs to be reopened."""
@@ -298,10 +313,12 @@ class SteadyDBCursor:
 		It will not complain if you close it more than once.
 
 		"""
-		try:
-			self._cursor.close()
-		except Exception:
-			pass
+		if not self._closed:
+			try:
+				self._cursor.close()
+			except Exception:
+				pass
+			self._closed = True
 
 	def _get_tough_method(self, name):
 		"""Return a "tough" version of the method."""
@@ -319,7 +336,7 @@ class SteadyDBCursor:
 				if execute:
 					self._clearsizes()
 			except (self._con._dbapi.OperationalError,
-				self._con._dbapi.InternalError): # execution error
+					self._con._dbapi.InternalError), error: # execution error
 				try:
 					cursor2 = self._con._cursor(
 						*self._args, **self._kwargs) # open new cursor
@@ -379,7 +396,7 @@ class SteadyDBCursor:
 						con2.close()
 					except Exception:
 						pass
-				raise # raise the original error again
+				raise error # reraise the original error again
 			else:
 				self._con._usage += 1
 				return result
@@ -395,5 +412,4 @@ class SteadyDBCursor:
 
 	def __del__(self):
 		"""Delete the steady cursor."""
-		if hasattr(self, '_cursor'):
-			del self._cursor
+		self.close() # make sure the cursor is closed

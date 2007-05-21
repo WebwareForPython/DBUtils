@@ -25,8 +25,9 @@ threadsafety = 2
 
 class Error(StandardError): pass
 class DatabaseError(Error): pass
-class InternalError(DatabaseError): pass
 class OperationalError(DatabaseError): pass
+class InternalError(DatabaseError): pass
+class ProgrammingError(DatabaseError): pass
 
 def connect(database=None, user=None):
 	return Connection(database, user)
@@ -40,6 +41,9 @@ class Connection:
 		self.num_uses = 0
 		self.num_queries = 0
 		self.session = []
+		if database == 'error':
+			self.valid = 0
+			raise OperationalError
 		self.valid = 1
 
 	def close(self):
@@ -57,18 +61,21 @@ class Connection:
 	def rollback(self):
 		self.session.append('rollback')
 
-	def cursor(self):
+	def cursor(self, name=None):
 		if not self.valid:
 			raise InternalError
-		return Cursor(self)
+		return Cursor(self, name)
 
 class Cursor:
 
-	def __init__(self, con):
+	def __init__(self, con, name=None):
 		self.con = con
+		self.result = None
+		if name == 'error':
+			self.valid = 0
+			raise OperationalError
 		con.open_cursors += 1
 		self.valid = 1
-		self.result = None
 
 	def close(self):
 		if not self.valid:
@@ -77,7 +84,7 @@ class Cursor:
 		self.valid = 0
 
 	def execute(self, operation):
-		if not self.valid:
+		if not self.valid or not self.con.valid:
 			raise InternalError
 		self.con.num_uses += 1
 		if operation.startswith('select '):
@@ -87,15 +94,17 @@ class Cursor:
 			self.con.session.append(operation[4:])
 			self.result = None
 		else:
-			raise DatabaseError
+			raise ProgrammingError
 
 	def fetchone(self):
+		if not self.valid:
+			raise InternalError
 		result = self.result
 		self.result = None
 		return result
 
 	def callproc(self, procname):
-		if not self.valid:
+		if not self.valid or not self.con.valid:
 			raise InternalError
 		self.con.num_uses += 1
 
@@ -175,7 +184,23 @@ class TestSteadyDB(unittest.TestCase):
 		self.assertRaises(InternalError, db.close)
 		self.assertRaises(InternalError, db.cursor)
 
-	def test2_SteadyDBClose(self):
+	def test2_BrokenDBConnection(self):
+		db = SteadyDBconnect(dbapi, database='ok')
+		for i in range(3):
+			db.close()
+		del db
+		self.assertRaises(OperationalError, SteadyDBconnect,
+			dbapi, database='error')
+		db = SteadyDBconnect(dbapi, database='ok')
+		cursor = db.cursor()
+		for i in range(3):
+			cursor.close()
+		cursor = db.cursor('ok')
+		for i in range(3):
+			cursor.close()
+		self.assertRaises(OperationalError, db.cursor, 'error')
+
+	def test3_SteadyDBClose(self):
 		for closeable in (0, 1):
 			db = SteadyDBconnect(dbapi)
 			db._closeable = closeable
@@ -189,7 +214,7 @@ class TestSteadyDB(unittest.TestCase):
 			db._close()
 			self.assert_(not db._con.valid)
 
-	def test3_SteadyDBConnection(self):
+	def test4_SteadyDBConnection(self):
 		db = SteadyDBconnect(dbapi, 0, None,
 			'SteadyDBTestDB', user='SteadyDBTestUser')
 		self.assert_(hasattr(db, '_con'))
@@ -257,7 +282,7 @@ class TestSteadyDB(unittest.TestCase):
 		db.close()
 		self.assert_(not db._con.valid)
 		self.assertEqual(db._con.open_cursors, 0)
-		self.assertEqual(db._usage, 0)
+		self.assertEqual(db._usage, 8)
 		self.assertEqual(db._con.num_uses, 0)
 		self.assertEqual(db._con.num_queries, 0)
 		self.assertRaises(InternalError, db._con.close)
@@ -304,7 +329,7 @@ class TestSteadyDB(unittest.TestCase):
 		self.assertEqual(db._con.session,
 			['doit', 'commit', 'dont', 'rollback'])
 
-	def test4_SteadyDBConnectionCreatorFunction(self):
+	def test5_SteadyDBConnectionCreatorFunction(self):
 		db1 = SteadyDBconnect(dbapi, 0, None,
 			'SteadyDBTestDB', user='SteadyDBTestUser')
 		db2 = SteadyDBconnect(connect, 0, None,
@@ -317,7 +342,7 @@ class TestSteadyDB(unittest.TestCase):
 		db2.close()
 		db1.close()
 
-	def test5_SteadyDBConnectionMaxUsage(self):
+	def test6_SteadyDBConnectionMaxUsage(self):
 		db = SteadyDBconnect(dbapi, 10)
 		cursor = db.cursor()
 		for i in range(100):
@@ -363,7 +388,7 @@ class TestSteadyDB(unittest.TestCase):
 		self.assertEqual(db._con.num_uses, 1)
 		self.assertEqual(db._con.num_queries, 1)
 
-	def test6_SteadyDBConnectionSetSession(self):
+	def test7_SteadyDBConnectionSetSession(self):
 		db = SteadyDBconnect(dbapi, 3, ('set time zone', 'set datestyle'))
 		self.assert_(hasattr(db, '_usage'))
 		self.assertEqual(db._usage, 0)

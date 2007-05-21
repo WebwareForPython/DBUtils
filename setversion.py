@@ -16,7 +16,7 @@ consistently in all files of the distribution.
 version = ('X', 'Y', 0)
 version = (0, 9, 3)
 releaseDate = '@@/@@/@@'
-releaseDate = '05/18/07'
+releaseDate = '05/21/07'
 
 # Verbose output (output unchanged files also):
 verbose = 0
