@@ -1,0 +1,328 @@
+﻿====================
+DBUtils 用户指南
+====================
+
+:版本: 0.9.4
+:发行版: 07/07/07
+:翻译: English_ German_ Chinese
+
+.. _English: UsersGuide.html
+.. _German: UsersGuide.de.html
+
+.. contents:: 目录
+
+
+摘要
+------
+
+DBUtils_ 是一套允许线程化 Python_ 程序可以安全和有效的访问数据库的模块。DBUtils已经作为 `Webware for Python`_ 一部分用来结合 PyGreSQL_ 访问 PostgreSQL_ 数据库，当然他也可以用在其他Python应用程序中来访问 `DB-API 2`_ 兼容的数据库接口。
+
+
+模块
+------
+
+DBUtils实际上是一个包含两个子模块的Python包，一个用于连接DB-API 2模块，另一个用于连接典型的PyGreSQL模块。
+
++-------------------+------------------------------------------+
+| 全局的DB-API 2变量                                           |
++===================+==========================================+
+| SteadyDB.py       | 用于稳定数据库连接                       |
++-------------------+------------------------------------------+
+| PooledDB.py       | 连接池                                   |
++-------------------+------------------------------------------+
+| PersistentDB.py   | 维持持续的数据库连接                     |
++-------------------+------------------------------------------+
+| SimplePooledDB.py | 简单连接池                               |
++-------------------+------------------------------------------+
+
++-------------------+------------------------------------------+
+| 典型的 PyGreSQL 变量                                         |
++===================+==========================================+
+| SteadyPg.py       | 稳定PyGreSQL连接                         |
++-------------------+------------------------------------------+
+| PooledPg.py       | PyGreSQL连接池                           |
++-------------------+------------------------------------------+
+| PersistentPg.py   | 维持持续的PyGreSQL连接                   |
++-------------------+------------------------------------------+
+| SimplePooledPg.py | 简单的PyGreSQL连接池                     |
++-------------------+------------------------------------------+
+
+对标准DB-API 2模块的依赖如下图所示：
+
+.. image:: dbdep.gif
+
+对典型的PyGreSQL模块依赖如下图所示：
+
+.. image:: pgdep.gif
+
+
+下载
+------
+
+你可以从 Webware 的网站下载最新版本：
+
+  http://www.webwareforpython.org/downloads/DBUtils/
+
+也可以从Python Package Index来下载：
+
+  http://www.python.org/pypi/DBUtils/
+
+
+安装
+------
+
+安装为顶层模块
+~~~~~~~~~~~~~~~~
+
+如果你打算在除了Webware之外的程序中使用，推荐安装为顶层模块::
+
+    python setup.py install
+
+安装为Webware的子模块(插件)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+如果你只是打算在Webware中使用，则可以按照如下安装::
+
+    python setup.py install --install-lib=/path/to/Webware
+
+替换 ``/path/to/Webware`` 为Webware安装的根路径。你还需要运行Webware的安装程序来同时包含DBUtils的文档::
+
+    cd path/to/Webware
+    python install.py
+
+要求
+------
+
+DBUtils需要Python2.2或更高的版本。而典型的PyGreSQL则需要PyGreSQL3.4版本或更高。而DB-API 相关的则需要 `DB-API 2`_ 版本或更高的数据库接口模块。
+
+
+功能
+------
+
+这一节的主要例子面向DB-API 2，但是也适用于典型的PyGreSQL模块。
+
+SimplePooledDB
+~~~~~~~~~~~~~~~~
+
+``DBUtils.SimplePooledDB`` 是一个非常简单的数据库连接池实现。他比完善的 ``PooledDB`` 模块缺少很多功能。 ``DBUtils.SimplePooledDB`` 本质上类似于 ``MiscUtils.DBPool`` 这个Webware的组成部分。你可以把它看作一种演示程序。
+
+SteadyDB
+~~~~~~~~~~
+
+``DBUtils.SteadyDB`` 是一个模块实现了"强硬"的数据库连接，基于DB-API 2建立的原始连接。一个"强硬"的连接意味着在连接关闭之后，或者使用次数操作限制时会重新连接。
+
+一个典型的例子是数据库重启时，而你的程序仍然在运行并需要访问数据库，或者当你的程序连接了一个防火墙后面的远程数据库，而防火墙重启时丢失了状态时。
+
+一般来说你不需要直接使用 ``SteadyDB`` 它只是给接下来的两个模块提供基本服务， ``PersistentDB`` 和 ``PooledDB`` 。
+
+PersistentDB
+~~~~~~~~~~~~~~
+
+``DBUtils.PersistentDB`` 实现了强硬的、线程安全的、顽固的数据库连接，使用DB-API 2模块。如下图展示了使用 ``PersistentDB`` 时的连接层步骤：
+
+.. image:: persist.gif
+
+当一个线程首次打开一个数据库连接时，一个连接会打开并仅供这个线程使用。当线程关闭连接时，连接仍然持续打开供这个线程下次请求时使用这个已经打开的连接。连接在线程死亡时自动关闭。
+
+简单的来说 ``PersistentDB`` 尝试重用数据库连接来提高线程化程序的数据库访问性能，并且他确保连接不会被线程之间共享。
+
+因此， ``PersistentDB`` 可以在底层DB-API模块并非线程安全的时候同样工作的很好，并且他会在其他线程改变数据库会话或者使用多语句事务时同样避免问题的发生。
+
+PooledDB
+~~~~~~~~~~
+
+``DBUtils.PooledDB`` 实现了一个强硬的、线程安全的、有缓存的、可复用的数据库连接，使用任何DB-API 2模块。如下图展示了使用 ``PooledDB`` 时的工作流程：
+
+.. image:: pool.gif
+
+如图所示 ``PooledDB`` 可以在不同线程之间共享打开的数据库连接。这在你连接并指定 ``maxshared`` 参数，并且底层的DB-API 2接口是线程安全才可以，但是你仍然可以使用专用数据库连接而不在线程之间共享连接。除了共享连接以外，还可以设立一个至少 ``mincached`` 的连接池，并且最多允许使用 ``maxcached`` 个连接，这可以同时用于专用和共享连接池。当一个线程关闭了一个非共享连接，则会返还到空闲连接池中等待下次使用。
+
+如果底层DB-API模块是非线程安全的，线程锁会确保使用 ``PooledDB`` 是线程安全的。所以你并不需要为此担心，但是你在使用专用连接来改变数据库会话或执行多命令事务时必须小心。
+
+该选择哪一个？
+~~~~~~~~~~~~~~~~
+
+``PersistentDB`` 和 ``PooledDB`` 都是为了重用数据库连接来提高性能，并保持数据库的稳定性。
+
+所以选择何种模块，可以参考上面的解释。 ``PersistentDB`` 将会保持一定数量的连接供频繁使用。在这种情况下你总是保持固定数量的连接。如果你的程序频繁的启动和关闭线程，最好使用 ``PooledDB`` 。后面将会提到更好的调整，尤其在使用线程安全的DB-API 2模块时。
+
+当然，这两个模块的接口是很相似的，你可以方便的在他们之间转换，并查看哪个更好一些。
+
+
+使用方法
+----------
+
+所有模块的使用方法都很相似，但是在初始化 "Pooled" 和 "Persistent" 时还有有些不同，尤其是DB-API和PyGreSQL之间。
+
+这里只讲解 ``PersistentDB`` 和更复杂的 ``PooledDB`` 模块。其他模块的细节请参与其文档。使用Python解释器控制台，你可以显示 ``PooledDB`` 的文档，如下::
+
+    help(PooledDB)
+
+PersistentDB
+~~~~~~~~~~~~~~
+
+为了使用 ``PersistentDB`` 你首先需要通过创建 ``PersistentDB`` 的实例来设置一个特定数据库连接的生成器，床底如下参数：
+
+* ``creator``: 可以使用任意返回 `DB-API 2`_ 连接对象的函数活 `DB-API 2` 兼容的数据库模块。
+
+* ``maxusage``: 一个连接最大允许复用次数(缺省为 ``0`` 或 ``False`` 意味着无限制的重用)，当达到限制时，将会重新连接数据库
+
+* ``setsession``: 一个可选的SQL命令列表可以用于准备会话，如 ``["set datestyle to german", ...]``
+
+* ``creator`` 函数或生成 `DB-API 2`_ 连接的函数，可以接受这里的附加参数，比如主机名、数据库、用户名、密码等等。你也可以选择传递给 ``creator`` 的其他参数，并允许提供失败重连和负载均衡。
+
+举个例子，如果你正在使用 ``pgdb`` 作为数据库模块并想要连接本机数据库 ``mydb`` ，允许重用1000次::
+
+    import pgdb # import used DB-API 2 module
+    from DBUtils.PersistentDB import PersistentDB
+    persist = PersistentDB(pgdb, 1000, database='mydb')
+
+按照如上设置完成了连接生成器之后，你可以按照如下来请求一个连接::
+
+    db = persist.connection()
+
+你可以使用这些连接就像使用原始的DB-API 2连接一样。实际上你得到的是一个通过``SteadyDB``得到的强硬的连接，基于DB-API 2。
+
+关闭一个强硬的连接使用 ``db.close()`` ，这在内部实际上被忽略掉了，并且供下次使用。在线程关闭时，也会自动关闭数据库连接。你可以改变这个行为通过 ``persist._closeable`` 为 ``True`` 。
+
+PooledDB
+~~~~~~~~~~
+
+为了使用 ``PooledDB`` 模块，你首先需要通过创建 ``PooledDB`` 来设置数据库连接池，传递如下参数：
+
+* ``creator``: 可以生成 `DB-API 2`_ 连接的任何函数或 `DB-API 2`_ 兼容的数据库连接模块。
+
+* ``mincached`` : 启动时开启的空连接数量(缺省值 ``0`` 意味着开始时不创建连接)
+
+* ``maxcached``: 连接池使用的最多连接数量(缺省值 ``0`` 代表不限制连接池大小)
+
+* ``maxshared``: 最大允许的共享连接数量(缺省值 ``0`` 代表所有连接都是专用的)如果达到了最大数量，被请求为共享的连接将会被共享使用。
+
+* ``maxconnections``: 最大允许连接数量(缺省值 ``0`` 代表不限制)
+
+* ``blocking``: 设置在达到最大数量时的行为(缺省值 ``0`` 或 ``False`` 代表返回一个错误；其他代表阻塞直到连接数减少)
+
+* ``maxusage``: 单个连接的最大允许复用次数(缺省值 ``0`` 或 ``False`` 代表不限制的复用)。当达到最大数值时，连接会自动重新连接(关闭和重新打开)
+
+* ``setsession``: 一个可选的SQL命令列表用于准备每个会话，如 ``["set datestyle to german", ...]``
+
+* ``creator`` 函数或可以生成连接的函数可以接受这里传入的其他参数，例如主机名、数据库、用户名、密码等。你还可以选择传入creator函数的其他参数，允许失败重连和负载均衡。
+
+举个例子，如果你正在使用 ``pgdb`` 作为DB-API模块，并希望连接池中至少有5个连接到数据库 ``mydb`` ::
+
+    import pgdb # import used DB-API 2 module
+    from DBUtils.PooledDB import PooledDB
+    pool = PooledDB(pgdb, 5, database='mydb')
+
+一旦设置好了连接池，你就可以按照如下请求一个连接::
+
+    db = pool.connection()
+
+你可以使用这些连接有如原始的DB-API 2一样。而实际使用的是``SteadyDB``版本的强硬连接。
+
+请注意连接可以与其他线程共享，只要你设置 ``maxshared`` 参数为非零，并且DB-API 2模块也允许。如果你想要使用专用连接则使用::
+
+    db = pool.connection(0)
+
+如果你不再需要这个连接了，则可以返回给连接池使用 ``db.close()`` 。你也可以使用相同的方法获取另一个连接。
+
+*警告：* 在一个多线程环境，不要使用下面的方法::
+
+    pool.connection().cursor().execute(...)
+
+这将会导致过早的释放连接以供复用，而且如果是非线程安全还会出错。确保连接对象在你的使用过程中是一直存在的，例如::
+
+    db = pool.connection()
+    cur = db.cursor()
+    cur.execute(...)
+    res = cur.fetchone()
+    cur.close() # or del cur
+    db.close() # or del db
+
+在Webware中使用
+~~~~~~~~~~~~~~~~~
+
+如果你正在 `Webware for Python`_ 的 servlets 中使用DBUtils来存取数据库，你要确保数据库连接生成器只被应用启动一次，而不是每个servlet启动时都创建一个。为了达到这个目的，你可以在模块或类的初始化代码中添加这些代码，或者使用 ``__init__.py`` 中的 ``contextInitialize()`` 函数。
+
+目录 ``Examples`` 是DBUtils发行包的一部分，包含了一个使用示例数据库的Webware的例子，用来跟踪演讲会的出席者(这个例子的主意来自Andrew Kuchling的 "`The Python DB-API`_")。
+
+例子的正文可以通过创建配置文件 ``Configs/Database.config`` 来配置，改变例子
+``Examples/DBUtilsExample.py`` 的缺省参数。这种方式可以设置一个专用数据库的用户名和密码，你也可以选择底层的数据库模块。如果设置了 ``maxcached`` ，则例子会使用 "Pooled" 模块，否则会使用 "Persistent" 模块。
+
+
+注意
+------
+
+如果你正在使用一个流行的ORM SQLObject_ 或 SQLAlchemy_ ，你并不需要使用DBUtiils，因为他已经内含连接池了。 `SQLObject 2`_ (SQL-API_) 事实上还从DBUtils这里借用了连接池分层的代码。
+
+
+未来功能
+----------
+
+一些未来会使用的方法：
+
+* 一个连接最大被使用的次数，或一个连接最大活动时间。
+
+* 创建模块 ``MonitorDB`` 和 ``MonitorPg`` 运行在单独的线程中，监控连接池中各个共享连接的状态。如果检测到一个损坏的连接，则会自动恢复这个连接。这在很多网站中是很实用的，因为晚上往往要重启数据库服务器。如果不使用监控线程，则用户要等到第二天早上才可以使用。正是因为如此，检测损坏的连接并自动恢复是很有用的。使用了监控线程之后，间断时间在晚上，而且很短。监控线程同样可以配置连接生成器的线程池，并且确保用户到达之前完成。
+
+* 可选的日志，记录损坏的连接和最大限制。
+
+
+错误报告与回馈
+----------------
+
+请将错误报告、补丁、回馈直接发送给作者(使用下面给出的邮件地址)。
+
+如果有Webware相关的问题，可以到邮件列表讨论 `Webware for Python mailing list`_ 。
+
+
+链接
+------
+
+一些相关软件的链接：
+
+* DBUtils_
+* Python_
+* `Webware for Python`_ 框架
+* Python `DB-API 2`_
+* PostgreSQL_ 数据库
+* PyGreSQL_ 接口
+* SQLObject_ ORM
+* SQLAlchemy_ ORM
+
+.. _DBUtils: http://www.webwareforpython.org/DBUtils
+.. _Python: http://www.python.org
+.. _Webware for Python: http://www.webwareforpython.org
+.. _Webware for Python mailing list: https://lists.sourceforge.net/lists/listinfo/webware-discuss
+.. _DB-API 2: http://www.python.org/dev/peps/pep-0249/
+.. _The Python DB-API: http://www.linuxjournal.com/article/2605
+.. _PostgresQL: http://www.postgresql.org
+.. _PyGreSQL: http://www.pygresql.org
+.. _SQLObject: http://www.sqlobject.org
+.. _SQLObject 2: http://www.sqlobject.org/2/
+.. _SQL-API: http://www.sqlobject.org/sqlapi/
+.. _SQLAlchemy: http://www.sqlalchemy.org
+
+
+作者列表
+----------
+
+:作者: Christoph Zwerschke <cito@online.de>
+
+:贡献: DBUtils收到了如下朋友的帮助和建议
+  Ian Bicking, Chuck Esterbrook (Webware for Python), Dan Green (DBTools),
+  Jay Love, Michael Palmer, Tom Schwaller, Geoffrey Talvola,
+  Warren Smith (DbConnectionPool) and Ezio Vernacotola.
+
+:翻译: gashero <harry.python@gmail.com>
+
+
+版权与许可
+------------
+
+Copyright @ 2005-2007 by Christoph Zwerschke.
+All Rights Reserved.
+
+DBUtils是一个自由开源软件，使用 `Open Software License version 2.1`__ 许可。
+
+__ http://www.opensource.org/licenses/osl-2.1.php

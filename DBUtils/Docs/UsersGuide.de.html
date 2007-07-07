@@ -1,0 +1,535 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" lang="de">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.4: http://docutils.sourceforge.net/" />
+<title>Benutzeranleitung für DBUtils</title>
+<link rel="stylesheet" href="Doc.css" type="text/css" />
+</head>
+<body>
+<div class="document" id="benutzeranleitung-f-r-dbutils">
+<h1 class="title">Benutzeranleitung für DBUtils</h1>
+<table class="docinfo" frame="void" rules="none">
+<col class="docinfo-name" />
+<col class="docinfo-content" />
+<tbody valign="top">
+<tr><th class="docinfo-name">Version:</th>
+<td>0.9.4</td></tr>
+<tr class="field"><th class="docinfo-name">Released:</th><td class="field-body">07/07/07</td>
+</tr>
+<tr class="field"><th class="docinfo-name">Translations:</th><td class="field-body"><a class="reference" href="UsersGuide.html">English</a> German <a class="reference" href="UsersGuide.zh.html">Chinese</a></td>
+</tr>
+</tbody>
+</table>
+<div class="contents topic">
+<p class="topic-title first"><a id="inhalt" name="inhalt">Inhalt</a></p>
+<ul class="simple">
+<li><a class="reference" href="#zusammenfassung" id="id4" name="id4">Zusammenfassung</a></li>
+<li><a class="reference" href="#module" id="id5" name="id5">Module</a></li>
+<li><a class="reference" href="#download" id="id6" name="id6">Download</a></li>
+<li><a class="reference" href="#installation" id="id7" name="id7">Installation</a><ul>
+<li><a class="reference" href="#installation-als-eigenst-ndiges-paket" id="id8" name="id8">Installation als eigenständiges Paket</a></li>
+<li><a class="reference" href="#installation-als-unterpaket-plug-in-von-webware-for-python" id="id9" name="id9">Installation als Unterpaket (Plug-In) von Webware for Python</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#anforderungen" id="id10" name="id10">Anforderungen</a></li>
+<li><a class="reference" href="#funktionalit-t" id="id11" name="id11">Funktionalität</a><ul>
+<li><a class="reference" href="#simplepooleddb" id="id12" name="id12">SimplePooledDB</a></li>
+<li><a class="reference" href="#steadydb" id="id13" name="id13">SteadyDB</a></li>
+<li><a class="reference" href="#persistentdb" id="id14" name="id14">PersistentDB</a></li>
+<li><a class="reference" href="#pooleddb" id="id15" name="id15">PooledDB</a></li>
+<li><a class="reference" href="#die-qual-der-wahl" id="id16" name="id16">Die Qual der Wahl</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#benutzung" id="id17" name="id17">Benutzung</a><ul>
+<li><a class="reference" href="#id1" id="id18" name="id18">PersistentDB</a></li>
+<li><a class="reference" href="#id2" id="id19" name="id19">PooledDB</a></li>
+<li><a class="reference" href="#benutzung-in-webware-for-python" id="id20" name="id20">Benutzung in Webware for Python</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#anmerkungen" id="id21" name="id21">Anmerkungen</a></li>
+<li><a class="reference" href="#zukunft" id="id22" name="id22">Zukunft</a></li>
+<li><a class="reference" href="#fehlermeldungen-und-feedback" id="id23" name="id23">Fehlermeldungen und Feedback</a></li>
+<li><a class="reference" href="#links" id="id24" name="id24">Links</a></li>
+<li><a class="reference" href="#autoren" id="id25" name="id25">Autoren</a></li>
+<li><a class="reference" href="#copyright-und-lizenz" id="id26" name="id26">Copyright und Lizenz</a></li>
+</ul>
+</div>
+<div class="section">
+<h1><a id="zusammenfassung" name="zusammenfassung">Zusammenfassung</a></h1>
+<p><a class="reference" href="http://www.webwareforpython.org/DBUtils">DBUtils</a> ist eine Sammlung von Python-Modulen, mit deren Hilfe man in <a class="reference" href="http://www.python.org">Python</a>
+geschriebene Multithread-Anwendungen auf sichere und effiziente Weise an
+Datenbanken anbinden kann. DBUtils wurde mit Blick auf <a class="reference" href="http://www.webwareforpython.org">Webware for Python</a>
+als Anwendung und <a class="reference" href="http://www.pygresql.org">PyGreSQL</a> als <a class="reference" href="http://www.postgresql.org">PostgreSQL</a>-Datenbankadapter entwickelt,
+kann aber für beliebige Python-Anwendungen und beliebige auf <a class="reference" href="http://www.python.org/dev/peps/pep-0249/">DB-API 2</a>
+beruhende Python-Datenbankadapter verwendet werden.</p>
+</div>
+<div class="section">
+<h1><a id="module" name="module">Module</a></h1>
+<p>DBUtils ist als Python-Package realisiert worden, das aus zwei verschiedenen
+Gruppen von Modulen besteht: Einer Gruppe zur Verwendung mit beliebigen
+DB-API-2-Datenbankadaptern, und einer Gruppe zur Verwendung mit dem klassischen PyGreSQL-Datenbankadapter-Modul.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="29%" />
+<col width="71%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head" colspan="2">Allgemeine Variante für beliebige DB-API-2-Adapter</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>SteadyDB.py</td>
+<td>Gehärtete DB-API-2-Datenbankverbindungen</td>
+</tr>
+<tr><td>PooledDB.py</td>
+<td>Pooling für DB-API-2-Datenbankverbindungen</td>
+</tr>
+<tr><td>PersistentDB.py</td>
+<td>Persistente DB-API-2-Datenbankverbindungen</td>
+</tr>
+<tr><td>SimplePooledDB.py</td>
+<td>Einfaches Pooling für DB-API 2</td>
+</tr>
+</tbody>
+</table>
+<table border="1" class="docutils">
+<colgroup>
+<col width="29%" />
+<col width="71%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head" colspan="2">Variante speziell für den klassischen PyGreSQL-Adapter</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>SteadyPg.py</td>
+<td>Gehärtete klassische PyGreSQL-Verbindungen</td>
+</tr>
+<tr><td>PooledPg.py</td>
+<td>Pooling für klassische PyGreSQL-Verbindungen</td>
+</tr>
+<tr><td>PersistentPg.py</td>
+<td>Persistente klassische PyGreSQL-Verbindungen</td>
+</tr>
+<tr><td>SimplePooledPg.py</td>
+<td>Einfaches Pooling für klassisches PyGreSQL</td>
+</tr>
+</tbody>
+</table>
+<p>Die Abhängigkeiten der Module in der Variante für beliebige DB-API-2-Adapter
+sind im folgenden Diagramm dargestellt:</p>
+<img alt="dbdep.gif" src="dbdep.gif" />
+<p>Die Abhängigkeiten der Module in der Variante für den klassischen
+PyGreSQL-Adapter sehen ähnlich aus:</p>
+<img alt="pgdep.gif" src="pgdep.gif" />
+</div>
+<div class="section">
+<h1><a id="download" name="download">Download</a></h1>
+<p>Die aktuelle Version von DBUtils kann von der Homepage von Webware for Python
+heruntergeladen werden:</p>
+<blockquote>
+<a class="reference" href="http://www.webwareforpython.org/downloads/DBUtils/">http://www.webwareforpython.org/downloads/DBUtils/</a></blockquote>
+<p>Außerdem befindet sie sich im Python Package Index (auch bekannt als der
+&quot;Cheese Shop&quot;) und kann von dort heruntergeladen werden:</p>
+<blockquote>
+<a class="reference" href="http://www.python.org/pypi/DBUtils/">http://www.python.org/pypi/DBUtils/</a></blockquote>
+</div>
+<div class="section">
+<h1><a id="installation" name="installation">Installation</a></h1>
+<div class="section">
+<h2><a id="installation-als-eigenst-ndiges-paket" name="installation-als-eigenst-ndiges-paket">Installation als eigenständiges Paket</a></h2>
+<p>Wenn Sie DBUtils für andere Anwendungen als Webware for Python verwenden
+möchten, empfiehlt es sich, das Paket auf die übliche Weise zu installieren:</p>
+<pre class="literal-block">
+python setup.py install
+</pre>
+</div>
+<div class="section">
+<h2><a id="installation-als-unterpaket-plug-in-von-webware-for-python" name="installation-als-unterpaket-plug-in-von-webware-for-python">Installation als Unterpaket (Plug-In) von Webware for Python</a></h2>
+<p>Wenn Sie DBUtils nur als Ergänzung für das Web-Framework Webware for Python
+verwenden wollen, sollten Sie DBUtils als Webware-Plug-In installieren:</p>
+<pre class="literal-block">
+python setup.py install --install-lib=/pfad/zu/Webware
+</pre>
+<p>Ersetzen Sie <tt class="docutils literal"><span class="pre">/pfad/zu/Webware</span></tt> hierbei durch den Pfad zum Wurzelverzeichnis
+der Installation von Webware for Python. Sie müssen auch das Installationsskript
+von Webware for Python laufen lassen, wenn dies noch nicht geschehen ist, oder
+wenn Sie DBUtils in die Webware-Dokumentation integrieren wollen:</p>
+<pre class="literal-block">
+cd /pfad/zu/Webware
+python install.py
+</pre>
+</div>
+</div>
+<div class="section">
+<h1><a id="anforderungen" name="anforderungen">Anforderungen</a></h1>
+<p>DBUtils benötigt <a class="reference" href="http://www.python.org">Python</a> Version 2.2 oder höher. Die Module in der Variante
+für klassisches PyGreSQL benötigen <a class="reference" href="http://www.pygresql.org">PyGreSQL</a> Version 3.4 oder höher, während
+die Module in der allgemeinen Variante für DB-API 2 mit jedem beliebigen
+Python-Datenbankadapter-Modul zusammenarbeiten, das auf <a class="reference" href="http://www.python.org/dev/peps/pep-0249/">DB-API 2</a> basiert.</p>
+</div>
+<div class="section">
+<h1><a id="funktionalit-t" name="funktionalit-t">Funktionalität</a></h1>
+<p>Dieser Abschnitt verwendet nur die Bezeichnungen der DB-API-2-Variante, aber
+Entsprechendes gilt auch für die PyGreSQL-Variante.</p>
+<div class="section">
+<h2><a id="simplepooleddb" name="simplepooleddb">SimplePooledDB</a></h2>
+<p><tt class="docutils literal"><span class="pre">DBUtils.SimplePooledDB</span></tt> ist eine sehr elementare Referenz-Implementierung
+eines Pools von Datenbankverbindungen. Hiermit ist ein Vorratsspeicher an
+Datenbankverbindungen gemeint, aus dem sich die Python-Anwendung bedienen kann.
+Diese Implementierung ist weit weniger ausgefeilt als das eigentliche
+<tt class="docutils literal"><span class="pre">PooledDB</span></tt>-Modul und stellt insbesondere keine Ausfallsicherung zur Verfügung.
+<tt class="docutils literal"><span class="pre">DBUtils.SimplePooledDB</span></tt> ist im Wesentlichen identisch mit dem zu Webware for
+Python gehörenden Modul <tt class="docutils literal"><span class="pre">MiscUtils.DBPool</span></tt>. Es ist eher zur Verdeutlichung
+des Konzepts gedacht, als zum Einsatz im produktiven Betrieb.</p>
+</div>
+<div class="section">
+<h2><a id="steadydb" name="steadydb">SteadyDB</a></h2>
+<p><tt class="docutils literal"><span class="pre">DBUtils.SteadyDB</span></tt> ist ein Modul, das &quot;gehärtete&quot; Datenbankverbindungen
+bereitstellt, denen gewöhnlichen Verbindungen eines DB-API-2-Datenbankadapters
+zugrunde liegen. Eine &quot;gehärtete&quot; Verbindung wird bei Zugriff automatisch,
+ohne dass die Anwendung dies bemerkt, wieder geöffnet, wenn sie geschlossen
+wurde, die Datenbankverbindung unterbrochen wurde, oder wenn sie öfter als
+ein optionales Limit genutzt wurde.</p>
+<p>Ein typisches Beispiel wo dies benötig wird, ist, wenn die Datenbank neu
+gestartet wurde, während Ihre Anwendung immer noch läuft und Verbindungen
+zur Datenbank offen hat, oder wenn Ihre Anwendung auf eine entfernte Datenbank
+über ein Netzwerk zugreift, das durch eine Firewall geschützt ist, und die
+Firewall neu gestartet wurde und dabei ihren Verbindungsstatus verloren hat.</p>
+<p>Normalerweise benutzen Sie das <tt class="docutils literal"><span class="pre">SteadyDB</span></tt>-Modul nicht direkt; es wird aber
+von den beiden nächsten Modulen benötigt, <tt class="docutils literal"><span class="pre">PersistentDB</span></tt> und <tt class="docutils literal"><span class="pre">PooledDB</span></tt>.</p>
+</div>
+<div class="section">
+<h2><a id="persistentdb" name="persistentdb">PersistentDB</a></h2>
+<p><tt class="docutils literal"><span class="pre">DBUtils.PersistentDB</span></tt> stellt gehärtete,  thread-affine, persistente
+Datenbankverbindungen zur Verfügung, unter Benutzung eines beliebigen
+DB-API-2-Datenbankadapters. Mit &quot;thread-affin&quot; und &quot;persistent&quot; ist
+hierbei gemeint, dass die einzelnen Datenbankverbindungen den jeweiligen
+Threads fest zugeordnet bleiben und während der Laufzeit des Threads nicht
+geschlossen werden.</p>
+<p>Das folgende Diagramm zeigt die beteiligten Verbindungsschichten, wenn Sie
+<tt class="docutils literal"><span class="pre">PersistentDB</span></tt>-Datenbankverbindungen einsetzen:</p>
+<img alt="persist.gif" src="persist.gif" />
+<p>Immer wenn ein Thread eine Datenbankverbindung zum ersten Mal öffnet, wird
+eine neue Datenbankverbindung geöffnet, die von da an immer wieder für genau
+diesen Thread verwendet wird. Wenn der Thread die Datenbankverbindung schließt,
+wird sie trotzdem weiter offen gehalten, damit beim nächsten Mal, wenn der
+gleiche Thread wieder eine Datenbankverbindung anfordert, diese gleiche bereits
+geöffnete Datenbankverbindung wieder verwendet werden kann. Die Verbindung wird
+automatisch geschlossen, wenn der Thread beendet wird.</p>
+<p>Kurz gesagt versucht <tt class="docutils literal"><span class="pre">PersistentDB</span></tt> Datenbankverbindungen wiederzuverwerten,
+um die Gesamteffizienz der Datenbankzugriffe Ihrer Multithread-Anwendungen zu
+steigern, aber es wird dabei sichergestellt, dass verschiedene Threads niemals
+die gleiche Verbindung benutzen.</p>
+<p>Daher arbeitet <tt class="docutils literal"><span class="pre">PersistentDB</span></tt> sogar dann problemlos, wenn der zugrunde
+liegende DB-API-2-Datenbankadapter nicht thread-sicher auf der Verbindungsebene
+ist, oder wenn parallele Threads Parameter der Datenbank-Sitzung verändern
+oder Transaktionen mit mehreren SQL-Befehlen durchführen.</p>
+</div>
+<div class="section">
+<h2><a id="pooleddb" name="pooleddb">PooledDB</a></h2>
+<p><tt class="docutils literal"><span class="pre">DBUtils.PooledDB</span></tt> stellt, unter Benutzung eines beliebigen
+DB-API-2-Datenbankadapters, einen Pool von gehärteten, thread-sicheren
+Datenbankverbindungen zur Verfügung, die automatisch, ohne dass die Anwendung
+dies bemerkt, wiederverwendet werden.</p>
+<p>Das folgende Diagramm zeigt die beteiligten Verbindungsschichten, wenn Sie
+<tt class="docutils literal"><span class="pre">PooledDB</span></tt>-Datenbankverbindungen einsetzen:</p>
+<img alt="pool.gif" src="pool.gif" />
+<p>Wie im Diagramm angedeutet, kann <tt class="docutils literal"><span class="pre">PooledDB</span></tt> geöffnete Datenbankverbindungen
+den verschiedenen Threads beliebig zuteilen. Dies geschieht standardmäßig, wenn
+Sie den Verbindungspool mit einem positiven Wert für <tt class="docutils literal"><span class="pre">maxshared</span></tt> einrichten
+und der zugrunde liegende DB-API-2-Datenbankadapter auf der Verbindungsebene
+thread-sicher ist, aber sie können auch dedizierte Datenbankverbindungen
+anfordern, die nicht von anderen Threads verwendet werden sollen. Neben dem
+Pool gemeinsam genutzter Datenbankverbindungen (&quot;shared pool&quot;) können Sie auch
+einen Pool von mindestens <tt class="docutils literal"><span class="pre">mincached</span></tt> und höchstens <tt class="docutils literal"><span class="pre">maxcached</span></tt> inaktiven
+Verbindungen auf Vorrat einrichten (&quot;idle pool&quot;), aus dem immer dann geschöpft
+wird, wenn ein Thread eine dedizierte Datenbankverbindung anfordert, oder wenn
+der Pool gemeinsam genutzter Datenbankverbindungen noch nicht voll ist.
+Wenn ein Thread eine Datenbankverbindung schließt, die auch von keinem anderen
+Thread mehr benutzt wird, wird sie an den Vorratsspeicher inaktiver
+Datenbankverbindungen zurückgegeben, damit sie wiederverwertet werden kann.</p>
+<p>Wenn der zugrunde liegende DB-API-Datenbankadapter nicht thread-sicher ist,
+werden Thread-Locks verwendet, um sicherzustellen, dass die
+<tt class="docutils literal"><span class="pre">PooledDB</span></tt>-Verbindungen dennoch thread-sicher sind. Sie brauchen sich also
+hierum keine Sorgen zu machen, aber Sie sollten darauf achten, dedizierte
+Datenbankverbindungen zu verwenden, sobald Sie Parameter der Datenbanksitzung
+verändern oder Transaktionen mit mehreren SQL-Befehlen ausführen.</p>
+</div>
+<div class="section">
+<h2><a id="die-qual-der-wahl" name="die-qual-der-wahl">Die Qual der Wahl</a></h2>
+<p>Sowohl <tt class="docutils literal"><span class="pre">PersistentDB</span></tt> als auch <tt class="docutils literal"><span class="pre">PooledDB</span></tt> dienen dem gleichen Zweck,
+nämlich die Effizienz des Datenbankzugriffs durch Wiederverwendung von
+Datenbankverbindungen zu steigern, und dabei gleichzeitig die Stabilität
+zu gewährleisten, selbst wenn die Datenbankverbindung unterbrochen wird.</p>
+<p>Welches der beiden Module sollte also verwendet werden? Nach den obigen
+Erklärungen ist es klar, dass <tt class="docutils literal"><span class="pre">PersistentDB</span></tt> dann sinnvoller ist, wenn
+Ihre Anwendung eine gleich bleibende Anzahl Threads verwendet, die häufig
+auf die Datenbank zugreifen. In diesem Fall werden Sie ungefähr die gleiche
+Anzahl geöffneter Datenbankverbindungen erhalten. Wenn jedoch Ihre Anwendung
+häufig Threads beendet und neu startet, dann ist <tt class="docutils literal"><span class="pre">PooledDB</span></tt> die bessere
+Lösung, die auch mehr Möglichkeiten zur Feineinstellung zur Verbesserung
+der Effizienz erlaubt, insbesondere bei Verwendung eines thread-sicheren
+DB-API-2-Datenbankadapters.</p>
+<p>Da die Schnittstellen beider Module sehr ähnlich sind, können Sie recht einfach
+von einem Modul zum anderen wechseln und austesten, welches geeigneter ist.</p>
+</div>
+</div>
+<div class="section">
+<h1><a id="benutzung" name="benutzung">Benutzung</a></h1>
+<p>Die Benutzung aller Module ist zwar recht ähnlich, aber es gibt vor allem bei
+der Initialisierung auch einige Unterschiede, sowohl zwischen den &quot;Pooled&quot;-
+und den &quot;Persistent&quot;-Varianten, als auch zwischen den DB-API-2- und den
+PyGreSQL-Varianten.</p>
+<p>Wir werden hier nur auf das <tt class="docutils literal"><span class="pre">PersistentDB</span></tt>-Modul und das etwas kompliziertere
+<tt class="docutils literal"><span class="pre">PooledDB</span></tt>-Modul eingehen. Einzelheiten zu den anderen Modulen finden Sie
+in deren Docstrings. Unter Verwendung der Python-Interpreter-Konsole können Sie
+sich die Dokumentation des <tt class="docutils literal"><span class="pre">PooledDB</span></tt>-Moduls wie folgt anzeigen lassen (dies
+funktioniert entsprechend auch mit den anderen Modulen):</p>
+<pre class="literal-block">
+help(PooledDB)
+</pre>
+<div class="section">
+<h2><a id="id1" name="id1">PersistentDB</a></h2>
+<p>Wenn Sie das <tt class="docutils literal"><span class="pre">PersistentDB</span></tt>-Modul einsetzen möchten, müssen Sie zuerst einen
+Generator für die von Ihnen gewünschte Art von Datenbankverbindungen einrichten,
+indem Sie eine Instanz der Klasse <tt class="docutils literal"><span class="pre">PersistentDB</span></tt> erzeugen, wobei Sie folgende
+Parameter angeben müssen:</p>
+<ul>
+<li><p class="first"><tt class="docutils literal"><span class="pre">creator</span></tt>: entweder eine Funktion, die neue DB-API-2-Verbindungen
+erzeugt, oder ein DB-API-2-Datenbankadapter-Modul</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">maxusage</span></tt>: Obergrenze dafür, wie oft eine einzelne Verbindung
+wiederverwendet werden darf (der Standardwert <tt class="docutils literal"><span class="pre">0</span></tt> oder <tt class="docutils literal"><span class="pre">False</span></tt>
+bedeutet unbegrenzte Wiederverwendung)</p>
+<p>Sobald diese Obergrenze erreicht wird, wird die Verbindung zurückgesetzt.</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">setsession</span></tt>: eine optionale Liste von SQL-Befehlen zur Initialisierung
+der Datenbanksitzung, z.B. <tt class="docutils literal"><span class="pre">[&quot;set</span> <span class="pre">datestyle</span> <span class="pre">to</span> <span class="pre">german&quot;,</span> <span class="pre">...]</span></tt></p>
+</li>
+<li><p class="first">Die als <tt class="docutils literal"><span class="pre">creator</span></tt> angegebene Funktion oder die Funktion <tt class="docutils literal"><span class="pre">connect</span></tt>
+des DB-API-2-Datenbankadapter-Moduls erhalten alle weiteren Parameter,
+wie <tt class="docutils literal"><span class="pre">host</span></tt>, <tt class="docutils literal"><span class="pre">database</span></tt>, <tt class="docutils literal"><span class="pre">user</span></tt>, <tt class="docutils literal"><span class="pre">password</span></tt> usw. Sie können einige
+oder alle dieser Parameter in Ihrer eigenen <tt class="docutils literal"><span class="pre">creator</span></tt>-Funktion setzen, was
+ausgefeilte Mechanismen zur Ausfallsicherung und Lastverteilung ermöglicht.</p>
+</li>
+</ul>
+<p>Wenn Sie beispielsweise <tt class="docutils literal"><span class="pre">pgdb</span></tt> als DB-API-2-Datenbankadapter verwenden, und
+möchten, dass jede Verbindung Ihrer lokalen Datenbank <tt class="docutils literal"><span class="pre">meinedb</span></tt> 1000 mal
+wiederverwendet werden soll, sieht die Initialisierung so aus:</p>
+<pre class="literal-block">
+import pgdb # importiere das verwendete DB-API-2-Modul
+from DBUtils.PersistentDB import PersistentDB
+persist = PersistentDB(pgdb, 1000, database='meinedb')
+</pre>
+<p>Nachdem Sie den Generator mit diesen Parametern eingerichtet haben, können
+Sie derartige Datenbankverbindungen von da an wie folgt anfordern:</p>
+<pre class="literal-block">
+db = persist.connection()
+</pre>
+<p>Sie können diese Verbindungen verwenden, als wären sie gewöhnliche
+DB-API-2-Datenbankverbindungen. Genauer genommen erhalten Sie die
+&quot;gehärtete&quot; <tt class="docutils literal"><span class="pre">SteadyDB</span></tt>-Version der zugrunde liegenden DB-API-2-Verbindung.</p>
+<p>Wenn Sie eine solche persistente Verbindung mit <tt class="docutils literal"><span class="pre">db.close()</span></tt> schließen,
+wird dies stillschweigend ignoriert, denn sie würde beim nächsten Zugriff
+sowieso wieder geöffnet, und das wäre nicht im Sinne persistenter Verbindungen.
+Stattdessen wird die Verbindung automatisch dann geschlossen, wenn der Thread
+endet. Sie können dieses Verhalten ändern, indem Sie <tt class="docutils literal"><span class="pre">persist._closeable</span></tt>
+auf <tt class="docutils literal"><span class="pre">True</span></tt> setzen.</p>
+</div>
+<div class="section">
+<h2><a id="id2" name="id2">PooledDB</a></h2>
+<p>Wenn Sie das <tt class="docutils literal"><span class="pre">PooledDB</span></tt>-Modul einsetzen möchten, müssen Sie zuerst einen
+Pool für die von Ihnen gewünschte Art von Datenbankverbindungen einrichten,
+indem Sie eine Instanz der Klasse <tt class="docutils literal"><span class="pre">PooledDB</span></tt> erzeugen, wobei Sie folgende
+Parameter angeben müssen:</p>
+<ul>
+<li><p class="first"><tt class="docutils literal"><span class="pre">creator</span></tt>: entweder eine Funktion, die neue DB-API-2-Verbindungen
+erzeugt, oder ein DB-API-2-Datenbankadapter-Modul</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">mincached</span></tt> : die anfängliche Anzahl inaktiver Verbindungen, die auf
+Vorrat gehalten werden sollen (der Standardwert <tt class="docutils literal"><span class="pre">0</span></tt> bedeutet, dass
+beim Start keine Verbindungen geöffnet werden)</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">maxcached</span></tt>: Obergrenze für die Anzahl inaktiver Verbindungen, die auf
+Vorrat gehalten werden sollen (der Standardwert <tt class="docutils literal"><span class="pre">0</span></tt> bedeutet unbegrenzte
+Größe des Vorratsspeichers)</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">maxshared</span></tt>: Obergrenze für die Anzahl gemeinsam genutzer Verbindungen
+(der Standardwert <tt class="docutils literal"><span class="pre">0</span></tt> bedeutet, dass alle Verbindungen dediziert sind)</p>
+<p>Wenn diese Obergrenze erreicht wird, werden Verbindungen wiederverwendet,
+wenn diese als wiederverwendbar angefordert werden.</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">maxconnections</span></tt>: Obergrenze für die Anzahl an Datenbankverbindungen,
+die insgesamt überhaupt erlaubt werden sollen (der Standardwert <tt class="docutils literal"><span class="pre">0</span></tt>
+bedeutet unbegrenzte Anzahl von Datenbankverbindungen)</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">blocking</span></tt>: bestimmt das Verhalten, wenn diese Obergrenze überschritten
+wird (der Standardwert <tt class="docutils literal"><span class="pre">0</span></tt> oder <tt class="docutils literal"><span class="pre">False</span></tt> bedeutet, dass eine Fehlermeldung
+ausgegeben wird, andernfalls wird blockiert und gewartet, bis die Anzahl
+an Datenbankverbindungen wieder abnimmt)</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">maxusage</span></tt>: Obergrenze dafür, wie oft eine einzelne Verbindung
+wiederverwendet werden darf (der Standardwert <tt class="docutils literal"><span class="pre">0</span></tt> oder <tt class="docutils literal"><span class="pre">False</span></tt>
+bedeutet unbegrenzte Wiederverwendung)</p>
+<p>Sobald diese Obergrenze erreicht wird, wird die Verbindung automatisch
+zurückgesetzt (geschlossen und wieder neu geöffnet).</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">setsession</span></tt>: eine optionale Liste von SQL-Befehlen zur Initialisierung
+der Datenbanksitzung, z.B. <tt class="docutils literal"><span class="pre">[&quot;set</span> <span class="pre">datestyle</span> <span class="pre">to</span> <span class="pre">german&quot;,</span> <span class="pre">...]</span></tt></p>
+</li>
+<li><p class="first">Die als <tt class="docutils literal"><span class="pre">creator</span></tt> angegebene Funktion oder die Funktion <tt class="docutils literal"><span class="pre">connect</span></tt>
+des DB-API-2-Datenbankadapter-Moduls erhalten alle weiteren Parameter,
+wie <tt class="docutils literal"><span class="pre">host</span></tt>, <tt class="docutils literal"><span class="pre">database</span></tt>, <tt class="docutils literal"><span class="pre">user</span></tt>, <tt class="docutils literal"><span class="pre">password</span></tt> usw. Sie können einige
+oder alle dieser Parameter in Ihrer eigenen <tt class="docutils literal"><span class="pre">creator</span></tt>-Funktion setzen, was
+ausgefeilte Mechanismen zur Ausfallsicherung und Lastverteilung ermöglicht.</p>
+</li>
+</ul>
+<p>Wenn Sie beispielsweise <tt class="docutils literal"><span class="pre">pgdb</span></tt> als DB-API-2-Datenbankadapter benutzen,
+und einen Pool von mindestens fünf Datenbankverbindungen zu Ihrer Datenbank
+<tt class="docutils literal"><span class="pre">meinedb</span></tt> verwenden möchten, dann sieht die Initialisierung so aus:</p>
+<pre class="literal-block">
+import pgdb # importiere das verwendete DB-API-2-Modul
+from DBUtils.PooledDB import PooledDB
+pool = PooledDB(pgdb, 5, database='meinedb')
+</pre>
+<p>Nachdem Sie den Pool für Datenbankverbindungen so eingerichtet haben, können
+Sie Verbindungen daraus wie folgt anfordern:</p>
+<pre class="literal-block">
+db = pool.connection()
+</pre>
+<p>Sie können diese Verbindungen verwenden, als wären sie gewöhnliche
+DB-API-2-Datenbankverbindungen. Genauer genommen erhalten Sie die
+&quot;gehärtete&quot; <tt class="docutils literal"><span class="pre">SteadyDB</span></tt>-Version der zugrunde liegenden DB-API-2-Verbindung.</p>
+<p>Bitte beachten Sie, dass die Verbindung von anderen Threads mitgenutzt werden
+kann, wenn Sie den Parameter <tt class="docutils literal"><span class="pre">maxshared</span></tt> auf einen Wert größer als Null
+gesetzt haben, und der zugrunde liegende DB-API-2-Datenbankadapter dies erlaubt.
+Eine dedizierte Datenbankverbindung, die garantiert nicht von anderen Threads
+mitgenutzt wird, fordern Sie wie folgt an:</p>
+<pre class="literal-block">
+db = pool.connection(0)
+</pre>
+<p>Wenn Sie die Datenbankverbindung nicht mehr benötigen, sollten Sie diese sofort
+wieder mit <tt class="docutils literal"><span class="pre">db.close()</span></tt> an den Pool zurückgeben. Sie können auf die gleiche
+Weise eine neue Verbindung erhalten.</p>
+<p><em>Warnung:</em> In einer Multithread-Umgebung benutzen Sie niemals:</p>
+<pre class="literal-block">
+pool.connection().cursor().execute(...)
+</pre>
+<p>Dies würde die Datenbankverbindung zu früh zur Wiederverwendung zurückgeben,
+was fatale Folgen haben könnte, wenn die Verbindungen nicht thread-sicher sind.
+Stellen Sie sicher, dass die Verbindungsobjekte so lange vorhanden sind, wie
+sie gebraucht werden, etwa so:</p>
+<pre class="literal-block">
+db = pool.connection()
+cur = db.cursor()
+cur.execute(...)
+res = cur.fetchone()
+cur.close() # oder del cur
+db.close() # oder del db
+</pre>
+</div>
+<div class="section">
+<h2><a id="benutzung-in-webware-for-python" name="benutzung-in-webware-for-python">Benutzung in Webware for Python</a></h2>
+<p>Wenn Sie DBUtils verwenden, um von Servlets des Web-Framworks <a class="reference" href="http://www.webwareforpython.org">Webware
+for Python</a> auf eine Datenbank zuzugreifen, dann müssen Sie sicherstellen,
+dass die Generatoren zur Erzeugung von Datenbankverbindungen nur einmal
+eingerichtet werden, wenn die Anwendung startet, und nicht jedes Mal, wenn
+eine Servlet-Instanz erzeugt wird. Den hierfür nötigen Code können Sie
+bei der Basis-Servlet-Klasse einfügen, dort wo das Modul oder die Klasse
+initialisiert wird, oder Sie können die Funktion <tt class="docutils literal"><span class="pre">contextInitialize()</span></tt>
+im <tt class="docutils literal"><span class="pre">__init__.py</span></tt>-Skript Ihres Anwendungskontextes verwenden.</p>
+<p>Das zusammen mit DButils ausgelieferte Verzeichnis <tt class="docutils literal"><span class="pre">Examples</span></tt> enthält
+einen Beispielkontext für Webware for Python, der eine kleine Demo-Datenbank
+verwendet, um Teilnehmer an einer Seminarreihe zu verwalten (die Idee für
+dieses Beispiel wurde dem Artikel &quot;<a class="reference" href="http://www.linuxjournal.com/article/2605">The Python DB-API</a>&quot; von Andrew Kuchling
+entnommen).</p>
+<p>Der Beispielkontext kann konfiguriert werden, indem entweder eine Konfig-Datei
+<tt class="docutils literal"><span class="pre">Configs/Database.config</span></tt> angelegt wird, oder indem die Standard-Parameter
+direkt im Beispielservlet <tt class="docutils literal"><span class="pre">Examples/DBUtilsExample.py</span></tt> geändert werden.
+Auf diese Weise können Sie einen passenden Datenbanknutzer und sein Passwort
+festlegen, sowie den zugrunde liegenden Datenbankadapter auswählen (das
+klassische PyGreSQL-Modul oder irgendein DB-API-2-Modul). Wenn der Parameter
+<tt class="docutils literal"><span class="pre">maxcached</span></tt> vorhanden ist, verwendet das Beispielservlet die
+<tt class="docutils literal"><span class="pre">Pooled</span></tt>-Variante, andernfalls die <tt class="docutils literal"><span class="pre">Persistent</span></tt>-Variante.</p>
+</div>
+</div>
+<div class="section">
+<h1><a id="anmerkungen" name="anmerkungen">Anmerkungen</a></h1>
+<p>Wenn Sie einen der bekannten &quot;Object-Relational Mapper&quot; <a class="reference" href="http://www.sqlobject.org">SQLObject</a> oder
+<a class="reference" href="http://www.sqlalchemy.org">SQLAlchemy</a> verwenden, dann benötigen Sie DBUtils nicht, denn diese haben
+ihre eigenen Mechanismen zum Pooling von Datenbankverbindungen eingebaut.
+Tatsächlich hat <a class="reference" href="http://www.sqlobject.org/2/">SQLObject 2</a> (<a class="reference" href="http://www.sqlobject.org/sqlapi/">SQL-API</a>) das Pooling in eine separate Schicht
+ausgelagert, in der Code von DBUtils verwendet wird.</p>
+</div>
+<div class="section">
+<h1><a id="zukunft" name="zukunft">Zukunft</a></h1>
+<p>Einige Ideen für zukünftige Verbesserungen:</p>
+<ul class="simple">
+<li>Alternativ zur Obergrenze in der Anzahl der Nutzung einer Datenbankverbindung
+könnte eine maximale Lebensdauer für die Verbindung implementiert werden.</li>
+<li>Es könnten Module <tt class="docutils literal"><span class="pre">MonitorDB</span></tt> und <tt class="docutils literal"><span class="pre">MonitorPg</span></tt> hinzugefügt werden, die
+in einem separaten Thread ständig den &quot;idle pool&quot; und eventuell auch den
+&quot;shared pool&quot; bzw. die persistenten Verbindungen überwachen. Wenn eine
+unterbrochene Datenbankverbindung entdeckt wird, wird diese automatisch durch
+den Monitor-Thread wiederhergestellt. Dies ist in einem Szenario sinnvoll,
+bei dem die Datenbank einer Website jede Nacht neu gestartet wird. Ohne
+den Monitor-Thread würden die Benutzer morgens eine kleine Verzögerung
+bemerken, weil erst dann die unterbrochenen Datenbankverbindungen entdeckt
+würden und sich der Pool langsam wieder neu aufbaut. Mit dem Monitor-Thread
+würde dies schon während der Nacht passieren, kurz nach der Unterbrechung.
+Der Monitor-Thread könnte auch so konfiguriert werden, dass er überhaupt
+täglich den Verbindungspool erneuert, kurz bevor die Benutzer erscheinen.</li>
+<li>Optional sollten Benutzung, schlechte Verbindungen und Überschreitung von
+Obergrenzen in Logs gespeichert werden können.</li>
+</ul>
+</div>
+<div class="section">
+<h1><a id="fehlermeldungen-und-feedback" name="fehlermeldungen-und-feedback">Fehlermeldungen und Feedback</a></h1>
+<p>Bitte Senden Sie Fehlermeldungen, Patches und Feedback direkt an den
+Autor (unter Verwendung der unten angegebenen E-Mail-Adresse).</p>
+<p>Probleme, die Webware betreffen, können auch in der <a class="reference" href="https://lists.sourceforge.net/lists/listinfo/webware-discuss">Webware for Python
+mailing list</a> diskutiert werden.</p>
+</div>
+<div class="section">
+<h1><a id="links" name="links">Links</a></h1>
+<p>Einige Links zu verwandter und alternativer Software:</p>
+<ul class="simple">
+<li><a class="reference" href="http://www.webwareforpython.org/DBUtils">DBUtils</a></li>
+<li><a class="reference" href="http://www.python.org">Python</a></li>
+<li><a class="reference" href="http://www.webwareforpython.org">Webware for Python</a> framework</li>
+<li>Python <a class="reference" href="http://www.python.org/dev/peps/pep-0249/">DB-API 2</a></li>
+<li><a class="reference" href="http://www.postgresql.org">PostgreSQL</a> database</li>
+<li><a class="reference" href="http://www.pygresql.org">PyGreSQL</a> adapter</li>
+<li><a class="reference" href="http://www.sqlobject.org">SQLObject</a> object-relational mapper</li>
+<li><a class="reference" href="http://www.sqlalchemy.org">SQLAlchemy</a> object-relational mapper</li>
+</ul>
+</div>
+<div class="section">
+<h1><a id="autoren" name="autoren">Autoren</a></h1>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Autor:</th><td class="field-body">Christoph Zwerschke &lt;<a class="reference" href="mailto:cito&#64;online.de">cito&#64;online.de</a>&gt;</td>
+</tr>
+<tr class="field"><th class="field-name">Beiträge:</th><td class="field-body">DBUtils benutzt Code, Anmerkungen und Vorschläge von
+Ian Bicking, Chuck Esterbrook (Webware for Python), Dan Green (DBTools),
+Jay Love, Michael Palmer, Tom Schwaller, Geoffrey Talvola,
+Warren Smith (DbConnectionPool) and Ezio Vernacotola.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section">
+<h1><a id="copyright-und-lizenz" name="copyright-und-lizenz">Copyright und Lizenz</a></h1>
+<p>Copyright © 2005-2007 Christoph Zwerschke.
+Alle Rechte vorbehalten.</p>
+<p>DBUtils ist freie und quelloffene Software,
+lizenziert unter der <a class="reference" href="http://www.opensource.org/licenses/osl-2.1.php">Open Software License version 2.1</a>.</p>
+</div>
+</div>
+</body>
+</html>

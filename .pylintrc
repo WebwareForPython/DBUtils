@@ -5,6 +5,7 @@
 # to:
 # * handle message activation / deactivation at the module level
 # * handle some basic but necessary stats'data (number of classes, methods...)
+
 #
 [MASTER]
 
@@ -29,6 +30,7 @@ persistent=yes
 cache-size=500
 
 # List of plugins (as comma separated values of python modules names) to load,
+
 # usually to register additional checkers.
 load-plugins=
 
@@ -54,7 +56,6 @@ load-plugins=
 
 # Disable the message(s) with the given id(s).
 #disable-msg=
-disable-msg=R0201,W0122,W0142,W0201,W0212,W0223,W0403,W0603,W0613,W0614,W0621,W0622,W0703
 
 
 [REPORTS]
@@ -93,6 +94,7 @@ comment=no
 
 
 # checks for :
+
 # * doc strings
 # * modules / classes / functions / methods / arguments / variables name
 # * number of arguments, local variables, branchs, returns and statements in
@@ -108,6 +110,7 @@ comment=no
 required-attributes=
 
 # Regular expression which should only match functions or classes name which do
+
 # not require a docstring
 no-docstring-rgx=__.*__
 
@@ -115,47 +118,39 @@ no-docstring-rgx=__.*__
 module-rgx=(([a-z_][a-z0-9_]*)|([A-Z][a-zA-Z0-9]+))$
 
 # Regular expression which should only match correct module level names
-#const-rgx=(([A-Z_][A-Z1-9_]*)|(__.*__))$
-const-rgx=(([a-z_][A-Za-z]*)|(__.*__))$
+const-rgx=(([A-Z_][A-Z1-9_]*)|(__.*__))$
 
 # Regular expression which should only match correct class names
-class-rgx=_?[A-Z][a-zA-Z0-9]+$
+class-rgx=[A-Z_][a-zA-Z0-9]+$
 
 # Regular expression which should only match correct function names
-#function-rgx=[a-z_][a-z0-9_]{2,30}$
-function-rgx=_?[a-z][a-zA-Z0-9]{2,30}$
+function-rgx=[a-z_][a-z0-9_]{2,30}$
 
 # Regular expression which should only match correct method names
-#method-rgx=[a-z_][a-z0-9_]{2,30}$
-method-rgx=(_?[a-z][a-zA-Z0-9]{2,30}|(__.*__))$
+method-rgx=[a-z_][a-z0-9_]{2,30}$
 
 # Regular expression which should only match correct instance attribute names
-#attr-rgx=[a-z_][a-z0-9_]{2,30}$
-attr-rgx=(_[a-z][a-zA-Z0-9]{2,30}$|(__.*__))$
+attr-rgx=[a-z_][a-z0-9_]{2,30}$
 
 # Regular expression which should only match correct argument names
-#argument-rgx=[a-z_][a-z0-9_]{2,30}$
-argument-rgx=[a-z][a-zA-Z0-9]{2,30}$
+argument-rgx=[a-z_][a-z0-9_]{2,30}$
 
 # Regular expression which should only match correct variable names
-#variable-rgx=[a-z_][a-z0-9_]{2,30}$
-variable-rgx=[a-z][a-zA-Z0-9]{2,30}$
+variable-rgx=[a-z_][a-z0-9_]{2,30}$
 
 # Regular expression which should only match correct list comprehension /
+
 # generator expression variable names
 inlinevar-rgx=[A-Za-z_][A-Za-z0-9_]*$
 
 # Good variable names which should always be accepted, separated by a comma
-#good-names=i,j,k,ex,Run,_
-good-names=d,e,f,g,h,i,j,k,m,n,p,q,r,s,t,v,w,x,y,z,dt,ex,fp,fs,ht,id,ip,kv,kw,lm,pp,td,th,tm,tr,rv,wr,Run,_,_id
+good-names=i,j,k,ex,Run,_
 
 # Bad variable names which should always be refused, separated by a comma
-#bad-names=foo,bar,baz,toto,tutu,tata
-bad-names=l,o,bla,foo,bar,baz,toto,tutu,tata
+bad-names=foo,bar,baz,toto,tutu,tata
 
 # List of builtins function names that should not be used, separated by a comma
-#bad-functions=map,filter,apply,input
-bad-functions=apply,input
+bad-functions=map,filter,apply,input
 
 
 # try to find bugs in the code using type inference
@@ -190,6 +185,7 @@ init-import=no
 dummy-variables-rgx=_|dummy
 
 # List of additional names supposed to be defined in builtins. Remember that
+
 # you should avoid to define new builtins when possible.
 additional-builtins=
 
@@ -220,38 +216,35 @@ defining-attr-methods=__init__,__new__,setUp
 
 # Maximum number of arguments for function / method
 #max-args=5
-max-args=10
+max-args=15
 
 # Maximum number of locals for function / method body
-#max-locals=15
-max-locals=30
+max-locals=15
 
 # Maximum number of return / yield for function / method body
 max-returns=6
 
 # Maximum number of branch for function / method body
 #max-branchs=12
-max-branchs=30
+max-branchs=25
 
 # Maximum number of statements in function / method body
 #max-statements=50
-max-statements=150
+max-statements=75
 
 # Maximum number of parents for a class (see R0901).
-#max-parents=7
-max-parents=10
+max-parents=7
 
 # Maximum number of attributes for a class (see R0902).
 #max-attributes=7
-max-attributes=25
+max-attributes=20
 
 # Minimum number of public methods for a class (see R0903).
 #min-public-methods=2
 min-public-methods=1
 
 # Maximum number of public methods for a class (see R0904).
-#max-public-methods=20
-max-public-methods=100
+max-public-methods=20
 
 
 # checks for
@@ -287,15 +280,14 @@ int-import-graph=
 [FORMAT]
 
 # Maximum number of characters on a single line.
-#max-line-length=80
-max-line-length=100
+max-line-length=80
 
 # Maximum number of lines in a module
-#max-module-lines=1000
-max-module-lines=1500
+max-module-lines=1000
 
 # String used as indentation unit. This is usually " " (4 spaces) or "\t" (1
 # tab).
+#indent-string='    '
 indent-string='\t'
 
 
@@ -306,12 +298,13 @@ indent-string='\t'
 [MISCELLANEOUS]
 
 # List of note tags to take in consideration, separated by a comma.
-notes=@@,FIXME,TODO,XXX,
+notes=FIXME,XXX,TODO
 
 
 # checks for similarities and duplicated code. This computation may be
 # memory / CPU intensive, so you should disable it if you experiments some
 # problems.
+
 #
 [SIMILARITIES]
 
