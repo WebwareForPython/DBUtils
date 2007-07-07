@@ -1,10 +1,11 @@
-DBUtils User's Guide
+﻿DBUtils User's Guide
 ++++++++++++++++++++
 
-:Version: 0.9.3
-:Released: 05/21/07
-:Translations: English Chinese_
+:Version: 0.9.4
+:Released: 07/07/07
+:Translations: English German_ Chinese_
 
+.. _German: UsersGuide.de.html
 .. _Chinese: UsersGuide.zh.html
 
 .. contents:: Contents
@@ -79,8 +80,8 @@ You can also download it from the Python Package Index
 Installation
 ============
 
-Installation as a standalone (toplevel) package
------------------------------------------------
+Installation as a standalone (top-level) package
+------------------------------------------------
 If you intend to use DBUtils from other applications than Webware for Python,
 it is recommended to install the package in the usual way::
 
@@ -247,7 +248,7 @@ of ``PersistentDB``, passing the following parameters:
   Whenever the limit is reached, the connection will be reset.
 
 * ``setsession``: an optional list of SQL commands that may serve to
-  prepare the session, e.g. ``["set datestyle to german", ...]``.
+  prepare the session, e.g. ``["set datestyle to german", ...]``
 
 * The creator function or the connect function of the DB-API 2 compliant
   database module specified as the creator will receive any additional
@@ -268,7 +269,7 @@ database connections of that kind::
   db = persist.connection()
 
 You can use these connections just as if they were ordinary DB-API 2
-connections. Actually what you get is the hardened SteadyDB version of
+connections. Actually what you get is the hardened ``SteadyDB`` version of
 the underlying DB-API 2 connection.
 
 Closing a persistent connection with ``db.close()`` will be silently
@@ -312,7 +313,7 @@ following parameters:
   the connection is automatically reset (closed and reopened).
 
 * ``setsession``: an optional list of SQL commands that may serve to
-  prepare the session, e.g. ``["set datestyle to german", ...]``.
+  prepare the session, e.g. ``["set datestyle to german", ...]``
 
 * The creator function or the connect function of the DB-API 2 compliant
   database module specified as the creator will receive any additional
@@ -333,7 +334,7 @@ from that pool::
   db = pool.connection()
 
 You can use these connections just as if they were ordinary DB-API 2
-connections. Actually what you get is the hardened SteadyDB version of
+connections. Actually what you get is the hardened ``SteadyDB`` version of
 the underlying DB-API 2 connection.
 
 Please note that the connection may be shared with other threads by default
@@ -464,7 +465,7 @@ Credits
 Copyright and License
 =====================
 
-Copyright � 2005-2007 by Christoph Zwerschke.
+Copyright © 2005-2007 by Christoph Zwerschke.
 All Rights Reserved.
 
 DBUtils is free and open source software,

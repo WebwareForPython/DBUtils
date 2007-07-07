@@ -1,6 +1,6 @@
 name = 'DBUtils'
 
-version = (0, 9, 3)
+version = (0, 9, 4)
 
 docs = [
 	{'name': "User's Guide", 'file': 'UsersGuide.html'},

@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh_cn" lang="zh_cn">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="generator" content="Docutils 0.5: http://docutils.sourceforge.net/" />
+<meta name="generator" content="Docutils 0.4: http://docutils.sourceforge.net/" />
 <title>DBUtils 用户指南</title>
 <link rel="stylesheet" href="Doc.css" type="text/css" />
 </head>
@@ -15,10 +15,10 @@
 <col class="docinfo-content" />
 <tbody valign="top">
 <tr><th class="docinfo-name">版本:</th>
-<td>0.9.3</td></tr>
-<tr class="field"><th class="docinfo-name">发行版:</th><td class="field-body">05/21/07</td>
+<td>0.9.4</td></tr>
+<tr class="field"><th class="docinfo-name">发行版:</th><td class="field-body">07/07/07</td>
 </tr>
-<tr class="field"><th class="docinfo-name">翻译:</th><td class="field-body"><a class="reference" href="UsersGuide.html">English</a> Chinese</td>
+<tr class="field"><th class="docinfo-name">翻译:</th><td class="field-body"><a class="reference" href="UsersGuide.html">English</a> <a class="reference" href="UsersGuide.de.html">German</a> Chinese</td>
 </tr>
 </tbody>
 </table>
@@ -212,7 +212,7 @@ persist = PersistentDB(pgdb, 1000, database='mydb')
 <pre class="literal-block">
 db = persist.connection()
 </pre>
-<p>你可以使用这些连接就像使用原始的DB-API 2连接一样。实际上你得到的是一个通过SteadyDB得到的强硬的连接，基于DB-API 2。</p>
+<p>你可以使用这些连接就像使用原始的DB-API 2连接一样。实际上你得到的是一个通过``SteadyDB``得到的强硬的连接，基于DB-API 2。</p>
 <p>关闭一个强硬的连接使用 <tt class="docutils literal"><span class="pre">db.close()</span></tt> ，这在内部实际上被忽略掉了，并且供下次使用。在线程关闭时，也会自动关闭数据库连接。你可以改变这个行为通过 <tt class="docutils literal"><span class="pre">persist._closeable</span></tt> 为 <tt class="docutils literal"><span class="pre">True</span></tt> 。</p>
 </div>
 <div class="section">
@@ -239,7 +239,7 @@ pool = PooledDB(pgdb, 5, database='mydb')
 <pre class="literal-block">
 db = pool.connection()
 </pre>
-<p>你可以使用这些连接有如原始的DB-API 2一样。而实际使用的是SteadyDB版本的强硬连接。</p>
+<p>你可以使用这些连接有如原始的DB-API 2一样。而实际使用的是``SteadyDB``版本的强硬连接。</p>
 <p>请注意连接可以与其他线程共享，只要你设置 <tt class="docutils literal"><span class="pre">maxshared</span></tt> 参数为非零，并且DB-API 2模块也允许。如果你想要使用专用连接则使用:</p>
 <pre class="literal-block">
 db = pool.connection(0)

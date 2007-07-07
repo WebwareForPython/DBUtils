@@ -2,11 +2,12 @@
 DBUtils 用户指南
 ====================
 
-:版本: 0.9.3
-:发行版: 05/21/07
-:翻译: English_ Chinese
+:版本: 0.9.4
+:发行版: 07/07/07
+:翻译: English_ German_ Chinese
 
 .. _English: UsersGuide.html
+.. _German: UsersGuide.de.html
 
 .. contents:: 目录
 
@@ -180,7 +181,7 @@ PersistentDB
 
     db = persist.connection()
 
-你可以使用这些连接就像使用原始的DB-API 2连接一样。实际上你得到的是一个通过SteadyDB得到的强硬的连接，基于DB-API 2。
+你可以使用这些连接就像使用原始的DB-API 2连接一样。实际上你得到的是一个通过``SteadyDB``得到的强硬的连接，基于DB-API 2。
 
 关闭一个强硬的连接使用 ``db.close()`` ，这在内部实际上被忽略掉了，并且供下次使用。在线程关闭时，也会自动关闭数据库连接。你可以改变这个行为通过 ``persist._closeable`` 为 ``True`` 。
 
@@ -217,7 +218,7 @@ PooledDB
 
     db = pool.connection()
 
-你可以使用这些连接有如原始的DB-API 2一样。而实际使用的是SteadyDB版本的强硬连接。
+你可以使用这些连接有如原始的DB-API 2一样。而实际使用的是``SteadyDB``版本的强硬连接。
 
 请注意连接可以与其他线程共享，只要你设置 ``maxshared`` 参数为非零，并且DB-API 2模块也允许。如果你想要使用专用连接则使用::
 

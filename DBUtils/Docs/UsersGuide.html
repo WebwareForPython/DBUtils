@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="generator" content="Docutils 0.5: http://docutils.sourceforge.net/" />
+<meta name="generator" content="Docutils 0.4: http://docutils.sourceforge.net/" />
 <title>DBUtils User's Guide</title>
 <link rel="stylesheet" href="Doc.css" type="text/css" />
 </head>
@@ -15,10 +15,10 @@
 <col class="docinfo-content" />
 <tbody valign="top">
 <tr><th class="docinfo-name">Version:</th>
-<td>0.9.3</td></tr>
-<tr class="field"><th class="docinfo-name">Released:</th><td class="field-body">05/21/07</td>
+<td>0.9.4</td></tr>
+<tr class="field"><th class="docinfo-name">Released:</th><td class="field-body">07/07/07</td>
 </tr>
-<tr class="field"><th class="docinfo-name">Translations:</th><td class="field-body">English <a class="reference" href="UsersGuide.zh.html">Chinese</a></td>
+<tr class="field"><th class="docinfo-name">Translations:</th><td class="field-body">English <a class="reference" href="UsersGuide.de.html">German</a> <a class="reference" href="UsersGuide.zh.html">Chinese</a></td>
 </tr>
 </tbody>
 </table>
@@ -29,7 +29,7 @@
 <li><a class="reference" href="#modules" id="id5" name="id5">Modules</a></li>
 <li><a class="reference" href="#download" id="id6" name="id6">Download</a></li>
 <li><a class="reference" href="#installation" id="id7" name="id7">Installation</a><ul>
-<li><a class="reference" href="#installation-as-a-standalone-toplevel-package" id="id8" name="id8">Installation as a standalone (toplevel) package</a></li>
+<li><a class="reference" href="#installation-as-a-standalone-top-level-package" id="id8" name="id8">Installation as a standalone (top-level) package</a></li>
 <li><a class="reference" href="#installation-as-a-webware-for-python-subpackage-plug-in" id="id9" name="id9">Installation as a Webware for Python subpackage (plug-in)</a></li>
 </ul>
 </li>
@@ -138,7 +138,7 @@ from the Webware for Python homepage at:</p>
 <div class="section">
 <h1><a id="installation" name="installation">Installation</a></h1>
 <div class="section">
-<h2><a id="installation-as-a-standalone-toplevel-package" name="installation-as-a-standalone-toplevel-package">Installation as a standalone (toplevel) package</a></h2>
+<h2><a id="installation-as-a-standalone-top-level-package" name="installation-as-a-standalone-top-level-package">Installation as a standalone (top-level) package</a></h2>
 <p>If you intend to use DBUtils from other applications than Webware for Python,
 it is recommended to install the package in the usual way:</p>
 <pre class="literal-block">
@@ -287,7 +287,7 @@ connection objects or a DB-API 2 compliant database module</p>
 <p>Whenever the limit is reached, the connection will be reset.</p>
 </li>
 <li><p class="first"><tt class="docutils literal"><span class="pre">setsession</span></tt>: an optional list of SQL commands that may serve to
-prepare the session, e.g. <tt class="docutils literal"><span class="pre">[&quot;set</span> <span class="pre">datestyle</span> <span class="pre">to</span> <span class="pre">german&quot;,</span> <span class="pre">...]</span></tt>.</p>
+prepare the session, e.g. <tt class="docutils literal"><span class="pre">[&quot;set</span> <span class="pre">datestyle</span> <span class="pre">to</span> <span class="pre">german&quot;,</span> <span class="pre">...]</span></tt></p>
 </li>
 <li><p class="first">The creator function or the connect function of the DB-API 2 compliant
 database module specified as the creator will receive any additional
@@ -309,7 +309,7 @@ database connections of that kind:</p>
 db = persist.connection()
 </pre>
 <p>You can use these connections just as if they were ordinary DB-API 2
-connections. Actually what you get is the hardened SteadyDB version of
+connections. Actually what you get is the hardened <tt class="docutils literal"><span class="pre">SteadyDB</span></tt> version of
 the underlying DB-API 2 connection.</p>
 <p>Closing a persistent connection with <tt class="docutils literal"><span class="pre">db.close()</span></tt> will be silently
 ignored since it would be reopened at the next usage anyway and
@@ -350,7 +350,7 @@ block and wait until the number of connections decreases)</p>
 the connection is automatically reset (closed and reopened).</p>
 </li>
 <li><p class="first"><tt class="docutils literal"><span class="pre">setsession</span></tt>: an optional list of SQL commands that may serve to
-prepare the session, e.g. <tt class="docutils literal"><span class="pre">[&quot;set</span> <span class="pre">datestyle</span> <span class="pre">to</span> <span class="pre">german&quot;,</span> <span class="pre">...]</span></tt>.</p>
+prepare the session, e.g. <tt class="docutils literal"><span class="pre">[&quot;set</span> <span class="pre">datestyle</span> <span class="pre">to</span> <span class="pre">german&quot;,</span> <span class="pre">...]</span></tt></p>
 </li>
 <li><p class="first">The creator function or the connect function of the DB-API 2 compliant
 database module specified as the creator will receive any additional
@@ -372,7 +372,7 @@ from that pool:</p>
 db = pool.connection()
 </pre>
 <p>You can use these connections just as if they were ordinary DB-API 2
-connections. Actually what you get is the hardened SteadyDB version of
+connections. Actually what you get is the hardened <tt class="docutils literal"><span class="pre">SteadyDB</span></tt> version of
 the underlying DB-API 2 connection.</p>
 <p>Please note that the connection may be shared with other threads by default
 if you set a non-zero <tt class="docutils literal"><span class="pre">maxshared</span></tt> parameter and the DB-API 2 module allows
