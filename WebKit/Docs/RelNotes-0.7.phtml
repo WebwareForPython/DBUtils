@@ -1,0 +1,42 @@
+<% header(name + ' 0.7 Release Notes') %>
+
+<p>Webware for Python 0.7</p>
+
+<a name="Introduction"></a><h2>Introduction</h2>
+<ul>
+	<li>Version 0.7 was released on 3/30/2002.</li>
+</ul>
+
+<a name="NewFeatures"></a><h2>New Features</h2>
+<ul>
+	<li>A new PickleRPCServlet serves as a more convenient and efficient alternative to XMLRPCServlet. Also, a new RPCServlet base class is used by both classes and provides a starting point for other RPC protocols. The old setting 'IncludeTracebackInXMLRPCFault' is now called 'RPCExceptionReturn' and takes different values.</li>
+	<li>New Application.config setting SessionPrefix can be used to prefix the session ID's with a string.  Possible values are None (don't use a prefix), "hostname" (use the hostname as the prefix), or any other string (use that string as the prefix).  Why would you want to use this?  It can be used along with some mod_rewrite magic to do simple load balancing with session affinity.</li>
+	<li>New Application.config setting EmailErrorReportAsAttachment can be used to make error emails be sent at a text body with an HTML attachment, instead of the default of an HTML-only message.</li>
+</ul>
+
+<a name="Improvements"></a><h2>Improvements and Refinements</h2>
+<ul>
+	<li>Servlets/pages now have a new hook to participate in the building exception reports: writeExceptionReport(self, handler). See Page.writeExceptionReport() and the doc string for ExceptionHandler.py for more info.</li>
+	<li>Exception reports now include the Session object and it's values.</li>
+	<li>The session code is more robust to exceptions that may happen while unpickling.</li>
+	<li>WebKit now properly handles files that are deleted while the app server is running, and also refuses to attempt to serve non-regular files.</li>
+	<li>WebKit now tries to convince the browser to delete its session cookie when the session expires.</li>
+	<li>WebKit no longer prints out a warning when a nonexistant document is requested.</li>
+	<li>WebKit will no longer pass through '*' characters from the URL to Python's glob function, potentially revealing more about your site than you intended.</li>
+	<li>SessionMemoryStore will no longer leave expired session files lying around on disk.</li>
+</ul>
+
+<a name="MinorChanges"></a><h2>Minor API Changes</h2>
+
+<p>We don't track every change to the interface, but here are some notables:</p>
+<ul>
+	<li>Added Session.isExpired(). Mostly for use by SessionStores.</li>
+</ul>
+
+<a name="Bugfixes"></a><h2>Bugfixes</h2>
+
+<ul>
+	<li>Session.expiring() is now always called when appropriate.</li>
+</ul>
+
+<% footer() %>

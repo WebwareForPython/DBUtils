@@ -1,0 +1,5 @@
+Class,Attribute,Type,Default,Min,Max,Extras
+Node,,,,,,
+,value,string,,,,
+,parent,Node,,,,
+,children,"list of Node",,,,BackRefAttr='parent'

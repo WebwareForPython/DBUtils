@@ -1,0 +1,10 @@
+This directory contains some modifications and additions
+provided by Jean-François Piéronne (jfp@pi-net.dyndns.org)
+for running Webware on OpenVMS in a WASD CGIPlus environment
+(multi processes, multi accounts).
+
+For more information see:
+
+ * http://pi-net.dyndns.org
+ * http://vmspython.dyndns.org
+ * http://wasd.vsm.com.au

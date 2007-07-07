@@ -1,0 +1,357 @@
+<% header('%s - Release Procedures' % name) %>
+
+<h2>Preface</h2>
+
+<pre>
+These notes have expanded and changed upon every release. Carefully
+consider each step as you make it. Look for opportunities to improve.
+Also, update these notes immediately following a release.
+</pre>
+
+
+<h2>To Do</h2>
+
+<pre>
+Check whether there are outstanding issues which should be
+finished before the release:
+
+[ ] Announce the timing for the release on the webware-devel mailing list.
+
+[ ] Browse through the <a href="http://sf.net/tracker/?group_id=4866">tracking systems</a> on the Webware project page
+    at SourceForge. There are tracking systems for "Bugs", "Patches"
+    and "RFE". The SourceForge task manager is currently not used.
+
+[ ] Search for @@ (to do) markers in the code and docs.
+
+[ ] Browse through WebKit/Docs/Future.html
+
+[ ] Check for compliance with Docs/StyleGuidelines.html by running
+    bin/checksrc.py or using pylint with PYLINTRC=/path/to/Webware/.pylintrc
+</pre>
+
+
+<h2>Testing</h2>
+
+<pre>
+Test the current version before releasing it:
+
+[ ] Run install.py and check that the installation runs properly.
+
+[ ] Run all unittests using AllTests.py.
+
+[ ] Run other standalone Python test suites
+    not included in AllTests.py (this needs to be better documented).
+    > cd SomeKit/Tests
+    > python Test.py
+
+[ ] Run the WebKit AppServer and check that the default contexts
+    (Admin, Examples, Docs etc.) are working. Also check the various
+    tests in the Testing context and run WebKit/Testing/stress.py.
+
+[ ] Make sure that wkcgi, mod_webkit1, mod_webkit2, and all other important
+    adapters can be compiled, linked and used without problems. If there have
+    been changes, provide binaries for Windows users and adjust the version
+    number in mod_webkit.c to the Webware version.
+</pre>
+
+
+<h2>Prepare the trunk</h2>
+
+<pre>
+[ ] Make sure the workspace is up to date.
+
+[ ] Update the release notes:
+    * Search webware-discuss and webware-devel archives for "update"
+      in the subject, since the date of the last release.
+    * Browse the subversion log messages, starting with the date
+      of the last release.
+    * Remove all empty subsections in the release notes. Remove subtitles
+      if there is only one category.
+
+[ ] Update the HTML pages that are created from reStructuredText
+    (currently these exist only in the folder WebKit/Docs).
+    * Docutils 0.4 must be installed (since we don't want to depend on
+      this, the HTML pages are included in the Webware package instead
+      of creating them with the Webware installer).
+    * Run the following commands:
+      cd WebKit/Docs
+      python ../../DocSupport/buildhtml.py
+    * check the produced HTML pages
+    The installer will modify these HTML pages later to display the
+    same header and footer as the other HTML pages.
+
+[ ] Make sure there are no empty directories or zero length files
+    (such as __init__.py). Old unarchivers often ignore these, leading
+    to problems for users. The following command can be used for this:
+    > find . -name '.svn' -prune -o -empty -print
+
+[ ] Skim through docs and release notes one final time.
+
+[ ] Commit all changes in the workspace.
+</pre>
+
+
+<h2>Tag the release</h2>
+
+<pre>
+[ ] Choose an appropriate version number for the release.
+    Releases often go alpha 1, alpha 2, beta 1, beta 2,
+    release candidate 1, release candidate 2, ...
+    with suffixes a1, a2, b1, b2, rc1, rc2 as in 0.6.1b2.
+
+[ ] Tag the version in the SVN repository.
+    The tag name should be "Release-VER", with underscores instead
+    of dots in VER. Look at the existing tags to make sure your
+    new tag is of a suitable style.
+    The command for creating the tag would be like this:
+    > svn copy http://svn.w4py.org/Webware/trunk \
+        http://svn.w4py.org/Webware/tags/Release-0_9b3 \
+        -m "Tagging version 0.9 beta 3 of Webware for Python."
+
+[ ] Switch your working copy to the newly created tag:
+    > svn switch http://svn.w4py.org/Webware/tags/Release-VER
+
+[ ] Update all version numbers using bin/setversion.py:
+    * Edit bin/setversion.py and set the following parameters:
+      - version = the version number of this release
+      - releaseDate = the release date
+      - setVersion = True
+      - newRelease = False
+    * Run bin/setversion.py - this will change the version in the
+      Properties.py files and the .txt and .html doc files, and it will
+      rename ReleaseNotes-X.Y.phtml according to the version set above.
+    * Make sure all the version numbers and release dates have been set
+      properly, particularly in the Properties.py files.
+      The .phtml doc files will be converted to .html at install time
+      and take the version number from the Properties.py files.
+
+[ ] Update the HTML pages that are created from reStructuredText.
+    This must be done to reflect the version number in the HTML pages after
+    it has been set in the preceding step. See above for this procedure.
+
+[ ] Commit these changes on the workspace to the tag in the repository.
+    Your SVN client may warn you to do so on a tag path, ignore this.
+    From then on, the tag in the repository should not be touched any more
+    (this should be really a tag only, not a branch).
+</pre>
+
+
+<h2>Create the tarball to be released</h2>
+
+<pre>
+Note: This must be done on Unix. Otherwise, Posix permissions may get
+lost and you may get problems with wrong EOL characters.
+
+[ ] Use ReleaseHelper to create the release. This performs a SVN
+    export of the repository to create a directory without the SVN
+    control files, and then builds a tarball from that directory.
+    For instance, for creating the 0.9 beta 3 tarball:
+
+    > bin/ReleaseHelper.py tag=Release-0_9b3
+
+    If you specify the tag name, the tarball is built using the revision
+    information found in the release. Otherwise the tarball is built
+    and named with the current date indicating a snapshot build.
+    See the docstring and code of ReleaseHelper for the details.
+
+    Following these procedures assures that the SVN tagged version
+    is what is actually in the released tarball.
+</pre>
+
+
+<h2>Test the released tarball</h2>
+
+Test the released tarball, preferably under Unix and also under Windows.
+
+<pre>
+[ ] Install Webware from the released tarball.
+
+[ ] Check that the right versions show up in the WebKit examples and
+    in the documentation.
+
+[ ] Perform some more testing as above to make sure all needed
+    files exist in the release and permissions are set properly.
+</pre>
+
+
+<h2>Publish the released tarball</h2>
+
+<pre>
+[ ] Publish for download from the SourceForge files section:
+
+    > ncftpput -V upload.sf.net /incoming Webware-VER.tar.gz
+
+    * Log into <a href="http://sf.net">sf.net</a>.
+    * Go to the <a href="https://sourceforge.net/projects/webware/">Webware Project Page</a>
+      at SourceForge.
+    * Select 'File Releases' from the 'Admin' tab menu.
+    * Click on 'Manage Packages/Releases'
+    * Choose the 'Webware' package for releases only, and use
+      use the 'Webware-devel' package for betas and release candidates
+    * Proceed to completion, but don't send users notification of
+      release until final test is performed and the web site is updated.
+    * Make this the primary file for download with 'Edit Download Page'.
+    * Hide older releases and candidates that aren't of interest any more.
+    * Reference for the above: <a href="http://sf.net/docman/display_doc.php?docid=6445&group_id=1">"Guide to the SourceForge FRS"</a>
+    * Review the trove categorization and update if necessary:
+      - Select 'Public Info' from the 'Admin' tab menu.
+      - Click 'Edit Trove Categorization'.
+    * Download the release from SourceForge and test again.
+
+[ ] Publish for download from the www.w4py.org web server:
+
+    > scp Webware-VER.tar.gz www.w4py.org/var/www/downloads/Webware
+
+    * Check that this can be downloaded from <a href="http://www.w4py.org/downloads/">www.w4py.org/downloads/</a>
+</pre>
+
+
+<h2>Update Home Page</h2>
+
+<pre>
+[ ] Update <a href="http://webware.sf.net">webware.sf.net</a>:
+
+    * Updates to that home page should go through CVS at SourceForge.
+      In general you should not be editing files directly on the HomePage
+      site because that site only has read-only access to CVS.
+
+    * Note that the <a href="http://webware.sf.net">webware.sf.net</a> home page is not really used any more.
+      The index page is redirected via .htaccess to <a href="http://www.w4py.org">www.w4py.org</a>
+      (nevertheless, the site is still available and can still be
+      accessed as <a href="http://webware.sourceforge.net/oldsite/">http://webware.sourceforge.net/oldsite/</a>).
+      So you can skip the following step.
+
+    * Update your own copy of the HomePage:
+      * Checkout the current version:
+        > cvs co HomePage
+      * Update:
+        * Last updated (at top of page)
+        * Version number, including links
+        * File size
+        * Project status
+        * Testimonials
+      * Review all text and links
+      * Checkin the updated version:
+        > cvs ci
+
+    * We should still copy and install Webware in the <a href="http://webware.sf.net">webware.sf.net</a>
+      web page directory so the documentation can be browsed online there.
+      Make sure you install this from the tarball.
+
+    * Copy the tarball to your SourceForge account.
+      > scp Webware-VER.tar.gz $USER@webware.sf.net:
+
+    * Login to the SourceForge account.
+      > ssh $USER@webware.sf.net
+
+    * Extract the Webware folder and create a symbolic link to it:
+      > cd /home/groups/w/we/webware/htdocs/
+      > rm -rf Webware
+      > tar -xzf ~/Webware-VER.tar.gz
+      > ln -s Webware-VER Webware
+      > cd Webware
+      > ./install.py --set-password=""
+      > chmod -R g+w .
+
+    * Since you probably did not make changes to the home page
+      through CVS, you can skip the following step again:
+
+    * Update the HomePage on SourceForge from CVS:
+      > cvs -q up -dP
+
+    * Verify that the home page changes are correct by browsing to
+      <a href="http://webware.sf.net">Webware.sf.net</a> and double-checking
+      all of the updated links, including the download link.
+      Also check <a href="http://webware.sf.net/Webware/Docs/">Webware.sf.net/Webware/Docs/</a>.
+
+    * Add a news item to the <a href="https://sf.net/project/?group_id=4866">Webware Project Page</a> at SourceForge
+
+[ ] Update <a href="http://www.w4py.org">www.w4py.org</a>:
+
+    * Updates to the home page should go through SVN at svn.w4py.org,
+      again located in the toplevel directory HomePage.
+      This is a Webware working directory with the default context 'Home'.
+      Webware is installed in /usr/local/share/Webware.
+      This should always be the last stable release,
+      so you may have to update it with the current release.
+      You may also have to recreate the working directory and
+      the start scripts if there are major changes in the release.
+
+    * The download link at the top right corner is in SitePage.py.
+
+    * All contexts except the default 'Home' and 'Docs' contexts should be
+      disabled in Application.config.
+
+    * The content of the home page is stored in the Webware Wiki
+      and can be updated via the browser. You should update it
+      and add an announcement for the new release.
+</pre>
+
+<h2>Notify</h2>
+
+<pre>
+[ ] Create a new announcement text file containing the text for the
+    general announcement, SourceForge news and freshmeat.net update.
+    Use the previous releases as examples.
+
+    For pre-releases, just the following:
+      * To: <a href="webware-discuss@lists.sf.net">webware-discuss@lists.sf.net</a>
+      * http://prdownloads.sf.net/webware/Webware-VER.tar.gz
+      * Report all problems to webware-discuss@lists.sf.net.
+        Please include all appropriate version numbers including Webware,
+        Python, web server, op sys, browser, database, etc. If running
+        the app server, please specify flavor (eg, ThreadedAppServer)
+        and adapter.
+      * Expected release date for X.Y is MONTH, DAY.
+      * Changes since last release date are:
+        * ...
+
+Announce on mailing lists:
+    [ ] <a href="mailto:python-list@python.org">python-list@python.org</a>
+        (or post to <a href="news:comp.lang.python">comp.lang.python</a>)
+    [ ] <a href="mailto:python-announce@python.org">python-announce@python.org</a>
+        (or post to <a href="news:comp.lang.python.announce">comp.lang.python.announce</a>)
+    [ ] <a href="mailto:webware-announce@lists.sf.net">webware-announce@lists.sf.net</a>
+    [ ] <a href="mailto:db-sig@python.org">db-sig@python.org</a>
+        - Only if MiddleKit was updated
+        - Make custom message focused on MiddleKit
+
+Update:
+    [ ] <a href="http://wiki.python.org/moin/WebProgramming">Web Programming in Python</a>
+    [ ] <a href="http://www.python.org/pypi/Webware%20for%20Python/">PyPI</a> (aka "Cheese Shop")
+    [ ] <a href="http://py.vaults.ca">Vaults of Parnassus</a> (currently out of order)
+    [ ] <a href="http://freshmeat.net">freshmeat.net</a>
+
+[ ] Review/search for other places where the announcement can be made.
+</pre>
+
+<h2>Post-release</h2>
+
+<pre>
+[ ] Update these Release Procedures.
+
+[ ] If this was a final release, archive the release notes and create new
+    templates for the release notes in preparation of the next release:
+    * Edit bin/setversion.py and set the following parameters:
+      - version = the version number of this release
+      - releaseDate = the release date
+      - setVersion = False
+      - newRelease = True
+    * Run bin/setversion.py - this will not change the version in the
+      Properties.py files and the .txt and .html doc files, but it will
+      rename ReleaseNotes-X.Y.phtml according to the version set above
+      and copy new templates for these files instead.
+    * Make sure the release notes have been copied properly.
+
+[ ] Check that the following were updated:
+    [ ] <a href="http://py.vaults.ca">Vaults of Parnassus</a> (currently out of order)
+    [ ] <a href="http://freshmeat.net">freshmeat.net</a>
+
+[ ] Look for follow up messages on <a href="news:comp.lang.python">comp.lang.python</a>
+
+[ ] Test drive the <a href="http://webware.sf.net">home page</a>, <a href="https://sf.net/project/admin/?group_id=4866">project page</a> and <a href="https://sf.net/project/showfiles.php?group_id=4866">download</a>.
+
+[ ] Check the <a href="https://sf.net/project/showfiles.php?group_id=4866">download counter</a> and <a href="https://sf.net/project/stats/?group_id=4866">activity statistics</a> on SourceForge.
+</pre>
+
+<% footer() %>

@@ -1,0 +1,19 @@
+<% header(name + ' 0.9.2 Release Notes') %>
+
+<p><% name %> version 0.9.2 released on 09/18/06</p>
+
+<ul>
+	<li>This release of Webware for Python includes a couple of fixes and
+	improvements of WebKit, MiddleKit, MiscUtils and WebUtils (see
+	the respective release notes).</li>
+	<li>An interesting new feature is the possibility to dump stack frames
+	of all running threads to standard output by sending a SIGQUIT or SIGBREAK
+	signal to the Application server using the threadframe module.</li>
+	<li>This release also restores backward compatibility with older Python
+	versions in many places. It should run with all Python versions from
+	2.0 to 2.5 (only KidKit requires version 2.3).</li>
+	<li>You will need to recreate your working directories if you have been
+	using a Webware version older than version 0.9.</li>
+</ul>
+
+<% footer() %>

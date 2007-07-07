@@ -1,0 +1,24 @@
+<% header('%s Release Notes' % name) %>
+
+<h2>Release Notes</h2>
+
+<div class="contents"><ul>
+<% from glob import glob
+r = {}
+for f in glob('Docs/RelNotes-*.*html'):
+	if f.endswith('.html'):
+		v = f[14:-5]
+	elif f.endswith('.phtml'):
+		v = f[14:-6]
+	else:
+		continue
+	if v == 'X.Y':
+		continue
+	r[v] = None
+r = r.keys()
+r.sort(lambda x, y: cmp(y.split('.'), x.split('.')))
+for v in r:
+	print '<li><a href="RelNotes-%s.html">%s</a></li>' % (v, v)
+%></ul></div>
+
+<% footer() %>

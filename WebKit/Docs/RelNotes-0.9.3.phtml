@@ -1,0 +1,98 @@
+<% header(name + ' 0.9.3 Release Notes') %>
+
+<p><% name %> version 0.9.3 released on 04/26/07</p>
+
+<a name="Introduction"></a><h2>Introduction</h2>
+<p>This release comprises a lot of small bugfixes, changes and cleanup in
+WebKit, in an attempt to straighten out some irregularities before the 1.0
+version is released. Not all of these small changes can be listed here.</p>
+
+<a name="NewFeatures"></a><h2>New Features</h2>
+<ul>
+	<li>It is now possible to set up custom error pages for HTTP errors and any
+	other exceptions raised in Webware servlets. This is controlled by the
+	<code>ErrorPage</code> setting in <span class="filename">Application.config</span>
+	and described in the <a href="Configuration.html#errors">Configuration Guide</a>.</li>
+</ul>
+
+<a name="Improvements"></a><h2>Improvements and Refinements</h2>
+<ul>
+	<li>Added JSON-RPC base class and usage example (as suggested by
+	Jean-Francois Pieronne).</li>
+	<li>HTTPResponse now sends status code 500 in case an error has occurred
+	(suggested by Veros Kaplan).</li>
+	<li>Optimized uploading of large files with the built-in HTTPServer (as
+	suggested by Dan Milstein).</li>
+	<li>Some improvements, hints and updates
+	for easier compilation of <span class="filename">mod_webkit</span>
+	(renamed to <span class="filename">mod_webkit1</span>)
+	and <span class="filename">mod_webkit2</span>. Created fresh
+	<span class="filename">mod_webkit.dll</span> files for Windows.</li>
+	<li>Do not move "one-shot sessions" (usually created by crawler bots)
+	to FileStore on periodical clean-up (patch submitted by Veros Kaplan).</li>
+	<li>Changed <code>cleanStaleSessions()</code> to iterate over the keys,
+	rather than the items, so that it will not load all sessions into memory
+	(patch submitted by Ben Parker).</li>
+	<li>Made the request queue and buffer size and the response buffer size
+	configurable via the settings <code>RequestQueueSize</code>,
+	<code>RequestBufferSize</code> and <code>ResponseBufferSize</code>
+	in <span class="filename">AppServer.config</span>.</li>
+	<li>New methods <code>SessionTimeout()</code>, <code>SessionPrefix()</code>,
+	<code>SessionName()</code> and <code>SessionCookiePath()</code> have been
+	introduced, which can be replaced with variants which are dependent on the
+	transaction. This can be used to implement a different behavior for
+	different contexts (suggested by Michael Hanselmann).</li>
+	<li>The <code>Session</code> and <code>SessionStore</code> classes are
+	now configurable via the settings <code>SessionModule</code> and
+	<code>SessionStore</code> in <span class="filename">Application.config</span>
+	(as suggested by Ben Parker).</li>
+	<li>If there is a root <code>Docs</code> context, then contexts for the
+	Docs of all plug-ins are added automatically when they are loaded. The
+	same mechanism was already used for the <code>Examples</code> context.</li>
+</ul>
+
+<a name="Security"></a><h2>Security</h2>
+<ul>
+	<li>WebKit now by default uses the servlet path instead of root for the
+	cookie path. This separates sessions if you run several applications in
+	parallel and also improves the security of the application. You can change
+	this by replacing the <code>sessionCookiePath()</code> method.</li>
+	<li>Fixed security issue in <code>HTTPExceptions</code>: With older web
+	browsers it could be exploited that the URI in the 404 page was not
+	properly encoded (report with fix by Michael Hanselmann).</li>
+	<li>Added some security measures against "JavaScript hijacking" to the
+	JSON-RPC servlet base class (implemented by Jean-Francois Pieronne
+	and Christoph Zwerschke).</li>
+</ul>
+
+<a name="MinorChanges"></a><h2>Minor Changes</h2>
+<ul>
+	<li><p>Changed the names of the pid and address files for more consistency
+	and clarity:</p>
+	<table border="1" cellspacing="0" cellpadding="2" style="font-size:small;margin-left:2em">
+	<tr><th>old name</th><th>new name</th></tr>
+	<tr><td class="filename">webkit.pid</td><td><i>unchanged</i></td></tr>
+	<tr><td class="filename">appserverpid.txt</td><td class="filename">appserver.pid</td></tr>
+	<tr><td class="filename">monitorpid.txt</td><td class="filename">monitor.pid</td></tr>
+	<tr><td class="filename">address.text</td><td class="filename">adapter.address</td></tr>
+	<tr><td class="filename">monitor.text</td><td class="filename">monitor.address</td></tr>
+	<tr><td class="filename">http.text</td><td class="filename">http.address</td></tr>
+	</table></li>
+</ul>
+
+<a name="Bugfixes"></a><h2>Bugfixes</h2>
+<ul>
+	<li><code>ImportSpy</code> (and thus the <code>AutoReload</code> feature)
+	did not work correctly with Python 2.5.</li>
+	<li>Using <code>psp-handler</code> for PSP pages outside a Webware context
+	did not work; this has been fixed (bug report by Fionn Behrens).</li>
+	<li>Fixed and improved CGIAdapter and OneShotAdapter (also solving the
+	CGI Adapter problem reported by Mico Siahaan).</li>
+	<li>Fixed a bug in <code>HTTPRequest</code>: empty <code>FieldStorage</code>
+	is False (reported by Jean-Francois Pieronne).</li>
+	<li>Fixed bug in <code>normURL</code> function (patch by Veros Kaplan).</li>
+	<li>Fixed bug regarding aborted connections (reported by Stephan Diehl).</li>
+	<li>Made sure servlets are always returned to their pool.</li>
+</ul>
+
+<% footer() %>

@@ -1,0 +1,30 @@
+<% header(name + ' 0.2 Release Notes') %>
+
+<p>Webware for Python 0.2</p>
+
+<a name="ReleaseNotes"></a><h2>Release Notes</h2>
+
+<ul>
+	<li>Version 0.2 was released on 5/12/2000.</li>
+	<li>In general, 0.1 was more of a conceptual release than anything else. While 0.2 still has it's share of problems, you actually have a chance of writing something. &nbsp;<kbd>:-)</kbd></li>
+	<li>There have been lots of improvements to the classes in terms of refining their interface, fleshing out their functionality and just plain making them work. Most details are not documented here, because no one had an application written in 0.1. Only the most notables are below:</li>
+	<li>Component and HTTPComponent became Servlet and HTTPServlet.</li>
+	<li>Created Page class, a convenient subclass of HTTPServlet.</li>
+	<li>Renamed Context to Transaction, which is a more accurate name.</li>
+	<li>Created root class Object for the entire kit.</li>
+	<li>Got sessions working.</li>
+	<li>Got incoming and outgoing cookies working.</li>
+	<li>Created classes ServletFactory, PythonServletFactory and PSPServletFactory and reworked Application.createServletInContext() accordingly.</li>
+	<li>Added support for config files for AppServer and Application.</li>
+	<li>Activity logging. (See Logs/Activity.csv or the _admin page).</li>
+	<li>Error/exception handling: log the error, display a public error message, save a private error message and e-mail that private error message.</li>
+	<li>Created Admin page (_admin). Servlets that start with _ are considered to reside with the app server. Created _dumpCSV and _dumpErrors to support/implement the admin pages.</li>
+	<li>If a Servlet's file is updated, the Servlet gets reloaded by the Application. This substantially reduces the need to restart the server. However, this does not handle changes to the Application or changes to the Servlet's ancestor classes.</li>
+	<li>Responses are no longer delivered through stdout, but through a string returned by contents(). That means that print statements show up in the console and can be used for debugging.</li>
+	<li>The app server now writes its host name and port to <i>address.text</i> which is automatically picked up by the adaptors.</li>
+	<li>Added support for config setting 'Multitasking' which can be threading, forking, or sequencing. Forking is slower than the other two. Threading servers multiple users better. Threading is the default.</li>
+	<li>Incorporated Jay Love's FastCGIAdaptor.</li>
+	<li>Expanded the examples and documentation.</li>
+</ul>
+
+<% footer() %>

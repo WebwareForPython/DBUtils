@@ -1,0 +1,11 @@
+Thing objects,,,,,
+b,i,l,f,s,d
+1,5,8589934592,3.14,hi,1
+0,-5,-10,3,bye,0
+true,1,1,1,1,1
+false,1,1,1,1,1
+
+Person objects,,,,
+id,firstName,middleName,lastName,
+XYZ768,John,,Doe,
+ABC987,Jane,L,Doe,

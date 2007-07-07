@@ -1,0 +1,49 @@
+<% header(name + ' 0.2 Release Notes') %>
+
+<p>Webware for Python 0.6</p>
+
+<a name="Changes"></a><h2>Changes</h2>
+<ul>
+	<li>Version 0.2 was released on 12/2/2001.</li>
+	<li><p>If you use 'Extras' column in your
+object model file (Classes.csv), then pay attention: The 'Extras' column is
+now processed with MiscUtil's PyDictForArgs() rather than DictForArgs(). [Chuck]</p>
+	<p>The downside is that values like:</p>
+	<blockquote>x=1 y=2</blockquote>
+	<p>Must be edited or your model cannot be read:</p>
+	<blockquote>x=1; y=2</blockquote>
+	<p>The upside is that you can use full Python expressions, so ints come in as
+ints (instead of strings) and you can create lists and so on:</p>
+	<blockquote>Samples=[1, 2, 3]</blockquote>
+	<p>Which was the motivation for this change.</p></li>
+	<li>MiddleKit developers are now encouraged to always put their Python classes in a Python package. The <a href="QuickStart.html">Quick Start</a> takes you through this process. [Chuck]</li>
+	<li>MiddleKit now supports deleting objects including some powerful options regarding the relationships between objects and deleting. See the <a href="UsersGuide.html">User's Guide</a> for details. [Geoff T]</li>
+	<li><p><b>Type and value checking:</b> Accessor methods such as setFoo() now do type checking and
+value checking on their arguments. [Chuck] For example, you can't pass in a string for a boolean:</p>
+<pre class="py">
+obj.setSomeBool('s')  # raises TypeError
+</pre>
+	<p> Some numeric compatibility is allowed:</p>
+	<ul>
+		<li>ints can take longs that don't overflow the int range</li>
+		<li>longs can take ints</li>
+		<li>floats can take ints and longs</li>
+	</ul>
+	<p>The date, time and datetime accessors no longer accept strings (such as
+'2001-01-15') if you have an mx.DateTime.</p>
+	<p>For value checking:</p>
+	<ul>
+		<li>bools only take 0 or 1</li>
+		<li>enums only take valid strings found in the enum def</li>
+	</ul>
+	<p> Also, MiddleKit assumes that if you have DateTime, it is in the mx package, as in:</p>
+<pre class="py">
+from mx import DateTime
+</pre></li>
+	<li>MK previously spewed all its SQL statements to stdout. The new default
+behavior is not to log anything, but you can change this via the SQLLog option described in the <a href="UsersGuide.html#ConfigurationUsersGuide.html">configuration section</a> of the User's Guide. [Chuck]</li>
+	<li>MiddleObject.setValueForKey() now raises LookupError instead of NameError if there is a problem. This is consistent with valueForKey() and fits the doc strings of the exceptions better. [Chuck]</li>
+	<li>Miscellaneous fixes and refinements. [Chuck, Geoff T, Dave R]</li>
+</ul>
+
+<% footer() %>

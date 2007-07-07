@@ -1,0 +1,27 @@
+<% header(name + ' 0.9.3 Release Notes') %>
+
+<p><% name %> version 0.9.3 released on 04/26/07</p>
+
+<ul>
+	<li>This release of Webware for Python includes a couple of fixes and
+	improvements of WebKit and some cleanup of the overall Webware codebase.
+	Please have a look at the <a href="../WebKit/Docs/index.html">WebKit</a>
+	release notes for details.</li>
+	<li>An interesting new feature is automatic redirection to custom error pages
+	whenever an HTTP error or any other Python exception occurs in a servlet.</li>
+	<li>There still had been some quirks with Python versions before 2.2 and
+	after 2.4, which have been solved in this release. Webware now runs fine
+	with the current Python 2.5, but is still backward compatible down to
+	Python 2.0 (except for KidKit, because Kid requires Python 2.3 anyway).
+	The plan is to keep this broad compatibility range in the upcoming Webare
+	1.0 release, postponing major refactoring and strengthening requirements
+	until later versions.</li>
+	<li>The <code>checksrc.py</code> tool has been improved a lot, and an
+	<code>rcfile</code> for <code>pylint</code> has been added in order to
+	enforce sticking to the <a href="StyleGuidelines.html">Webware Style
+	Guidelines</a>, which have not been followed very strictly in the past.</li>
+	<li>Note that you will need to recreate your working directories if you
+	have been using a Webware version older than version 0.9.</li>
+</ul>
+
+<% footer() %>

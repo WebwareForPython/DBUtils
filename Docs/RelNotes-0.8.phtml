@@ -1,0 +1,33 @@
+<% header(name + ' 0.8 Release Notes') %>
+
+<ul>
+<li>All adapters have been moved to Webware/WebKit/Adapters</li>
+<li>LRWPAdapter added, for use with the
+	<a href="http://xitami.com">Xitami web server</a></li>
+<li> New <code>setCookie</code> method in <code>HTTPResponse</code>.
+New method supports setting the expire time, path (which
+defaults to "/") and security flag.  The expire time can
+be set with constants "ONCLOSE", "NOW", or "NEVER"; or
+you can give an integer timestamp, tuple of integers (as
+used in the time module), or string identifier (like
+"+1w" for 1 week in the future).</li>
+<li> Added an <i>experimental</i> HTTPAdapter.py which serves directly as an HTTP server.</li>
+<li> Added an optional AutoReload setting to enable reloading the server
+whenever source files, including servlets and PSP files are changed.</li>
+<li> Fix so PSP works with python 2.3a1.</li>
+<li> Includes an Apache 2 mod_webkit adapter, and pre-compiled DLL for windows.</li>
+<li> Fixed a problem where escapes in PSP source were not being processed correctly.</li>
+<li> Restored 0.7 behavior of Page.writeDocType() to output 4.01 Transitional.
+See the <a href="../WebKit/Docs/RelNotes-0.8.html">release notes</a> for more info.</li>
+<li> Upgraded documentation</li>
+<li> Improvements to profilling.</li>
+<li> Numerous bug fixes.</li>
+</ul>
+
+Many more improvements and bug fixes are present in this release.  The
+majority of which can be found in WebKit.  Check out the WebKit <a
+href="../WebKit/Docs/RelNotes-0.8.html">release notes</a>, as well as
+the release notes for the other <a
+href="ComponentIndex.html">components</a> for more information.
+
+<% footer() %>

@@ -1,0 +1,41 @@
+<% header(name + ' 0.5 Release Notes') %>
+
+<a name="ReleaseNotes"></a><h2>Release Notes</h2>
+
+<ul>
+	<li>Version 0.5 was released on 3/1/2001.</li>
+</ul>
+
+<p>These release notes pertain to Webware at the top level. Each individual component in Webware has its own release notes. See the <a href="ComponentIndex.html">Component Index</a> for further information.</p>
+
+<a name="NewComponents"></a><h3>New Components</h3>
+
+<table border="0" cellpadding="2" cellspacing="2" style="margin-left:2em">
+	<tr><td><a href="../COMKit/Docs/index.html">COMKit</a></td><td>[Geoff T]</td></tr>
+	<tr><td><a href="../MiddleKit/Docs/index.html">MiddleKit</a></td><td>[Chuck]</td></tr>
+	<tr><td><a href="../TaskKit/Docs/index.html">TaskKit</a></td><td>[Tom S, Jay L]</td></tr>
+	<tr><td><a href="../UserKit/Docs/index.html">UserKit</a></td><td>[Chuck]</td></tr>
+</table>
+
+<a name="General"></a><h3>General</h3>
+
+<ul>
+	<li>Docs: The new <a href="ComponentIndex.html">Component Index</a> is generated upon installation. [Chuck]</li>
+	<li>Docs: An <span class="filename">index.html</span> is generated upon installation for each component. [Chuck]</li>
+</ul>
+
+<a name="Internal"></a><h3>"Internal"</h3>
+
+<p>If you develop Webware or plan on submitting patches, please review these.</p>
+
+<ul>
+	<li>Component Improvements:
+	<ul>
+		<li>Components now have a <span class="filename">Properties.py</span> which advertises the component's name, version, required python version, required op sys (if any), denied op sys (if any), synopsis, required software and integrated software. This information can be used in generating documentation and in deciding how best to load plug-ins.</li>
+	</ul></li>
+	<li>Docs: Added new <a href="StyleGuidelines.html">StyleGuidelines.html</a>.</li>
+	<li>Created <span class="filename">DocSupport/RawToHTML.py</span> to help with a macro-like system in the docs. Not sure if this will last. Consider it an experiement.</li>
+	<li>Added <span class="filename">bin/</span> as well as <span class="filename">pystats.py</span> and <span class="filename">checksrc.py</span>. See <span class="filename">bin/_README</span> and check the doc strings in the files for more info.</li>
+</ul>
+
+<% header('%s 0.2 Release Notes' % name) %>

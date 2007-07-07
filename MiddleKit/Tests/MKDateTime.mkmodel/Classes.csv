@@ -1,0 +1,5 @@
+Class,Attribute,Type,isRequired,Default,Min,Max
+Foo,,,,,,
+,d,date,0,,,
+,t,time,0,,,
+,dt,datetime,0,,,

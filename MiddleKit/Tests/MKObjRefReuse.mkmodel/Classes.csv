@@ -1,0 +1,7 @@
+Class,Attribute,Type,isRequired
+Baz,,,
+,x,int,0
+Bar,,,
+,baz,Baz,0
+Foo,,,
+,bar,Bar,0

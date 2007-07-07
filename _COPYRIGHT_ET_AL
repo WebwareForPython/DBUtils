@@ -1,0 +1,56 @@
+Webware for Python
+http://webware.sourceforge.net
+
+
+The Gist
+========
+
+Webware for Python is open source, but there is no requirement that
+products developed with or derivative to Webware become open source.
+
+Webware for Python is copyrighted, but you can freely use and copy it as
+long as you don't change or remove this copyright notice. The license is
+a clone of the original OSI-approved Python license.
+  OSI licenses: http://www.opensource.org/licenses/
+
+There is no warranty of any kind. Use at your own risk.
+
+Read this entire document for complete, legal details.
+
+
+Copyright
+=========
+
+Copyright (c) 1999-2007 by Chuck Esterbrook
+All Rights Reserved
+
+
+License
+=======
+
+Permission to use, copy, modify, and distribute this software and its
+documentation for any purpose and without fee is hereby granted,
+provided that the above copyright notice appear in all copies and that
+both that copyright notice and this permission notice appear in
+supporting documentation, and that the names of the authors not be used
+in advertising or publicity pertaining to distribution of the software
+without specific, written prior permission.
+
+
+Disclaimer
+==========
+
+THE AUTHORS DISCLAIM ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
+INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO
+EVENT SHALL THE AUTHORS BE LIABLE FOR ANY SPECIAL, INDIRECT OR
+CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF
+USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+PERFORMANCE OF THIS SOFTWARE.
+
+
+Trademarks
+==========
+
+All trademarks referred to in the source code, documentation, sample
+files or otherwise, are reserved by their respective owners.

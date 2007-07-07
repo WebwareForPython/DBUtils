@@ -1,0 +1,53 @@
+<% header(name + ' ' + versionString + ' Release Notes') %>
+
+<p><% name %> version <% versionString %> released on <% releaseDate %></p>
+
+<a name="Introduction"></a><h2>Introduction</h2>
+<p>This release contains a few improvements and fixes, and it adds some more
+configuration options.</p>
+
+<a name="NewFeatures"></a><h2>New Features</h2>
+<ul>
+	<li>New <span class="filename">Application.config</span> settings
+	<code>SessionCookiePath</code>, <code>SessionStoreDir</code>,
+	<code>CacheDir</code> and <code>AddressFiles</code>.</li>
+	<li>The AutoReloadingAppServer now supports not only python-fam,
+	but also python-gamin.</li>
+</ul>
+
+<a name="Improvements"></a><h2>Improvements and Refinements</h2>
+<ul>
+	<li>Assume root path as the servlet path if the URL has been completely
+	rewritten by the web server.</li>
+	<li>Added optional parameter to <code>HTTPRequest.serverURL()</code> for
+	getting canonical hostnames, False by default.</li>
+	<li>Fixed the <code>HTTPRequest.previousURI()</code> method and added a
+	<code>HTTPRequest.previousContextName()</code> method.</li>
+	<li>Don't install the MKBrowser context automagically. It is now part of
+	the default configuration where it can be removed.</li>
+	<li>The appointment of the default context (if none was specified) was
+	not deterministic. When ambiguous, we now refuse the temptation to guess,
+	raising an error condition instead.</li>
+	<li>Webware did not shut down cleanly when AutoReloadingAppServer or
+	ThreadedAppServer could not be properly initialized. The error handling
+	here is now much better.</li>
+</ul>
+
+<a name="Security"></a><h2>Security</h2>
+<ul>
+	<li>Implemented <code>HTTPRequest.isSecure()</code> method.</li>
+	<li>Use secure session cookies for HTTPS connections. This is configurable
+	with the <span class="filename">Application.config</span> setting
+	<code>SecureSessionCookie</code> which is True by default. (Suggested by
+	Adam Kerrison.)</li>
+</ul>
+
+<a name="Bugfixes"></a><h2>Bugfixes</h2>
+<ul>
+	<li>Deletion of cookies could lead to problems due to a wrong cookie path
+	(report and fix by Adam Kerrison).</li>
+	<li>Fixed a bug concerning servlet reuse (reported by Andrew Butash),
+	adding a <code>Servlet._busy</code> attribute.</li>
+</ul>
+
+<% footer() %>

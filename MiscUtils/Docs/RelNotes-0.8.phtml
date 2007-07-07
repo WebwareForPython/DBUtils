@@ -1,0 +1,30 @@
+<% header(name + ' 0.8 Release Notes') %>
+
+<p>Webware for Python 0.8</p>
+
+<a name="Changes"></a><h2>Changes</h2>
+<ul>
+	<li>New <a href="Source/Files/PickleCache.html">PickleCache</a> module which is now used by <a href="Source/Files/DataTable.html">DataTable</a> and MiddleKit.Core.Model in order to load files more quickly. See the <a href="Source/Docs/MiscUtils.PickleCache.html">doc string</a> for details.</li>
+	<li><p>New functions in <span class="name">MiscUtils.Funcs</span></p>
+	<ul>
+		<li><p><span class="name">localIP(remote=('www.yahoo.com', 80), useCache=1)</span></p>
+		<p>Returns your local IP address, hopefully as seen by the Internet.</p>
+		<p>It comes with caveats, so read the <a href="Source/Docs/MiscUtils.Funcs.html">doc string</a>.</p></li>
+		<li><p><span class="name">mktemp(suffix="", dir=None)</span></p>
+		<p>Alternative to tempfile.mktemp that allows a custom directory to be passed without requiring any module level variables to be clobbered.</p></li>
+		<li><p><span class="name">valueForString(s)</span></p>
+		<p>For a given string, returns the most appropriate Pythonic value such as None, a long, an int, a list, etc.</p></li>
+		<li><p><span class="name">wordWrap(s, width=78)</span></p>
+		<p>Returns a version of the string word wrapped to the given width.</p></li>
+	</ul></li>
+	<li><p>New functions in <span class="name">Configurable</span></p>
+	<ul>
+	<li><p><span class="name">commandLineSetting(configName, settingName, default=NoDefault)</span></p>
+	<p>Accesses the values of settings passed through <span class="name">addCommandLineSetting</span>.  Typically, you would use it by calling AppServer like</p>
+	<pre>./AppServer --Context.Root=/WK</pre>
+	<p>where <tt>Context</tt> is not necessarily the name of a configurable class.  Other classes can use this setting to retrieve <tt>"/WK"</tt>, like</p>
+	<pre>Configurable.commandLineSetting("Context", "Root")</pre></li>
+	</ul></li>
+</ul>
+
+<% footer() %>

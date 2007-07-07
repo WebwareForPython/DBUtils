@@ -1,0 +1,119 @@
+<% header(name + ' 0.9.2 Release Notes') %>
+
+<p><% name %> version 0.9.2 released on 09/18/06</p>
+
+<a name="NewFeatures"></a><h2>New Features</h2>
+<ul>
+	<li>As suggested by Alex Southgate, WebKit now uses Fazal Majid's
+	<a href="http://www.majid.info/mylos/stories/2004/06/10/threadframe.html">threadframe</a>
+	module (that needs to be installed separately from Webware) in order to
+	print thread stack frames when receiving a <code>SIGQUIT</code> signal.
+	On Windows, <code>SIGBREAK</code> (Ctrl-Break) can be used instead.</li>
+	<li>Finding the directory index file ignored cascading extensions.
+	If there was an index.py and an index.html file, you got a "not found"
+	error, even with <code>UseCascadingExtensions = True</code> and
+	<code>ExtensionCascadeOrder = ['.py','.html']</code>. Now, the index.py
+	file will be chosen over the index.html file because it has the higher
+	priority. Still, the order of the file names in <code>DirectoryFile</code>
+	takes precedence over <code>ExtensionCascadeOrder</code>.
+	(Patch 891917 by Christoph Zwerschke)</li>
+	<li><code>HTTPRequest</code> now exposes content type, charsets or
+	languages in an elementary fashion. Also, <code>rawInput</code> was
+	somewhat prone to breakage. An additional check prevents illegal/impossible
+	operations on the request stream. (Patch 753331 by Paul Boddie)</li>
+	<li>When a user created a new context, but forgot to add the __init__.py
+	file, the context failed to load. This file is now auto-generated when
+	loading the context failed. (Patch 763490 by Jose Galvez)</li>
+	<li>By setting a special define, you can now have mod_webkit pass the
+	password secret from Apache to WebKit. Usually, Apache will pass only
+	the remote user name. (Patch 830586 by Maximillian Dornseif)</li>
+	<li>The maximum file size to be cached and the buffer size when serving
+	unknown file types are now configurable via subsettings of the
+	<code>UnknownFileTyes</code> setting in
+	<span class="filename">Application.config</span>
+	(see Configuration Guide for details).</li>
+	<li>In <span class="filename">WebKit/Adapters/CGIPlus</span> you will find
+	additional and modified files to help you run Webware on OpenVMS in a WASD
+	CGIPlus environment (provided by Jean-François Piéronne).</li>
+</ul>
+
+<a name="Improvements"></a><h2>Improvements and Refinements</h2>
+<ul>
+	<li>Names in the <span class="filename">AppServer.config</span>
+	<code>Host</code> setting are now resolved. You can now also use
+	<code>'localhost' = '127.0.0.1'</code> and <code>'' = '0.0.0.0'</code>
+	(all interfaces) as the <code>Host</code>.</li>
+	<li>Config files are now opened in universal newline mode. This means you
+	can now edit config files for Webware running under one platform (e.g. Unix)
+	with an editor running on a different platform (e.g. Windows) without
+	causing any troubles.</li>
+	<li>Made the session cookie name configurable (request 1049922).
+	This can now be done with the Application setting <code>SessionName</code>.
+	The default name is "_SID_", as it has been used before.</li>
+	<li>Removed the very obscure context keyword parameter from
+	<code>forward()</code>, <code>includeURL()</code>,
+	<code>resolveInternalRelativePath()</code> and
+	<code>callMethodOfServlet()</code>. Probably nobody used it anyway,
+	and it was pretty confusing. This context parameter (or, if missing,
+	the current context) was always prepended to absolute paths, though
+	according to the docstring absolute paths are not changed. Absolute paths
+	stay now really unchanged. This also fixes bugs 530390 and 789693.</li>
+	<li>The <code>URLParser</code> now handles absolute file paths delivered
+	by the PSP handler.</li>
+	<li>The <code>serverSidePath()</code> method now handles absolute paths,
+	removing a leading slash (request 836157 by Toyotomi Hideyoshi).</li>
+	<li>Cheetah template backups are now ignored (patch 675230).</li>
+	<li>Code-cleanup in <code>WebUtils.FieldStorage</code>.
+	<code>parse_qs()</code> will not raise an exception any more if
+	<code>REQUEST_METHOD</code> is not set.</li>
+	<li>The <code>HTTPResponse.writeHeaders()</code> will now set the Status
+	header if there is none (part&nbsp;2 of patch 1520399 by Jean-Francois
+	Pieronne). Also optimized that method for speed and readability.</li>
+	<li>In the Image example, the image is now embedded in the ExamplePage.</li>
+	<li>Solved problems with stale pid files in some start scripts.</li>
+	<li>The <span class="filename">address.text</span>
+	(<span class="filename">http.text</span>,
+	<span class="filename">monitor.text</span>) files
+	are now deleted at shutdown. If they already exist at startup, then,
+	if possible, remove; continue startup if they cannot be removed but
+	have the same content anyway; otherwise give a proper error message.</li>
+	<li>Some optimizations in the built-in HTTP server; removed dependency
+	from the deprecated <code>mimetools</code> module.</li>
+	<li>Fixed some problems in the Ajax example and tried to make the code
+	more clear.</li>
+	<li>Improved ListBox example to kindly handle refresh/reload.</li>
+	<li>As a precaution, using <code>os.chdir()</code> while running the
+	ThreadedAppServer now prints an error message. You can set the
+	<code>force</code> parameter to True if you want to do it anyway.</li>
+</ul>
+
+<a name="Bugfixes"></a><h2>Bugfixes</h2>
+<ul>
+	<li>Fixed a typo causing trouble with the
+	<code>AutoReloadingAppServer</code>.</li>
+	<li>Because of another typo in <code>ThreadedAppServer</code>, the
+	<code>activeThreadCount()</code> method always returned zero and the number
+	of threads could not be properly adjusted. (Reported by Oliver Bock)</li>
+	<li>If an exception happened in an included or forwarded servlet, the
+	exception handling happened in the context of the including or forwarding
+	servlet. Particularly, the <code>writeExceptionReport()</code> method of
+	the including or forwarding servlet was called, an not the method of the
+	included or forwarded servlet. (Reported by Oliver Bock)</li>
+	<li>The Request method <code>isSessionExpired()</code> and the Application
+	setting <code>IgnoreInvalidSession</code> did not work any more due to a
+	larger rewrite of the Application module after Webware version 0.8.1. This
+	functionality has been reimplemented. (Reported by Niurka Perez)</li>
+	<li>Building wkcgi on Solaris needs socket and nsl (bug 727052). The
+	makefile does now support a LIBS macro and the proper setting needs only
+	be commented out. See also the note in the README file.</li>
+	<li>Rewritten URLs are now handled correctly by evaluating
+	<code>SCRIPT_URL</code> (bug 902242).</li>
+	<li>Bugfix in <code>setTransaction()</code>.</li>
+	<li>Fixed a bug when Webware is used in a non-persistent environment
+	(OneShotAdapter); don't start the session sweeper in this case
+	(part&nbsp;1 of patch 1520399 by Jean-Francois Pieronne). Also,
+	don't start the session sweeper when no session timeout is set.</li>
+	<li>Some more minor changes and fixes.</li>
+</ul>
+
+<% footer() %>

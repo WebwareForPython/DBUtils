@@ -1,0 +1,62 @@
+The MiddleKit test suite is quite extensive. It's a great way to see if
+MiddleKit is working on your system and it's essential to developing new
+adapters.
+
+To run the test suite, create a file, LocalConfig.py like so:
+
+# LocalConfig.py
+dbName = 'MySQL'
+storeArgs = {'user': 'root', 'passwd': 'blarr'}
+sqlCommand = 'mysql -u root -pblarr'
+sqlVersionCommand = 'mysql --version'
+# end
+
+It can be useful to run one test at a time, especially when developing a
+new adapter:
+> python Test.py MKBasic
+
+Or you can run a few:
+> python Test.py MKBasic MKDateTime MKNone
+
+Run all tests like this:
+> python Test.py
+
+Here is another example config file for a fresh MySQL installation on
+Windows:
+
+# LocalConfig.py
+dbName = 'MySQL'
+storeArgs = {'user': 'root'}
+sqlClient = r'"C:\Program Files\MySQL\MySQL Server 4.1\bin\mysql" '
+  # typical MySQL 3.x: sqlClient = 'C:\\mysql\\bin\\mysql -u root'
+sqlCommand = sqlClient + '-u root'
+sqlVersionCommand = sqlClient + '--version'
+# end
+
+You can see what databases are supported by looking in the MiddleKit/Run
+directory. At the time I write this they are MySQL, PostgreSQL and MSSQL.
+
+Here is a Microsoft SQL Server config using trusted authentication:
+
+# LocalConfig.py
+dbName = 'MSSQL'
+storeArgs = {'dsn': 'LocalServer', 'clear_auto_commit': 0}
+sqlCommand = r'"C:\Program Files\Microsoft SQL Server\80\Tools\Binn\isql" -E'
+sqlVersionCommand = None
+# end
+
+
+
+If you are creating a new test model, here are some additional notes for you:
+
+* You can put a TestEmpty.py in the model that the test suite will execute
+  with a fresh store (one that has no initial data). See the TestEmpty.py
+  files in the existing test models for details.
+
+* You can put a TestSamples.py in the model that the test suite will execute
+  with after the sample values have been loaded into the database. See the
+  TestSamples.py files in the existing test models for details.
+
+* You can have more than one config file for the model which will cause the
+  test suite to run the model tests for each one. Name them to match
+  'Settings*.config'; for example, Settings1.config and Settings2.config.

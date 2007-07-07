@@ -1,0 +1,18 @@
+<% header(name + ' 0.8 Release Notes') %>
+
+<p>Webware for Python 0.8</p>
+
+<a name="Changes"></a><h2>Changes</h2>
+<ul>
+	<li>Added Funcs.normURL() which normalizes a URL cleaning up ".." and "//" occuring within the URL.  This is inspired by os.path.normpath.</li>
+	<li>Improved error reporting on HTMLTag module.</li>
+	<li>Improved security in Funcs htmlForDict to allow custom filtering of values to prevent credit cards and passwords from being returned. (used by WebKit.ExceptionHandler)</li>
+</ul>
+
+<h2>New Features</h2>
+
+<ul>
+	<li>Added WDGValidator.validateHTML to validate the input using Web Design Group's HTML validator available at http://www.htmlhelp.com/tools/validator/  See the validateHTML doc string for more information.</li>
+</ul>
+
+<% footer() %>

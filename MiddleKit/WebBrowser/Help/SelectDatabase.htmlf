@@ -1,0 +1,9 @@
+<p>You must choose a database to connect to including the type of database product, host name, user name and password.</p>
+
+<p>You can enter this information in the form above.</p>
+
+<p>Or, if you have browsed databases from this site before, you can choose one from the recent list.</p>
+
+<p>Or, you may choose a "known database" if the site admin has configured this site.</p>
+
+<p>For both recent and known databases, if a password was saved, clicking on the link immediately takes you to browsing the data. Otherwise, clicking the link fills out the above form afterwhich you must enter a password and click OK.</p>

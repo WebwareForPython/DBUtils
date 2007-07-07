@@ -1,0 +1,80 @@
+<%@ page imports = "sys,os,time"%>
+<%@ page method="writeContent" %>
+<%@ page extends="ExamplePage"%>
+
+<h1 style="text-align:center;font-family:helvetica,sans-serif;color:blue">Hello from PSP!</h1>
+
+<p>This is a sample page for an implementation of Python Server Pages (PSP).</p>
+
+<p>The syntax for Python Server Pages is almost identical to that of Java Server Pages (JSP).
+Just the scripting language is different! And obviously better.
+In fact, just about anything you can do with JSP, you can do with PSP, and more.
+The only thing the current implementation is missing is Beans, and we'll top that shortly.
+In the meantime, with PSP, not only can you create template text that will be inerted
+in one method when the page is run as a servlet, but you can choose which base class to inherit from,
+you can choose which method of the base class to over-ride with your template text,
+and you can add additional methods to the servlet class, all from the PSP template code.</p>
+
+<p>I know, Cool, huh?</p>
+
+<p>The text below comes from another jsp page which was inserted into this one
+with the &lt;%@&nbsp;incude&nbsp;%&gt; directive.</p>
+
+<div style="color:red">
+<%@ include file="../../PSP/Examples/my_include.psp" %>
+</div>
+
+<p>There are two ways to insert the contents of another file into a PSP page:</p>
+
+<ul>
+<li>If you use &lt;%@&nbsp;include&nbsp;file="somefile"&nbsp;%&gt;, it will effectively
+insert the contents of the other file before class creation time.</li>
+<li>Using &lt;psp:include&nbsp;page="somefile"&nbsp;/&gt; will insert the file
+into the page <em>after</em> page creation. In other words, the file won't be parsed for PSP codes.
+It'll just be output as is in the response stream.</li>
+</ul>
+
+<div style="color:blue">
+<%-- This actually works? <psp:include page = "../../PSP/Examples/APSPinclude.html"> --%>
+</div>
+
+<h4>Below is a loop test</h4>
+
+<ul><% for i in range(5): %>
+<li>Loop <%= i %><ul><% for j in range(5): %>
+<li>Counter 1 is <%= i %> and counter 2 is <%= j %></li>
+<% pass %></ul></li>
+<% pass %></ul>
+
+<h4>Operating system information</h4>
+
+<p>This works only under Unix:</p>
+
+<table cellspacing="4" cellpadding="4">
+<% if hasattr(os, 'uname'):
+	info = os.uname()
+else:
+	info = (sys.platform, '(node)', '(release)', '(version)', '(machine)')
+for i in info:
+	res.write('<tr><td style="background-color:#CCCCEE;color:#202080">'
+		+ str(i) + '</td></tr>')
+res.write('<tr><td style="background-color:#9999CC;color:#EEEEFF">'
+	+ req.pathInfo() + '</td></tr>')
+%>
+</table>
+
+<h4>The time is:</h4>
+<%=  time.ctime(time.time())%>
+
+<%-- Comment check --%>
+<!-- Comment Check -->
+
+<h4>Method call:</h4>
+
+<psp:method name="testing" params="val">
+self._response.write('<p>You passed a <strong>%s</strong></p>' % val)
+</psp:method>
+
+<%self.testing('value')%>
+
+<% pass %>

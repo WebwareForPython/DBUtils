@@ -1,0 +1,6 @@
+_README
+Webware/WebKit/Logs/
+
+This directory will contain access and error logs as configured by the ../Config/Application.config settings LogActivity, ActivityLogFilename, LogErrors, and ErrorLogFilename.
+
+See ../Docs/UsersGuide.html and ../Docs/Configuration.html for more information.

@@ -1,0 +1,160 @@
+/*
+	Webware for Python (http://www.webwareforpython.org)
+
+	Common style sheet for Webware's documentation pages
+*/
+
+/* First import default style for pages created with Docutils: */
+
+@import url(DocUtils.css);
+
+/* Customization for Webware goes here: */
+
+body {
+		background-color: #FFFFFF;
+		font-family: Verdana, Arial, Helvetica, sans-serif;
+		font-size: 10pt;
+		padding: 12pt;
+}
+table {
+	empty-cells: show;
+}
+td, th {
+		font-family: Verdana, Arial, Helvetica, sans-serif;
+		font-size: 10pt;
+}
+p {
+	margin-top: 6pt;
+	margin-bottom: 6pt;
+	text-align: justify;
+}
+li {
+	margin-bottom: 6pt;
+}
+h1, h2 {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	color: #002352;
+}
+h3, h4 {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	color: #002352;
+}
+h1 {
+	font-size: 18pt;
+}
+h2 {
+	font-size: 16pt;
+}
+h3 {
+	font-size: 14pt;
+}
+h4 {
+	font-size: 12pt;
+}
+h5 {
+	font-size: 11pt;
+}
+h6 {
+	font-size: 10pt;
+}
+h1.titlebar {
+	padding: 4pt;
+	margin-bottom: 12pt;
+	text-align: center;
+	color: white;
+	background-color: #025;
+}
+h1.header {
+	padding: 4pt;
+	margin-bottom: 12pt;
+	text-align: center;
+	border-bottom: 1pt solid #025;
+	padding-bottom: 8pt;
+}
+div.footer {
+	font-family: Tahoma, Arial, Helvetica, sans-serif;
+	font-size: 9pt;
+	text-align: center;
+	padding: 4pt;
+	margin-top: 16pt;
+	border-top: 1pt solid #025;
+}
+.left {
+	text-align: left;
+}
+.right {
+	text-align: right;
+}
+.center {
+	text-align: center;
+}
+.contents {
+	font-family: Tahoma, Arial, Helvetica, sans-serif;
+}
+.contents ul {
+	list-style: none;
+	margin-bottom: 24pt;
+	padding-left: 0em;
+	margin-left: 2em;
+}
+.contents ul li {
+	font-size: 11pt;
+	margin-bottom: 3pt;
+}
+.contents ul ul {
+	list-style-type: none;
+	margin-top: 2pt;
+	margin-bottom: 2pt;
+	padding-left: 0em;
+	margin-left: 1.5em;
+}
+.contents ul ul li {
+	font-size: 10pt;
+	margin-bottom: 1pt;
+}
+.contents .topic-title {
+	font-size: 16pt;
+}
+span.name {
+	font-weight: bold;
+}
+span.filename {
+	font-family: Tahoma, Arial, Helvetica, sans-serif;
+	font-size: 9pt;
+}
+code, .literal, .literal-block, .pre, .py {
+	font-family: "Andale Mono", "Lucida Console", Monaco, "Courier New", Courier, monospace;
+	font-size: 10pt;
+	color: #052;
+}
+tt.literal, span.pre {
+	background-color: #FFFFFF;
+}
+pre.py, pre.literal-block {
+	margin: 0;
+	padding: 2pt 1pt 1pt 2pt;
+	background-color: #F0F0F8;
+}
+.typed {
+	font-weight: bold;
+}
+.error {
+	color: red;
+}
+.warning {
+	color: brown;
+}
+
+/* Configuration documentation: */
+
+dl.config {
+}
+dt.config {
+}
+dd.config {
+}
+span.setting {
+	font-family: Tahoma, Arial, Helvetica, sans-serif;
+	font-size: 9pt;
+	font-weight: bold;
+}

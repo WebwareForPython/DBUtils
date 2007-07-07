@@ -1,0 +1,86 @@
+
+<html>
+	<title>Error</title>
+	<body fgcolor=black bgcolor=white>
+
+<p> <br> <table border=0 cellpadding=4 cellspacing=0 bgcolor=#A00000> <tr> <td>
+	<font face="Tahoma, Arial, Helvetica" color=white> <b> Error </b> </font>
+</td> </tr> </table>
+<p> The site is having technical difficulties with this page. An error has been logged, and the problem will be fixed as soon as possible. Sorry!
+
+<p> <br> <table border=0 cellpadding=4 cellspacing=0 bgcolor=#A00000> <tr> <td>
+	<font face="Tahoma, Arial, Helvetica" color=white> <b> Traceback </b> </font>
+</td> </tr> </table>
+<p> <i>/home/httpd/html/Error</i>
+<table bgcolor=#F0F0F0 width=100% cellpadding=4><tr><td>
+<pre><font color=#000000>Traceback (innermost last):
+<font color=#0000AA>  File "Application.py", line 192, in dispatchRequest</font>
+<font color=#FF0000>    self.respond(transaction)</font>
+<font color=#0000AA>  File "Application.py", line 219, in respond</font>
+<font color=#FF0000>    transaction.servlet().respond(transaction)</font>
+<font color=#0000AA>  File "HTTPServlet.py", line 38, in respond</font>
+<font color=#FF0000>    method(trans)</font>
+<font color=#0000AA>  File "Page.py", line 34, in respondToGet</font>
+<font color=#FF0000>    self.writeHTML(transaction)</font>
+<font color=#0000AA>  File "Page.py", line 80, in writeHTML</font>
+<font color=#FF0000>    self.writeBody()</font>
+<font color=#0000AA>  File "/home/echuck/Projects/Webware/WebKit/Examples/Error.py", line 8, in writeBody</font>
+<font color=#FF0000>    import UnknownModule</font>
+ImportError: No module named UnknownModule</font></pre></td></tr></table>
+
+<p> <br> <table border=0 cellpadding=4 cellspacing=0 bgcolor=#A00000> <tr> <td>
+	<font face="Tahoma, Arial, Helvetica" color=white> <b> Misc Info </b> </font>
+</td> </tr> </table><table width=100% border=0 cellpadding=2 cellspacing=2 bgcolor=#F0F0F0><tr> <td> filename </td> <td> /home/httpd/html/Error &nbsp;</td> </tr>
+<tr> <td> os.getcwd() </td> <td> /home/echuck/Projects/Webware/WebKit &nbsp;</td> </tr>
+<tr> <td> sys.path </td> <td> ['/home/echuck/Projects/Webware/WebKit/Examples', '/home/echuck/Projects/Webware/WebKit', '', '/usr/lib/python1.5/', '/usr/lib/python1.5/plat-linux-i386', '/usr/lib/python1.5/lib-tk', '/usr/lib/python1.5/lib-dynload', '/usr/lib/python1.5/site-packages', '..'] &nbsp;</td> </tr>
+<tr> <td> time </td> <td> Thu May 11 18:21:09 2000 &nbsp;</td> </tr>
+</table>
+<p> <br> <table border=0 cellpadding=4 cellspacing=0 bgcolor=#A00000> <tr> <td>
+	<font face="Tahoma, Arial, Helvetica" color=white> <b> Fields </b> </font>
+</td> </tr> </table><table width=100% border=0 cellpadding=2 cellspacing=2 bgcolor=#F0F0F0></table>
+<p> <br> <table border=0 cellpadding=4 cellspacing=0 bgcolor=#A00000> <tr> <td>
+	<font face="Tahoma, Arial, Helvetica" color=white> <b> Headers </b> </font>
+</td> </tr> </table><table width=100% border=0 cellpadding=2 cellspacing=2 bgcolor=#F0F0F0><tr> <td> Content-type </td> <td> text/html &nbsp;</td> </tr>
+</table>
+<p> <br> <table border=0 cellpadding=4 cellspacing=0 bgcolor=#A00000> <tr> <td>
+	<font face="Tahoma, Arial, Helvetica" color=white> <b> Environment </b> </font>
+</td> </tr> </table><table width=100% border=0 cellpadding=2 cellspacing=2 bgcolor=#F0F0F0><tr> <td> DOCUMENT_ROOT </td> <td> /home/httpd/html &nbsp;</td> </tr>
+<tr> <td> GATEWAY_INTERFACE </td> <td> CGI/1.1 &nbsp;</td> </tr>
+<tr> <td> HTTP_ACCEPT </td> <td> image/gif, image/x-xbitmap, image/jpeg, image/pjpeg, image/png, */* &nbsp;</td> </tr>
+<tr> <td> HTTP_ACCEPT_CHARSET </td> <td> iso-8859-1,*,utf-8 &nbsp;</td> </tr>
+<tr> <td> HTTP_ACCEPT_ENCODING </td> <td> gzip &nbsp;</td> </tr>
+<tr> <td> HTTP_ACCEPT_LANGUAGE </td> <td> en &nbsp;</td> </tr>
+<tr> <td> HTTP_CONNECTION </td> <td> Keep-Alive &nbsp;</td> </tr>
+<tr> <td> HTTP_COOKIE </td> <td> _SID_=2000051118190929650 &nbsp;</td> </tr>
+<tr> <td> HTTP_HOST </td> <td> localhost.localdomain &nbsp;</td> </tr>
+<tr> <td> HTTP_REFERER </td> <td> http://localhost.localdomain/~echuck/Projects/Webware/WebKit/WebKit.cgi/Hello &nbsp;</td> </tr>
+<tr> <td> HTTP_USER_AGENT </td> <td> Mozilla/4.7 [en] (X11; I; Linux 2.2.14-15mdk i686) &nbsp;</td> </tr>
+<tr> <td> PATH </td> <td> /usr/local/bin:/usr/bin:/bin &nbsp;</td> </tr>
+<tr> <td> PATH_INFO </td> <td> /Error &nbsp;</td> </tr>
+<tr> <td> PATH_TRANSLATED </td> <td> /home/httpd/html/Error &nbsp;</td> </tr>
+<tr> <td> QUERY_STRING </td> <td>  &nbsp;</td> </tr>
+<tr> <td> REMOTE_ADDR </td> <td> 127.0.0.1 &nbsp;</td> </tr>
+<tr> <td> REMOTE_PORT </td> <td> 1577 &nbsp;</td> </tr>
+<tr> <td> REQUEST_METHOD </td> <td> GET &nbsp;</td> </tr>
+<tr> <td> REQUEST_URI </td> <td> /~echuck/Projects/Webware/WebKit/WebKit.cgi/Error &nbsp;</td> </tr>
+<tr> <td> SCRIPT_FILENAME </td> <td> /home/echuck/public_html/Projects/Webware/WebKit/WebKit.cgi &nbsp;</td> </tr>
+<tr> <td> SCRIPT_NAME </td> <td> /~echuck/Projects/Webware/WebKit/WebKit.cgi &nbsp;</td> </tr>
+<tr> <td> SERVER_ADDR </td> <td> 127.0.0.1 &nbsp;</td> </tr>
+<tr> <td> SERVER_ADMIN </td> <td> root@localhost &nbsp;</td> </tr>
+<tr> <td> SERVER_NAME </td> <td> localhost.localdomain &nbsp;</td> </tr>
+<tr> <td> SERVER_PORT </td> <td> 80 &nbsp;</td> </tr>
+<tr> <td> SERVER_PROTOCOL </td> <td> HTTP/1.0 &nbsp;</td> </tr>
+<tr> <td> SERVER_SOFTWARE </td> <td> Apache/1.3.9  (NetRevolution Advanced Extranet Server/Linux-Mandrake) PHP/3.0.13 mod_perl/1.21 mod_fastcgi/2.2.4 &nbsp;</td> </tr>
+</table>
+<p> <br> <table border=0 cellpadding=4 cellspacing=0 bgcolor=#A00000> <tr> <td>
+	<font face="Tahoma, Arial, Helvetica" color=white> <b> Ids </b> </font>
+</td> </tr> </table><table border=0 cellpadding=2 cellspacing=2 bgcolor=#F0F0F0>
+<tr><td><b>name</b></td><td><b>value</b></td></tr>
+<tr><td>egid</td><td>503</td></tr>
+<tr><td>euid</td><td>501</td></tr>
+<tr><td>gid</td><td>503</td></tr>
+<tr><td>pgrp</td><td>2712</td></tr>
+<tr><td>pid</td><td>2732</td></tr>
+<tr><td>ppid</td><td>2714</td></tr>
+<tr><td>uid</td><td>501</td></tr>
+</table></body></html>

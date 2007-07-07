@@ -1,0 +1,13 @@
+Class,Attribute,Type,isRequired
+Foo,,,
+,x,int,0
+,bar,Bar,0
+
+Bar,,,
+,foo,Foo,0
+
+BarReq,,,
+,foo,Foo,1
+
+Qux(Foo),,,
+,y,int,0

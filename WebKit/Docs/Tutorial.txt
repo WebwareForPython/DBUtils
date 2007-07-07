@@ -1,0 +1,364 @@
+Beginner Tutorial
+++++++++++++++++++
+
+Webware for Python
+
+:Version: X.Y
+:Released: @@/@@/@@
+
+.. contents:: Contents
+
+Synopsis
+========
+
+We present a tutorial on making a Webware script, and some guidance on turning
+that into a web application.
+
+Installation
+============
+
+This document does not cover the basic installation. See the `Install Guide`__
+-- you should be able to open up the WebKit Examples context in you browser
+before you continue. For the beginning, you can use the built-in HTTP server,
+but in a production environment you should use a real web server like Apache.
+
+__ InstallGuide.html
+
+Setting Up Your Environment
+===========================
+
+Creating a Working Directory
+----------------------------
+
+We'll first set up a directory dedicated to your application. Run this command::
+
+    $ cd ~
+    $ python /path/to/Webware/bin/MakeAppWorkDir.py -c Context -l Lib \
+        --cvsignore WebwareTest
+
+You'll now have a directory WebwareTest in your home directory (or of course
+you can put it in some other location). Inside this directory will be several
+subdirectories and a couple files. The only file we'll worry about is
+``AppServer`` (or ``AppServer.bat`` if you're on Windows). The directories of
+interest are ``Context`` (that you specified with ``-C context``) where you'll
+be putting your servlets; ``Configs`` that holds some configuration files;
+and ``Lib`` where you can put your non-servlet code.
+
+For more information about the working directory and setting up the file
+structure for your application, see `Application Development`__.
+
+__ ApplicationDevelopment.html
+
+Changing Webware Configuration
+------------------------------
+
+For the most part the configuration is fine, but we'll make a couple changes to
+make it easier to develop. For more information on configuration see the
+`Configuration Guide`__.
+
+__ Configuration.html
+
+In the file ``AppServer.config``, change this line::
+
+    # Original (default setting):
+        AutoReload = False
+    # To:
+        AutoReload = True
+
+This will cause the AppServer to restart if any loaded files are changed --
+without this you may edit a file and your application won't see the updated
+version until you manually restart the AppServer.
+
+The other change you may want to make to allow you to use more interesting URLs.
+In Application.config::
+
+    # Original (default setting):
+        ExtraPathInfo = False
+    # To:
+        ExtraPathInfo = True
+
+Otherwise the settings should be appropriate for development.
+(There are several setting you would want to change before deploying the
+application in a production environment).
+
+Creating and Understanding the Servlet
+======================================
+
+Webware's core concept for serving pages is the *servlet*. This is a class that
+creates a response given a request.
+
+The core classes to understanding the servlet are ``Servlet``, ``HTTPServlet``,
+and ``Page``. Also of interest would be the request (``Request`` and
+``HTTPRequest``) and the response (``Response`` and ``HTTPResponse``)
+-- the ``HTTP-`` versions of these classes are more interesting.
+There is also a ``Transaction`` object, which is solely a container for the
+request and response.
+
+While there are several levels you can work on while creating your servlet,
+in this tutorial we will work solely with subclassing the ``Page`` class.
+This class defines a more high-level interface, appropriate for generating HTML
+(though it can be used with any content type). It also provides a number of
+convenience methods.
+
+A Brief Introduction to the Servlet
+===================================
+
+Each servlet is a plain Python class. There is no Webware magic (except perhaps
+for the level one *import module based on URL* spell). PSP__ has more magic,
+but that's a topic for another day.
+
+__ ../../PSP/Docs/index.html
+
+An extremely simple servlet might look like::
+
+    from WebKit.Page import Page
+
+    class MyServlet(Page):
+
+        def title(self):
+            return 'My Sample Servlet'
+
+        def writeContent(self):
+            self.write('Hello world!')
+
+This would be placed in ``MyServlet.py``.
+Webware will create a pool of ``MyServlet`` instances, which will be reused.
+Servlets "write" the text of the response (like ``self.write("some text")``).
+Webware calls the servlet like this:
+
+* An unused servlet is taken from the pool, or another servlet is created.
+* ``awake(transaction)`` is called. This is a good place to set up data for
+  your servlet. You can put information in instance variables for use later
+  on. But be warned -- those instance variables will hang around potentially
+  for a long time if you don't delete them later (in ``sleep``).
+* Several low-level methods are called, which Page isolates you from. We will
+  ignore these.
+* ``writeHTML()`` is called. ``Page`` implements this just fine, but you can
+  override it if you want total control, or if you want to output something
+  other than HTML.
+* ``writeDocType()`` would write something like
+  ``<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">``
+* The <head> section of the page is written. ``title()`` gives the title, and
+  you probably want to override it.
+* ``writeStyleSheet()`` is called, if you want to write that or anything else
+  in the <head> section.
+* The <body> tag is written. Have ``htBodyArgs()`` return anything you want in
+  the <body> tag (like ``onLoad="loadImages()"``).
+* ``writeBodyParts()`` is called, which you may want to override if you want
+  to create a template for other servlets.
+* ``writeContent()`` should write the main content for the page. This is where
+  you do most of your display work.
+* The response is packaged up, the headers put on the front, cookies handled,
+  and it's sent to the browser. This is all done for you.
+* ``sleep(transaction)`` is called. This is where you should clean up anything
+  you might have set up earlier -- open files, open database connections, etc.
+  Often it's empty. Note that ``sleep()`` is called even if an exception was
+  raised at any point in the servlet processing, so it should (if necessary)
+  check that each resource was in fact acquired before trying to release it.
+* The servlet is placed back into the pool, to be used again. This only happens
+  after the transaction is complete -- the servlet won't get reused any earlier.
+
+You only have to override the portions that you want to. It is not uncommon to
+only override the ``writeContent()`` method in a servlet, for instance.
+
+You'll notice a file ``context/Main.py`` in your working directory. You can look
+at it to get a feel for what a servlet might look like. (As an aside, a servlet
+called ``Main`` or ``index`` will be used analogous to the ``index.html`` file).
+You can look at it for a place to start experimenting, but here we'll work on
+developing an entire (small) application, introducing the other concepts as we
+go along.
+
+A Photo Album
+=============
+
+If you look online, you'll see a huge number of web applications available for
+an online photo album. The world needs one more!
+
+You will need the `Python Imaging Library`__ (PIL) installed for this example.
+First we'll use it to find the sizes of the images, and later we will use it to
+create thumbnails.
+
+__ http://www.pythonware.com/products/pil/
+
+We'll develop the application in two iterations.
+
+Iteration 1: Displaying Files
+-----------------------------
+
+For simplicity, we will store image files in a subdirectory ``Pics`` of the
+default context directory ``WebwareTest/Context`` and let the AppServer deliver
+the files. In a production environment, you would place the ``Pics`` directory
+outside of the context and let the web server deliver the files directly.
+
+For the first iteration, we'll display files that you upload by hand to
+the ``Pics`` directory.
+
+We do this with two servlets -- one servlet ``Main.py`` to show the entire
+album, and another ``View.py`` for individual pictures. Place these two servlets
+in the default context directory. First, ``Main.py``::
+
+    from WebKit.Page import Page # the base class for web pages
+    import os
+    import Image # the Python Imaging Library
+    from urllib import quote as urlEncode
+    dir = os.path.join(os.path.dirname(__file__), 'Pics')
+
+    class Main(Page):
+
+        def title(self):
+            # It's nice to give a real title, otherwise "Main" would be used.
+            return 'Photo Album'
+
+        def writeContent(self):
+            # We'll format these simpy, one thumbnail per line:
+            for filename in os.listdir(dir):
+                im = Image.open(os.path.join(dir, filename))
+                x, y = im.size
+                # Here we figure out the scaled-down size of the image,
+                # so that we preserve the aspect ratio. We'll use fake
+                # thumbnails, where the image is scaled down by the browser.
+                x, y = x * 100 / y, 100
+                # Note that we are just using % substitution to generate
+                # the HTML. There's other ways, but this works well enough.
+                # We're linking to the View servlet which we'll show later.
+                # Notice we use urlEncode -- otherwise we'll encounter bugs if
+                # there's a file with an embedded space or other character in it.
+                url = urlEncode(filename)
+                self.writeln('<p><a href="View?filename=%s">'
+                    '<img src="Pics/%s" width="%i" height="%i"></a></p>'
+                    % (url, url, x, y))
+
+The servlet ``View`` takes one URL parameter of ``filename``. You can get
+the value of a URL parameter like ``self.request().field('filename')`` or,
+if you want a default value, you can use ``self.request().field('filename',
+defaultValue)``. In the likely case you don't want to write ``self.request()``
+before retrieving each value, do::
+
+    req = self.request()
+    self.write(req.field('username'))
+
+    # Even more compactly:
+    field = self.request().field
+    self.write(field('username'))
+
+So here is our complete ``View`` servlet::
+
+    from WebKit.Page import Page
+    import os
+    import Image
+    from urllib import quote as urlEncode
+    dir = os.path.join(os.path.dirname(__file__), 'Pics')
+
+    class View(Page):
+
+        def title(self):
+            return 'View: %s' \
+                   % self.htmlEncode(self.request().field('filename'))
+
+        def writeContent(self):
+            filename = self.request().field('filename')
+            im = Image.open(os.path.join(dir, filename))
+            self.writeln('<div style="text-align:center">')
+            self.writeln('<h4>%s</h4>' % filename)
+            self.writeln('<img src="Pics/%s" width="%i" height="%i">'
+                       % (self.urlEncode(filename), im.size[0], im.size[1]))
+            self.writeln('<p><a href="Main">Return to Index</a></p>')
+            self.writeln('</div>')
+
+Iteration 2: Uploading Files
+----------------------------
+
+That was fairly simple -- but usually you want to upload files, potentially
+through a web interface. Along the way we'll add thumbnail generation using
+PIL, and slighly improve the image index.
+
+We'll generate thumbnails kind of on demand, so you can still upload files
+manually -- thumbnails will be put in the directory ``Thumbs`` and have ``-tn``
+appended to the name just to avoid confusion::
+
+    from WebKit.Page import Page # the base page class
+    import os
+    import Image # the Python Imaging Library
+    from urllib import quote as urlEncode
+    baseDir = os.path.dirname(__file__)
+    picsDir = os.path.join(baseDir, 'Pics')
+    thumbsDir = os.path.join(baseDir, 'Thumbs')
+
+    class Main(Page):
+
+        def title(self):
+            return 'Photo Album'
+
+        def writeContent(self):
+            # The heading:
+            self.writeln('<h1 style="text-align:center">%s</h1>' % self.title())
+            # We'll format these in a table, two columns wide
+            self.writeln('<table width="100%">')
+            col = 0 # will be 0 for the left and 1 for the right column
+            filenames = os.listdir(picsDir)
+            # We'll sort the files, case-insensitive
+            filenames.sort(lambda a, b: cmp(a.lower(), b.lower()))
+            for filename in filenames:
+                if not col: # left column
+                    self.write('<tr style="text-align:center">')
+                thumbFilename = os.path.splitext(filename)
+                thumbFilename = '%s-tn%s' % thumbFilename
+                if not os.path.exists(os.path.join(thumbsDir, thumbFilename)):
+                    # No thumbnail exists -- we have to generate one
+                    if not os.path.exists(thumbsDir):
+                        # Not even the Thumbs directory exists -- make it
+                        os.mkdir(thumbsDir)
+                    im = Image.open(os.path.join(picsDir, filename))
+                    im.thumbnail((250, 100))
+                    im.save(os.path.join(thumbsDir, thumbFilename))
+                else:
+                    im = Image.open(os.path.join(thumbsDir, thumbFilename))
+                url = urlEncode(filename)
+                self.writeln('<td><p><a href="View?filename=%s">'
+                    '<img src="Pics/%s" width="%i" height="%i"></a></p>'
+                    '<p>Filename: %s<br>Size: %i Bytes</p>'
+                    % (url, url, im.size[0], im.size[1], filename,
+                    os.stat(os.path.join(picsDir, filename)).st_size))
+                if col: # right column
+                    self.writeln('</tr>')
+                col = not col
+            self.write('</table>')
+            self.write('<p style="text-align:center">'
+                '<a href="Upload">Upload an image</a></p>')
+
+The ``View`` servlet we'll leave just like it was.
+
+We'll add an ``Upload`` servlet. Notice we use ``enctype="multipart/form-data"``
+in the ``<form>`` tag -- this is an HTMLism for file uploading (otherwise
+you'll just get the filename and not the file contents). Finally, when the form
+is finished and we have uploaded the image, we redirect them to the viewing
+page by using ``self.response().sendRedirect(url)``::
+
+    from WebKit.Page import Page
+    import os
+    from urllib import quote as urlEncode
+    dir = os.path.join(os.path.dirname(__file__), 'Pics')
+
+    class Upload(Page):
+
+        def writeContent(self):
+            if self.request().hasField('imageFile'):
+                self.doUpload()
+                return
+
+            self.writeln('''
+            <h3>Upload your image:</h3>
+            <form action="Upload" method="post" enctype="multipart/form-data">
+            <input type="file" name="imageFile">
+            <input type="submit" value="Upload">
+            </form>''')
+
+        def doUpload(self):
+            file = self.request().field('imageFile')
+            # Because it's a file upload, we don't get a string back.
+            # So to get the value we do this:
+            filename, contents = file.filename, file.value
+            open(os.path.join(dir, filename), 'wb').write(contents)
+            url = 'View?filename=' + urlEncode(filename)
+            self.response().sendRedirect(url)

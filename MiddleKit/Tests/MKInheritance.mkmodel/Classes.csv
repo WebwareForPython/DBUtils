@@ -1,0 +1,8 @@
+Class,Attribute,Type,Default,Min,Max,Extras
+One,,,,,,
+,a,string,,,8,
+,b,string,,,9,
+,e,enum,,,,"Enums='a, b'"
+Two(One),,,,,,
+,c,string,,,10,
+,d,string,,,11,

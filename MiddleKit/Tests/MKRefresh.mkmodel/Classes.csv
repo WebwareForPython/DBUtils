@@ -1,0 +1,4 @@
+Class,Attribute,Type,Default,Min,Max
+Book,,,,,
+,title,string,,0,100
+,publisher,string,,0,100

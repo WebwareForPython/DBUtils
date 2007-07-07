@@ -1,0 +1,16 @@
+<% header(name + ' 0.9.2 Release Notes') %>
+
+<p><% name %> version 0.9.2 released on 09/18/06</p>
+
+<a name="Improvements"></a><h2>Improvements and Refinements</h2>
+<ul>
+	<li><code>urlDecode()</code> and <code>urlEncode()</code> in
+	<code>WebUtils.Funcs</code> now use the same implementation as
+	<code>quote_plus()</code> and <code>unquote_plus()</code> in
+	<code>urllib</code> of Python 2.4, which is faster than in older
+	Python and Webware versions. This also means that <code>urlDecode()</code>
+	now silently ignores erroneous encoding (as had been suggested
+	by Ben Parker), including codes with only one digit.</li>
+</ul>
+
+<% footer() %>

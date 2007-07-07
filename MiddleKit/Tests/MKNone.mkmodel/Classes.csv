@@ -1,0 +1,6 @@
+Class,Attribute,Type,isRequired,Default,Min,Max
+Foo,,,,,,
+,ri,int,1,,,
+,ni,int,0,,,
+,rs,string,1,,,255
+,ns,string,0,,,255

@@ -1,0 +1,39 @@
+<%@ page imports = "sys,os,time,PSP.Examples.PSPExamplePage:PSPExamplePage"%><%-- Here's the modules that I need in this file. --%>
+<%@ page method="writeContent" %> <%-- This is the method of the base class that I want to override, writeHTML is the default --%>
+<%@ page extends="PSPExamplePage"%> <%--This is the base class for this page.  Page is the default --%>
+<%@ page indentType="braces" %>
+<%--
+<%@ page method="writeBody" %>
+--%>
+
+<psp:method name="title" params="">
+return "Braces Test"
+</psp:method>
+
+<h4 align="center" style="color:navy">Python Server Pages</h4>
+
+<h2 align="center">Braces Test</h2>
+
+<p>Dave Wallace (dwallace@delanet.com) has written a module that will convert Python code that uses braces for indentation into properly whitespace indented python syntax. This is pretty nifty, and very useful for PSP.</p>
+
+<p>The whitespace significance in Python syntax is difficult in PSP because HTML is the exact opposite. Whitespace doesn't matter, and neither do carriage-returns or anything else. So that makes the melding of Python and HTML a challenge.</p>
+
+<p>So this is one solution.</p>
+
+<p>Take out all of the whitespace significance, and just use <strong>braces</strong>.</p>
+
+<p>This module allows you to use braces where you would normally be hitting <tt>&lt;return&gt;&lt;tab&gt;</tt>. You can put the opening brace (<tt style="background-color:#f0f0f8">{</tt>) on the line befoe the block starts, or on the first line of the block.  Same kind of deal for the closing brace (<tt style="background-color:#f0f0f8">}</tt>). You still need to have the colon (<tt style="background-color:#f0f0f8">:</tt>) on the line right before the block starts. That's just part of Python.</p>
+
+<p>To enable this funtionality in PSP, you have to set braces as the indent type for your page. So you add this directive to your PSP page:<br>
+
+<blockquote><tt style="background-color:#f0f0f8">&lt;%@ page indentType="braces" %&gt;</tt></blockquote>
+
+<p>This is a little test of the functionality:</p>
+
+<ul><% for i in range(5): { %>
+<li>I'm number <%=i+1%></li>
+<% } %></ul>
+
+<p>Click on &quot;View source&quot; over on the left to see the source for this page.</p>
+
+<p>See also the <a href="PSPDocs.psp#Braces">PSP documentation on braces</a>.</p>

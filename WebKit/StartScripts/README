@@ -1,0 +1,24 @@
+WebKit app server start scripts for various flavors of Unix
+-----------------------------------------------------------
+
+This folder contains a generic start script for the WebKit application server
+that will run with most Unix versions, and some start scripts supporting
+various flavors of Unix and their features and peculiarities specifically.
+Note that these scripts also serve as kill scripts for stopping the app server.
+
+Windows user should use the AppServerService script instead.
+
+Refer to the documentation of your Unix version for instructions how to install
+such start scripts on your system. For instance, on SuSE Linux, you would copy
+the start script to /etc/init.d and enable it with the insserv command. Other
+Unix systems may use a different folder for start scripts or you will have to
+set symbolic links manually to enable the script.
+
+You may chose the start script of the Unix flavor that is most similar to your
+Unix system or use the generic script. The Webware install script will try to
+copy an appropriate script under the name "webkit" to the Webware/WebKit folder.
+
+If instead of copying the script, you will only make a symbolic link from the
+system folder for start scripts to the script in the WebKit working directory,
+the start script will take the location of the working directory and other
+configuration parameters from the link, so you don't have to set these manually.

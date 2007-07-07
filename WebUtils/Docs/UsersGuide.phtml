@@ -1,0 +1,87 @@
+<% header(name + " User's Guide") %>
+
+<p class="right"><% name %> version <% versionString %></p>
+
+
+<h2>Synopsis</h2>
+
+<p>The WebUtils package are a basic set of modules for common web related programming tasks such as encoding/decoding HTML, dealing with Cookies, etc.</p>
+
+
+<h2>Description</h2>
+
+
+<h3>Cookie</h3>
+
+<p>The Cookie module is <b>not</b> a Webware "original". This module is provided to the Python community by Timothy O'Malley via GTE Internetworking. It is included with Webware for your convenience and to provide Cookie functionality in frameworks such as the WebKit.</p>
+
+<p>The Cookie module contains an excellent doc string including contact information, descriptions and examples. Therefore, please see the top of the <a href="Source/Files/Cookie.html">source</a> or the
+<a href="Source/Docs/WebUtils.Cookie.html">generated documentation</a>.</p>
+
+
+<h3>HTMLForException</h3>
+
+<p>This module defines a function by the same name:</p>
+
+<p><code>def HTMLForException(excInfo=None, options=None)</code></p>
+
+<p>	HTMLForException returns an HTML string that presents useful information to the developer about the exception. The first argument is a tuple such as returned by sys.exc_info() which is in fact, invoked if the tuple isn't provided. The options parameter can be a dictionary to override the color options in HTMLForExceptionOptions which is currently defined as:</p>
+
+<pre class="py">
+HTMLForExceptionOptions = {
+    'table.bgcolor':        '#F0F0F0',
+    'default.fgcolor':      '#000000',
+    'row.location.fgcolor': '#006600',
+    'row.code.fgcolor':     '#FF0000'
+}
+</pre>
+
+<p>A sample HTML exception string looks like this:</p>
+
+<table bgcolor="#F0F0F0" width="100%" cellpadding="4"><tr><td>
+<pre><font color="#000000">Traceback (innermost last):
+<font color="#006600">  File "Application.py", line 90, in dispatchRequest</font>
+<font color="#FF0000">    self.respond(context, response)</font>
+<font color="#006600">  File "Application.py", line 112, in respond</font>
+<font color="#FF0000">    ctx.component().respond(ctx, response)</font>
+<font color="#006600">  File "HTTPComponent.py", line 30, in respond</font>
+<font color="#FF0000">    method(ctx, response)</font>
+<font color="#006600">  File "/home/echuck/Projects/Webware/WebKit/Examples/Introspect.py", line 9, in respondToGet</font>
+<font color="#FF0000">    self.write('&lt;table %s&gt;' % tableOptions)</font>
+NameError: tableOptions</font></pre>
+</td></tr></table>
+
+
+<h3>HTTPStatusCodes</h3>
+
+<p>This module provides a list of well known HTTP status codes in list form and in a dictionary that can be keyed by code number or identifier.</p>
+
+<p>You can index the HTTPStatusCodes dictionary by code number such as <code>200</code>, or identifier such as <code>OK</code>. The dictionary returned has keys <code>'code'</code>, <code>'identifier'</code> and <code>'htmlMsg'</code>. An <code>'asciiMsg'</code> key is provided, however, the HTML tags are not yet actually stripped out.</p>
+
+<p>The <code>HTMLTableOfHTTPStatusCodes()</code> functions returns a string which is exactly that: a table containing the <code>HTTPStatusCodes</code> defined by the module. You can affect the formatting of the table by specifying values for the arguments. It's highly recommended that you use <code>key=value</code> arguments since the number and order could easily change in future versions. The definition is:</p>
+
+<pre class="py">def HTMLTableOfHTTPStatusCodes(codes=HTTPStatusCodeList,
+    tableArgs='align=center border=2',
+    rowArgs='valign=top', colArgs='', headingTag='th', headingArgs='')</pre>
+
+<p>If you run the script, it will invoke <code>HTMLTableOfHTTPStatusCodes()</code> and print its contents with some minimal HTML wrapping. You could do this:</p>
+
+<pre class="py">&gt; cd Webware/Projects/WebUtils
+<br>&gt; python HTTPStatusCodes.py > HTTPStatusCodes.html</pre>
+
+<p>And then open the HTML file in your favorite browser.</p>
+
+
+<h3>Funcs</h3>
+
+<p>See the <a href="Source/Files/Funcs.html">source</a> or the
+<a href="Source/Docs/WebUtils.Funcs.html">generated documentation</a>.</p>
+
+
+<h2>Credit</h2>
+
+<p>Author: Chuck Esterbrook.</p>
+
+<p>In <span class="filename">Funcs.py</span>, some tips were taken from the Python library source.</p>
+
+<% footer() %>

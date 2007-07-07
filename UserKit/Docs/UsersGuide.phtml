@@ -1,0 +1,69 @@
+<% header(name + " User's Guide") %>
+
+<p class="right"><% name %> version <% versionString %></p>
+
+
+<a name="Synopsis"></a><h2>Synopsis</h2>
+
+<p>UserKit provides for the management of users including passwords, user data, server-side archiving and caching.
+Users can be persisted on the server side via files or <a href="../../MiddleKit/Docs/index.html">MiddleKit</a>.</p>
+
+
+<a name="Feedback"></a><h2>Feedback</h2>
+
+<p>You can e-mail <a href="mailto:webware-discuss@lists.sourceforge.net">webware-discuss@lists.sourceforge.net</a>
+to give feedback, discuss features and get help using UserKit.</p>
+
+
+<a name="Introduction"></a><h2>Introduction</h2>
+
+<p>UserKit is a self contained library and is generally not dependent on the rest of Webware.
+It does use a few functions in MiscUtils. The objects of interest in UserKit are Users, UserMangers, and Roles.</p>
+
+<p><strong>User</strong> &ndash; This represents a particular user and has a name, password,
+and various flags like <span class="py">isActive()</span>.</p>
+
+<p><strong>UserManager</strong> &ndash; Your application will create one instance of a UserManager
+and use to create and retrieve Users by name. The UserManager comes in several flavors depending on support for Roles,
+and where user data is stored. For storage, UserManagers can save the user records to either a flat file or a MiddleKit store.
+Also user managers may support Roles or not. If you don't need any roles and want the simplest UserManager,
+choose the UserManagerToFile which saves it's data to a file. If you want hierarchical roles and persistence to MiddleKit,
+choose RoleUserManagerToMiddleKit.</p>
+
+<p><strong>Roles</strong> &ndash; A role represents a permission that users may be granted.
+A user may belong to several roles, and this is queried using the method <span class="py">user.playsRole( theRole )</span>.
+Roles can be hierarchical. For example a customers role may indicate permissions that customers have.
+A staff role may include the customers role, meaning that members of staff may also do anything that customers can do.</p>
+
+<a name="ExamplesAndDetails"></a><h3>Examples and More Details </h3>
+
+<p>The doc comments in UserManager.py is the first place to start. It describes all the methods in UserManager.
+Then go to the file Tests/ExampleTests.py which demonstrates how to create users, log them in,
+and see if they are members of a particular role.</p>
+
+<p>Once you get the idea, the doc comments in the various files may be perused for more details.</p>
+
+<a name="PasswordEncryption"></a><h3>Encryption of Passwords</h3>
+
+<p>Generally one should never save users' passwords anywhere in plain text.
+However UserKit intentionally does no encryption of passwords. That is left to how you use UserKit in your application.
+See ExampleTests.py, for a demonstration of how easy this is using SHA digests to encrypt passwords.
+Basically you encrypt your password before you give it to UserKit. It is as simle as this:</p>
+
+<pre class="py">usermanager.createUser( 'johndoe', sha('buster').hexdigest() )</pre>
+
+<p>This design decision is to decouple UserKit from your particular  encryption requirements,
+and allows you to use more advanced algorithms as they become available.</p>
+
+
+<a name="KnownBugs"></a><h2>Known Bugs</h2>
+
+<p>Known bugs and future work in general, are documented in <a href="TODO.text">TO DO</a>.</p>
+
+
+<a name="Credit"></a><h2>Credit</h2>
+
+<p>Author: Chuck Esterbrook, and a cast of dozens of volunteers.</p>
+<p>Thanks to Tom Schwaller for design help.</p>
+
+<% footer() %>

@@ -1,0 +1,6 @@
+_README
+Webware/WebKit/Cache/
+
+This directory will contain a directory for each plug-in that WebKit loads. You can choose a different location for this directory by changing the cacheDir setting in ../Config/Application.config.
+
+See ../Docs/UsersGuide.html, ../Docs/Configuration.html and the respective plug-in docs for more information.

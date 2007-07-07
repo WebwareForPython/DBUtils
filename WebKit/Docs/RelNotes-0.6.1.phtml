@@ -1,0 +1,36 @@
+<% header(name + ' 0.6.1 Release Notes') %>
+
+<p>Webware for Python 0.6.1</p>
+
+<a name="Introduction"></a><h2>Introduction</h2>
+<ul>
+	<li>Version 0.6.1b1 was released on 12/9/2001.</li>
+</ul>
+
+<a name="BugFixes"></a><h2>Bug fixes</h2>
+<ul>
+	<li>Fixed concurrency issues in Dynamic session store.</li>
+	<li><p>The webkit unix init script...</p>
+	<ul>
+			<li>now works with args "stop" and "restart"</li>
+			<li>works on non-RedHat systems</li>
+			<li>removes the "pid file" upon shutdown</li>
+	</ul></li>
+	<li>Fixed Session.sessionEncode() so that it produces the proper query string.</li>
+	<li>Fixed some methods of HTTPRequest so they work properly with IIS.</li>
+	<li>Fixed hanging and crashing problems in wkcgi.exe.</li>
+	<li><p>Added new Application.config settings (see User's Guide for details):</p>
+	<ul>
+		<li>ExtensionsToServe</li>
+		<li>UseCascadingExtensions</li>
+		<li>ExtensionCascadeOrder</li>
+		<li>FilesToHide</li>
+		<li>FilesToServe</li>
+	</ul></li>
+	<li>Added callMethodOfServlet() to Application.</li>
+	<li>Added convenience methods forward(), includeURL(), and callMethodOfServlet() to Page.
+	These are equivalent to the methods in Application of the same name, except that they don't take the transaction as the first argument.</li>
+	<li>Added Application.addShutDownHandler(func) which you can use to register a function that should be called on shutdown.</li>
+</ul>
+
+<% footer() %>

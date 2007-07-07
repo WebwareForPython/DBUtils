@@ -1,0 +1,16 @@
+Bar objects
+barNonstandardId,name
+3,string containing spaces
+
+Foo objects
+fooNonstandardId,text,bar,fruit,num,isValid
+5,hello,Bar.3,apple,5,1
+6,,Baz.4,banana,,0
+7,,,banana,,0
+
+Baz objects
+bazNonstandardId,name,priority
+4,"string containing 'lots'' of ""quotes""
+and a newline and	a tab",10
+
+

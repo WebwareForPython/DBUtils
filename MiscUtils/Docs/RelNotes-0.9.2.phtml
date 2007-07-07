@@ -1,0 +1,16 @@
+<% header(name + ' 0.9.2 Release Notes') %>
+
+<p><% name %> version 0.9.2 released on 09/18/06</p>
+
+<a name="Improvements"></a><h2>Improvements and Refinements</h2>
+<ul>
+	<li>Config files are now opened in universal newline mode. This means you
+	can now edit config files for Webware running under one platform (e.g. Unix)
+	with an editor running on a different platform (e.g. Windows) without
+	causing any troubles.</li>
+	<li>If a config file is expected, but could not be loaded, Webware will now
+	print a warning to stdout explaining also the reason why the file was not
+	loaded (e.g. wrong file permissions).</li>
+</ul>
+
+<% footer() %>

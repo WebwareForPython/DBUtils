@@ -1,0 +1,175 @@
+#!/usr/bin/env python
+#
+# WebKit application server
+# part of Webware for Python
+# www.webwareforpython.org
+#
+# /etc/init.d/webkit
+#
+# Generic init.d Python start script for Unix
+#
+# Note: You will also find shell start scripts for
+# various Unix flavors in the StartScripts folder.
+#
+
+import os, sys, pwd, grp, signal
+
+# START LOCAL CONFIGURATION
+
+# If you store this script in your Webware working directory
+# and create a symlink to it as /etc/init.d/webkit_appname,
+# it will try to guess your configuration parameters. You can
+# make changes either directly here or you can also override
+# the configuration in the Launch.py script.
+
+# The name of your Webware application:
+APP_NAME=os.path.basename(sys.argv[0])
+
+# The location of the start sript:
+START_SCRIPT=sys.argv[0]
+# Get the target file if start script is given as a link:
+while os.path.islink(START_SCRIPT):
+	START_SCRIPT=os.path.join(
+		os.path.dirname(START_SCRIPT), os.readlink(START_SCRIPT))
+
+# The working directory or path to WebKit:
+WORK_DIR=os.path.dirname(START_SCRIPT)
+# Make sure to have the absolute path:
+if not os.path.isdir(WORK_DIR):
+	print "Error: Working directory not found."
+	sys.exit(5)
+WORK_DIR=os.path.abspath(WORK_DIR)
+
+# The app server launch script:
+APP_SERVER=os.path.join(WORK_DIR, "AppServer")
+
+if not os.path.isfile(APP_SERVER):
+	print "Error: AppServer script not found."
+	sys.exit(5)
+
+# The WebKit app server log file
+# (you can set this in Launch.py as well):
+#LOG_FILE="/var/log/%s.log" % APP_NAME
+LOG_FILE="%s/Logs/webkit.log" % WORK_DIR
+# Use this extension if you want to move the last log away
+# (also consider using logrotate or something similar):
+LOG_OLD=".old"
+
+# The app server process id file
+# (you can set this in Launch.py as well):
+#PID_FILE="/var/run/%s.pid" % APP_NAME
+PID_FILE="%s/webkit.pid" % WORK_DIR
+
+# The user and group to run the app server
+# (you can set this in Launch.py as well).
+# If undefined, it will be the user and group
+# running the start script (usually root).
+# You should use a low-privilege account,
+# like the work dir owner, wwwrun or nobody.
+# This will use the owner of the AppServer script:
+WEBWARE_USER=pwd.getpwuid(os.stat(APP_SERVER)[4])[0]
+WEBWARE_GROUP=grp.getgrgid(os.stat(APP_SERVER)[5])[0]
+
+# Set the following variable to False if you want to store
+# the pid and log files as the user running the start script
+# (usually root) or set it if you want these files to be
+# written after switching to the WEBWARE_USER.
+LAUNCH_AS_WEBWARE=True
+
+# Additional options -u or -O to be passed on to Python:
+PYTHONOPTS=""
+# Additional libraries to be included in the Python path:
+PYTHONPATH=""
+if PYTHONPATH:
+	os.environ['PYTHONPATH']=PYTHONPATH
+
+# END LOCAL CONFIGURATION
+
+if len(sys.argv)>1:
+	opt=sys.argv[1].lower()
+else:
+	opt=None
+
+if opt=='start':
+	print "Starting %s ..." % APP_NAME,
+	# Keep backup of last log file:
+	if LOG_OLD and os.path.isfile(LOG_FILE):
+		if os.path.getsize(LOG_FILE):
+			os.rename(LOG_FILE, LOG_FILE + LOG_OLD)
+		else:
+			os.remove(LOG_FILE)
+	# Check if the server is already running:
+	if os.path.isfile(PID_FILE):
+		PID=open(PID_FILE).read()
+		if PID:
+			# Check on the command line if it is really our pid file:
+			ps=os.popen('ps -o command= -p %s 2>/dev/null' % PID)
+			out=ps.read()
+			if ps.close():
+				# MacOs has only "command", SunOS has only "args"
+				ps=os.popen('ps -o args= -p %s 2>/dev/null' % PID)
+				out=ps.read()
+				if ps.close():
+					out=None
+			if out and ' -i %s ' % PID_FILE in out:
+				print "already running"
+				sys.exit(0)
+		try:
+			os.remove(PID_FILE)
+		except OSError:
+			pass
+	USER=pwd.getpwuid(os.getuid())[0]
+	GROUP=grp.getgrgid(os.getgid())[0]
+	if (not WEBWARE_USER or WEBWARE_USER==USER) \
+		and (not WEBWARE_GROUP or WEBWARE_GROUP==GROUP):
+		CMD='"%s" %s -i "%s" -d "%s" -o "%s" > /dev/null &' % \
+			(APP_SERVER, PYTHONOPTS, PID_FILE, WORK_DIR, LOG_FILE)
+		os.system(CMD)
+	else:
+		if LAUNCH_AS_WEBWARE:
+			# Switch user first, then create pid and log files:
+			CMD='"%s" %s -i "%s" -d "%s" -o "%s"' % \
+				(APP_SERVER, PYTHONOPTS, PID_FILE, WORK_DIR, LOG_FILE)
+			os.system('su %s -c "%s" > /dev/null &' % (WEBWARE_USER, CMD))
+		else:
+			# Create pid and log files first, then switch user:
+			CMD='"%s" %s -i "%s" -d "%s" -u %s >> "%s" 2>&1 &' % \
+				(APP_SERVER, PYTHONOPTS, PID_FILE,
+				WORK_DIR, WEBWARE_USER, LOG_FILE)
+			os.system(CMD)
+	print "done"
+elif opt=='stop':
+	print "Stopping %s ..." % APP_NAME,
+	if os.path.isfile(PID_FILE):
+		PID=open(PID_FILE).read()
+		if PID:
+			ps=os.popen('ps -o command= -p %s 2>/dev/null' % PID)
+			out=ps.read()
+			if ps.close():
+				ps=os.popen('ps -o args= -p %s 2>/dev/null' % PID)
+				out=ps.read()
+				if ps.close():
+					out=None
+			if out and ' -i %s ' % PID_FILE in out:
+				try:
+					os.kill(int(PID), signal.SIGTERM)
+				except OSError:
+					print "error"
+					print "Could not kill process %s named in %s" \
+						% (PID, PID_FILE)
+					sys.exit(1)
+				else:
+					print "done"
+			else:
+				print "not running (removing stale pid file)"
+		else:
+			print "not running (removing empty pid file)"
+		try:
+			os.remove(PID_FILE)
+		except OSError:
+			pass
+	else:
+		print "not running"
+else:
+	print "Usage: %s {start|stop}" % sys.argv[0]
+	sys.exit(1)

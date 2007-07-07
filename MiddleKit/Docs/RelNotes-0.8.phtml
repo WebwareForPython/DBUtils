@@ -1,0 +1,38 @@
+<% header(name + ' 0.8 Release Notes') %>
+
+<p>Webware for Python 0.8</p>
+
+<a name="Changes"></a><h2>Changes</h2>
+<ul>
+	<li><p>The ObjectStore keeps track of new objects, modified objects and to-be-deleted objects on a per-thread basis.  This prevents the ObjectStore from trying to save the same changes twice, and prevents the situation where one thread commits an object which a different thread modified (and wasn't necessarily ready to commit).</p>
+	<p>This new tracking is enabled when your ObjectStore is in "Threaded" mode, which is enabled by default.  You can run in single-threaded mode by adding the following line to the Settings.config file in your model directory:</p>
+	<pre>'Threaded': 0,</pre>
+	<p>The behaviour of the following methods has changed:</p>
+	<ul>
+		<li>saveChanges() - commits only objects which were modified by the current thread</li>
+	</ul>
+	<p>New ObjectStore methods:</p>
+	<ul>
+		<li>hasChangesForCurrentThread() - returns whether the store has any uncommitted changes for the current thread</li>
+		<li><p>saveAllChanges() - commits <b>all</b> added/modified/deleted objects to the database, regardless of which thread made the changes.  This could be called on application exit just to be extra safe.</p>
+		<p>When using MiddleKit from WebKit, though, you be calling saveChanges() at the end of any request which modifies MK objects, so I recommend putting</p>
+		<pre class="py">assert not store.hasChangesForCurrentThread()</pre>
+		<p>into your SitePage.sleep() method to catch programming errors early.</p></li>
+	</ul>
+	<p>For <b>upgrading older MiddleKit applications</b>, you'll probably want to replace calls to store.hasChanges() with store.hasChangesForCurrentThread().  Nothing else should need to change.</p></li>
+	<li>A new 'Database' setting in Settings.config. Set this if the model name isn't the same as the database name.</li>
+	<li>Also, the database name can be passed via the constructor. See the <a href="UsersGuide.html#MT_DatabaseName">User's Guide</a> for more info.</li>
+	<li><p>Support for the SQL 'decimal' type, previously found only in the MSSQL adapter, has been brought up to the generic SQL adapter level which means that MySQL inherits it. Use the attribute keys <span class="name">Precision</span> and <span class="name">Scale</span> to specify the precision and scale just like you see in SQL manuals: decimal(precision, scale).</p>
+	<p>If (and only if!) you have "legacy" code from the old decimal support, you could enable the <span class="name">UseMaxForDecimalPrecision</span> setting. However, you might get fried down the road when MiddleKit starts enforcing min/max constraints on decimal types. (Getting fried implies you would have to edit/fix your model.)</p></li>
+	<li><p>"Dangling obj refs" now print much more useful information. The old message:</p>
+<pre class="py">WARNING: Obj ref dangles. dec=266287972390  hex=3e00000026  class.obj=Stop.97.</pre>
+<p>The new message:</p>
+<pre class="py">WARNING: MiddleKit: In object &lt;PendingTrade 'TIVO long 4.25' 129&gt;, attribute
+Trade.initialStop dangles with value Stop.97</pre>
+<p>In other words:</p>
+<pre class="py">WARNING: MiddleKit: In object <b>&lt;REPR()&gt;</b>, attribute
+<b>FULL ATTR NAME</b> dangles with value <b>CLASS.SERIAL_NUM VALUE</b></pre></li>
+	<li>The <span class="filename">Classes.csv</span> text file is now cached as a binary pickle file named <span class="filename">Classes.pickle.cache</span>. This reduces subsequent load times by about 40%. The cache will be ignored if it can't be read, is older than the CSV file, has a different Python version, etc. You don't normally even need to think about this, but if for some reason you would like to turn off the use of the cache, you can do so via the <span class="name">UsePickledClassesCache</span> <a href="UsersGuide.html#Configuration">setting</a>.</li>
+</ul>
+
+<% footer() %>

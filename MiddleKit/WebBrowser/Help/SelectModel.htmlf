@@ -1,0 +1,7 @@
+<p>The MiddleKit browser allows you to browse the objects in a MiddleKit store, by using a user-defined object model. These object models are stored in the file system, on the same server as this web site.</p>
+
+<p>You can enter the pathname of the object model in the form above. An example would be "MiddleKit/Docs/Videos/Middle/Videos.mkmodel". You can leave the ".mkmodel" extension off if you want.</p>
+
+<p>Or, if you have browsed models at this site before, you can choose one from the recent list.</p>
+
+<p>Or, you may choose a "known model" if the site admin has configured this site.</p>

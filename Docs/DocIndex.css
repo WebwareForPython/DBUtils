@@ -1,0 +1,52 @@
+/*
+	This style sheet is linked to by both Webware's index.html
+	as well as each component's index.html files.
+	We assume that "Doc.css" is linked to before we are.
+*/
+
+body {
+	font-size: 11pt;
+}
+td, th {
+	font-size: 11pt;
+}
+p {
+	padding-left: 0;
+}
+dl {
+	padding-left: 0;
+}
+ol {
+	padding-left: 0;
+}
+ul {
+	list-style-type: none;
+	padding-left: 0;
+	margin-left: 0;
+}
+li {
+	padding-top: 2pt;
+	padding-bottom: 2pt;
+}
+a.BigLink {
+	font-size: medium;
+	font-weight: bold;
+}
+td.InfoLabel {
+	font-family: Arial, Helvetica, sans-sif;
+	background-color: #6666FF;
+	font-weight: bold;
+	color: white;
+}
+td.InfoValue {
+	font-family: Arial, Helvetica, sans-serif;
+	background-color: #E8E8FF;
+}
+td.InfoSummary {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: small;
+	background-color: #E8E8FF;
+}
+td.DocList {
+	font-family: Arial, Helvetica, sans-serif;
+}

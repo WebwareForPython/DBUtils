@@ -1,0 +1,116 @@
+#!/bin/sh
+#
+# WebKit application server
+# part of Webware for Python
+# www.webwareforpython.org
+#
+# /etc/init.d/webkit
+#
+# init.d script for NetBSD and FreeBSD
+#
+# PROVIDE: webkit
+# REQUIRE: LOGIN
+
+### START LOCAL CONFIGURATION
+
+# If you store this script in your Webware working directory
+# and create a symlink to it as /etc/init.d/webkit_appname,
+# it will try to guess your configuration parameters. You can
+# make changes either directly here or you can also override
+# the configuration in the Launch.py script.
+
+# The name of your Webware application:
+APP_NAME=`basename "$0"`
+
+# The location of the start sript:
+if [ -h "$0" ]; then
+	# Get the target file if start script is given as a link:
+	START_SCRIPT=`readlink -f "$0"`
+else
+	START_SCRIPT="$0"
+fi
+
+# The working directory or path to WebKit:
+WORK_DIR=`dirname "$START_SCRIPT"`
+# Make sure to have the absolute path:
+test -d "$WORK_DIR" || exit 5
+WORK_DIR=`cd "$WORK_DIR" 2>/dev/null && pwd`
+
+# The app server launch script:
+APP_SERVER="$WORK_DIR/AppServer"
+test -x "$APP_SERVER" || exit 5
+
+# The app server configuration:
+APP_SERVER_CONFIG="$WORK_DIR/Configs/AppServer.config"
+test -f "$APP_SERVER_CONFIG" || exit 5
+
+# The WebKit app server log file
+# (you can set this in Launch.py as well):
+#LOG_FILE="/var/log/$APP_NAME.log"
+LOG_FILE="$WORK_DIR/Logs/webkit.log"
+# Use this extension if you want to move the last log away
+# (also consider using logrotate or something similar):
+LOG_OLD=".old"
+
+# The app server process id file
+# (you can set this in Launch.py as well):
+#PID_FILE="/var/run/$APP_NAME.pid"
+PID_FILE="$WORK_DIR/webkit.pid"
+
+# The user and group to run the app server
+# (you can set this in Launch.py as well).
+# If undefined, it will be the user and group
+# running the start script (usually root).
+# You should use a low-privilege account,
+# like the work dir owner, wwwrun or nobody.
+# This will use the owner of the AppServer script:
+WEBWARE_USER=`stat -f "%Su" "$APP_SERVER"`
+WEBWARE_GROUP=`stat -f "%Sg" "$APP_SERVER"`
+
+# Unset the following variable if you want to store the
+# pid and log files as the user running the start script
+# (usually root) or set it if you want these files to be
+# written after switching to WEBWARE_USER:WEBWARE_GROUP.
+LAUNCH_AS_WEBWARE="yes"
+
+# Additional options -u or -O to be passed on to Python:
+PYTHONOPTS=
+# Additional libraries to be included in the Python path:
+PYTHONPATH=
+export PYTHONPATH
+
+### END LOCAL CONFIGURATION
+
+# Source NetBSD function library:
+. /etc/rc.subr
+
+name="$APP_NAME"
+command="$APP_SERVER"
+procname="python"
+pidfile="$PID_FILE"
+if [ "$LAUNCH_AS_WEBWARE" ]; then
+	if [ "$WEBWARE_USER" ]; then
+		eval ${name}_user=$WEBWARE_USER
+	fi
+	if [ "$WEBWARE_GROUP" ]; then
+		eval ${name}_group=$WEBWARE_GROUP
+	fi
+	eval ${name}_flags=\"$PYTHONOPTS \
+		-d \\\"$WORK_DIR\\\" -o \\\"$LOG_FILE\\\" \
+		-i \\\"$PID_FILE\\\"\"
+	command_args="> /dev/null &"
+else
+	if [ "$WEBWARE_USER" ]; then
+		WEBWARE_USER="-u $WEBWARE_USER"
+	fi
+	if [ "$WEBWARE_GROUP" ]; then
+		WEBWARE_GROUP="-g $WEBWARE_GROUP"
+	fi
+	eval ${name}_flags=\"$PYTHONOPTS \
+		-d \\\"$WORK_DIR\\\" -i \\\"$PID_FILE\\\" \
+		$WEBWARE_USER $WEBWARE_GROUP\"
+	command_args="> \"$LOG_FILE\" 2>&1 &"
+fi
+
+load_rc_config "$name"
+run_rc_command "$1"

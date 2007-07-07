@@ -1,0 +1,22 @@
+Class,Attribute,Type,Default,Min,Max,Extras,Copy
+Book,,,,,,,
+,title,string,,0,100,,
+,authors,"list of Wrote",,,,,deep
+,loans,"list of Loan",,,,,none
+,shelf,Shelf,,,,,shallow
+,publisher,string,,0,100,,
+,,,,,,,
+Wrote,,,,,,,
+,book,Book,,,,,deep
+,author,Author,,,,,shallow
+,,,,,,,
+Author,,,,,,,
+,name,string,,0,100,,
+,wrote,"list of Wrote",,,,,
+,,,,,,,
+Loan,,,,,,,
+,book,Book,,,,,
+,borrower,string,,0,100,,
+,,,,,,,
+Shelf,,,,,,,
+,name,string,,0,100,,

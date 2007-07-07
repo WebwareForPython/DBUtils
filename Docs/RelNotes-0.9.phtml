@@ -1,0 +1,51 @@
+<% header(name + ' 0.9 Release Notes') %>
+
+<p><% name %> version 0.9 released on 11/13/05</p>
+
+<a name="Introduction"></a><h2>Introduction</h2>
+<p>It has taken much longer than usual to finish this release.
+There have been so many improvements and changes that we cannot list them all.
+Have a look at the <a href="../WebKit/Docs/RelNotes-0.9.html">WebKit release
+notes</a> for some of the major changes in WebKit, the main Webware plug-in.</p>
+
+<p>Note that Webware for Python has a new homepage at
+<a href="http://www.webwareforpython.org">www.webwareforpython.org</a>
+or short <a href="http://www.w4py.org">www.w4py.org</a>, and a new
+Wiki at <a href="http://wiki.w4py.org">wiki.w4py.org</a>. Development
+has moved from the CVS repository at SourceForge to a SVN repository
+at <a href="http://svn.w4py.org">svn.w4py.org</a>. The old Wiki articles
+and the CVS repository have been taken over to the new locations.</p>
+
+<a name="NewFeatures"></a><h2>New Features</h2>
+<ul>
+	<li>Webware now contains a new "KidKit" plug-in that allows
+	you to use "Kid" templates with Webware as an alternative to
+	PSP templates. PSP is still supported as a part of Webware. Note that
+	Kid itself is not part of Webware; you must install it separately.
+	See the <a href="http://kid.lesscode.org">Kid homepage</a> and the
+	<a href="../KidKit/Docs/RelNotes-0.9.html">KidKit release notes</a>.</li>
+</ul>
+
+<a name="Improvements"></a><h2>Improvements and Refinements</h2>
+<ul>
+	<li>The documentation and doc processing has been improved.
+	Instead of <span class="filename">RawToHTML.py</span> and the
+	<tt>raw</tt> HTML format, the Webware "DocSupport" now provides
+	a template engine <span class="filename">pytp.py</span> that
+	processes <tt>phtml</tt> files with tags similar to PSP templates,
+	for instance for including a header and a footer to the doc pages. The
+	<tt>htmlf</tt> html fragments have been replaced by <tt>phtml</tt>, too.
+	"DocSupport" also provides a new <span class="filename">autotoc.py</span>
+	module for automatically creating a table of contents.
+	In addition to the colorized source code and the summary page,
+	the installer now also creates pydoc html page. The installer also
+	creates default contexts for browsing the Docs via WebKit.</li>
+	<li>The <span class="filename">install.py</span> has been improved.
+	It creates a log file <span class="filename">install.log</span> now.</li>
+	<li>Static and dynamic HTML pages have been changed to use cleaner HTML
+	code and CSS instead of deprecated markup.</li>
+	<li>The <span class="filename">MakeAppWorkDir.py</span> script has
+	been rewritten to support new features of the launch script.</li>
+</ul>
+
+<% footer() %>

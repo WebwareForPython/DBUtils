@@ -1,0 +1,15 @@
+<% header(name + ' 0.9.3 Release Notes') %>
+
+<p><% name %> version 0.9.3 released on 04/26/07</p>
+
+<a name="Improvements"></a><h2>Improvements and Refinements</h2>
+<ul>
+	<li>Ensured backward compatibility with older Python versions.</li>
+	<li>Made <code>store.object()</code> more flexible: it can take an
+	<code>ObjectKey</code> or a separate class and serial num.</li>
+	<li>Removed the timestamp from the Python code generator to reduce
+    source code control diffs.
+    There is still a timestamp in <span class="filename">Info.text</span>.</li>
+</ul>
+
+<% footer() %>

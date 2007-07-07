@@ -1,0 +1,45 @@
+<% header(name + ' Documentation', 'titlebar', 'DocIndex.css') %>
+
+<table align="center" border="0" cellpadding="4" cellspacing="2">
+<tr>
+	<td nowrap class="InfoLabel">Name:</td>
+	<td nowrap class="InfoValue"><b><% name %></b></td>
+	<td valign="top" class="InfoLabel">Summary:</td>
+</tr><tr>
+	<td nowrap class="InfoLabel">Version:</td>
+	<td nowrap class="InfoValue"><% versionString %></td>
+	<td rowspan="4" valign="top" class="InfoSummary"><% synopsis %></td>
+</tr>
+<tr>
+	<td nowrap class="InfoLabel">Status:</td>
+	<td nowrap class="InfoValue"><% status %></td>
+</tr>
+<tr>
+	<td nowrap class="InfoLabel">Py Ver:</td>
+	<td nowrap class="InfoValue"><% requiredPyVersionString %></td>
+</tr>
+<tr>
+	<td nowrap class="InfoLabel">Webware:</td>
+	<td nowrap class="InfoValue"><% webwareVersionString %></td>
+</tr>
+</table>
+
+<p>&nbsp;</p>
+
+<table align="center" border="0" cellpadding="4" cellspacing="2">
+<tr>
+	<td nowrap class="InfoLabel">Manuals:</td>
+	<td nowrap class="InfoLabel">Source:</td>
+	<td nowrap class="InfoLabel">Release Notes:</td>
+</tr><tr>
+	<td nowrap valign="top" class="InfoValue"><% htDocs %></td>
+	<td nowrap valign="top" class="InfoValue">
+	<p><a href="Source/ClassHierarchy.html" class="DocLink">Class hierarchy</a></p>
+	<p><a href="Source/ClassList.html" class="DocLink">Class list</a></p>
+	<p><a href="Source/FileList.html" class="DocLink">File list</a></p>
+	</td>
+	<td nowrap valign="top" class="InfoValue"><% htReleaseNotes %></td>
+</tr>
+</table>
+
+<% footer() %>

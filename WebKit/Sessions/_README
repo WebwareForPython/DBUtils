@@ -1,0 +1,6 @@
+_README
+Webware/WebKit/Sessions/
+
+This directory will contain one file per session, if WebKit is configured to store sessions in files (via the ../Config/Application.config setting SessionStore). Each file will be named after the session id with a ".ses" extension. You can choose a different location for this directory by changing the SessionStoreDir setting in ../Config/Application.config.
+
+See ../Docs/UsersGuide.html and ../Docs/Configuration.html for more information.

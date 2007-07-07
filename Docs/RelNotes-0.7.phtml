@@ -1,0 +1,20 @@
+<% header(name + ' 0.7 Release Notes') %>
+
+<p> This release introduces a new version numbering policy.
+Each Webware component will no longer have independent version numbers,
+but instead all components' version numbers are updated in lock-step.
+Therefore, all components in this release have version number 0.7.
+That is not to say that all components are equally mature.
+Each component still has a status indicator (found in Properties.py) that indicates whether the component is alpha, beta, or release quality.
+This change is intended to make the Webware release process easier, and also we found that in practice, nobody ever referred to the
+individual component release numbers anyhow.</p>
+
+<p> This release does not introduce any new components/packages, but instead adds new features and fixes bugs in existing packages.</p>
+
+<p> The install.py script was enhanced to auto-generate a random password for the Admin pages or let you specify your own password, either interactively or on the command-line.  Run "python install.py --help" for the options.</p>
+
+<p> For the changes to specific Webware components, please see the <a href="ComponentIndex.html">Component Index</a> for access to the documentation for each component.</p>
+
+<p> Also, visit the <a href="http://webware.sourceforge.net">Webware home page</a> and <a href="http://webware.sourceforge.net/Wiki/">Wiki</a> for further information about Webware.</p>
+
+<% footer() %>

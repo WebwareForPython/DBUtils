@@ -1,0 +1,40 @@
+<% header(name + ' 0.9 Release Notes') %>
+
+<p><% name %> version 0.9 released on 11/13/05</p>
+
+<a name="Introduction"></a><h2>Introduction</h2>
+<ul>
+	<li>A first version of KidKit has been created by Winston Wolff in January 2005.</li>
+	<li>This is the second version of KidKit created by Christoph Zwerschke in October 2005.</li>
+	<li>These release notes describe the new features that have been added to the first version.</li>
+</ul>
+
+<a name="NewFeatures"></a><h2>New Features</h2>
+<ul>
+	<li>KidKit now supports caching of compiled Kid templates in two different modes.
+	You can either let Kid handle the caching; in that case the compiled modules are
+	stored along with the Kid templates. Or you can let KidKit handle the caching; in this
+	case it uses the directory <span class="filename">Cache/KidKit</span> to store
+	compiled modules, optionally along with the corresponding source files.</li>
+	<li>You can select a base class for the servlet that handles the Kid template.
+	You can also select the method that is replaced in order to write the output.
+	The default for this &quot;hook&quot; is <code>WebKit.Page.respond</code>.</li>
+	<li>You can also select the output method that is used by Kid to serialize the template.</li>
+</ul>
+
+<a name="Improvements"></a><h2>Improvements</h2>
+<ul>
+	<li>The Users's Guide and the KidKitExamples context have been amended a lot.</li>
+</ul>
+
+<a name="Changes"></a><h2>Changes</h2>
+<ul>
+	<li>Only one variable <code>servlet</code> is passed to the template.
+	The <code>fields</code> dictionary has to be derived as
+	<code>servlet.request().fields()</code>.</li>
+	<li>The Kid servlet factory is now based on the PSP servlet factory and uses
+	the caching mechanisms of Webware. The old version was based on a Cheetah
+	servlet factory that did not cache servlet classes and instances.</li>
+</ul>
+
+<% footer() %>

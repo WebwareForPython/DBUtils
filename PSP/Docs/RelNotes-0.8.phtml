@@ -1,0 +1,14 @@
+<% header(name + ' 0.8 Release Notes') %>
+
+<p>Webware for Python 0.8</p>
+
+<a name="ReleaseNotes"></a><h2>Release Notes</h2>
+
+<ul>
+	<li>Fixed a race condition that caused problems when multiple simultaneuos requests were made for a PSP that hadn't yet been imported.</li>
+	<li>PSP no longer sets the tempfile.tempdir module level variable (which affects tempfile.mktemp()).</li>
+	<li>The PSPReader module has been removed and replaced by the StreamReader.  StreamReader has been in use for some time, the presesnce of PSPReader was misleading.</li>
+	<li>Fixed the code generator to escape bacslash in addition to quotes previously escaped.  This fixes the problem where escapes in PSP source would be interpreted by python as escapes, resulting in the HTML being generated with the result of the escapes.  ie: \n in PSP previously resulted in an embedded newline rather than the text \n.  This had broken the use of such escapes in embedded JavaScript.</li>
+</ul>
+
+<% footer() %>

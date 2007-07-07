@@ -1,0 +1,7 @@
+Class,Attribute,Type,Default,Min,Max
+Foo,,,,,
+,x,int,0,,
+,bars,list of Bar,,,
+Bar,,,,,
+,foo,Foo,,,
+,x,int,0,,

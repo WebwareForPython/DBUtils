@@ -1,0 +1,72 @@
+Apache2 module for Webware WebKit
+Author: Jay Love (jsliv@jslove.org)
+February 2, 2001
+Updated for Apache2 November 2002
+Last Update April 8, 2007
+
+This is a native Apache 2.2 module for communicating with the Webware WebKit
+AppServer (you can find a module for Apache 1.3 in the mod_webkit1 directory).
+
+ATTENTION: The Makefile included here is for a standard built from source
+Apache2 install. You may need to make some modifications to get it running
+on some Linux distributions with prepackaged Apache2 packages.
+This is a DSO only module at this time. Not because it must be so, but
+because I haven't adjusted the Makefile for static building. If you
+prefer static Apache modules, just follow the Apache directions for building.
+Note that you must have apxs installed (usually contained in apache2-devel)
+and that on some Linux distributions this is called apxs2.
+
+There are two source files, mod_webkit.c and marshal.c.
+
+Ordinarily Apache only makes the username available to WebKit for
+password protected pages, keeping the password secret. See the
+Makefile on how to let mod_webkit pass that information anyway.
+
+To build, just run 'make'. The Makefile uses apxs for the building and
+installing, so you'll need to have that installed. If you're running an
+RPM based distribution, it's usually included in apache-devel. Also, the
+Makefile assumes apxs is in your path. If it's not, you'll need to adjust
+the Makefile so that APXS points to the full path to apxs.
+
+To install, run 'make install', and hope for the best. In my brief testing,
+make install put the module in the right place, but didn't get the LoadModule
+directive right. If you would rather be safe than sorry, run 'make', then
+copy the resulting mod_webkit.so to your Apache2 module directory. Then modify
+httpd.conf to load the module.
+
+To build and install on Windows, you can use the make.bat batch file with the
+free Microsoft Visual C++ 2005 Express Edition and Server 2003 Platform SDK.
+For your convenience, a pre-compiled mod_webkit.dll for 32bit Windows XP
+is already included in this directory which you can just place it into your
+Apache modules directory under the name mod_webkit.so.
+
+To enable this module for serving WebKit content, just set the handler for
+a directory to 'webkit-handler'. Then inform the module where the appserver
+is running using the WKServer configuration directive. It takes two arguments,
+the host and then the port that the AppServer is running on.
+
+My httpd.conf looks like this:
+-----------------------------------------------------
+LoadModule webkit_module modules/mod_webkit.so
+
+<Location /WK>
+WKServer localhost 8086
+SetHandler webkit-handler
+</Location>
+-----------------------------------------------------
+
+You can also set Apache to direct PSP files to the AppServer, regardless of
+where they are located. The following configuration settings will do that:
+
+AddType text/psp .psp
+AddHandler psp-handler .psp
+
+You'll need to have set a server wide WKServer directive for this to work.
+You do that by giving a WKServer directive outside of any directory or
+location blocks. Also, the default WKServer settings are 'localhost' and
+'8086', so if that is what you are using (it's the default for WebKit),
+you don't even need to have a WKServer directive anywhere.
+
+I've included a sample configuration in apache.conf.
+
+That's it for now.

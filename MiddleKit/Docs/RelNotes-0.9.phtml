@@ -1,0 +1,100 @@
+<% header(name + ' 0.9 Release Notes') %>
+
+<p><% name %> version 0.9 released on 11/13/05</p>
+
+<a name="Incompatible"></a><h2>Incompatible Changes</h2>
+
+<p><span class="warning">There are some MiddleKit improvements that break compatibility with previous versions of MiddleKit, although all are easy to address.</span> In a nutshell, if you are upgrading MiddleKit <em>for an existing project</em>, take the following steps:</p>
+
+<ul>
+	<li>Add these to Settings.config inside the model:
+<pre class="py">{
+	'SQLSerialColumnName': '%(className)sId',
+	'UseBigIntObjRefColumns': True,
+	'AllowRefreshOfChangedObjects': True,
+}</pre></li>
+	<li>If your model has a SQLGenerator.config file, move its contents to Settings.config.</li>
+	<li>If you use Microsoft SQL Server and your model uses the float type then read the section below detailing that.</li>
+</ul>
+
+<p>Below are more details about the incompatible changes. Below that are more general notes on this release.</p>
+
+<h3>Obj Ref Columns</h3>
+
+<p>A long standing flaw in MiddleKit was the use of 64-bit integer SQL columns to store references/pointers to objects. The first 32-bits were for the class id and the second 32-bits were for the object id, information that is necessary because of inheritance and the creation of one SQL table per Python class. These 64-bit columns, packed with two numbers, are difficult to work with from SQL. For example, an object reference to (classId=1, objId=1) showed as 4294967297 in SQL and could not be readily joined with other tables.</p>
+
+<p>The new approach is to break these values into two SQL columns. If the attribute name is "foo" then the SQL columns will be named "fooClassId" and "fooObjId". If, for some reason, you don't like those suffixes, you can customize them through the setting <a href="UsersGuide.html#Configuration_ObjRefSuffixes">ObjRefSuffixes</a>. As always, the class ids are stored in the _MKClassIds table that MiddleKit automatically generates.</p>
+
+<p>Another useful benefit is that the fooClassId columns are now given default values to match the class id of the target class (in other words, the integer id of class Foo). When the target class has no subclasses then the fooClassId column can be safely ignored in INSERTs, UPDATEs and SELECTs. The point of this is to make the database even easier to work with from SQL.</p>
+
+<p><span class="warning">If you are upgrading Webware then your database schema will no longer be compatible with MiddleKit.</span> The easy way to fix this is to set UseBigIntObjRefColumns to True in Settings.config (see <a href="UsersGuide.html#Configuration_UseBigIntObjRefColumns">User's Guide - Configuration</a> for more information). This will give you the old behavior. The hard way is to fix up your schema and migrate the data from the old columns to the new.</p>
+
+<h3>Serial Number Column</h3>
+
+<p>MiddleKit creates a SQL table for every concrete class, and each table has a column for the serial number of a record. This column is the primary key for the table. Its new default name is <span class="name">serialNum</span> which matches the MiddleObject method of the same name and fits MiddleKit naming conventions. You can control this with a <a href="UsersGuide.html#Configuration_SQLSerialColumnName">new setting</a>.</p>
+
+<h3>SQLGenerator.config</h3>
+
+<p>There used to be another config file, besides Settings.config, named SQLGenerator.config, with a single setting, DropStatements. That file is no longer used and the setting has been moved to Settings.config. If you have SQLGenerator.config in a model directory, move the setting over.</p>
+
+<h3>MS SQL Support</h3>
+
+<p>The <span class="name">float</span> type now yields a SQL type of <span class="name">float</span> rather than <span class="name">decimal</span>, because that matches the semantics of Python's float type more closely (perhaps identically). If you want decimal, use decimal; it is a valid MiddleKit datatype.</p>
+
+<p>The serial primary key field is now typed as int instead of bigint. This matches the MiddleKit approach for other databases and also allows object id columns to be foreign keys to this primary key (MS SQL will give an error if an int column tries to reference a bigint column).</p>
+
+<h3>Protection against losing changes</h3>
+
+<p>Depending on the application, certain call sequences can cause uncommitted changes to be lost.  This might be due to
+programmer error (i.e. forgetting to call saveChanges when necessary), but can also happen due to the implementation
+of store.deleteObject(), which executes SQL queries (and refreshes objects) when locating and resolving object
+references (i.e. cascade, detach).</p>
+
+<p>In order to protect the programmer against such errors, which may be
+very subtle and difficult to detect, MiddleKit will raise an assertion
+error when a changed object's attributes are about to be refreshed from
+the database.  The programmer should then add calls to store.saveChanges()
+to ensure that data loss cannot occur.</p>
+
+<p>Since this change may break existing applications, a new setting
+called "AllowRefreshOfChangedObject" has been added. This setting defaults
+to false (strongly recommended), but for existing applications you may
+set it to true to avoid ever getting an assertion failure.</p>
+
+<a name="NewFeatures"></a><h2>New Features</h2>
+
+<ul>
+	<li>MiddleKit now includes full support for PostgreSQL. (<a href="UsersGuide.html#RDBMS">docs</a>)</li>
+	<li>You can specify a <b>SQLDefault</b> for attributes. (<a href="UsersGuide.html#MT_SQLDefault">docs</a>)</li>
+	<li>For list references, you can specify the name of the "back reference" attribute explicitly.  This allows creation of recursive structures, such as trees. (<a href="UsersGuide.html#DT_Recursive">docs</a>)</li>
+	<li>A setting called "DatabaseArgs" was added in which you can pass necessary arguments for establishing the database connection. (<a href="UsersGuide.html#Configuration_DatabaseArgs">docs</a>)</li>
+	<li>You can clone Middle objects (recursively, if you want). (<a href="UsersGuide.html#MT_Cloning">docs</a>)</li>
+	<li>In sample data files, you can put a comment after an obj ref value to remind you of what it points to; you do so in the same cell. For example, instead of just "User.17", you can say "User.17 - John Smith". One space is required after the number and the rest is ignored.</li>
+	<li>A new setting, <b>GenerateSQLReferencesForObjRefsToSingleClasses</b>, causes MiddleKit to generate "references <i>TargetTable</i>(SerialNum)" in Create.sql for each obj ref column whose target class has no subclasses. This helps preserve data integrity at the database level. Caveat: Circular references don't work.</li>
+	<li><p>MiddleKit will now generate CREATE TABLE statements in order of dependency (least to most) so that foreign key declarations always work. This relieves you of having to get the order of your classes "just right" in the model--in other words, you can have "forward references"--and presents another advantage over straight SQL.</p>
+	<p>And MiddleKit does the same for your sample data as well.</p>
+	<p>This change is unlikely to interfere with any existing projects, but just in case, you can turn it off with the <b>DoNotSortSQLCreateStatementsByDependency</b> setting (set it to True).</p></li>
+	<li>A new setting, <b>AccessorStyle</b>, can be set to <b>'properties'</b> in which case MiddleKit will generate Python properties for attributes instead of the traditional methods foo() and setFoo(). (<a href="UsersGuide.html#Configuration_AccessorStyle">docs</a>)</li>
+</ul>
+
+<a name="Improvements"></a><h2>Improvements and Refinements</h2>
+<ul>
+	<li><b>Generate.py</b> does a better job of detecting errors in the class definitions and sample values than before. You are more likely to see a useful error message than a cryptic traceback. However, in those cases where an exception does occur, you can see that just before the exception, Generate.py prints the last attribute that it was processing before the error. You can then search for that attribute in your model and troubleshoot it.</li>
+	<li><b>Dump.py</b> is documented.</li>
+	<li>When you delete an object, it is automatically removed from any list attributes in other objects.</li>
+	<li>There is a new setting called '<b>CacheObjectsForever</b>', which defaults to False.  If set to True, the object store will cache objects indefinitely, which, depending on the size of your database, can use a lot of memory (this is the behaviour of previous versions of MiddleKit).  If set to False, the object store uses "weak references" to cache the objects, which allows the Python garbage collector to collect an object as long as there are no other reachable references to that object.  This change is unlikely to interfere with existing applications, but you can always set 'CacheObjectsForever' to True to get the old behaviour if you want.</li>
+	<li>MiddleKit previously supporting using strings or mx.DateTime-et-al for any attributes typed date, time or datetime. String support has been dropped and support for Python's own datetime module has been added. You can still use mx.</li>
+	<li>A new setting, <b>UseHashForClassIds</b>, can be set to true to cause internal class ids to be hashed from the class name, instead of numbered serially (1, 2, 3, ...). (<a href="UsersGuide.html#Configuration_UseHashForClassIds">docs</a>)</li>
+	<li>There are good instructions on how to run the test suite in <span class="filename">MiddleKit/Tests/ReadMe.text</span>.</li>
+	<li>MiddleObject.isDeleted() returns true for objects that have been marked for deletion. You cannot refresh such an object from the database.</li>
+	<li>MiddleKit is now compatible with the new Decimal type in Python 2.4 which can be returned, for example, by MySQLdb. By "compatible", I mean that the MK test suit passes. MK does not yet go out of its way to create Decimals.</li>
+</ul>
+
+<a name="Bugfixes"></a><h2>Bugfixes</h2>
+
+<ul>
+	<li>The default for the <b>UsePickledClassesCache</b> setting is now false. It occasionally created problems for multiple developers.</li>
+	<li>MiddleKit no longer erroneously complains about certain deletion situations. (Specifically, objects that still point to a deleted object should not cause an error if those objects are going to be deleted as well (via cascading deletes).)</li>
+</ul>
+
+<% footer() %>
