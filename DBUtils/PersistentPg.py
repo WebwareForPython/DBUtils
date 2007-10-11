@@ -72,8 +72,8 @@ Recommended: Python 2.4.3 and PyGreSQL 3.8.
 
 Ideas for improvement:
 
-* Add thread for monitoring and restarting bad or expired connections
-  (similar to DBConnectionPool/ResourcePool by Warren Smith).
+* Add a thread for monitoring, restarting (or closing) bad or expired
+  connections (similar to DBConnectionPool/ResourcePool by Warren Smith).
 * Optionally log usage, bad connections and exceeding of limits.
 
 

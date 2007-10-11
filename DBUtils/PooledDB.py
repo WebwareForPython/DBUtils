@@ -98,8 +98,8 @@ connection object stays alive as long as you are using it, like that:
 
 Ideas for improvement:
 
-* Add thread for monitoring and restarting bad or expired connections
-  (similar to DBConnectionPool/ResourcePool by Warren Smith).
+* Add a thread for monitoring, restarting (or closing) bad or expired
+  connections (similar to DBConnectionPool/ResourcePool by Warren Smith).
 * Optionally log usage, bad connections and exceeding of limits.
 
 
