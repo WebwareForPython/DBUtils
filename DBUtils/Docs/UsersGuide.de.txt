@@ -263,13 +263,20 @@ Parameter angeben müssen:
   erzeugt, oder ein DB-API-2-Datenbankadapter-Modul
 
 * ``maxusage``: Obergrenze dafür, wie oft eine einzelne Verbindung
-  wiederverwendet werden darf (der Standardwert ``0`` oder ``False``
+  wiederverwendet werden darf (der Standardwert ``0`` oder ``None``
   bedeutet unbegrenzte Wiederverwendung)
 
   Sobald diese Obergrenze erreicht wird, wird die Verbindung zurückgesetzt.
 
 * ``setsession``: eine optionale Liste von SQL-Befehlen zur Initialisierung
   der Datenbanksitzung, z.B. ``["set datestyle to german", ...]``
+
+* ``failures``: eine optionale Exception-Klasse oder ein Tupel von Exceptions
+  bei denen die Ausfallsicherung zum Tragen kommen soll, falls die Vorgabe
+  (OperationalError, InternalError) nicht geeignet sein sollte
+
+* ``closeable``: wenn dies auf einen wahren Wert gesetzt wird, dann wird das
+  Schließen von Verbindungen erlaubt, normalerweise wird es jedoch ignoriert
 
 * Die als ``creator`` angegebene Funktion oder die Funktion ``connect``
   des DB-API-2-Datenbankadapter-Moduls erhalten alle weiteren Parameter,
@@ -298,8 +305,8 @@ Wenn Sie eine solche persistente Verbindung mit ``db.close()`` schließen,
 wird dies stillschweigend ignoriert, denn sie würde beim nächsten Zugriff
 sowieso wieder geöffnet, und das wäre nicht im Sinne persistenter Verbindungen.
 Stattdessen wird die Verbindung automatisch dann geschlossen, wenn der Thread
-endet. Sie können dieses Verhalten ändern, indem Sie ``persist._closeable``
-auf ``True`` setzen.
+endet. Sie können dieses Verhalten ändern, indem Sie den Parameter namens
+``closeable`` setzen.
 
 PooledDB
 --------
@@ -330,12 +337,12 @@ Parameter angeben müssen:
   bedeutet unbegrenzte Anzahl von Datenbankverbindungen)
 
 * ``blocking``: bestimmt das Verhalten, wenn diese Obergrenze überschritten
-  wird (der Standardwert ``0`` oder ``False`` bedeutet, dass eine Fehlermeldung
-  ausgegeben wird, andernfalls wird blockiert und gewartet, bis die Anzahl
-  an Datenbankverbindungen wieder abnimmt)
+  wird (der Standardwert ``0`` oder ein nicht wahrer Wert bedeutet, dass eine
+  Fehlermeldung ausgegeben wird, andernfalls wird blockiert und gewartet,
+  bis die Anzahl an Datenbankverbindungen wieder abnimmt)
 
 * ``maxusage``: Obergrenze dafür, wie oft eine einzelne Verbindung
-  wiederverwendet werden darf (der Standardwert ``0`` oder ``False``
+  wiederverwendet werden darf (der Standardwert ``0`` oder ``None``
   bedeutet unbegrenzte Wiederverwendung)
 
   Sobald diese Obergrenze erreicht wird, wird die Verbindung automatisch
@@ -343,6 +350,10 @@ Parameter angeben müssen:
 
 * ``setsession``: eine optionale Liste von SQL-Befehlen zur Initialisierung
   der Datenbanksitzung, z.B. ``["set datestyle to german", ...]``
+
+* ``failures``: eine optionale Exception-Klasse oder ein Tupel von Exceptions
+  bei denen die Ausfallsicherung zum Tragen kommen soll, falls die Vorgabe
+  (OperationalError, InternalError) nicht geeignet sein sollte
 
 * Die als ``creator`` angegebene Funktion oder die Funktion ``connect``
   des DB-API-2-Datenbankadapter-Moduls erhalten alle weiteren Parameter,

@@ -40,10 +40,10 @@ an instance of PooledDB, passing the following parameters:
 	maxconnections: maximum number of connections generally allowed
 		(the default value of 0 means any number of connections)
 	blocking: determines behavior when exceeding the maximum
-		(the default of 0 or False means report an error; otherwise
+		(the default of 0 or false means report an error; otherwise
 		block and wait until the number of connections decreases)
 	maxusage: maximum number of reuses of a single connection
-		(the default of 0 or False means unlimited reuse)
+		(the default of 0 or None means unlimited reuse)
 		When this maximum usage number of the connection is reached,
 		the connection is automatically reset (closed and reopened).
 	setsession: an optional list of SQL commands that may serve to
@@ -144,10 +144,12 @@ class PooledDB:
 
 	"""
 
+	version = __version__
+
 	def __init__(self, creator,
 		mincached=0, maxcached=0,
 		maxshared=0, maxconnections=0, blocking=0,
-		maxusage=0, setsession=None,
+		maxusage=0, setsession=None, failures=None,
 		*args, **kwargs):
 		"""Set up the DB-API 2 connection pool.
 
@@ -164,14 +166,17 @@ class PooledDB:
 		maxconnections: maximum number of connections generally allowed
 			(0 means an arbitrary number of connections)
 		blocking: determines behavior when exceeding the maximum
-			(0 or False means report an error; otherwise
+			(0 or any false value means report an error; otherwise
 			block and wait until the number of connections decreases)
 		maxusage: maximum number of reuses of a single connection
-			(0 or False means unlimited reuse)
+			(0 or None means unlimited reuse)
 			When this maximum usage number of the connection is reached,
 			the connection is automatically reset (closed and reopened).
 		setsession: optional list of SQL commands that may serve to prepare
 			the session, e.g. ["set datestyle to ...", "set time zone ..."]
+		failures: an optional exception class or a tuple of exception classes
+			for which the connection failover mechanism shall be applied,
+			if the default (OperationalError, InternalError) is not adequate
 		args, kwargs: the parameters that shall be passed to the creator
 			function or the connection constructor of the DB-API 2 module
 
@@ -189,6 +194,7 @@ class PooledDB:
 		self._args, self._kwargs = args, kwargs
 		self._maxusage = maxusage
 		self._setsession = setsession
+		self._failures = failures
 		if maxcached:
 			if maxcached < mincached:
 				maxcached = mincached
@@ -221,7 +227,8 @@ class PooledDB:
 	def steady_connection(self):
 		"""Get a steady, unpooled DB-API 2 connection."""
 		return connect(self._creator,
-			self._maxusage, self._setsession, *self._args, **self._kwargs)
+			self._maxusage, self._setsession, self._failures, 1,
+				*self._args, **self._kwargs)
 
 	def connection(self, shareable=1):
 		""""Get a steady, cached DB-API 2 connection from the pool.

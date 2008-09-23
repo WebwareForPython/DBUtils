@@ -87,25 +87,32 @@ class SteadyPgConnection:
 
 	"""
 
-	_closed = True
+	version = __version__
 
-	def __init__(self, maxusage=0, setsession=None, *args, **kwargs):
+	_closed = 1
+
+	def __init__(self, maxusage=0, setsession=None, closeable=1,
+			*args, **kwargs):
 		"""Create a "tough" PostgreSQL connection.
 
 		maxusage: maximum usage limit for the underlying PyGreSQL connection
-			(number of uses, 0 or False means unlimited usage)
+			(number of uses, 0 or None means unlimited usage)
 			When this limit is reached, the connection is automatically reset.
 		setsession: optional list of SQL commands that may serve to prepare
 			the session, e.g. ["set datestyle to ...", "set time zone ..."]
+		closeable: if this is set to false, then closing the connection will
+			be silently ignored, but by default the connection can be closed
 		args, kwargs: the parameters that shall be used to establish
 			the PostgreSQL connections with PyGreSQL using pg.DB()
 
 		"""
+		if maxusage is not None and not isinstance(maxusage, (int, long)):
+			raise TypeError("'maxusage' must be an integer value.")
 		self._maxusage = maxusage
 		self._setsession_sql = setsession
-		self._closeable = 1
+		self._closeable = closeable
 		self._con = PgConnection(*args, **kwargs)
-		self._closed = False
+		self._closed = 0
 		self._setsession()
 		self._usage = 0
 
@@ -127,7 +134,7 @@ class SteadyPgConnection:
 				self._con.close()
 			except Exception:
 				pass
-			self._closed = True
+			self._closed = 1
 
 	def close(self):
 		"""Close the tough connection.
@@ -136,8 +143,8 @@ class SteadyPgConnection:
 		and it will not complain if you close it more than once.
 
 		You can disallow closing connections by setting
-		the _closeable attribute to 0 or False. In this case,
-		closing a connection will be silently ignored.
+		the closeable parameter to something false. In this case,
+		closing tough connections will be silently ignored.
 
 		"""
 		if self._closeable:
@@ -154,7 +161,7 @@ class SteadyPgConnection:
 		except Exception:
 			pass
 		else:
-			self._closed = False
+			self._closed = 0
 			self._setsession()
 			self._usage = 0
 

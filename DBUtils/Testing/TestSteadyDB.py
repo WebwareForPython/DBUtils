@@ -29,8 +29,10 @@ class OperationalError(DatabaseError): pass
 class InternalError(DatabaseError): pass
 class ProgrammingError(DatabaseError): pass
 
+
 def connect(database=None, user=None):
 	return Connection(database, user)
+
 
 class Connection:
 
@@ -65,6 +67,7 @@ class Connection:
 		if not self.valid:
 			raise InternalError
 		return Cursor(self, name)
+
 
 class Cursor:
 
@@ -116,6 +119,7 @@ class Cursor:
 import unittest
 sys.path.insert(1, '../..')
 from DBUtils.SteadyDB import connect as SteadyDBconnect
+from DBUtils.SteadyDB import SteadyDBConnection
 
 
 class TestSteadyDB(unittest.TestCase):
@@ -124,6 +128,7 @@ class TestSteadyDB(unittest.TestCase):
 		TestSteadyDBVersion = __version__
 		from DBUtils.SteadyDB import __version__ as SteadyDBVersion
 		self.assertEqual(SteadyDBVersion, TestSteadyDBVersion)
+		self.assertEqual(SteadyDBVersion, SteadyDBConnection.version)
 
 	def test1_MockedDBConnection(self):
 		db = connect('SteadyDBTestDB',
@@ -202,8 +207,7 @@ class TestSteadyDB(unittest.TestCase):
 
 	def test3_SteadyDBClose(self):
 		for closeable in (0, 1):
-			db = SteadyDBconnect(dbapi)
-			db._closeable = closeable
+			db = SteadyDBconnect(dbapi, closeable=closeable)
 			self.assert_(db._con.valid)
 			db.close()
 			self.assert_(closeable ^ db._con.valid)
@@ -215,8 +219,9 @@ class TestSteadyDB(unittest.TestCase):
 			self.assert_(not db._con.valid)
 
 	def test4_SteadyDBConnection(self):
-		db = SteadyDBconnect(dbapi, 0, None,
+		db = SteadyDBconnect(dbapi, 0, None, None, 1,
 			'SteadyDBTestDB', user='SteadyDBTestUser')
+		self.assert_(isinstance(db, SteadyDBConnection))
 		self.assert_(hasattr(db, '_con'))
 		self.assert_(hasattr(db, '_usage'))
 		self.assertEqual(db._usage, 0)
@@ -330,9 +335,9 @@ class TestSteadyDB(unittest.TestCase):
 			['doit', 'commit', 'dont', 'rollback'])
 
 	def test5_SteadyDBConnectionCreatorFunction(self):
-		db1 = SteadyDBconnect(dbapi, 0, None,
+		db1 = SteadyDBconnect(dbapi, 0, None, None, 1,
 			'SteadyDBTestDB', user='SteadyDBTestUser')
-		db2 = SteadyDBconnect(connect, 0, None,
+		db2 = SteadyDBconnect(connect, 0, None, None, 1,
 			'SteadyDBTestDB', user='SteadyDBTestUser')
 		self.assertEqual(db1.dbapi(), db2.dbapi())
 		self.assertEqual(db1.threadsafety(), db2.threadsafety())
@@ -445,6 +450,21 @@ class TestSteadyDB(unittest.TestCase):
 		self.assertEqual(db._con.num_uses, 3)
 		self.assertEqual(db._con.num_queries, 1)
 		self.assertEqual(db._con.session, ['time zone', 'datestyle'])
+
+	def test8_SteadyDBConnectionFailures(self):
+		db = SteadyDBconnect(dbapi)
+		db.close()
+		db.cursor()
+		db = SteadyDBconnect(dbapi, failures=InternalError)
+		db.close()
+		db.cursor()
+		db = SteadyDBconnect(dbapi, failures=OperationalError)
+		db.close()
+		self.assertRaises(InternalError, db.cursor)
+		db = SteadyDBconnect(dbapi,
+			failures=(OperationalError, InternalError))
+		db.close()
+		db.cursor()
 
 
 if __name__ == '__main__':

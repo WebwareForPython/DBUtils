@@ -57,6 +57,7 @@ class TestSimplePooledDB(unittest.TestCase):
 
 	def test0_check_version(self):
 		self.assertEqual(SimplePooledDB.__version__, __version__)
+		self.assertEqual(SimplePooledDB.PooledDB.version, __version__)
 
 	def test1_no_threadsafety(self):
 		for threadsafety in (None, -1, 0, 4):

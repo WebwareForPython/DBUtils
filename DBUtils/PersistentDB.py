@@ -32,7 +32,7 @@ by creating an instance of PersistentDB, passing the following parameters:
 	creator: either an arbitrary function returning new DB-API 2
 		connection objects or a DB-API 2 compliant database module
 	maxusage: the maximum number of reuses of a single connection
-		(the default of 0 or False means unlimited reuse)
+		(the default of 0 or None means unlimited reuse)
 		Whenever the limit is reached, the connection will be reset.
 	setsession: an optional list of SQL commands that may serve to
 		prepare the session, e.g. ["set datestyle to german", ...].
@@ -63,7 +63,7 @@ Closing a persistent connection with db.close() will be silently
 ignored since it would be reopened at the next usage anyway and
 contrary to the intent of having persistent connections. Instead,
 the connection will be automatically closed when the thread dies.
-You can change this behavior be setting persist._closeable to True.
+You can change this behavior be setting the closeable parameter.
 
 
 Requirements:
@@ -111,22 +111,27 @@ class PersistentDB:
 
 	"""
 
+	version = __version__
+
 	def __init__(self, creator,
-		maxusage=0, setsession=None, *args, **kwargs):
+		maxusage=0, setsession=None, failures=None, closeable=0,
+		*args, **kwargs):
 		"""Set up the persistent DB-API 2 connection generator.
 
 		creator: either an arbitrary function returning new DB-API 2
 			connection objects or a DB-API 2 compliant database module
 		maxusage: maximum number of reuses of a single connection
-			(number of database operations, 0 or False means unlimited)
+			(number of database operations, 0 or None means unlimited)
 			Whenever the limit is reached, the connection will be reset.
 		setsession: optional list of SQL commands that may serve to prepare
 			the session, e.g. ["set datestyle to ...", "set time zone ..."]
+		failures: an optional exception class or a tuple of exception classes
+			for which the connection failover mechanism shall be applied,
+			if the default (OperationalError, InternalError) is not adequate
+		closeable: if this is set to true, then closing connections will
+			be allowed, but by default this will be silently ignored
 		args, kwargs: the parameters that shall be passed to the creator
 			function or the connection constructor of the DB-API 2 module
-
-		Set the _closeable attribute to True or 1 to allow closing
-		connections. By default, this will be silently ignored.
 
 		"""
 		try:
@@ -141,14 +146,17 @@ class PersistentDB:
 		self._creator = creator
 		self._maxusage = maxusage
 		self._setsession = setsession
+		self._failures = failures
+		self._closeable = closeable
 		self._args, self._kwargs = args, kwargs
-		self._closeable = 0
 		self.thread = local()
 
 	def steady_connection(self):
 		"""Get a steady, non-persistent DB-API 2 connection."""
 		return connect(self._creator,
-			self._maxusage, self._setsession, *self._args, **self._kwargs)
+			self._maxusage, self._setsession,
+			self._failures, self._closeable,
+			*self._args, **self._kwargs)
 
 	def connection(self, shareable=0):
 		"""Get a steady, persistent DB-API 2 connection.
@@ -164,7 +172,6 @@ class PersistentDB:
 			con = self.steady_connection()
 			if not con.threadsafety():
 				raise NotSupportedError("Database module is not thread-safe.")
-			con._closeable = self._closeable
 			self.thread.connection = con
 		return con
 

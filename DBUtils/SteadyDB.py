@@ -93,30 +93,40 @@ __date__ = "$Date$"
 import sys
 
 
-def connect(creator, maxusage=0, setsession=None, *args, **kwargs):
+def connect(creator, maxusage=0, setsession=None, failures=None,
+		closeable=1, *args, **kwargs):
 	"""A tough version of the connection constructor of a DB-API 2 module.
 
 	creator: either an arbitrary function returning new DB-API 2 compliant
 		connection objects or a DB-API 2 compliant database module
 	maxusage: maximum usage limit for the underlying DB-API 2 connection
-		(number of database operations, 0 or False means unlimited usage)
-		callproc(), execute() and executemany() count as one operation
+		(number of database operations, 0 or None means unlimited usage)
+		callproc(), execute() and executemany() count as one operation.
 		When the limit is reached, the connection is automatically reset.
 	setsession: an optional list of SQL commands that may serve to prepare
 		the session, e.g. ["set datestyle to german", "set time zone mez"]
+	failures: an optional exception class or a tuple of exception classes
+		for which the failover mechanism shall be applied, if the default
+		(OperationalError, InternalError) is not adequate
+	closeable: if this is set to false, then closing the connection will
+		be silently ignored, but by default the connection can be closed
 	args, kwargs: the parameters that shall be passed to the creator
 		function or the connection constructor of the DB-API 2 module
 
 	"""
-	return SteadyDBConnection(creator, maxusage, setsession, *args, **kwargs)
+	return SteadyDBConnection(creator, maxusage, setsession, failures,
+		closeable, *args, **kwargs)
 
 
 class SteadyDBConnection:
 	"""A "tough" version of DB-API 2 connections."""
 
-	_closed = True
+	version = __version__
 
-	def __init__(self, creator, maxusage=0, setsession=None, *args, **kwargs):
+	_closed = 1
+
+	def __init__(self, creator, maxusage=0, setsession=None, failures=None,
+			closeable=1, *args, **kwargs):
 		""""Create a "tough" DB-API 2 connection."""
 		try:
 			self._creator = creator.connect
@@ -131,10 +141,16 @@ class SteadyDBConnection:
 				self._dbapi = None
 		if not callable(self._creator):
 			raise TypeError("%r is not a connection provider." % (creator,))
+		if maxusage is not None and not isinstance(maxusage, (int, long)):
+			raise TypeError("'maxusage' must be an integer value.")
 		self._maxusage = maxusage
 		self._setsession_sql = setsession
+		if failures is not None and not isinstance(
+				failures, tuple) and not issubclass(failures, Exception):
+			raise TypeError("'failures' must be a tuple of exceptions.")
+		self._failures = failures
+		self._closeable = closeable
 		self._args, self._kwargs = args, kwargs
-		self._closeable = 1
 		self._store(self._create())
 
 	def _create(self):
@@ -151,6 +167,9 @@ class SteadyDBConnection:
 						raise AttributeError
 				except (AttributeError, KeyError):
 					raise TypeError("Cannot determine DB-API 2 module.")
+			if self._failures is None:
+				self._failures = (self._dbapi.OperationalError,
+					self._dbapi.InternalError)
 			self._setsession(con)
 		except Exception, error:
 			# the database module could not be determined
@@ -175,7 +194,7 @@ class SteadyDBConnection:
 	def _store(self, con):
 		"""Store a database connection for subsequent use."""
 		self._con = con
-		self._closed = False
+		self._closed = 0
 		self._usage = 0
 
 	def _close(self):
@@ -190,7 +209,7 @@ class SteadyDBConnection:
 				self._con.close()
 			except Exception:
 				pass
-			self._closed = True
+			self._closed = 1
 
 	def dbapi(self):
 		"""Return the underlying DB-API 2 module of the connection."""
@@ -210,8 +229,8 @@ class SteadyDBConnection:
 		and it will not complain if you close it more than once.
 
 		You can disallow closing connections by setting
-		the _closeable attribute to 0 or False. In this case,
-		closing a connection will be silently ignored.
+		the closeable parameter to something false. In this case,
+		closing tough connections will be silently ignored.
 
 		"""
 		if self._closeable:
@@ -235,8 +254,7 @@ class SteadyDBConnection:
 					# the connection was used too often
 					raise self._dbapi.OperationalError
 			cursor = self._con.cursor(*args, **kwargs) # try to get a cursor
-		except (self._dbapi.OperationalError,
-				self._dbapi.InternalError), error: # error in getting cursor
+		except self._failures, error: # error in getting cursor
 			try: # try to reopen the connection
 				con2 = self._create()
 			except Exception:
@@ -269,7 +287,7 @@ class SteadyDBConnection:
 class SteadyDBCursor:
 	"""A "tough" version of DB-API 2 cursors."""
 
-	_closed = True
+	_closed = 1
 
 	def __init__(self, con, *args, **kwargs):
 		""""Create a "tough" DB-API 2 cursor."""
@@ -277,7 +295,7 @@ class SteadyDBCursor:
 		self._args, self._kwargs = args, kwargs
 		self._clearsizes()
 		self._cursor = con._cursor(*args, **kwargs)
-		self._closed = False
+		self._closed = 0
 
 	def setinputsizes(self, sizes):
 		"""Store input sizes in case cursor needs to be reopened."""
@@ -318,7 +336,7 @@ class SteadyDBCursor:
 				self._cursor.close()
 			except Exception:
 				pass
-			self._closed = True
+			self._closed = 1
 
 	def _get_tough_method(self, name):
 		"""Return a "tough" version of the method."""
@@ -335,8 +353,7 @@ class SteadyDBCursor:
 				result = method(*args, **kwargs) # try to execute
 				if execute:
 					self._clearsizes()
-			except (self._con._dbapi.OperationalError,
-					self._con._dbapi.InternalError), error: # execution error
+			except self._con._failures, error: # execution error
 				try:
 					cursor2 = self._con._cursor(
 						*self._args, **self._kwargs) # open new cursor

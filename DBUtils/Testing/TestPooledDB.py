@@ -31,6 +31,7 @@ class TestPooledDB(unittest.TestCase):
 		TestPooledDBVersion = __version__
 		from DBUtils.PooledDB import __version__ as PooledDBVersion
 		self.assertEqual(PooledDBVersion, TestPooledDBVersion)
+		self.assertEqual(PooledDBVersion, PooledDB.version)
 
 	def test01_NoThreadsafety(self):
 		from DBUtils.PooledDB import NotSupportedError
@@ -54,7 +55,7 @@ class TestPooledDB(unittest.TestCase):
 		for threadsafety in (1, 2):
 			dbapi.threadsafety = threadsafety
 			shareable = threadsafety > 1
-			pool = PooledDB(dbapi, 1, 1, 1, 0, 0, 0, None,
+			pool = PooledDB(dbapi, 1, 1, 1, 0, 0, 0, None, None,
 				'PooledDBTestDB', user='PooledDBTestUser')
 			self.assert_(hasattr(pool, '_idle_cache'))
 			self.assertEqual(len(pool._idle_cache), 1)
@@ -126,7 +127,7 @@ class TestPooledDB(unittest.TestCase):
 			db_con = db._con._con
 			self.assert_(db_con.database is None)
 			self.assert_(db_con.user is None)
-			pool = PooledDB(dbapi, 0, 0, 0, 0, 0, 3, ('set datestyle',),)
+			pool = PooledDB(dbapi, 0, 0, 0, 0, 0, 3, ('set datestyle',))
 			self.assertEqual(pool._maxusage, 3)
 			self.assertEqual(pool._setsession, ('set datestyle',))
 			con = pool.connection()._con
@@ -137,7 +138,7 @@ class TestPooledDB(unittest.TestCase):
 		for threadsafety in (1, 2):
 			dbapi.threadsafety = threadsafety
 			shareable = threadsafety > 1
-			pool = PooledDB(dbapi, 0, 1, 1, 0, 0, 0, None,
+			pool = PooledDB(dbapi, 0, 1, 1, 0, 0, 0, None, None,
 				'PooledDBTestDB', user='PooledDBTestUser')
 			self.assert_(hasattr(pool, '_idle_cache'))
 			self.assertEqual(len(pool._idle_cache), 0)

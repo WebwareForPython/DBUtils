@@ -32,7 +32,7 @@ First you need to set up a generator for your kind of database connections
 by creating an instance of PersistentPg, passing the following parameters:
 
 	maxusage: the maximum number of reuses of a single connection
-		(the default of 0 or False means unlimited reuse)
+		(the default of 0 or None means unlimited reuse)
 		When this maximum usage number of the connection is reached,
 		the connection is automatically reset (closed and reopened).
 	setsession: An optional list of SQL commands that may serve to
@@ -61,7 +61,7 @@ Closing a persistent connection with db.close() will be silently
 ignored since it would be reopened at the next usage anyway and
 contrary to the intent of having persistent connections. Instead,
 the connection will be automatically closed when the thread dies.
-You can change this behavior be setting persist._closeable to True.
+You can change this behavior be setting the closeable parameter.
 
 
 Requirements:
@@ -104,32 +104,35 @@ class PersistentPg:
 
 	"""
 
-	def __init__(self, maxusage=0, setsession=None, *args, **kwargs):
+	version = __version__
+
+	def __init__(self, maxusage=0, setsession=None, closeable=0,
+			*args, **kwargs):
 		"""Set up the persistent PostgreSQL connection generator.
 
 		maxusage: maximum number of reuses of a single connection
-			(0 or False means unlimited reuse)
+			(0 or None means unlimited reuse)
 			When this maximum usage number of the connection is reached,
 			the connection is automatically reset (closed and reopened).
 		setsession: optional list of SQL commands that may serve to prepare
 			the session, e.g. ["set datestyle to ...", "set time zone ..."]
+		closeable: if this is set to true, then closing connections will
+			be allowed, but by default this will be silently ignored
 		args, kwargs: the parameters that shall be used to establish
 			the PostgreSQL connections using class PyGreSQL pg.DB()
-
-		Set the _closeable attribute to True or 1 to allow closing
-		connections. By default, this will be silently ignored.
 
 		"""
 		self._maxusage = maxusage
 		self._setsession = setsession
+		self._closeable = closeable
 		self._args, self._kwargs = args, kwargs
-		self._closeable = 0
 		self.thread = local()
 
 	def steady_connection(self):
 		"""Get a steady, non-persistent PyGreSQL connection."""
 		return SteadyPgConnection(
-			self._maxusage, self._setsession, *self._args, **self._kwargs)
+			self._maxusage, self._setsession, self._closeable,
+			*self._args, **self._kwargs)
 
 	def connection(self):
 		"""Get a steady, persistent PyGreSQL connection."""
@@ -137,7 +140,6 @@ class PersistentPg:
 			con = self.thread.connection
 		except AttributeError:
 			con = self.steady_connection()
-			con._closeable = self._closeable
 			self.thread.connection = con
 		return con
 

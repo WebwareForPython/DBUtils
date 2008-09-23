@@ -49,6 +49,7 @@ class TestSimplePooledPg(unittest.TestCase):
 
 	def test0_check_version(self):
 		self.assertEqual(SimplePooledPg.__version__, __version__)
+		self.assertEqual(SimplePooledPg.PooledPg.version, __version__)
 
 	def test1_create_connection(self):
 		dbpool = self.my_dbpool(1)

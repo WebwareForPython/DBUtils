@@ -112,6 +112,8 @@ class PooledPg:
 
 	"""
 
+	version = __version__
+
 	def __init__(self, maxconnections, *args, **kwargs):
 		"""Set up the PostgreSQL connection pool.
 

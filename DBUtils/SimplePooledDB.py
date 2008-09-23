@@ -121,6 +121,8 @@ class PooledDB:
 
 	"""
 
+	version = __version__
+
 	def __init__(self, dbapi, maxconnections, *args, **kwargs):
 		"""Set up the database connection pool.
 

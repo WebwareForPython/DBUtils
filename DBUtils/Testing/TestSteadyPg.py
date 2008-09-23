@@ -28,6 +28,7 @@ class DatabaseError(Error): pass
 class InternalError(DatabaseError): pass
 class ProgrammingError(DatabaseError): pass
 
+
 def connect(*args, **kwargs):
 	return pgConnection(*args, **kwargs)
 
@@ -114,6 +115,7 @@ class DB:
 			raise InternalError
 		return 'test'
 
+
 import unittest
 sys.path.insert(1, '../..')
 from DBUtils.SteadyPg import SteadyPgConnection
@@ -125,6 +127,7 @@ class TestSteadyPg(unittest.TestCase):
 		TestSteadyPgVersion = __version__
 		from DBUtils.SteadyPg import __version__ as SteadyPgVersion
 		self.assertEqual(SteadyPgVersion, TestSteadyPgVersion)
+		self.assertEqual(SteadyPgVersion, SteadyPgConnection.version)
 
 	def test1_MockedPgConnection(self):
 		PgConnection = DB
@@ -186,8 +189,7 @@ class TestSteadyPg(unittest.TestCase):
 
 	def test3_SteadyPgClose(self):
 		for closeable in (0, 1):
-			db = SteadyPgConnection()
-			db._closeable = closeable
+			db = SteadyPgConnection(closeable=closeable)
 			self.assert_(db._con.db and db._con.valid)
 			db.close()
 			self.assert_(closeable ^
@@ -201,7 +203,7 @@ class TestSteadyPg(unittest.TestCase):
 			self.assert_(not db._con.db or not db._con.valid)
 
 	def test4_SteadyPgConnection(self):
-		db = SteadyPgConnection(0, None,
+		db = SteadyPgConnection(0, None, 1,
 			'SteadyPgTestDB', user='SteadyPgTestUser')
 		self.assert_(hasattr(db, 'db'))
 		self.assert_(hasattr(db, '_con'))

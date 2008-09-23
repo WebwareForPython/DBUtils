@@ -32,6 +32,7 @@ tables = ('''seminars (
     primary key(name, seminar),
     foreign key (seminar) references seminars(id) on delete cascade)''')
 
+
 class DBUtilsExample(ExamplePage):
 	"""Example page for the DBUtils package."""
 

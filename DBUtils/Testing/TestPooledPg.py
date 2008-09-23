@@ -31,6 +31,7 @@ class TestPooledPg(unittest.TestCase):
 		TestPooledPgVersion = __version__
 		from DBUtils.PooledPg import __version__ as PooledPgVersion
 		self.assertEqual(PooledPgVersion, TestPooledPgVersion)
+		self.assertEqual(PooledPgVersion, PooledPg.version)
 
 	def test1_CreateConnection(self):
 		pool = PooledPg(1, 1, 0, 0, 0, None,

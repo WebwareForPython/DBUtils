@@ -34,6 +34,7 @@ class TestPersistentDB(unittest.TestCase):
 		TestPersistentDBVersion = __version__
 		from DBUtils.PersistentDB import __version__ as PersistentDBVersion
 		self.assertEqual(PersistentDBVersion, TestPersistentDBVersion)
+		self.assertEqual(PersistentDBVersion, PersistentDB.version)
 
 	def test1_NoThreadsafety(self):
 		from DBUtils.PersistentDB import NotSupportedError
@@ -42,8 +43,7 @@ class TestPersistentDB(unittest.TestCase):
 
 	def test2_PersistentDBClose(self):
 		for closeable in (0, 1):
-			persist = PersistentDB(dbapi)
-			persist._closeable = closeable
+			persist = PersistentDB(dbapi, closeable=closeable)
 			db = persist.connection()
 			self.assert_(db._con.valid)
 			db.close()
