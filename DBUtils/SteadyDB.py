@@ -93,8 +93,8 @@ __date__ = "$Date$"
 import sys
 
 
-def connect(creator, maxusage=0, setsession=None, failures=None,
-		closeable=1, *args, **kwargs):
+def connect(creator, maxusage=None, setsession=None, failures=None,
+		closeable=True, *args, **kwargs):
 	"""A tough version of the connection constructor of a DB-API 2 module.
 
 	creator: either an arbitrary function returning new DB-API 2 compliant
@@ -123,10 +123,10 @@ class SteadyDBConnection:
 
 	version = __version__
 
-	_closed = 1
+	_closed = True
 
-	def __init__(self, creator, maxusage=0, setsession=None, failures=None,
-			closeable=1, *args, **kwargs):
+	def __init__(self, creator, maxusage=None, setsession=None, failures=None,
+			closeable=True, *args, **kwargs):
 		""""Create a "tough" DB-API 2 connection."""
 		try:
 			self._creator = creator.connect
@@ -194,7 +194,7 @@ class SteadyDBConnection:
 	def _store(self, con):
 		"""Store a database connection for subsequent use."""
 		self._con = con
-		self._closed = 0
+		self._closed = False
 		self._usage = 0
 
 	def _close(self):
@@ -209,7 +209,7 @@ class SteadyDBConnection:
 				self._con.close()
 			except Exception:
 				pass
-			self._closed = 1
+			self._closed = True
 
 	def dbapi(self):
 		"""Return the underlying DB-API 2 module of the connection."""
@@ -287,7 +287,7 @@ class SteadyDBConnection:
 class SteadyDBCursor:
 	"""A "tough" version of DB-API 2 cursors."""
 
-	_closed = 1
+	_closed = True
 
 	def __init__(self, con, *args, **kwargs):
 		""""Create a "tough" DB-API 2 cursor."""
@@ -295,7 +295,7 @@ class SteadyDBCursor:
 		self._args, self._kwargs = args, kwargs
 		self._clearsizes()
 		self._cursor = con._cursor(*args, **kwargs)
-		self._closed = 0
+		self._closed = False
 
 	def setinputsizes(self, sizes):
 		"""Store input sizes in case cursor needs to be reopened."""
@@ -336,7 +336,7 @@ class SteadyDBCursor:
 				self._cursor.close()
 			except Exception:
 				pass
-			self._closed = 1
+			self._closed = True
 
 	def _get_tough_method(self, name):
 		"""Return a "tough" version of the method."""

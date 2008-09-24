@@ -89,9 +89,9 @@ class SteadyPgConnection:
 
 	version = __version__
 
-	_closed = 1
+	_closed = True
 
-	def __init__(self, maxusage=0, setsession=None, closeable=1,
+	def __init__(self, maxusage=None, setsession=None, closeable=True,
 			*args, **kwargs):
 		"""Create a "tough" PostgreSQL connection.
 
@@ -112,7 +112,7 @@ class SteadyPgConnection:
 		self._setsession_sql = setsession
 		self._closeable = closeable
 		self._con = PgConnection(*args, **kwargs)
-		self._closed = 0
+		self._closed = False
 		self._setsession()
 		self._usage = 0
 
@@ -134,7 +134,7 @@ class SteadyPgConnection:
 				self._con.close()
 			except Exception:
 				pass
-			self._closed = 1
+			self._closed = True
 
 	def close(self):
 		"""Close the tough connection.
@@ -161,7 +161,7 @@ class SteadyPgConnection:
 		except Exception:
 			pass
 		else:
-			self._closed = 0
+			self._closed = False
 			self._setsession()
 			self._usage = 0
 

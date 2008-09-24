@@ -275,8 +275,8 @@ Parameter angeben müssen:
   bei denen die Ausfallsicherung zum Tragen kommen soll, falls die Vorgabe
   (OperationalError, InternalError) nicht geeignet sein sollte
 
-* ``closeable``: wenn dies auf einen wahren Wert gesetzt wird, dann wird das
-  Schließen von Verbindungen erlaubt, normalerweise wird es jedoch ignoriert
+* ``closeable``: wenn dies auf ``True`` gesetzt wird, dann wird das Schließen
+  von Verbindungen erlaubt, normalerweise wird es jedoch ignoriert
 
 * Die als ``creator`` angegebene Funktion oder die Funktion ``connect``
   des DB-API-2-Datenbankadapter-Moduls erhalten alle weiteren Parameter,
@@ -336,10 +336,11 @@ Parameter angeben müssen:
   die insgesamt überhaupt erlaubt werden sollen (der Standardwert ``0``
   bedeutet unbegrenzte Anzahl von Datenbankverbindungen)
 
-* ``blocking``: bestimmt das Verhalten, wenn diese Obergrenze überschritten
-  wird (der Standardwert ``0`` oder ein nicht wahrer Wert bedeutet, dass eine
-  Fehlermeldung ausgegeben wird, andernfalls wird blockiert und gewartet,
-  bis die Anzahl an Datenbankverbindungen wieder abnimmt)
+* ``blocking``: bestimmt das Verhalten bei Überschreitung dieser Obergrenze
+
+  Wenn dies auf ``True`` gesetzt wird, dann wird so lange gewartet, bis die
+  Anzahl an Datenbankverbindungen wieder abnimmt, normalerweise wird jedoch
+  sofort eine Fehlermeldung ausgegeben.
 
 * ``maxusage``: Obergrenze dafür, wie oft eine einzelne Verbindung
   wiederverwendet werden darf (der Standardwert ``0`` oder ``None``

@@ -106,11 +106,11 @@ class DBUtilsExample(ExamplePage):
 	def output(self, s):
 		self._output.append(s)
 
-	def outputMsg(self, msg, error=0):
+	def outputMsg(self, msg, error=False):
 		self._output.append('<p style="color:%s">%s</p>'
 			% (error and 'red' or 'green', msg))
 
-	def connection(self, shareable=1):
+	def connection(self, shareable=True):
 		if self.dbstatus:
 			error = self.dbstatus
 		else:
@@ -123,7 +123,7 @@ class DBUtilsExample(ExamplePage):
 				error = str(error)
 			except Exception:
 				error = 'Cannot connect to the database.'
-		self.outputMsg(error, 1)
+		self.outputMsg(error, True)
 
 	def sqlEncode(self, s):
 		if s is None:
@@ -132,7 +132,7 @@ class DBUtilsExample(ExamplePage):
 		return "'%s'" % s
 
 	def createTables(self):
-		db = self.connection(0)
+		db = self.connection(False)
 		if not db:
 			return
 		for table in tables:
@@ -148,7 +148,7 @@ class DBUtilsExample(ExamplePage):
 			except self.dbapi.Error, error:
 				if self.dbapi_name != 'pg':
 					db.rollback()
-				self.outputMsg(error, 1)
+				self.outputMsg(error, True)
 			else:
 				self.outputMsg('The table was successfully created.')
 		db.close()
@@ -160,7 +160,7 @@ class DBUtilsExample(ExamplePage):
 				id = [id]
 			cmd = ','.join(map(self.sqlEncode, id))
 			cmd = 'delete from seminars where id in (%s)' % cmd
-			db = self.connection(0)
+			db = self.connection(False)
 			if not db:
 				return
 			try:
@@ -179,7 +179,7 @@ class DBUtilsExample(ExamplePage):
 						db.rollback()
 				except Exception:
 					pass
-				self.outputMsg(error, 1)
+				self.outputMsg(error, True)
 				return
 			else:
 				self.outputMsg('Entries deleted: %d' % len(id))
@@ -197,10 +197,10 @@ class DBUtilsExample(ExamplePage):
 				result = cursor.fetchall()
 				cursor.close()
 		except self.dbapi.Error, error:
-			self.outputMsg(error, 1)
+			self.outputMsg(error, True)
 			return
 		if not result:
-			self.outputMsg('There are no seminars in the database.', 1)
+			self.outputMsg('There are no seminars in the database.', True)
 			return
 		wr = self.output
 		button = self._buttons[1].replace('List seminars', 'Delete')
@@ -236,7 +236,7 @@ class DBUtilsExample(ExamplePage):
 			for i, n in places.items():
 				cmds.append("update seminars set places_left=places_left+%d "
 				"where id=%s" % (n, self.sqlEncode(i)))
-			db = self.connection(0)
+			db = self.connection(False)
 			if not db:
 				return
 			try:
@@ -254,7 +254,7 @@ class DBUtilsExample(ExamplePage):
 					db.query('end')
 				else:
 					db.rollback()
-				self.outputMsg(error, 1)
+				self.outputMsg(error, True)
 				return
 			else:
 				self.outputMsg('Entries deleted: %d' % len(id))
@@ -274,10 +274,10 @@ class DBUtilsExample(ExamplePage):
 				result = cursor.fetchall()
 				cursor.close()
 		except self.dbapi.Error, error:
-			self.outputMsg(error, 1)
+			self.outputMsg(error, True)
 			return
 		if not result:
-			self.outputMsg('There are no attendees in the database.', 1)
+			self.outputMsg('There are no attendees in the database.', True)
 			return
 		wr = self.output
 		button = self._buttons[2].replace('List attendees', 'Delete')
@@ -338,7 +338,7 @@ class DBUtilsExample(ExamplePage):
 				db.query('end')
 			else:
 				db.rollback()
-			self.outputMsg(error, 1)
+			self.outputMsg(error, True)
 		else:
 			self.outputMsg('"%s" added to seminars.' % values[1])
 		db.close()
@@ -358,7 +358,7 @@ class DBUtilsExample(ExamplePage):
 				result = cursor.fetchall()
 				cursor.close()
 		except self.dbapi.Error, error:
-			self.outputMsg(error, 1)
+			self.outputMsg(error, True)
 			return
 		if not result:
 			self.outputMsg('You have to define seminars first.')
@@ -425,7 +425,7 @@ class DBUtilsExample(ExamplePage):
 				db.query('end')
 			else:
 				db.rollback()
-			self.outputMsg(error, 1)
+			self.outputMsg(error, True)
 		else:
 			self.outputMsg('%s added to attendees.' % values[0])
 		db.close()

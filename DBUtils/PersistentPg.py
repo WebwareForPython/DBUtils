@@ -106,7 +106,7 @@ class PersistentPg:
 
 	version = __version__
 
-	def __init__(self, maxusage=0, setsession=None, closeable=0,
+	def __init__(self, maxusage=None, setsession=None, closeable=False,
 			*args, **kwargs):
 		"""Set up the persistent PostgreSQL connection generator.
 

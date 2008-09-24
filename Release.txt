@@ -1,9 +1,11 @@
 Create a new DBUtils release:
 =============================
 
-* Check the documentation.
+* Check the documentation. If possible, update all translations.
 
 * Run all tests in DBUtils/Testing with Python version from 2.2 to 2.5.
+
+* Run the examples in DBUtils/Examples with the current Webware version.
 
 * Update and check the Release Notes.
 

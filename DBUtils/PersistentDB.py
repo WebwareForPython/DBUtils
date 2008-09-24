@@ -115,7 +115,7 @@ class PersistentDB:
 	version = __version__
 
 	def __init__(self, creator,
-		maxusage=0, setsession=None, failures=None, closeable=0,
+		maxusage=None, setsession=None, failures=None, closeable=False,
 		*args, **kwargs):
 		"""Set up the persistent DB-API 2 connection generator.
 
@@ -159,7 +159,7 @@ class PersistentDB:
 			self._failures, self._closeable,
 			*self._args, **self._kwargs)
 
-	def connection(self, shareable=0):
+	def connection(self, shareable=False):
 		"""Get a steady, persistent DB-API 2 connection.
 
 		The shareable parameter exists only for compatibility with the

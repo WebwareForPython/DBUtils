@@ -35,12 +35,12 @@ class TestPooledPg(unittest.TestCase):
 		self.assertEqual(PooledPg.version, __version__)
 
 	def test1_CreateConnection(self):
-		pool = PooledPg(1, 1, 0, 0, 0, None,
+		pool = PooledPg(1, 1, 0, False, None, None,
 			'PooledPgTestDB', user='PooledPgTestUser')
 		self.assert_(hasattr(pool, '_cache'))
 		self.assertEqual(pool._cache.qsize(), 1)
 		self.assert_(hasattr(pool, '_maxusage'))
-		self.assertEqual(pool._maxusage, 0)
+		self.assertEqual(pool._maxusage, None)
 		self.assert_(hasattr(pool, '_setsession'))
 		self.assert_(pool._setsession is None)
 		db_con = pool._cache.get(0)
@@ -55,7 +55,7 @@ class TestPooledPg(unittest.TestCase):
 		self.assert_(hasattr(db, 'num_queries'))
 		self.assertEqual(db.num_queries, 0)
 		self.assert_(hasattr(db, '_maxusage'))
-		self.assertEqual(db._maxusage, 0)
+		self.assertEqual(db._maxusage, None)
 		self.assert_(hasattr(db, '_setsession_sql'))
 		self.assert_(db._setsession_sql is None)
 		self.assert_(hasattr(db, 'dbname'))
@@ -72,7 +72,7 @@ class TestPooledPg(unittest.TestCase):
 		self.assert_(db.user is None)
 		self.assert_(hasattr(db, 'num_queries'))
 		self.assertEqual(db.num_queries, 0)
-		pool = PooledPg(0, 0, 0, 0, 3, ('set datestyle',),)
+		pool = PooledPg(0, 0, 0, False, 3, ('set datestyle',),)
 		self.assertEqual(pool._maxusage, 3)
 		self.assertEqual(pool._setsession, ('set datestyle',))
 		db = pool.connection()
@@ -80,7 +80,7 @@ class TestPooledPg(unittest.TestCase):
 		self.assertEqual(db._setsession_sql, ('set datestyle',))
 
 	def test2_CloseConnection(self):
-		pool = PooledPg(0, 1, 0, 0, 0, None,
+		pool = PooledPg(0, 1, 0, False, None, None,
 			'PooledPgTestDB', user='PooledPgTestUser')
 		db = pool.connection()
 		self.assert_(hasattr(db, '_con'))
@@ -169,7 +169,7 @@ class TestPooledPg(unittest.TestCase):
 			cache.append(pool.connection())
 		self.assertEqual(pool._cache.qsize(), 0)
 		self.assertRaises(TooManyConnections, pool.connection)
-		pool = PooledPg(0, 1, 1, 0)
+		pool = PooledPg(0, 1, 1, False)
 		self.assertEqual(pool._blocking, 0)
 		self.assertEqual(pool._cache.qsize(), 0)
 		db = pool.connection()
@@ -183,14 +183,14 @@ class TestPooledPg(unittest.TestCase):
 		cache.append(pool.connection())
 		self.assertEqual(pool._cache.qsize(), 0)
 		self.assertRaises(TooManyConnections, pool.connection)
-		pool = PooledPg(3, 2, 1, 0)
+		pool = PooledPg(3, 2, 1, False)
 		self.assertEqual(pool._cache.qsize(), 3)
 		cache = []
 		for i in range(3):
 			cache.append(pool.connection())
 		self.assertEqual(pool._cache.qsize(), 0)
 		self.assertRaises(TooManyConnections, pool.connection)
-		pool = PooledPg(1, 1, 1, 1)
+		pool = PooledPg(1, 1, 1, True)
 		self.assertEqual(pool._blocking, 1)
 		self.assertEqual(pool._cache.qsize(), 1)
 		db = pool.connection()
@@ -235,7 +235,7 @@ class TestPooledPg(unittest.TestCase):
 		self.assertEqual(db2.num_queries, 8)
 
 	def test6_ThreeThreadsTwoConnections(self):
-		pool = PooledPg(2, 2, 2, 1)
+		pool = PooledPg(2, 2, 2, True)
 		from Queue import Queue, Empty
 		queue = Queue(3)
 		def connection():

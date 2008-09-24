@@ -56,7 +56,7 @@ class TestPooledDB(unittest.TestCase):
 		for threadsafety in (1, 2):
 			dbapi.threadsafety = threadsafety
 			shareable = threadsafety > 1
-			pool = PooledDB(dbapi, 1, 1, 1, 0, 0, 0, None, None,
+			pool = PooledDB(dbapi, 1, 1, 1, 0, False, None, None, None,
 				'PooledDBTestDB', user='PooledDBTestUser')
 			self.assert_(hasattr(pool, '_idle_cache'))
 			self.assertEqual(len(pool._idle_cache), 1)
@@ -66,14 +66,14 @@ class TestPooledDB(unittest.TestCase):
 			else:
 				self.assert_(not hasattr(pool, '_shared_cache'))
 			self.assert_(hasattr(pool, '_maxusage'))
-			self.assertEqual(pool._maxusage, 0)
+			self.assertEqual(pool._maxusage, None)
 			self.assert_(hasattr(pool, '_setsession'))
 			self.assert_(pool._setsession is None)
 			con = pool._idle_cache[0]
 			from DBUtils.SteadyDB import SteadyDBConnection
 			self.assert_(isinstance(con, SteadyDBConnection))
 			self.assert_(hasattr(con, '_maxusage'))
-			self.assertEqual(con._maxusage, 0)
+			self.assertEqual(con._maxusage, None)
 			self.assert_(hasattr(con, '_setsession_sql'))
 			self.assert_(con._setsession_sql is None)
 			db = pool.connection()
@@ -128,7 +128,7 @@ class TestPooledDB(unittest.TestCase):
 			db_con = db._con._con
 			self.assert_(db_con.database is None)
 			self.assert_(db_con.user is None)
-			pool = PooledDB(dbapi, 0, 0, 0, 0, 0, 3, ('set datestyle',))
+			pool = PooledDB(dbapi, 0, 0, 0, 0, False, 3, ('set datestyle',))
 			self.assertEqual(pool._maxusage, 3)
 			self.assertEqual(pool._setsession, ('set datestyle',))
 			con = pool.connection()._con
@@ -139,7 +139,7 @@ class TestPooledDB(unittest.TestCase):
 		for threadsafety in (1, 2):
 			dbapi.threadsafety = threadsafety
 			shareable = threadsafety > 1
-			pool = PooledDB(dbapi, 0, 1, 1, 0, 0, 0, None, None,
+			pool = PooledDB(dbapi, 0, 1, 1, 0, False, None, None, None,
 				'PooledDBTestDB', user='PooledDBTestUser')
 			self.assert_(hasattr(pool, '_idle_cache'))
 			self.assertEqual(len(pool._idle_cache), 0)
@@ -692,7 +692,7 @@ class TestPooledDB(unittest.TestCase):
 				self.assertEqual(len(pool._shared_cache), 0)
 			self.assertRaises(TooManyConnections, pool.connection, 0)
 			self.assertRaises(TooManyConnections, pool.connection)
-			pool = PooledDB(dbapi, 4, 3, 2, 1, 0)
+			pool = PooledDB(dbapi, 4, 3, 2, 1, False)
 			self.assertEqual(pool._maxconnections, 4)
 			self.assertEqual(pool._connections, 0)
 			self.assertEqual(len(pool._idle_cache), 4)
@@ -703,7 +703,7 @@ class TestPooledDB(unittest.TestCase):
 			self.assertEqual(len(pool._idle_cache), 0)
 			self.assertRaises(TooManyConnections, pool.connection, 0)
 			self.assertRaises(TooManyConnections, pool.connection)
-			pool = PooledDB(dbapi, 1, 2, 3, 4, 0)
+			pool = PooledDB(dbapi, 1, 2, 3, 4, False)
 			self.assertEqual(pool._maxconnections, 4)
 			self.assertEqual(pool._connections, 0)
 			self.assertEqual(len(pool._idle_cache), 1)
@@ -721,7 +721,7 @@ class TestPooledDB(unittest.TestCase):
 				self.assertEqual(pool._connections, 4)
 				self.assertRaises(TooManyConnections, pool.connection)
 			self.assertRaises(TooManyConnections, pool.connection, 0)
-			pool = PooledDB(dbapi, 0, 0, 3, 3, 0)
+			pool = PooledDB(dbapi, 0, 0, 3, 3, False)
 			self.assertEqual(pool._maxconnections, 3)
 			self.assertEqual(pool._connections, 0)
 			cache = []
@@ -754,7 +754,7 @@ class TestPooledDB(unittest.TestCase):
 				self.assertEqual(len(pool._shared_cache), 3)
 			else:
 				self.assertEqual(pool._connections, 20)
-			pool = PooledDB(dbapi, 1, 1, 1, 1, 1)
+			pool = PooledDB(dbapi, 1, 1, 1, 1, True)
 			self.assertEqual(pool._maxconnections, 1)
 			self.assertEqual(pool._connections, 0)
 			self.assertEqual(len(pool._idle_cache), 1)
@@ -793,7 +793,7 @@ class TestPooledDB(unittest.TestCase):
 		for threadsafety in (1, 2):
 			dbapi.threadsafety = threadsafety
 			for maxusage in (0, 3, 7):
-				pool = PooledDB(dbapi, 0, 0, 0, 1, 0, maxusage)
+				pool = PooledDB(dbapi, 0, 0, 0, 1, False, maxusage)
 				self.assertEqual(pool._maxusage, maxusage)
 				self.assertEqual(len(pool._idle_cache), 0)
 				db = pool.connection(0)
@@ -828,7 +828,7 @@ class TestPooledDB(unittest.TestCase):
 		for threadsafety in (1, 2):
 			dbapi.threadsafety = threadsafety
 			setsession = ('set time zone', 'set datestyle')
-			pool = PooledDB(dbapi, 0, 0, 0, 1, 0, 0, setsession)
+			pool = PooledDB(dbapi, 0, 0, 0, 1, False, None, setsession)
 			self.assertEqual(pool._setsession, setsession)
 			db = pool.connection(0)
 			self.assertEqual(db._setsession_sql, setsession)
@@ -912,7 +912,7 @@ class TestPooledDB(unittest.TestCase):
 	def test16_ThreeThreadsTwoConnections(self):
 		for threadsafety in (1, 2):
 			dbapi.threadsafety = threadsafety
-			pool = PooledDB(dbapi, 2, 2, 0, 2, 1)
+			pool = PooledDB(dbapi, 2, 2, 0, 2, True)
 			from Queue import Queue, Empty
 			queue = Queue(3)
 			def connection():
@@ -945,7 +945,7 @@ class TestPooledDB(unittest.TestCase):
 			self.assertNotEqual(db1, db2)
 			self.assertNotEqual(db1._con, db2._con)
 			self.assertEqual(db1._con, db1_con)
-			pool = PooledDB(dbapi, 2, 2, 1, 2, 1)
+			pool = PooledDB(dbapi, 2, 2, 1, 2, True)
 			db1 = pool.connection(0)
 			db2 = pool.connection(0)
 			self.assertNotEqual(db1, db2)

@@ -310,8 +310,9 @@ following parameters:
   (the default value of ``0`` means any number of connections)
 
 * ``blocking``: determines behavior when exceeding the maximum
-  (the default of ``0`` or any false value means report an error;
-  otherwise block and wait until the number of connections decreases)
+
+  If this is set to true, block and wait until the number of
+  connections decreases, but by default an error will be reported.
 
 * ``maxusage``: maximum number of reuses of a single connection
   (the default of ``0`` or ``None`` means unlimited reuse)

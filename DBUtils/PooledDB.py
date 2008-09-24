@@ -40,8 +40,8 @@ an instance of PooledDB, passing the following parameters:
 	maxconnections: maximum number of connections generally allowed
 		(the default value of 0 means any number of connections)
 	blocking: determines behavior when exceeding the maximum
-		(the default of 0 or false means report an error; otherwise
-		block and wait until the number of connections decreases)
+		(if this is set to true, block and wait until the number of
+		connections decreases, but by default an error will be reported)
 	maxusage: maximum number of reuses of a single connection
 		(the default of 0 or None means unlimited reuse)
 		When this maximum usage number of the connection is reached,
@@ -149,8 +149,8 @@ class PooledDB:
 
 	def __init__(self, creator,
 		mincached=0, maxcached=0,
-		maxshared=0, maxconnections=0, blocking=0,
-		maxusage=0, setsession=None, failures=None,
+		maxshared=0, maxconnections=0, blocking=False,
+		maxusage=None, setsession=None, failures=None,
 		*args, **kwargs):
 		"""Set up the DB-API 2 connection pool.
 
@@ -167,8 +167,8 @@ class PooledDB:
 		maxconnections: maximum number of connections generally allowed
 			(0 means an arbitrary number of connections)
 		blocking: determines behavior when exceeding the maximum
-			(0 or any false value means report an error; otherwise
-			block and wait until the number of connections decreases)
+			(if this is set to true, block and wait until the number of
+			connections decreases, otherwise an error will be reported)
 		maxusage: maximum number of reuses of a single connection
 			(0 or None means unlimited reuse)
 			When this maximum usage number of the connection is reached,
@@ -228,10 +228,10 @@ class PooledDB:
 	def steady_connection(self):
 		"""Get a steady, unpooled DB-API 2 connection."""
 		return connect(self._creator,
-			self._maxusage, self._setsession, self._failures, 1,
+			self._maxusage, self._setsession, self._failures, True,
 				*self._args, **self._kwargs)
 
-	def connection(self, shareable=1):
+	def connection(self, shareable=True):
 		""""Get a steady, cached DB-API 2 connection from the pool.
 
 		If shareable is set and the underlying DB-API 2 allows it,

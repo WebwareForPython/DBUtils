@@ -51,6 +51,13 @@ sys.path.insert(1, '../..')
 from DBUtils import SimplePooledDB
 
 
+def versionString(version):
+	"""Create version string."""
+	ver = map(str, version)
+	numbers, rest = ver[:ver[2] == '0' and 2 or 3], ver[3:]
+	return '.'.join(numbers) + '-'.join(rest)
+
+
 class TestSimplePooledDB(unittest.TestCase):
 
 	def my_dbpool(self, mythreadsafety, maxConnections):
@@ -62,6 +69,8 @@ class TestSimplePooledDB(unittest.TestCase):
 	def test0_check_version(self):
 		from DBUtils import __version__ as DBUtilsVersion
 		self.assertEqual(DBUtilsVersion, __version__)
+		from DBUtils.Properties import version
+		self.assertEqual(versionString(version), __version__)
 		self.assertEqual(SimplePooledDB.__version__, __version__)
 		self.assertEqual(SimplePooledDB.PooledDB.version, __version__)
 

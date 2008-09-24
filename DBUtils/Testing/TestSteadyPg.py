@@ -42,25 +42,25 @@ class pgConnection:
 		self.num_queries = 0
 		self.session = []
 		if dbname == 'error':
-			self.status = 0
-			self.valid = 0
+			self.status = False
+			self.valid = False
 			raise InternalError
-		self.status = 1
-		self.valid = 1
+		self.status = True
+		self.valid = True
 
 	def close(self):
 		if not self.valid:
 			raise InternalError
 		self.num_queries = 0
 		self.session = []
-		self.status = 0
-		self.valid = 0
+		self.status = False
+		self.valid = False
 
 	def reset(self):
 		self.num_queries = 0
 		self.session = []
-		self.status = 1
-		self.valid = 1
+		self.status = True
+		self.valid = True
 
 	def query(self, qstr):
 		if not self.valid:
@@ -174,7 +174,7 @@ class TestSteadyPg(unittest.TestCase):
 		try:
 			status = db.db.status
 		except AttributeError:
-			status = 0
+			status = False
 		self.assert_(not status)
 		self.assertRaises(InternalError, db.close)
 		self.assertRaises(InternalError, db.query, 'select test')
@@ -190,7 +190,7 @@ class TestSteadyPg(unittest.TestCase):
 			dbname='error')
 
 	def test3_SteadyPgClose(self):
-		for closeable in (0, 1):
+		for closeable in (False, True):
 			db = SteadyPgConnection(closeable=closeable)
 			self.assert_(db._con.db and db._con.valid)
 			db.close()
@@ -260,7 +260,7 @@ class TestSteadyPg(unittest.TestCase):
 		try:
 			status = db.db.status
 		except AttributeError:
-			status = 0
+			status = False
 		self.assert_(not status)
 		self.assert_(hasattr(db._con, 'close'))
 		self.assert_(hasattr(db._con, 'query'))
@@ -271,13 +271,13 @@ class TestSteadyPg(unittest.TestCase):
 		self.assert_(db.db.status)
 		self.assertEqual(db._usage, 1)
 		self.assertEqual(db.num_queries, 1)
-		db.db.status = 0
+		db.db.status = False
 		self.assert_(not db.db.status)
 		self.assertEqual(db.query('select test'), 'test')
 		self.assert_(db.db.status)
 		self.assertEqual(db._usage, 1)
 		self.assertEqual(db.num_queries, 1)
-		db.db.status = 0
+		db.db.status = False
 		self.assert_(not db.db.status)
 		self.assertEqual(db.get_tables(), 'test')
 		self.assert_(db.db.status)
@@ -302,7 +302,7 @@ class TestSteadyPg(unittest.TestCase):
 			self.assertEqual(db.num_queries, 0)
 		for i in range(10):
 			if i == 7:
-				db.db.status = 0
+				db.db.status = False
 			r = db.query('select test%d' % i)
 			self.assertEqual(r, 'test%d' % i)
 			j = i % 7 + 1
@@ -310,7 +310,7 @@ class TestSteadyPg(unittest.TestCase):
 			self.assertEqual(db.num_queries, j)
 		for i in range(10):
 			if i == 5:
-				db.db.status = 0
+				db.db.status = False
 			r = db.get_tables()
 			self.assertEqual(r, 'test')
 			j = (i + (i < 5 and 3 or -5)) % 10 + 1

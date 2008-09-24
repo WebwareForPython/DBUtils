@@ -35,8 +35,8 @@ an instance of PooledPg, passing the following parameters:
 	maxconnections: maximum number of connections generally allowed
 		(the default value of 0 means any number of connections)
 	blocking: determines behavior when exceeding the maximum
-		(the default of 0 or false means report an error; otherwise
-		block and wait until the number of connections decreases)
+		(if this is set to true, block and wait until the number of
+		connections decreases, but by default an error will be reported)
 	maxusage: maximum number of reuses of a single connection
 		(the default of 0 or None means unlimited reuse)
 		When this maximum usage number of the connection is reached,
@@ -130,8 +130,8 @@ class PooledPg:
 
 	def __init__(self,
 		mincached=0, maxcached=0,
-		maxconnections=0, blocking=0,
-		maxusage=0, setsession=None,
+		maxconnections=0, blocking=False,
+		maxusage=None, setsession=None,
 		*args, **kwargs):
 		"""Set up the PostgreSQL connection pool.
 
@@ -142,8 +142,8 @@ class PooledPg:
 		maxconnections: maximum number of connections generally allowed
 			(0 means an arbitrary number of connections)
 		blocking: determines behavior when exceeding the maximum
-			(0 or any false value means report an error; otherwise
-			block and wait until the number of connections decreases)
+			(if this is set to true, block and wait until the number of
+			connections decreases, otherwise an error will be reported)
 		maxusage: maximum number of reuses of a single connection
 			(0 or None means unlimited reuse)
 			When this maximum usage number of the connection is reached,
@@ -175,7 +175,7 @@ class PooledPg:
 
 	def steady_connection(self):
 		"""Get a steady, unpooled PostgreSQL connection."""
-		return SteadyPgConnection(self._maxusage, self._setsession, 1,
+		return SteadyPgConnection(self._maxusage, self._setsession, True,
 			*self._args, **self._kwargs)
 
 	def connection(self):

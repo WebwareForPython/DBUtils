@@ -44,9 +44,9 @@ class Connection:
 		self.num_queries = 0
 		self.session = []
 		if database == 'error':
-			self.valid = 0
+			self.valid = False
 			raise OperationalError
-		self.valid = 1
+		self.valid = True
 
 	def close(self):
 		if not self.valid:
@@ -55,7 +55,7 @@ class Connection:
 		self.num_uses = 0
 		self.num_queries = 0
 		self.session = []
-		self.valid = 0
+		self.valid = False
 
 	def commit(self):
 		self.session.append('commit')
@@ -75,16 +75,16 @@ class Cursor:
 		self.con = con
 		self.result = None
 		if name == 'error':
-			self.valid = 0
+			self.valid = False
 			raise OperationalError
 		con.open_cursors += 1
-		self.valid = 1
+		self.valid = True
 
 	def close(self):
 		if not self.valid:
 			raise InternalError
 		self.con.open_cursors -= 1
-		self.valid = 0
+		self.valid = False
 
 	def execute(self, operation):
 		if not self.valid or not self.con.valid:
@@ -208,7 +208,7 @@ class TestSteadyDB(unittest.TestCase):
 		self.assertRaises(OperationalError, db.cursor, 'error')
 
 	def test3_SteadyDBClose(self):
-		for closeable in (0, 1):
+		for closeable in (False, True):
 			db = SteadyDBconnect(dbapi, closeable=closeable)
 			self.assert_(db._con.valid)
 			db.close()
@@ -316,7 +316,7 @@ class TestSteadyDB(unittest.TestCase):
 		cursor = db.cursor()
 		self.assert_(cursor.valid)
 		cursor.callproc('test')
-		cursor._cursor.valid = 0
+		cursor._cursor.valid = False
 		self.assert_(not cursor.valid)
 		self.assertRaises(InternalError, cursor._cursor.callproc, 'test')
 		cursor.callproc('test')
@@ -324,7 +324,7 @@ class TestSteadyDB(unittest.TestCase):
 		cursor._cursor.callproc('test')
 		self.assertEqual(db._usage, 2)
 		self.assertEqual(db._con.num_uses, 3)
-		db._con.valid = cursor._cursor.valid = 0
+		db._con.valid = cursor._cursor.valid = False
 		cursor.callproc('test')
 		self.assert_(cursor.valid)
 		self.assertEqual(db._usage, 1)
@@ -371,7 +371,7 @@ class TestSteadyDB(unittest.TestCase):
 			self.assertEqual(db._con.num_queries, 0)
 		for i in range(10):
 			if i == 7:
-				db._con.valid = cursor._cursor.valid = 0
+				db._con.valid = cursor._cursor.valid = False
 			cursor.execute('select test%d' % i)
 			r = cursor.fetchone()
 			self.assertEqual(r, 'test%d' % i)
@@ -381,7 +381,7 @@ class TestSteadyDB(unittest.TestCase):
 			self.assertEqual(db._con.num_queries, j)
 		for i in range(10):
 			if i == 5:
-				db._con.valid = cursor._cursor.valid = 0
+				db._con.valid = cursor._cursor.valid = False
 			cursor.callproc('test')
 			j = (i + (i < 5 and 3 or -5)) % 10 + 1
 			self.assertEqual(db._usage, j)

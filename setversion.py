@@ -19,7 +19,7 @@ releaseDate = '@@/@@/@@'
 releaseDate = '07/07/07'
 
 # Verbose output (output unchanged files also):
-verbose = 0
+verbose = False
 
 from glob import glob
 import os, sys, re
@@ -34,22 +34,13 @@ def versionString(version):
 	"""Create version string.
 
 	For a sequence containing version information such as (2, 0, 0, 'pre'),
-	this returns a printable string such as '2.0-pre'.
+	this returns a printable string such as '2.0pre'.
 	The micro version number is only excluded from the string if it is zero.
 
 	"""
 	ver = map(str, version)
-	if ver[2] == '0': # e.g., if minor version is 0
-		numbers = ver[:2]
-	else:
-		numbers = ver[:3]
-	rest = ver[3:]
-	numbers = '.'.join(numbers)
-	rest = '-'.join(rest)
-	if rest:
-		return numbers + rest
-	else:
-		return numbers
+	numbers, rest = ver[:ver[2] == '0' and 2 or 3], ver[3:]
+	return '.'.join(numbers) + '-'.join(rest)
 
 versionString = versionString(version)
 

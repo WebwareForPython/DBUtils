@@ -35,7 +35,7 @@ class TestPersistentPg(unittest.TestCase):
 		self.assertEqual(PersistentPg.version, __version__)
 
 	def test1_PersistentPgClose(self):
-		for closeable in (0, 1):
+		for closeable in (False, True):
 			persist = PersistentPg(closeable=closeable)
 			db = persist.connection()
 			self.assert_(db._con.db and db._con.valid)

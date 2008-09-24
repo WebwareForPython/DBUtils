@@ -43,7 +43,7 @@ class TestPersistentDB(unittest.TestCase):
 			self.assertRaises(NotSupportedError, PersistentDB, dbapi)
 
 	def test2_PersistentDBClose(self):
-		for closeable in (0, 1):
+		for closeable in (False, True):
 			persist = PersistentDB(dbapi, closeable=closeable)
 			db = persist.connection()
 			self.assert_(db._con.valid)
@@ -58,8 +58,7 @@ class TestPersistentDB(unittest.TestCase):
 
 	def test3_PersistentDBThreads(self):
 		numThreads = 3
-		persist = PersistentDB(dbapi)
-		persist._closeable = 1
+		persist = PersistentDB(dbapi, closeable=True)
 		from Queue import Queue, Empty
 		queryQueue, resultQueue = [], []
 		for i in range(numThreads):
