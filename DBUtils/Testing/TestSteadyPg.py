@@ -117,6 +117,7 @@ class DB:
 
 
 import unittest
+
 sys.path.insert(1, '../..')
 from DBUtils.SteadyPg import SteadyPgConnection
 
@@ -124,10 +125,11 @@ from DBUtils.SteadyPg import SteadyPgConnection
 class TestSteadyPg(unittest.TestCase):
 
 	def test0_CheckVersion(self):
-		TestSteadyPgVersion = __version__
+		from DBUtils import __version__ as DBUtilsVersion
+		self.assertEqual(DBUtilsVersion, __version__)
 		from DBUtils.SteadyPg import __version__ as SteadyPgVersion
-		self.assertEqual(SteadyPgVersion, TestSteadyPgVersion)
-		self.assertEqual(SteadyPgVersion, SteadyPgConnection.version)
+		self.assertEqual(SteadyPgVersion, __version__)
+		self.assertEqual(SteadyPgConnection.version, __version__)
 
 	def test1_MockedPgConnection(self):
 		PgConnection = DB

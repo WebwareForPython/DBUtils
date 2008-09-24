@@ -28,10 +28,11 @@ from DBUtils.PooledDB import PooledDB
 class TestPooledDB(unittest.TestCase):
 
 	def test00_CheckVersion(self):
-		TestPooledDBVersion = __version__
+		from DBUtils import __version__ as DBUtilsVersion
+		self.assertEqual(DBUtilsVersion, __version__)
 		from DBUtils.PooledDB import __version__ as PooledDBVersion
-		self.assertEqual(PooledDBVersion, TestPooledDBVersion)
-		self.assertEqual(PooledDBVersion, PooledDB.version)
+		self.assertEqual(PooledDBVersion, __version__)
+		self.assertEqual(PooledDB.version, __version__)
 
 	def test01_NoThreadsafety(self):
 		from DBUtils.PooledDB import NotSupportedError

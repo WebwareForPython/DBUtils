@@ -117,6 +117,7 @@ class Cursor:
 
 
 import unittest
+
 sys.path.insert(1, '../..')
 from DBUtils.SteadyDB import connect as SteadyDBconnect
 from DBUtils.SteadyDB import SteadyDBConnection
@@ -125,10 +126,11 @@ from DBUtils.SteadyDB import SteadyDBConnection
 class TestSteadyDB(unittest.TestCase):
 
 	def test0_CheckVersion(self):
-		TestSteadyDBVersion = __version__
+		from DBUtils import __version__ as DBUtilsVersion
+		self.assertEqual(DBUtilsVersion, __version__)
 		from DBUtils.SteadyDB import __version__ as SteadyDBVersion
-		self.assertEqual(SteadyDBVersion, TestSteadyDBVersion)
-		self.assertEqual(SteadyDBVersion, SteadyDBConnection.version)
+		self.assertEqual(SteadyDBVersion, __version__)
+		self.assertEqual(SteadyDBConnection.version, __version__)
 
 	def test1_MockedDBConnection(self):
 		db = connect('SteadyDBTestDB',

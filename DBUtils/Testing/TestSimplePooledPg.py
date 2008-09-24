@@ -37,6 +37,7 @@ class DB:
 
 
 import unittest
+
 sys.path.insert(1, '../..')
 from DBUtils import SimplePooledPg
 
@@ -48,6 +49,8 @@ class TestSimplePooledPg(unittest.TestCase):
 			'SimplePooledPgTestDB', 'SimplePooledPgTestUser')
 
 	def test0_check_version(self):
+		from DBUtils import __version__ as DBUtilsVersion
+		self.assertEqual(DBUtilsVersion, __version__)
 		self.assertEqual(SimplePooledPg.__version__, __version__)
 		self.assertEqual(SimplePooledPg.PooledPg.version, __version__)
 

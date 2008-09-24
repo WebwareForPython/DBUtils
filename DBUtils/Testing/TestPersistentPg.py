@@ -28,10 +28,11 @@ from DBUtils.PersistentPg import PersistentPg
 class TestPersistentPg(unittest.TestCase):
 
 	def test0_CheckVersion(self):
-		TestPersistentPgVersion = __version__
+		from DBUtils import __version__ as DBUtilsVersion
+		self.assertEqual(DBUtilsVersion, __version__)
 		from DBUtils.PersistentPg import __version__ as PersistentPgVersion
-		self.assertEqual(PersistentPgVersion, TestPersistentPgVersion)
-		self.assertEqual(PersistentPgVersion, PersistentPg.version)
+		self.assertEqual(PersistentPgVersion, __version__)
+		self.assertEqual(PersistentPg.version, __version__)
 
 	def test1_PersistentPgClose(self):
 		for closeable in (0, 1):

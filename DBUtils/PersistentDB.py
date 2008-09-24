@@ -96,6 +96,7 @@ __date__ = "$Date$"
 
 from DBUtils.SteadyDB import connect
 
+
 class PersistentDBError(Exception):
 	"""General PersistentDB error."""
 

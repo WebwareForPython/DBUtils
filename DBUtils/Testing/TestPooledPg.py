@@ -28,10 +28,11 @@ from DBUtils.PooledPg import PooledPg
 class TestPooledPg(unittest.TestCase):
 
 	def test0_CheckVersion(self):
-		TestPooledPgVersion = __version__
+		from DBUtils import __version__ as DBUtilsVersion
+		self.assertEqual(DBUtilsVersion, __version__)
 		from DBUtils.PooledPg import __version__ as PooledPgVersion
-		self.assertEqual(PooledPgVersion, TestPooledPgVersion)
-		self.assertEqual(PooledPgVersion, PooledPg.version)
+		self.assertEqual(PooledPgVersion, __version__)
+		self.assertEqual(PooledPg.version, __version__)
 
 	def test1_CreateConnection(self):
 		pool = PooledPg(1, 1, 0, 0, 0, None,

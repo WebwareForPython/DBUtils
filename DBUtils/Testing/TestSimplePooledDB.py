@@ -19,14 +19,17 @@ __date__ = "$Date$"
 
 import sys
 
+
 # This module also serves as a mock object for an arbitrary DB-API 2 module:
 
 dbModule = sys.modules[__name__]
 
 threadsafety = 1
 
+
 def connect(database, user):
 	return Connection(database, user)
+
 
 class Connection:
 
@@ -43,6 +46,7 @@ class Connection:
 
 
 import unittest
+
 sys.path.insert(1, '../..')
 from DBUtils import SimplePooledDB
 
@@ -56,6 +60,8 @@ class TestSimplePooledDB(unittest.TestCase):
 			'SimplePooledDBTestDB', 'SimplePooledDBTestUser')
 
 	def test0_check_version(self):
+		from DBUtils import __version__ as DBUtilsVersion
+		self.assertEqual(DBUtilsVersion, __version__)
 		self.assertEqual(SimplePooledDB.__version__, __version__)
 		self.assertEqual(SimplePooledDB.PooledDB.version, __version__)
 

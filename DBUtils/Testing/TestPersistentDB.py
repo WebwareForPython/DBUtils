@@ -31,10 +31,11 @@ class TestPersistentDB(unittest.TestCase):
 		dbapi.threadsafety = 1
 
 	def test0_CheckVersion(self):
-		TestPersistentDBVersion = __version__
+		from DBUtils import __version__ as DBUtilsVersion
+		self.assertEqual(DBUtilsVersion, __version__)
 		from DBUtils.PersistentDB import __version__ as PersistentDBVersion
-		self.assertEqual(PersistentDBVersion, TestPersistentDBVersion)
-		self.assertEqual(PersistentDBVersion, PersistentDB.version)
+		self.assertEqual(PersistentDBVersion, __version__)
+		self.assertEqual(PersistentDB.version, __version__)
 
 	def test1_NoThreadsafety(self):
 		from DBUtils.PersistentDB import NotSupportedError
