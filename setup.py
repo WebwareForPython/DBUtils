@@ -27,7 +27,7 @@ except ImportError:
 import warnings
 warnings.filterwarnings('ignore', 'Unknown distribution option')
 
-__version__ = '0.9.4'
+__version__ = '1.0pre'
 __revision__ = "$Rev$"
 __date__ = "$Date$"
 

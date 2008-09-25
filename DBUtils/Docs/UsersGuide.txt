@@ -1,8 +1,8 @@
 ﻿DBUtils User's Guide
 ++++++++++++++++++++
 
-:Version: 0.9.4
-:Released: 07/07/07
+:Version: 1.0pre
+:Released: 09/25/08
 :Translations: English German_ Chinese_
 
 .. _German: UsersGuide.de.html
