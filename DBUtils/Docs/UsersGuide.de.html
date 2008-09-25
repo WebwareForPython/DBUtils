@@ -15,8 +15,8 @@
 <col class="docinfo-content" />
 <tbody valign="top">
 <tr><th class="docinfo-name">Version:</th>
-<td>0.9.4</td></tr>
-<tr class="field"><th class="docinfo-name">Released:</th><td class="field-body">07/07/07</td>
+<td>1.0pre</td></tr>
+<tr class="field"><th class="docinfo-name">Released:</th><td class="field-body">09/25/08</td>
 </tr>
 <tr class="field"><th class="docinfo-name">Translations:</th><td class="field-body"><a class="reference" href="UsersGuide.html">English</a> German <a class="reference" href="UsersGuide.zh.html">Chinese</a></td>
 </tr>
@@ -302,12 +302,19 @@ Parameter angeben müssen:</p>
 erzeugt, oder ein DB-API-2-Datenbankadapter-Modul</p>
 </li>
 <li><p class="first"><tt class="docutils literal"><span class="pre">maxusage</span></tt>: Obergrenze dafür, wie oft eine einzelne Verbindung
-wiederverwendet werden darf (der Standardwert <tt class="docutils literal"><span class="pre">0</span></tt> oder <tt class="docutils literal"><span class="pre">False</span></tt>
+wiederverwendet werden darf (der Standardwert <tt class="docutils literal"><span class="pre">0</span></tt> oder <tt class="docutils literal"><span class="pre">None</span></tt>
 bedeutet unbegrenzte Wiederverwendung)</p>
 <p>Sobald diese Obergrenze erreicht wird, wird die Verbindung zurückgesetzt.</p>
 </li>
 <li><p class="first"><tt class="docutils literal"><span class="pre">setsession</span></tt>: eine optionale Liste von SQL-Befehlen zur Initialisierung
 der Datenbanksitzung, z.B. <tt class="docutils literal"><span class="pre">[&quot;set</span> <span class="pre">datestyle</span> <span class="pre">to</span> <span class="pre">german&quot;,</span> <span class="pre">...]</span></tt></p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">failures</span></tt>: eine optionale Exception-Klasse oder ein Tupel von Exceptions
+bei denen die Ausfallsicherung zum Tragen kommen soll, falls die Vorgabe
+(OperationalError, InternalError) nicht geeignet sein sollte</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">closeable</span></tt>: wenn dies auf <tt class="docutils literal"><span class="pre">True</span></tt> gesetzt wird, dann wird das Schließen
+von Verbindungen erlaubt, normalerweise wird es jedoch ignoriert</p>
 </li>
 <li><p class="first">Die als <tt class="docutils literal"><span class="pre">creator</span></tt> angegebene Funktion oder die Funktion <tt class="docutils literal"><span class="pre">connect</span></tt>
 des DB-API-2-Datenbankadapter-Moduls erhalten alle weiteren Parameter,
@@ -336,8 +343,8 @@ DB-API-2-Datenbankverbindungen. Genauer genommen erhalten Sie die
 wird dies stillschweigend ignoriert, denn sie würde beim nächsten Zugriff
 sowieso wieder geöffnet, und das wäre nicht im Sinne persistenter Verbindungen.
 Stattdessen wird die Verbindung automatisch dann geschlossen, wenn der Thread
-endet. Sie können dieses Verhalten ändern, indem Sie <tt class="docutils literal"><span class="pre">persist._closeable</span></tt>
-auf <tt class="docutils literal"><span class="pre">True</span></tt> setzen.</p>
+endet. Sie können dieses Verhalten ändern, indem Sie den Parameter namens
+<tt class="docutils literal"><span class="pre">closeable</span></tt> setzen.</p>
 </div>
 <div class="section">
 <h2><a id="id2" name="id2">PooledDB</a></h2>
@@ -366,19 +373,23 @@ wenn diese als wiederverwendbar angefordert werden.</p>
 die insgesamt überhaupt erlaubt werden sollen (der Standardwert <tt class="docutils literal"><span class="pre">0</span></tt>
 bedeutet unbegrenzte Anzahl von Datenbankverbindungen)</p>
 </li>
-<li><p class="first"><tt class="docutils literal"><span class="pre">blocking</span></tt>: bestimmt das Verhalten, wenn diese Obergrenze überschritten
-wird (der Standardwert <tt class="docutils literal"><span class="pre">0</span></tt> oder <tt class="docutils literal"><span class="pre">False</span></tt> bedeutet, dass eine Fehlermeldung
-ausgegeben wird, andernfalls wird blockiert und gewartet, bis die Anzahl
-an Datenbankverbindungen wieder abnimmt)</p>
+<li><p class="first"><tt class="docutils literal"><span class="pre">blocking</span></tt>: bestimmt das Verhalten bei Überschreitung dieser Obergrenze</p>
+<p>Wenn dies auf <tt class="docutils literal"><span class="pre">True</span></tt> gesetzt wird, dann wird so lange gewartet, bis die
+Anzahl an Datenbankverbindungen wieder abnimmt, normalerweise wird jedoch
+sofort eine Fehlermeldung ausgegeben.</p>
 </li>
 <li><p class="first"><tt class="docutils literal"><span class="pre">maxusage</span></tt>: Obergrenze dafür, wie oft eine einzelne Verbindung
-wiederverwendet werden darf (der Standardwert <tt class="docutils literal"><span class="pre">0</span></tt> oder <tt class="docutils literal"><span class="pre">False</span></tt>
+wiederverwendet werden darf (der Standardwert <tt class="docutils literal"><span class="pre">0</span></tt> oder <tt class="docutils literal"><span class="pre">None</span></tt>
 bedeutet unbegrenzte Wiederverwendung)</p>
 <p>Sobald diese Obergrenze erreicht wird, wird die Verbindung automatisch
 zurückgesetzt (geschlossen und wieder neu geöffnet).</p>
 </li>
 <li><p class="first"><tt class="docutils literal"><span class="pre">setsession</span></tt>: eine optionale Liste von SQL-Befehlen zur Initialisierung
 der Datenbanksitzung, z.B. <tt class="docutils literal"><span class="pre">[&quot;set</span> <span class="pre">datestyle</span> <span class="pre">to</span> <span class="pre">german&quot;,</span> <span class="pre">...]</span></tt></p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">failures</span></tt>: eine optionale Exception-Klasse oder ein Tupel von Exceptions
+bei denen die Ausfallsicherung zum Tragen kommen soll, falls die Vorgabe
+(OperationalError, InternalError) nicht geeignet sein sollte</p>
 </li>
 <li><p class="first">Die als <tt class="docutils literal"><span class="pre">creator</span></tt> angegebene Funktion oder die Funktion <tt class="docutils literal"><span class="pre">connect</span></tt>
 des DB-API-2-Datenbankadapter-Moduls erhalten alle weiteren Parameter,
@@ -409,7 +420,11 @@ gesetzt haben, und der zugrunde liegende DB-API-2-Datenbankadapter dies erlaubt.
 Eine dedizierte Datenbankverbindung, die garantiert nicht von anderen Threads
 mitgenutzt wird, fordern Sie wie folgt an:</p>
 <pre class="literal-block">
-db = pool.connection(0)
+db = pool.connection(shareable=False)
+</pre>
+<p>Stattdessen können Sie eine dedizierte Verbindung auch wie folgt erhalten:</p>
+<pre class="literal-block">
+db = pool.dedicated_connection()
 </pre>
 <p>Wenn Sie die Datenbankverbindung nicht mehr benötigen, sollten Sie diese sofort
 wieder mit <tt class="docutils literal"><span class="pre">db.close()</span></tt> an den Pool zurückgeben. Sie können auf die gleiche

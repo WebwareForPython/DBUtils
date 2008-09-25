@@ -75,7 +75,11 @@ Please note that the connection may be shared with other threads
 by default if you set a non-zero maxshared parameter and the DB-API 2
 module allows this. If you want to have a dedicated connection, use:
 
-	db = pool.connection(0)
+	db = pool.connection(shareable=False)
+
+You can also use this to get a dedicated connection:
+
+	db = pool.dedicated_connection()
 
 If you don't need it any more, you should immediately return it to the
 pool with db.close(). You can get another connection in the same way.
@@ -216,14 +220,16 @@ class PooledDB:
 		else:
 			self._maxconnections = 0
 		self._idle_cache = [] # the actual pool of idle connections
-		self._connections = 0
 		self._condition = Condition()
 		if not blocking:
 			def wait():
 				raise TooManyConnections
 			self._condition.wait = wait
+		self._connections = 0
 		# Establish an initial number of idle database connections:
-		[self.connection(0) for i in range(mincached)]
+		idle = [self.dedicated_connection() for i in range(mincached)]
+		while idle:
+			idle.pop().close()
 
 	def steady_connection(self):
 		"""Get a steady, unpooled DB-API 2 connection."""
@@ -241,8 +247,8 @@ class PooledDB:
 		if shareable and self._maxshared:
 			self._condition.acquire()
 			try:
-				while not self._shared_cache and self._maxconnections \
-					and self._connections >= self._maxconnections:
+				while (not self._shared_cache and self._maxconnections
+						and self._connections >= self._maxconnections):
 					self._condition.wait()
 				if len(self._shared_cache) < self._maxshared:
 					# shared cache is not full, get a dedicated connection
@@ -265,8 +271,8 @@ class PooledDB:
 		else: # try to get a dedicated connection
 			self._condition.acquire()
 			try:
-				while self._maxconnections \
-					and self._connections >= self._maxconnections:
+				while (self._maxconnections
+						and self._connections >= self._maxconnections):
 					self._condition.wait()
 				# connection limit not reached, get a dedicated connection
 				try: # first try to get it from the idle cache
@@ -278,6 +284,10 @@ class PooledDB:
 			finally:
 				self._condition.release()
 		return con
+
+	def dedicated_connection(self):
+		"""Alias for connection(shareable=False)."""
+		return self.connection(False)
 
 	def unshare(self, con):
 		"""Decrease the share of a connection in the shared cache."""
@@ -321,11 +331,18 @@ class PooledDB:
 		self._condition.acquire()
 		try:
 			while self._idle_cache: # close all idle connections
-				self._idle_cache.pop(0).close()
-				self._connections -= 1
+				con = self._idle_cache.pop(0)
+				try:
+					con.close()
+				except Exception:
+					pass
 			if self._maxshared: # close all shared connections
 				while self._shared_cache:
-					self._shared_cache.pop(0).con.close()
+					con = self._shared_cache.pop(0).con
+					try:
+						con.close()
+					except Exception:
+						pass
 					self._connections -= 1
 			self._condition.notifyAll()
 		finally:
@@ -333,8 +350,10 @@ class PooledDB:
 
 	def __del__(self):
 		"""Delete the pool."""
-		if hasattr(self, '_connections'):
+		try:
 			self.close()
+		except Exception:
+			pass
 
 
 # Auxiliary classes for pooled connections
@@ -371,7 +390,10 @@ class PooledDedicatedDBConnection:
 
 	def __del__(self):
 		"""Delete the pooled connection."""
-		self.close()
+		try:
+			self.close()
+		except Exception:
+			pass
 
 
 class SharedDBConnection:
@@ -433,4 +455,7 @@ class PooledSharedDBConnection:
 
 	def __del__(self):
 		"""Delete the pooled connection."""
-		self.close()
+		try:
+			self.close()
+		except Exception:
+			pass

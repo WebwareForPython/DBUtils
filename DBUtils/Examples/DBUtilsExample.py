@@ -125,6 +125,9 @@ class DBUtilsExample(ExamplePage):
 				error = 'Cannot connect to the database.'
 		self.outputMsg(error, True)
 
+	def dedicated_connection(self):
+		return self.connection(False)
+
 	def sqlEncode(self, s):
 		if s is None:
 			return 'null'
@@ -132,7 +135,7 @@ class DBUtilsExample(ExamplePage):
 		return "'%s'" % s
 
 	def createTables(self):
-		db = self.connection(False)
+		db = self.dedicated_connection()
 		if not db:
 			return
 		for table in tables:
@@ -160,7 +163,7 @@ class DBUtilsExample(ExamplePage):
 				id = [id]
 			cmd = ','.join(map(self.sqlEncode, id))
 			cmd = 'delete from seminars where id in (%s)' % cmd
-			db = self.connection(False)
+			db = self.dedicated_connection()
 			if not db:
 				return
 			try:
@@ -236,7 +239,7 @@ class DBUtilsExample(ExamplePage):
 			for i, n in places.items():
 				cmds.append("update seminars set places_left=places_left+%d "
 				"where id=%s" % (n, self.sqlEncode(i)))
-			db = self.connection(False)
+			db = self.dedicated_connection()
 			if not db:
 				return
 			try:
@@ -320,7 +323,7 @@ class DBUtilsExample(ExamplePage):
 			values[2] = None
 		if not values[3]:
 			values[3] = None
-		db = self.connection(0)
+		db = self.dedicated_connection()
 		if not db:
 			return
 		cmd = ('insert into seminars values (%s,%s,%s,%s)'
@@ -388,7 +391,7 @@ class DBUtilsExample(ExamplePage):
 		if not values[0] or not values[1]:
 			self.outputMsg('You must enter a name and a seminar!')
 			return
-		db = self.connection(0)
+		db = self.dedicated_connection()
 		if not db:
 			return
 		try:

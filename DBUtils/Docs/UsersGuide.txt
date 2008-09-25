@@ -353,7 +353,11 @@ Please note that the connection may be shared with other threads by default
 if you set a non-zero ``maxshared`` parameter and the DB-API 2 module allows
 this. If you want to have a dedicated connection, use::
 
-  db = pool.connection(0)
+  db = pool.connection(shareable=False)
+
+Instead of this, you can also get a dedicated connection as follows::
+
+  db = pool.dedicated_connection()
 
 If you don't need it any more, you should immediately return it to the
 pool with ``db.close()``. You can get another connection in the same way.

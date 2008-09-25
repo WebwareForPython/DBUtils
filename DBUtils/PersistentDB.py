@@ -176,6 +176,10 @@ class PersistentDB:
 			self.thread.connection = con
 		return con
 
+	def dedicated_connection(self):
+		"""Alias for connection(shareable=False)."""
+		return self.connection()
+
 
 try: # import a class for representing thread-local objects
 	from threading import local

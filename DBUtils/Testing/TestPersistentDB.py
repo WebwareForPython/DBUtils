@@ -56,7 +56,21 @@ class TestPersistentDB(unittest.TestCase):
 			db._close()
 			self.assert_(not db._con.valid)
 
-	def test3_PersistentDBThreads(self):
+	def test3_PersistentDBConnection(self):
+		persist = PersistentDB(dbapi)
+		db = persist.connection()
+		db_con = db._con
+		self.assert_(db_con.database is None)
+		self.assert_(db_con.user is None)
+		db2 = persist.connection()
+		self.assertEqual(db, db2)
+		db3 = persist.dedicated_connection()
+		self.assertEqual(db, db3)
+		db3.close()
+		db2.close()
+		db.close()
+
+	def test4_PersistentDBThreads(self):
 		numThreads = 3
 		persist = PersistentDB(dbapi, closeable=True)
 		from Queue import Queue, Empty
@@ -166,7 +180,7 @@ class TestPersistentDB(unittest.TestCase):
 			except TypeError:
 				queryQueue[i].put(None, 1)
 
-	def test4_PersistentDBMaxUsage(self):
+	def test5_PersistentDBMaxUsage(self):
 		persist = PersistentDB(dbapi, 20)
 		db = persist.connection()
 		self.assertEqual(db._maxusage, 20)
@@ -182,7 +196,7 @@ class TestPersistentDB(unittest.TestCase):
 			self.assertEqual(db._con.num_uses, j)
 			self.assertEqual(db._con.num_queries, j)
 
-	def test5_PersistentDBSetSession(self):
+	def test6_PersistentDBSetSession(self):
 		persist = PersistentDB(dbapi, 3, ('set datestyle',))
 		db = persist.connection()
 		self.assertEqual(db._maxusage, 3)

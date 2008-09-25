@@ -120,7 +120,26 @@ class TestPooledDB(unittest.TestCase):
 			self.assertEqual(db_con.session,
 				['rollback', 'sessiontest'])
 			pool = PooledDB(dbapi, 1, 1, 1)
-			db = pool.connection(0)
+			self.assertEqual(len(pool._idle_cache), 1)
+			if shareable:
+				self.assertEqual(len(pool._shared_cache), 0)
+			db = pool.connection()
+			self.assertEqual(len(pool._idle_cache), 0)
+			if shareable:
+				self.assertEqual(len(pool._shared_cache), 1)
+			db.close()
+			self.assertEqual(len(pool._idle_cache), 1)
+			if shareable:
+				self.assertEqual(len(pool._shared_cache), 0)
+			db = pool.connection(True)
+			self.assertEqual(len(pool._idle_cache), 0)
+			if shareable:
+				self.assertEqual(len(pool._shared_cache), 1)
+			db.close()
+			self.assertEqual(len(pool._idle_cache), 1)
+			if shareable:
+				self.assertEqual(len(pool._shared_cache), 0)
+			db = pool.connection(False)
 			self.assertEqual(len(pool._idle_cache), 0)
 			if shareable:
 				self.assertEqual(len(pool._shared_cache), 0)
@@ -128,6 +147,22 @@ class TestPooledDB(unittest.TestCase):
 			db_con = db._con._con
 			self.assert_(db_con.database is None)
 			self.assert_(db_con.user is None)
+			db.close()
+			self.assertEqual(len(pool._idle_cache), 1)
+			if shareable:
+				self.assertEqual(len(pool._shared_cache), 0)
+			db = pool.dedicated_connection()
+			self.assertEqual(len(pool._idle_cache), 0)
+			if shareable:
+				self.assertEqual(len(pool._shared_cache), 0)
+			self.assertEqual(db._usage, 0)
+			db_con = db._con._con
+			self.assert_(db_con.database is None)
+			self.assert_(db_con.user is None)
+			db.close()
+			self.assertEqual(len(pool._idle_cache), 1)
+			if shareable:
+				self.assertEqual(len(pool._shared_cache), 0)
 			pool = PooledDB(dbapi, 0, 0, 0, 0, False, 3, ('set datestyle',))
 			self.assertEqual(pool._maxusage, 3)
 			self.assertEqual(pool._setsession, ('set datestyle',))
@@ -204,7 +239,7 @@ class TestPooledDB(unittest.TestCase):
 			self.assertEqual(pool._idle_cache[0]._con, db_con)
 			if shareable:
 				self.assertEqual(len(pool._shared_cache), 0)
-			db = pool.connection(0)
+			db = pool.connection(False)
 			self.assertEqual(db._con, con)
 			self.assertEqual(len(pool._idle_cache), 0)
 			if shareable:
@@ -304,7 +339,7 @@ class TestPooledDB(unittest.TestCase):
 				self.assertNotEqual(db4._con, db1._con)
 				self.assertNotEqual(db4._con, db2._con)
 				self.assertNotEqual(db4._con, db3._con)
-			db5 = pool.connection(0)
+			db5 = pool.connection(False)
 			self.assertNotEqual(db5._con, db1._con)
 			self.assertNotEqual(db5._con, db2._con)
 			self.assertNotEqual(db5._con, db3._con)
@@ -325,7 +360,7 @@ class TestPooledDB(unittest.TestCase):
 				self.assertEqual(len(pool._idle_cache), 0)
 			pool = PooledDB(dbapi, 0, 0, 1)
 			self.assertEqual(len(pool._idle_cache), 0)
-			db1 = pool.connection(0)
+			db1 = pool.connection(False)
 			if shareable:
 				self.assertEqual(len(pool._shared_cache), 0)
 			db2 = pool.connection()
@@ -404,7 +439,7 @@ class TestPooledDB(unittest.TestCase):
 			self.assertEqual(len(pool._idle_cache), 5)
 			pool = PooledDB(dbapi, 1, 2, 3)
 			self.assertEqual(len(pool._idle_cache), 1)
-			cache = [pool.connection(0) for i in range(4)]
+			cache = [pool.connection(False) for i in range(4)]
 			self.assertEqual(len(pool._idle_cache), 0)
 			if shareable:
 				self.assertEqual(len(pool._shared_cache), 0)
@@ -420,7 +455,7 @@ class TestPooledDB(unittest.TestCase):
 				self.assertEqual(len(pool._shared_cache), 0)
 			pool = PooledDB(dbapi, 1, 3, 2)
 			self.assertEqual(len(pool._idle_cache), 1)
-			cache = [pool.connection(0) for i in range(4)]
+			cache = [pool.connection(False) for i in range(4)]
 			self.assertEqual(len(pool._idle_cache), 0)
 			if shareable:
 				self.assertEqual(len(pool._shared_cache), 0)
@@ -461,7 +496,7 @@ class TestPooledDB(unittest.TestCase):
 			if shareable:
 				self.assertEqual(len(pool._shared_cache), 1)
 			pool = PooledDB(dbapi, 0, 0, 7)
-			cache = [pool.connection(0) for i in range(3)]
+			cache = [pool.connection(False) for i in range(3)]
 			self.assertEqual(len(pool._idle_cache), 0)
 			if shareable:
 				self.assertEqual(len(pool._shared_cache), 0)
@@ -477,7 +512,7 @@ class TestPooledDB(unittest.TestCase):
 			pool = PooledDB(dbapi, 5, 5, 5)
 			self.assertEqual(len(pool._idle_cache), 5)
 			for i in range(15):
-				db = pool.connection(0)
+				db = pool.connection(False)
 				db.cursor().execute('select test')
 				db.close()
 			self.assertEqual(len(pool._idle_cache), 5)
@@ -561,7 +596,7 @@ class TestPooledDB(unittest.TestCase):
 			dbapi.threadsafety = threadsafety
 			pool = PooledDB(dbapi, 0, 1)
 			self.assertEqual(len(pool._idle_cache), 0)
-			db = pool.connection(0)
+			db = pool.connection(False)
 			self.assertEqual(len(pool._idle_cache), 0)
 			self.assertEqual(db._con._con.open_cursors, 0)
 			cursor = db.cursor()
@@ -573,7 +608,7 @@ class TestPooledDB(unittest.TestCase):
 			self.assertEqual(db._con._con.open_cursors, 0)
 			del db
 			self.assertEqual(len(pool._idle_cache), 1)
-			db = pool.connection(0)
+			db = pool.connection(False)
 			self.assertEqual(len(pool._idle_cache), 0)
 			self.assertEqual(db._con._con.open_cursors, 0)
 			cursor = db.cursor()
@@ -601,7 +636,7 @@ class TestPooledDB(unittest.TestCase):
 			self.assertEqual(len(pool._idle_cache), 1)
 			cache = []
 			for i in range(3):
-				cache.append(pool.connection(0))
+				cache.append(pool.connection(False))
 			self.assertEqual(pool._connections, 3)
 			self.assertEqual(len(pool._idle_cache), 0)
 			if shareable:
@@ -619,14 +654,14 @@ class TestPooledDB(unittest.TestCase):
 			if shareable:
 				self.assertEqual(pool._connections, 2)
 				self.assertEqual(len(pool._shared_cache), 2)
-				cache.append(pool.connection(0))
+				cache.append(pool.connection(False))
 				self.assertEqual(pool._connections, 3)
 				self.assertEqual(len(pool._shared_cache), 2)
 			else:
 				self.assertEqual(pool._connections, 3)
 			self.assertRaises(TooManyConnections, pool.connection, 0)
 			if shareable:
-				cache.append(pool.connection(1))
+				cache.append(pool.connection(True))
 				self.assertEqual(pool._connections, 3)
 			else:
 				self.assertRaises(TooManyConnections, pool.connection)
@@ -637,7 +672,7 @@ class TestPooledDB(unittest.TestCase):
 			self.assertEqual(pool._maxconnections, 1)
 			self.assertEqual(pool._connections, 0)
 			self.assertEqual(len(pool._idle_cache), 0)
-			db = pool.connection(0)
+			db = pool.connection(False)
 			self.assertEqual(pool._connections, 1)
 			self.assertEqual(len(pool._idle_cache), 0)
 			if shareable:
@@ -660,7 +695,7 @@ class TestPooledDB(unittest.TestCase):
 				self.assertRaises(TooManyConnections, pool.connection)
 			self.assertRaises(TooManyConnections, pool.connection, 0)
 			if shareable:
-				cache.append(pool.connection(1))
+				cache.append(pool.connection(True))
 				self.assertEqual(pool._connections, 1)
 				self.assertEqual(len(pool._shared_cache), 1)
 				self.assertEqual(pool._shared_cache[0].shared, 3)
@@ -671,7 +706,7 @@ class TestPooledDB(unittest.TestCase):
 			self.assertEqual(len(pool._idle_cache), 1)
 			if shareable:
 				self.assertEqual(len(pool._shared_cache), 0)
-			db = pool.connection(0)
+			db = pool.connection(False)
 			self.assertEqual(pool._connections, 1)
 			self.assertEqual(len(pool._idle_cache), 0)
 			del db
@@ -682,10 +717,10 @@ class TestPooledDB(unittest.TestCase):
 			self.assertEqual(pool._connections, 0)
 			self.assertEqual(len(pool._idle_cache), 1)
 			cache = []
-			cache.append(pool.connection(0))
+			cache.append(pool.connection(False))
 			self.assertEqual(pool._connections, 1)
 			self.assertEqual(len(pool._idle_cache), 0)
-			cache.append(pool.connection(0))
+			cache.append(pool.connection(False))
 			self.assertEqual(pool._connections, 2)
 			self.assertEqual(len(pool._idle_cache), 0)
 			if shareable:
@@ -698,7 +733,7 @@ class TestPooledDB(unittest.TestCase):
 			self.assertEqual(len(pool._idle_cache), 4)
 			cache = []
 			for i in range(4):
-				cache.append(pool.connection(0))
+				cache.append(pool.connection(False))
 			self.assertEqual(pool._connections, 4)
 			self.assertEqual(len(pool._idle_cache), 0)
 			self.assertRaises(TooManyConnections, pool.connection, 0)
@@ -715,7 +750,7 @@ class TestPooledDB(unittest.TestCase):
 				self.assertEqual(len(pool._shared_cache), 3)
 				cache.append(pool.connection())
 				self.assertEqual(pool._connections, 3)
-				cache.append(pool.connection(0))
+				cache.append(pool.connection(False))
 				self.assertEqual(pool._connections, 4)
 			else:
 				self.assertEqual(pool._connections, 4)
@@ -726,7 +761,7 @@ class TestPooledDB(unittest.TestCase):
 			self.assertEqual(pool._connections, 0)
 			cache = []
 			for i in range(3):
-				cache.append(pool.connection(0))
+				cache.append(pool.connection(False))
 			self.assertEqual(pool._connections, 3)
 			self.assertRaises(TooManyConnections, pool.connection, 0)
 			self.assertRaises(TooManyConnections, pool.connection, 1)
@@ -747,7 +782,7 @@ class TestPooledDB(unittest.TestCase):
 			self.assertEqual(pool._connections, 0)
 			cache = []
 			for i in range(10):
-				cache.append(pool.connection(0))
+				cache.append(pool.connection(False))
 				cache.append(pool.connection())
 			if shareable:
 				self.assertEqual(pool._connections, 13)
@@ -758,7 +793,7 @@ class TestPooledDB(unittest.TestCase):
 			self.assertEqual(pool._maxconnections, 1)
 			self.assertEqual(pool._connections, 0)
 			self.assertEqual(len(pool._idle_cache), 1)
-			db = pool.connection(0)
+			db = pool.connection(False)
 			self.assertEqual(pool._connections, 1)
 			self.assertEqual(len(pool._idle_cache), 0)
 			def connection():
@@ -783,7 +818,7 @@ class TestPooledDB(unittest.TestCase):
 			self.assertEqual(len(pool._idle_cache), 1)
 			if shareable:
 				self.assertEqual(len(pool._shared_cache), 0)
-			db = pool.connection(0)
+			db = pool.connection(False)
 			self.assertEqual(pool._connections, 1)
 			self.assertEqual(len(pool._idle_cache), 0)
 			self.assertEqual(session, ['rollback',
@@ -796,7 +831,7 @@ class TestPooledDB(unittest.TestCase):
 				pool = PooledDB(dbapi, 0, 0, 0, 1, False, maxusage)
 				self.assertEqual(pool._maxusage, maxusage)
 				self.assertEqual(len(pool._idle_cache), 0)
-				db = pool.connection(0)
+				db = pool.connection(False)
 				self.assertEqual(db._con._maxusage, maxusage)
 				self.assertEqual(len(pool._idle_cache), 0)
 				self.assertEqual(db._con._con.open_cursors, 0)
@@ -830,7 +865,7 @@ class TestPooledDB(unittest.TestCase):
 			setsession = ('set time zone', 'set datestyle')
 			pool = PooledDB(dbapi, 0, 0, 0, 1, False, None, setsession)
 			self.assertEqual(pool._setsession, setsession)
-			db = pool.connection(0)
+			db = pool.connection(False)
 			self.assertEqual(db._setsession_sql, setsession)
 			self.assertEqual(db._con._con.session,
 				['time zone', 'datestyle'])
@@ -842,7 +877,7 @@ class TestPooledDB(unittest.TestCase):
 			self.assertEqual(db._con._con.session,
 				['time zone', 'datestyle', 'test1'])
 			db.close()
-			db = pool.connection(0)
+			db = pool.connection(False)
 			self.assertEqual(db._setsession_sql, setsession)
 			self.assertEqual(db._con._con.session,
 				['time zone', 'datestyle', 'test1', 'rollback'])
@@ -905,7 +940,7 @@ class TestPooledDB(unittest.TestCase):
 			else:
 				self.assertNotEqual(db1._con, db2._con)
 			del db1
-			db1 = pool.connection(0)
+			db1 = pool.connection(False)
 			self.assertNotEqual(db1, db2)
 			self.assertNotEqual(db1._con, db2._con)
 
@@ -946,8 +981,8 @@ class TestPooledDB(unittest.TestCase):
 			self.assertNotEqual(db1._con, db2._con)
 			self.assertEqual(db1._con, db1_con)
 			pool = PooledDB(dbapi, 2, 2, 1, 2, True)
-			db1 = pool.connection(0)
-			db2 = pool.connection(0)
+			db1 = pool.connection(False)
+			db2 = pool.connection(False)
 			self.assertNotEqual(db1, db2)
 			db1_con = db1._con
 			db2_con = db2._con

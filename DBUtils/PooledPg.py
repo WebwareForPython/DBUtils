@@ -171,7 +171,9 @@ class PooledPg:
 			self._connections = None
 		self._cache = Queue(maxcached) # the actual connection pool
 		# Establish an initial number of database connections:
-		[self.connection() for i in range(mincached)]
+		idle = [self.connection() for i in range(mincached)]
+		while idle:
+			idle.pop().close()
 
 	def steady_connection(self):
 		"""Get a steady, unpooled PostgreSQL connection."""
@@ -202,7 +204,11 @@ class PooledPg:
 		"""Close all connections in the pool."""
 		while 1:
 			try:
-				self._cache.get(0).close()
+				con = self._cache.get(0)
+				try:
+					con.close()
+				except Exception:
+					pass
 				if self._connections:
 					self._connections.release()
 			except Empty:
@@ -210,7 +216,10 @@ class PooledPg:
 
 	def __del__(self):
 		"""Delete the pool."""
-		self.close()
+		try:
+			self.close()
+		except Exception:
+			pass
 
 
 # Auxiliary class for pooled connections
@@ -255,4 +264,7 @@ class PooledPgConnection:
 
 	def __del__(self):
 		"""Delete the pooled connection."""
-		self.close()
+		try:
+			self.close()
+		except Exception:
+			pass

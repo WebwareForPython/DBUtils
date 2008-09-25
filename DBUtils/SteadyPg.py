@@ -222,4 +222,7 @@ class SteadyPgConnection:
 
 	def __del__(self):
 		"""Delete the steady connection."""
-		self._close() # make sure the connection is closed
+		try:
+			self._close() # make sure the connection is closed
+		except Exception:
+			pass

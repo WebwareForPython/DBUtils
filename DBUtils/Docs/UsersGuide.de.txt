@@ -385,7 +385,11 @@ gesetzt haben, und der zugrunde liegende DB-API-2-Datenbankadapter dies erlaubt.
 Eine dedizierte Datenbankverbindung, die garantiert nicht von anderen Threads
 mitgenutzt wird, fordern Sie wie folgt an::
 
-  db = pool.connection(0)
+  db = pool.connection(shareable=False)
+
+Stattdessen können Sie eine dedizierte Verbindung auch wie folgt erhalten::
+
+  db = pool.dedicated_connection()
 
 Wenn Sie die Datenbankverbindung nicht mehr benötigen, sollten Sie diese sofort
 wieder mit ``db.close()`` an den Pool zurückgeben. Sie können auf die gleiche

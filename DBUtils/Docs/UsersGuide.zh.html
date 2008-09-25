@@ -15,8 +15,8 @@
 <col class="docinfo-content" />
 <tbody valign="top">
 <tr><th class="docinfo-name">版本:</th>
-<td>0.9.4</td></tr>
-<tr class="field"><th class="docinfo-name">发行版:</th><td class="field-body">07/07/07</td>
+<td>1.0pre</td></tr>
+<tr class="field"><th class="docinfo-name">发行版:</th><td class="field-body">09/25/08</td>
 </tr>
 <tr class="field"><th class="docinfo-name">翻译:</th><td class="field-body"><a class="reference" href="UsersGuide.html">English</a> <a class="reference" href="UsersGuide.de.html">German</a> Chinese</td>
 </tr>
@@ -242,7 +242,7 @@ db = pool.connection()
 <p>你可以使用这些连接有如原始的DB-API 2一样。而实际使用的是``SteadyDB``版本的强硬连接。</p>
 <p>请注意连接可以与其他线程共享，只要你设置 <tt class="docutils literal"><span class="pre">maxshared</span></tt> 参数为非零，并且DB-API 2模块也允许。如果你想要使用专用连接则使用:</p>
 <pre class="literal-block">
-db = pool.connection(0)
+db = pool.connection(shareable=False)
 </pre>
 <p>如果你不再需要这个连接了，则可以返回给连接池使用 <tt class="docutils literal"><span class="pre">db.close()</span></tt> 。你也可以使用相同的方法获取另一个连接。</p>
 <p><em>警告：</em> 在一个多线程环境，不要使用下面的方法:</p>

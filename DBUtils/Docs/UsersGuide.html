@@ -15,8 +15,8 @@
 <col class="docinfo-content" />
 <tbody valign="top">
 <tr><th class="docinfo-name">Version:</th>
-<td>0.9.4</td></tr>
-<tr class="field"><th class="docinfo-name">Released:</th><td class="field-body">07/07/07</td>
+<td>1.0pre</td></tr>
+<tr class="field"><th class="docinfo-name">Released:</th><td class="field-body">09/25/08</td>
 </tr>
 <tr class="field"><th class="docinfo-name">Translations:</th><td class="field-body">English <a class="reference" href="UsersGuide.de.html">German</a> <a class="reference" href="UsersGuide.zh.html">Chinese</a></td>
 </tr>
@@ -283,11 +283,18 @@ of <tt class="docutils literal"><span class="pre">PersistentDB</span></tt>, pass
 connection objects or a DB-API 2 compliant database module</p>
 </li>
 <li><p class="first"><tt class="docutils literal"><span class="pre">maxusage</span></tt>: the maximum number of reuses of a single connection
-(the default of <tt class="docutils literal"><span class="pre">0</span></tt> or <tt class="docutils literal"><span class="pre">False</span></tt> means unlimited reuse)</p>
+(the default of <tt class="docutils literal"><span class="pre">0</span></tt> or <tt class="docutils literal"><span class="pre">None</span></tt> means unlimited reuse)</p>
 <p>Whenever the limit is reached, the connection will be reset.</p>
 </li>
 <li><p class="first"><tt class="docutils literal"><span class="pre">setsession</span></tt>: an optional list of SQL commands that may serve to
 prepare the session, e.g. <tt class="docutils literal"><span class="pre">[&quot;set</span> <span class="pre">datestyle</span> <span class="pre">to</span> <span class="pre">german&quot;,</span> <span class="pre">...]</span></tt></p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">failures</span></tt>: an optional exception class or a tuple of exception classes
+for which the connection failover mechanism shall be applied,
+if the default (OperationalError, InternalError) is not adequate</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">closeable</span></tt>: if this is set to true, then closing connections will
+be allowed, but by default this will be silently ignored</p>
 </li>
 <li><p class="first">The creator function or the connect function of the DB-API 2 compliant
 database module specified as the creator will receive any additional
@@ -315,7 +322,7 @@ the underlying DB-API 2 connection.</p>
 ignored since it would be reopened at the next usage anyway and
 contrary to the intent of having persistent connections. Instead,
 the connection will be automatically closed when the thread dies.
-You can change this behavior be setting <tt class="docutils literal"><span class="pre">persist._closeable</span></tt> to <tt class="docutils literal"><span class="pre">True</span></tt>.</p>
+You can change this behavior be setting the <tt class="docutils literal"><span class="pre">closeable</span></tt> parameter.</p>
 </div>
 <div class="section">
 <h2><a id="id2" name="id2">PooledDB</a></h2>
@@ -340,17 +347,21 @@ have been requested as shareable.</p>
 <li><p class="first"><tt class="docutils literal"><span class="pre">maxconnections</span></tt>: maximum number of connections generally allowed
 (the default value of <tt class="docutils literal"><span class="pre">0</span></tt> means any number of connections)</p>
 </li>
-<li><p class="first"><tt class="docutils literal"><span class="pre">blocking</span></tt>: determines behavior when exceeding the maximum
-(the default of <tt class="docutils literal"><span class="pre">0</span></tt> or <tt class="docutils literal"><span class="pre">False</span></tt> means report an error; otherwise
-block and wait until the number of connections decreases)</p>
+<li><p class="first"><tt class="docutils literal"><span class="pre">blocking</span></tt>: determines behavior when exceeding the maximum</p>
+<p>If this is set to true, block and wait until the number of
+connections decreases, but by default an error will be reported.</p>
 </li>
 <li><p class="first"><tt class="docutils literal"><span class="pre">maxusage</span></tt>: maximum number of reuses of a single connection
-(the default of <tt class="docutils literal"><span class="pre">0</span></tt> or <tt class="docutils literal"><span class="pre">False</span></tt> means unlimited reuse)</p>
+(the default of <tt class="docutils literal"><span class="pre">0</span></tt> or <tt class="docutils literal"><span class="pre">None</span></tt> means unlimited reuse)</p>
 <p>When this maximum usage number of the connection is reached,
 the connection is automatically reset (closed and reopened).</p>
 </li>
 <li><p class="first"><tt class="docutils literal"><span class="pre">setsession</span></tt>: an optional list of SQL commands that may serve to
 prepare the session, e.g. <tt class="docutils literal"><span class="pre">[&quot;set</span> <span class="pre">datestyle</span> <span class="pre">to</span> <span class="pre">german&quot;,</span> <span class="pre">...]</span></tt></p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">failures</span></tt>: an optional exception class or a tuple of exception classes
+for which the connection failover mechanism shall be applied,
+if the default (OperationalError, InternalError) is not adequate</p>
 </li>
 <li><p class="first">The creator function or the connect function of the DB-API 2 compliant
 database module specified as the creator will receive any additional
@@ -378,7 +389,11 @@ the underlying DB-API 2 connection.</p>
 if you set a non-zero <tt class="docutils literal"><span class="pre">maxshared</span></tt> parameter and the DB-API 2 module allows
 this. If you want to have a dedicated connection, use:</p>
 <pre class="literal-block">
-db = pool.connection(0)
+db = pool.connection(shareable=False)
+</pre>
+<p>Instead of this, you can also get a dedicated connection as follows:</p>
+<pre class="literal-block">
+db = pool.dedicated_connection()
 </pre>
 <p>If you don't need it any more, you should immediately return it to the
 pool with <tt class="docutils literal"><span class="pre">db.close()</span></tt>. You can get another connection in the same way.</p>

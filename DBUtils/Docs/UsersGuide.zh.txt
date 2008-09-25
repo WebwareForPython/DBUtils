@@ -222,7 +222,7 @@ PooledDB
 
 请注意连接可以与其他线程共享，只要你设置 ``maxshared`` 参数为非零，并且DB-API 2模块也允许。如果你想要使用专用连接则使用::
 
-    db = pool.connection(0)
+    db = pool.connection(shareable=False)
 
 如果你不再需要这个连接了，则可以返回给连接池使用 ``db.close()`` 。你也可以使用相同的方法获取另一个连接。
 
