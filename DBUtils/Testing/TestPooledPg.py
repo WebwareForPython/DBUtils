@@ -198,14 +198,16 @@ class TestPooledPg(unittest.TestCase):
 		def connection():
 			pool.connection().query('set thread')
 		from threading import Thread
-		Thread(target=connection).start()
-		from time import sleep
-		sleep(0.1)
+		thread = Thread(target=connection)
+		thread.start()
+		thread.join(0.1)
+		self.assert_(thread.isAlive())
 		self.assertEqual(pool._cache.qsize(), 0)
 		session = db._con.session
 		self.assertEqual(session, [])
 		del db
-		sleep(0.1)
+		thread.join(0.1)
+		self.assert_(not thread.isAlive())
 		self.assertEqual(pool._cache.qsize(), 1)
 		db = pool.connection()
 		self.assertEqual(pool._cache.qsize(), 0)
@@ -240,15 +242,15 @@ class TestPooledPg(unittest.TestCase):
 		queue = Queue(3)
 		def connection():
 			try:
-				queue.put(pool.connection(), 1, 0.1)
+				queue.put(pool.connection(), 1, 1)
 			except TypeError:
 				queue.put(pool.connection(), 1)
 		from threading import Thread
 		for i in range(3):
 			Thread(target=connection).start()
 		try:
-			db1 = queue.get(1, 0.1)
-			db2 = queue.get(1, 0.1)
+			db1 = queue.get(1, 1)
+			db2 = queue.get(1, 1)
 		except TypeError:
 			db1 = queue.get(1)
 			db2 = queue.get(1)
@@ -262,7 +264,7 @@ class TestPooledPg(unittest.TestCase):
 			self.assertRaises(Empty, queue.get, 0)
 		del db1
 		try:
-			db1 = queue.get(1, 0.1)
+			db1 = queue.get(1, 1)
 		except TypeError:
 			db1 = queue.get(1)
 		self.assertNotEqual(db1, db2)

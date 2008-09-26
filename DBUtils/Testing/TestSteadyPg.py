@@ -181,13 +181,13 @@ class TestSteadyPg(unittest.TestCase):
 		self.assertRaises(InternalError, db.get_tables)
 
 	def test2_BrokenPgConnection(self):
+		self.assertRaises(TypeError, SteadyPgConnection, 'wrong')
 		db = SteadyPgConnection(dbname='ok')
 		InternalError = sys.modules[db._con.__module__].InternalError
 		for i in range(3):
 			db.close()
 		del db
-		self.assertRaises(InternalError, SteadyPgConnection,
-			dbname='error')
+		self.assertRaises(InternalError, SteadyPgConnection, dbname='error')
 
 	def test3_SteadyPgClose(self):
 		for closeable in (False, True):

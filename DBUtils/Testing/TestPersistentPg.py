@@ -83,7 +83,7 @@ class TestPersistentPg(unittest.TestCase):
 						r = db.query(q)
 				r = '%d(%d): %s' % (i, db._usage, r)
 				try:
-					resultQueue[i].put(r, 1, 0.1)
+					resultQueue[i].put(r, 1, 1)
 				except TypeError:
 					resultQueue[i].put(r, 1)
 			db.close()
@@ -95,12 +95,12 @@ class TestPersistentPg(unittest.TestCase):
 			thread.start()
 		for i in range(numThreads):
 			try:
-				queryQueue[i].put('ping', 1, 0.1)
+				queryQueue[i].put('ping', 1, 1)
 			except TypeError:
 				queryQueue[i].put('ping', 1)
 		for i in range(numThreads):
 			try:
-				r = resultQueue[i].get(1, 0.1)
+				r = resultQueue[i].get(1, 1)
 			except TypeError:
 				r = resultQueue[i].get(1)
 			self.assertEqual(r, '%d(0): ok - thread alive' % i)
@@ -108,30 +108,30 @@ class TestPersistentPg(unittest.TestCase):
 		for i in range(numThreads):
 			for j in range(i + 1):
 				try:
-					queryQueue[i].put('select test%d' % j, 1, 0.1)
-					r = resultQueue[i].get(1, 0.1)
+					queryQueue[i].put('select test%d' % j, 1, 1)
+					r = resultQueue[i].get(1, 1)
 				except TypeError:
 					queryQueue[i].put('select test%d' % j, 1)
 					r = resultQueue[i].get(1)
 				self.assertEqual(r, '%d(%d): test%d' % (i, j + 1, j))
 		try:
-			queryQueue[1].put('select test4', 1, 0.1)
-			r = resultQueue[1].get(1, 0.1)
+			queryQueue[1].put('select test4', 1, 1)
+			r = resultQueue[1].get(1, 1)
 		except TypeError:
 			queryQueue[1].put('select test4', 1)
 			r = resultQueue[1].get(1)
 		self.assertEqual(r, '1(3): test4')
 		try:
-			queryQueue[1].put('close', 1, 0.1)
-			r = resultQueue[1].get(1, 0.1)
+			queryQueue[1].put('close', 1, 1)
+			r = resultQueue[1].get(1, 1)
 		except TypeError:
 			queryQueue[1].put('close', 1)
 			r = resultQueue[1].get(1)
 		self.assertEqual(r, '1(3): ok - connection closed')
 		for j in range(2):
 			try:
-				queryQueue[1].put('select test%d' % j, 1, 0.1)
-				r = resultQueue[1].get(1, 0.1)
+				queryQueue[1].put('select test%d' % j, 1, 1)
+				r = resultQueue[1].get(1, 1)
 			except TypeError:
 				queryQueue[1].put('select test%d' % j, 1)
 				r = resultQueue[1].get(1)
@@ -139,12 +139,12 @@ class TestPersistentPg(unittest.TestCase):
 		for i in range(numThreads):
 			self.assert_(threads[i].isAlive())
 			try:
-				queryQueue[i].put('ping', 1, 0.1)
+				queryQueue[i].put('ping', 1, 1)
 			except TypeError:
 				queryQueue[i].put('ping', 1)
 		for i in range(numThreads):
 			try:
-				r = resultQueue[i].get(1, 0.1)
+				r = resultQueue[i].get(1, 1)
 			except TypeError:
 				r = resultQueue[i].get(1)
 			self.assertEqual(r, '%d(%d): ok - thread alive' % (i, i + 1))

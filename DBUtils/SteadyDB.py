@@ -336,7 +336,7 @@ class SteadyDBConnection:
 			if self._maxusage:
 				if self._usage >= self._maxusage:
 					# the connection was used too often
-					raise self._dbapi.OperationalError
+					raise self._failure
 			cursor = self._con.cursor(*args, **kwargs) # try to get a cursor
 		except self._failures, error: # error in getting cursor
 			try: # try to reopen the connection
@@ -383,7 +383,10 @@ class SteadyDBCursor:
 		self._con = con
 		self._args, self._kwargs = args, kwargs
 		self._clearsizes()
-		self._cursor = con._cursor(*args, **kwargs)
+		try:
+			self._cursor = con._cursor(*args, **kwargs)
+		except AttributeError:
+			raise TypeError("%r is not a SteadyDBConnection." % (con,))
 		self._closed = False
 
 	def setinputsizes(self, sizes):
@@ -435,7 +438,7 @@ class SteadyDBCursor:
 				if self._con._maxusage:
 					if self._con._usage >= self._con._maxusage:
 						# the connection was used too often
-						raise self._con._dbapi.OperationalError
+						raise self._con._failure
 				if execute:
 					self._setsizes()
 				method = getattr(self._cursor, name)

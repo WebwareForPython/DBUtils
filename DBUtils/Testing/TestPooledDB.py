@@ -798,14 +798,15 @@ class TestPooledDB(unittest.TestCase):
 			self.assertEqual(len(pool._idle_cache), 0)
 			def connection():
 				db = pool.connection()
-				cursor=db.cursor()
+				cursor = db.cursor()
 				cursor.execute('set thread')
 				cursor.close()
 				db.close()
 			from threading import Thread
-			Thread(target=connection).start()
-			from time import sleep
-			sleep(0.1)
+			thread = Thread(target=connection)
+			thread.start()
+			thread.join(0.1)
+			self.assert_(thread.isAlive())
 			self.assertEqual(pool._connections, 1)
 			self.assertEqual(len(pool._idle_cache), 0)
 			if shareable:
@@ -813,7 +814,8 @@ class TestPooledDB(unittest.TestCase):
 			session = db._con._con.session
 			self.assertEqual(session, ['rollback'])
 			del db
-			sleep(0.1)
+			thread.join(0.1)
+			self.assert_(not thread.isAlive())
 			self.assertEqual(pool._connections, 0)
 			self.assertEqual(len(pool._idle_cache), 1)
 			if shareable:
@@ -952,15 +954,15 @@ class TestPooledDB(unittest.TestCase):
 			queue = Queue(3)
 			def connection():
 				try:
-					queue.put(pool.connection(), 1, 0.1)
+					queue.put(pool.connection(), 1, 1)
 				except Exception:
 					queue.put(pool.connection(), 1)
 			from threading import Thread
 			for i in range(3):
 				Thread(target=connection).start()
 			try:
-				db1 = queue.get(1, 0.1)
-				db2 = queue.get(1, 0.1)
+				db1 = queue.get(1, 1)
+				db2 = queue.get(1, 1)
 			except TypeError:
 				db1 = queue.get(1)
 				db2 = queue.get(1)
@@ -974,7 +976,7 @@ class TestPooledDB(unittest.TestCase):
 				self.assertRaises(Empty, queue.get, 0)
 			del db1
 			try:
-				db1 = queue.get(1, 0.1)
+				db1 = queue.get(1, 1)
 			except TypeError:
 				db1 = queue.get(1)
 			self.assertNotEqual(db1, db2)
@@ -994,7 +996,7 @@ class TestPooledDB(unittest.TestCase):
 				self.assertRaises(Empty, queue.get, 0)
 			del db1
 			try:
-				db1 = queue.get(1, 0.1)
+				db1 = queue.get(1, 1)
 			except TypeError:
 				db1 = queue.get(1)
 			self.assertNotEqual(db1, db2)

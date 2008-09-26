@@ -120,7 +120,7 @@ import unittest
 
 sys.path.insert(1, '../..')
 from DBUtils.SteadyDB import connect as SteadyDBconnect
-from DBUtils.SteadyDB import SteadyDBConnection
+from DBUtils.SteadyDB import SteadyDBConnection, SteadyDBCursor
 
 
 class TestSteadyDB(unittest.TestCase):
@@ -192,6 +192,8 @@ class TestSteadyDB(unittest.TestCase):
 		self.assertRaises(InternalError, db.cursor)
 
 	def test2_BrokenDBConnection(self):
+		self.assertRaises(TypeError, SteadyDBConnection, None)
+		self.assertRaises(TypeError, SteadyDBCursor, None)
 		db = SteadyDBconnect(dbapi, database='ok')
 		for i in range(3):
 			db.close()
