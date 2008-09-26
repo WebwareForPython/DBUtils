@@ -190,9 +190,12 @@ class PooledDB:
 			threadsafety = creator.threadsafety
 		except AttributeError:
 			try:
-				threadsafety = callable(creator.connect) and 0 or 2
+				if not callable(creator.connect):
+					raise AttributeError
 			except AttributeError:
 				threadsafety = 2
+			else:
+				threadsafety = 0
 		if not threadsafety:
 			raise NotSupportedError("Database module is not thread-safe.")
 		self._creator = creator
@@ -368,6 +371,9 @@ class PooledDedicatedDBConnection:
 		con: the underlying SteadyDB connection
 
 		"""
+		# basic initialization to make finalizer work
+		self._con = None
+		# proper initialization of the connection
 		if not con.threadsafety():
 			raise NotSupportedError("Database module is not thread-safe.")
 		self._pool = pool
@@ -431,6 +437,9 @@ class PooledSharedDBConnection:
 		con: the underlying SharedDBConnection
 
 		"""
+		# basic initialization to make finalizer work
+		self._con = None
+		# proper initialization of the connection
 		con = shared_con.con
 		if not con.threadsafety() > 1:
 			raise NotSupportedError("Database connection is not thread-safe.")

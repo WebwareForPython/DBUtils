@@ -74,6 +74,13 @@ __date__ = "$Date$"
 from pg import DB as PgConnection
 
 
+class SteadyPgError(Exception):
+	"""General SteadyPg error."""
+
+class InvalidConnection(SteadyPgError):
+	"""Database connection is invalid."""
+
+
 class SteadyPgConnection:
 	"""Class representing steady connections to a PostgreSQL database.
 
@@ -88,8 +95,6 @@ class SteadyPgConnection:
 	"""
 
 	version = __version__
-
-	_closed = True
 
 	def __init__(self, maxusage=None, setsession=None, closeable=True,
 			*args, **kwargs):
@@ -106,6 +111,10 @@ class SteadyPgConnection:
 			the PostgreSQL connections with PyGreSQL using pg.DB()
 
 		"""
+		# basic initialization to make finalizer work
+		self._con = None
+		self._closed = True
+		# proper initialization of the connection
 		if maxusage is not None and not isinstance(maxusage, (int, long)):
 			raise TypeError("'maxusage' must be an integer value.")
 		self._maxusage = maxusage
@@ -214,11 +223,14 @@ class SteadyPgConnection:
 		Some methods are made "tougher" than in the standard version.
 
 		"""
-		attr = getattr(self._con, name)
-		if name in ('query', 'get', 'insert', 'update', 'delete') \
-			or name.startswith('get_'):
-			attr = self._get_tough_method(attr)
-		return attr
+		if self._con:
+			attr = getattr(self._con, name)
+			if (name in ('query', 'get', 'insert', 'update', 'delete')
+					or name.startswith('get_')):
+				attr = self._get_tough_method(attr)
+			return attr
+		else:
+			raise InvalidConnection
 
 	def __del__(self):
 		"""Delete the steady connection."""

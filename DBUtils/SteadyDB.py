@@ -93,6 +93,13 @@ __date__ = "$Date$"
 import sys
 
 
+class SteadyDBError(Exception):
+	"""General SteadyDB error."""
+
+class InvalidCursor(SteadyDBError):
+	"""Database cursor is invalid."""
+
+
 def connect(creator, maxusage=None, setsession=None, failures=None,
 		closeable=True, *args, **kwargs):
 	"""A tough version of the connection constructor of a DB-API 2 module.
@@ -123,22 +130,35 @@ class SteadyDBConnection:
 
 	version = __version__
 
-	_closed = True
-
 	def __init__(self, creator, maxusage=None, setsession=None, failures=None,
 			closeable=True, *args, **kwargs):
 		""""Create a "tough" DB-API 2 connection."""
+		# basic initialization to make finalizer work
+		self._con = None
+		self._closed = True
+		# proper initialization of the connection
 		try:
 			self._creator = creator.connect
 			self._dbapi = creator
 		except AttributeError:
+			# try finding the DB-API 2 module via the connection creator
 			self._creator = creator
 			try:
-				self._dbapi = sys.modules[creator.__module__]
-				if self._dbapi.connect != creator:
-					raise AttributeError
-			except (AttributeError, KeyError):
-				self._dbapi = None
+				self._dbapi = creator.dbapi
+			except AttributeError:
+				try:
+					self._dbapi = sys.modules[creator.__module__]
+					if self._dbapi.connect != creator:
+						raise AttributeError
+				except (AttributeError, KeyError):
+					self._dbapi = None
+		try:
+			self._threadsafety = creator.threadsafety
+		except AttributeError:
+			try:
+				self._threadsafety = self._dbapi.threadsafety
+			except AttributeError:
+				self._threadsafety = None
 		if not callable(self._creator):
 			raise TypeError("%r is not a connection provider." % (creator,))
 		if maxusage is not None and not isinstance(maxusage, (int, long)):
@@ -161,15 +181,74 @@ class SteadyDBConnection:
 				if self._dbapi.connect != self._creator:
 					raise AttributeError
 			except AttributeError:
+				# try finding the DB-API 2 module via the connection itself
 				try:
-					self._dbapi = sys.modules[con.__module__]
-					if not callable(self._dbapi.connect):
-						raise AttributeError
-				except (AttributeError, KeyError):
-					raise TypeError("Cannot determine DB-API 2 module.")
+					mod = con.__module__
+				except AttributeError:
+					mod = None
+				while mod:
+					try:
+						self._dbapi = sys.modules[mod]
+						if not callable(self._dbapi.connect):
+							raise AttributeError
+					except (AttributeError, KeyError):
+						pass
+					else:
+						break
+					i = mod.rfind('.')
+					if i < 0:
+						mod = None
+					else:
+						mod = mod[:i]
+				else:
+					try:
+						mod = con.OperationalError.__module__
+					except AttributeError:
+						mod = None
+					while mod:
+						try:
+							self._dbapi = sys.modules[mod]
+							if not callable(self._dbapi.connect):
+								raise AttributeError
+						except (AttributeError, KeyError):
+							pass
+						else:
+							break
+						i = mod.rfind('.')
+						if i < 0:
+							mod = None
+						else:
+							mod = mod[:i]
+					else:
+						self._dbapi = None
+			if self._threadsafety is None:
+				try:
+					self._threadsafety = self._dbapi.threadsafety
+				except AttributeError:
+					try:
+						self._threadsafety = con.threadsafety
+					except AttributeError:
+						pass
 			if self._failures is None:
-				self._failures = (self._dbapi.OperationalError,
-					self._dbapi.InternalError)
+				try:
+					self._failures = (self._dbapi.OperationalError,
+						self._dbapi.InternalError)
+				except AttributeError:
+					try:
+						self._failures = (self._creator.OperationalError,
+							self._creator.InternalError)
+					except AttributeError:
+						try:
+							self._failures = (con.OperationalError,
+								con.InternalError)
+						except AttributeError:
+							raise AttributeError(
+								"Could not determine failure exceptions"
+								" (please set failures or creator.dbapi).")
+			if isinstance(self._failures, tuple):
+				self._failure = self._failures[0]
+			else:
+				self._failure = self._failures
 			self._setsession(con)
 		except Exception, error:
 			# the database module could not be determined
@@ -213,14 +292,19 @@ class SteadyDBConnection:
 
 	def dbapi(self):
 		"""Return the underlying DB-API 2 module of the connection."""
+		if self._dbapi is None:
+			raise AttributeError("Could not determine DB-API 2 module"
+				" (please set creator.dbapi).")
 		return self._dbapi
 
 	def threadsafety(self):
 		"""Return the thread safety level of the connection."""
-		try:
-			return self._dbapi.threadsafety
-		except AttributeError:
+		if self._threadsafety is None:
+			if self._dbapi is None:
+				raise AttributeError("Could not determine threadsafety"
+					" (please set creator.dbapi or creator.threadsafety).")
 			return 0
+		return self._threadsafety
 
 	def close(self):
 		"""Close the tough connection.
@@ -290,10 +374,12 @@ class SteadyDBConnection:
 class SteadyDBCursor:
 	"""A "tough" version of DB-API 2 cursors."""
 
-	_closed = True
-
 	def __init__(self, con, *args, **kwargs):
 		""""Create a "tough" DB-API 2 cursor."""
+		# basic initialization to make finalizer work
+		self._cursor = None
+		self._closed = True
+		# proper initialization of the cursor
 		self._con = con
 		self._args, self._kwargs = args, kwargs
 		self._clearsizes()
@@ -424,12 +510,18 @@ class SteadyDBCursor:
 
 	def __getattr__(self, name):
 		"""Inherit methods and attributes of underlying cursor."""
-		if name.startswith('execute') or name.startswith('call'):
-			# make execution methods "tough"
-			return self._get_tough_method(name)
+		if self._cursor:
+			if name.startswith('execute') or name.startswith('call'):
+				# make execution methods "tough"
+				return self._get_tough_method(name)
+			else:
+				return getattr(self._cursor, name)
 		else:
-			return getattr(self._cursor, name)
+			raise InvalidCursor
 
 	def __del__(self):
 		"""Delete the steady cursor."""
-		self.close() # make sure the cursor is closed
+		try:
+			self.close() # make sure the cursor is closed
+		except Exception:
+			pass

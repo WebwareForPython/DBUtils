@@ -39,13 +39,13 @@ class Connection:
 	def __init__(self, database=None, user=None):
 		self.database = database
 		self.user = user
+		self.valid = False
+		if database == 'error':
+			raise OperationalError
 		self.open_cursors = 0
 		self.num_uses = 0
 		self.num_queries = 0
 		self.session = []
-		if database == 'error':
-			self.valid = False
-			raise OperationalError
 		self.valid = True
 
 	def close(self):
@@ -73,10 +73,10 @@ class Cursor:
 
 	def __init__(self, con, name=None):
 		self.con = con
-		self.result = None
+		self.valid = False
 		if name == 'error':
-			self.valid = False
 			raise OperationalError
+		self.result = None
 		con.open_cursors += 1
 		self.valid = True
 

@@ -87,7 +87,7 @@ class DB:
 		if self.db:
 			return getattr(self.db, name)
 		else:
-			raise InternalError
+			raise AttributeError
 
 	def close(self):
 		if self.db:
