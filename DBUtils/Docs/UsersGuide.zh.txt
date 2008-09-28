@@ -2,8 +2,8 @@
 DBUtils 用户指南
 ====================
 
-:版本: 1.0pre
-:发行版: 09/25/08
+:版本: 0.9.4
+:发行版: 07/07/07
 :翻译: English_ German_ Chinese
 
 .. _English: UsersGuide.html
@@ -222,7 +222,7 @@ PooledDB
 
 请注意连接可以与其他线程共享，只要你设置 ``maxshared`` 参数为非零，并且DB-API 2模块也允许。如果你想要使用专用连接则使用::
 
-    db = pool.connection(shareable=False)
+    db = pool.connection(0)
 
 如果你不再需要这个连接了，则可以返回给连接池使用 ``db.close()`` 。你也可以使用相同的方法获取另一个连接。
 
