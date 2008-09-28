@@ -164,7 +164,9 @@ class SteadyDBConnection:
 				self._threadsafety = None
 		if not callable(self._creator):
 			raise TypeError("%r is not a connection provider." % (creator,))
-		if maxusage is not None and not isinstance(maxusage, (int, long)):
+		if maxusage is None:
+			maxusage = 0
+		if not isinstance(maxusage, (int, long)):
 			raise TypeError("'maxusage' must be an integer value.")
 		self._maxusage = maxusage
 		self._setsession_sql = setsession

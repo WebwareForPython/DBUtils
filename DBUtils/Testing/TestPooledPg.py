@@ -55,7 +55,7 @@ class TestPooledPg(unittest.TestCase):
 		self.assert_(hasattr(db, 'num_queries'))
 		self.assertEqual(db.num_queries, 0)
 		self.assert_(hasattr(db, '_maxusage'))
-		self.assertEqual(db._maxusage, None)
+		self.assertEqual(db._maxusage, 0)
 		self.assert_(hasattr(db, '_setsession_sql'))
 		self.assert_(db._setsession_sql is None)
 		self.assert_(hasattr(db, 'dbname'))

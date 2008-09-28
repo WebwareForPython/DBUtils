@@ -298,16 +298,16 @@ following parameters:
   (the default of ``0`` means no connections are made at startup)
 
 * ``maxcached``: the maximum number of idle connections in the pool
-  (the default value of ``0`` means unlimited pool size)
+  (the default value of ``0`` or ``None`` means unlimited pool size)
 
 * ``maxshared``: maximum number of shared connections allowed
-  (the default value of ``0`` means all connections are dedicated)
+  (the default value of ``0`` or ``None`` means all connections are dedicated)
 
   When this maximum number is reached, connections are shared if they
   have been requested as shareable.
 
 * ``maxconnections``: maximum number of connections generally allowed
-  (the default value of ``0`` means any number of connections)
+  (the default value of ``0`` or ``None`` means any number of connections)
 
 * ``blocking``: determines behavior when exceeding the maximum
 
@@ -409,6 +409,18 @@ or SQLAlchemy_, you won't need DBUtils, since they come with their own
 connection pools. `SQLObject 2`_ (SQL-API_) is actually borrowing some code
 from DBUtils to split the pooling out into a separate layer.
 
+Also note that when you are using a solution like the Apache webserver
+with mod_python_ or mod_wsgi_, then your Python code will be usually run
+in the context of the webserver's child processes. So if you are using
+the ``PooledDB`` module, and several of these child processes are running,
+you will have as much database connection pools. If these processes are
+running many threads, this may still be a reasonable approach, but if these
+processes don't spawn more than one worker thread, as in the case of Apache's
+"prefork" multi-processing module, this approach does not make sense.
+If you're running such a configuration, you should resort to a middleware
+for connection pooling that supports multi-processing, such as pgpool_
+or pgbouncer_ for the PostgreSQL database.
+
 
 Future
 ======
@@ -449,7 +461,9 @@ Some links to related and alternative software:
 * `Webware for Python`_ framework
 * Python `DB-API 2`_
 * PostgreSQL_ database
-* PyGreSQL_ adapter
+* PyGreSQL_ Python adapter for PostgreSQL
+* pgpool_ middleware for PostgreSQL connection pooling
+* pgbouncer_ lightweight PostgreSQL connection pooling
 * SQLObject_ object-relational mapper
 * SQLAlchemy_ object-relational mapper
 
@@ -465,6 +479,11 @@ Some links to related and alternative software:
 .. _SQLObject 2: http://www.sqlobject.org/2/
 .. _SQL-API: http://www.sqlobject.org/sqlapi/
 .. _SQLAlchemy: http://www.sqlalchemy.org
+.. _Apache: http://httpd.apache.org
+.. _mod_python: http://www.modpython.org
+.. _mod_wsgi: http://code.google.com/p/modwsgi/
+.. _pgpool: http://pgpool.projects.postgresql.org
+.. _pgbouncer: http://pgbouncer.projects.postgresql.org/
 
 
 Credits
@@ -475,7 +494,8 @@ Credits
 :Contributions: DBUtils uses code, input and suggestions made by
   Ian Bicking, Chuck Esterbrook (Webware for Python), Dan Green (DBTools),
   Jay Love, Michael Palmer, Tom Schwaller, Geoffrey Talvola,
-  Warren Smith (DbConnectionPool) and Ezio Vernacotola.
+  Warren Smith (DbConnectionPool), Ezio Vernacotola,
+  Jehiah Czebotar, Matthew Harriger and Gregory Piñero.
 
 
 Copyright and License

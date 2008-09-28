@@ -31,9 +31,9 @@ an instance of PooledPg, passing the following parameters:
 	mincached: the initial number of connections in the pool
 		(the default of 0 means no connections are made at startup)
 	maxcached: the maximum number of connections in the pool
-		(the default value of 0 means unlimited pool size)
+		(the default value of 0 or None means unlimited pool size)
 	maxconnections: maximum number of connections generally allowed
-		(the default value of 0 means any number of connections)
+		(the default value of 0 or None means any number of connections)
 	blocking: determines behavior when exceeding the maximum
 		(if this is set to true, block and wait until the number of
 		connections decreases, but by default an error will be reported)
@@ -138,9 +138,9 @@ class PooledPg:
 		mincached: initial number of connections in the pool
 			(0 means no connections are made at startup)
 		maxcached: maximum number of connections in the pool
-			(0 means unlimited pool size)
+			(0 or None means unlimited pool size)
 		maxconnections: maximum number of connections generally allowed
-			(0 means an arbitrary number of connections)
+			(0 or None means an arbitrary number of connections)
 		blocking: determines behavior when exceeding the maximum
 			(if this is set to true, block and wait until the number of
 			connections decreases, otherwise an error will be reported)
@@ -157,6 +157,12 @@ class PooledPg:
 		self._args, self._kwargs = args, kwargs
 		self._maxusage = maxusage
 		self._setsession = setsession
+		if mincached is None:
+			mincached = 0
+		if maxcached is None:
+			maxcached = 0
+		if maxconnections is None:
+			maxconnections = 0
 		if maxcached:
 			if maxcached < mincached:
 				maxcached = mincached

@@ -357,21 +357,22 @@ Parameter angeben müssen:</p>
 erzeugt, oder ein DB-API-2-Datenbankadapter-Modul</p>
 </li>
 <li><p class="first"><tt class="docutils literal"><span class="pre">mincached</span></tt> : die anfängliche Anzahl inaktiver Verbindungen, die auf
-Vorrat gehalten werden sollen (der Standardwert <tt class="docutils literal"><span class="pre">0</span></tt> bedeutet, dass
-beim Start keine Verbindungen geöffnet werden)</p>
+Vorrat gehalten werden sollen (der Standardwert <tt class="docutils literal"><span class="pre">0</span></tt> bedeutet, dass beim
+Start keine Verbindungen geöffnet werden)</p>
 </li>
 <li><p class="first"><tt class="docutils literal"><span class="pre">maxcached</span></tt>: Obergrenze für die Anzahl inaktiver Verbindungen, die auf
-Vorrat gehalten werden sollen (der Standardwert <tt class="docutils literal"><span class="pre">0</span></tt> bedeutet unbegrenzte
-Größe des Vorratsspeichers)</p>
+Vorrat gehalten werden sollen (der Standardwert <tt class="docutils literal"><span class="pre">0</span></tt> oder <tt class="docutils literal"><span class="pre">None</span></tt> bedeutet
+unbegrenzte Größe des Vorratsspeichers)</p>
 </li>
 <li><p class="first"><tt class="docutils literal"><span class="pre">maxshared</span></tt>: Obergrenze für die Anzahl gemeinsam genutzer Verbindungen
-(der Standardwert <tt class="docutils literal"><span class="pre">0</span></tt> bedeutet, dass alle Verbindungen dediziert sind)</p>
+(der Standardwert <tt class="docutils literal"><span class="pre">0</span></tt> oder <tt class="docutils literal"><span class="pre">None</span></tt> bedeutet, dass alle Verbindungen
+dediziert sind)</p>
 <p>Wenn diese Obergrenze erreicht wird, werden Verbindungen wiederverwendet,
 wenn diese als wiederverwendbar angefordert werden.</p>
 </li>
 <li><p class="first"><tt class="docutils literal"><span class="pre">maxconnections</span></tt>: Obergrenze für die Anzahl an Datenbankverbindungen,
 die insgesamt überhaupt erlaubt werden sollen (der Standardwert <tt class="docutils literal"><span class="pre">0</span></tt>
-bedeutet unbegrenzte Anzahl von Datenbankverbindungen)</p>
+oder <tt class="docutils literal"><span class="pre">None</span></tt> bedeutet unbegrenzte Anzahl von Datenbankverbindungen)</p>
 </li>
 <li><p class="first"><tt class="docutils literal"><span class="pre">blocking</span></tt>: bestimmt das Verhalten bei Überschreitung dieser Obergrenze</p>
 <p>Wenn dies auf <tt class="docutils literal"><span class="pre">True</span></tt> gesetzt wird, dann wird so lange gewartet, bis die
@@ -478,6 +479,17 @@ klassische PyGreSQL-Modul oder irgendein DB-API-2-Modul). Wenn der Parameter
 ihre eigenen Mechanismen zum Pooling von Datenbankverbindungen eingebaut.
 Tatsächlich hat <a class="reference" href="http://www.sqlobject.org/2/">SQLObject 2</a> (<a class="reference" href="http://www.sqlobject.org/sqlapi/">SQL-API</a>) das Pooling in eine separate Schicht
 ausgelagert, in der Code von DBUtils verwendet wird.</p>
+<p>Wenn Sie eine Lösung verwenden wie den Apache-Webserver mit <a class="reference" href="http://www.modpython.org">mod_python</a>
+oder <a class="reference" href="http://code.google.com/p/modwsgi/">mod_wsgi</a>, dann sollten Sie bedenken, dass Ihr Python-Code normalerweise
+im Kontext der Kindprozesse des Webservers läuft. Wenn Sie also das
+<tt class="docutils literal"><span class="pre">PooledDB</span></tt>-Modul einsetzen, und mehrere dieser Kindprozesse laufen, dann
+werden Sie ebensoviele Pools mit Datenbankverbindungen erhalten. Wenn diese
+Prozesse viele Threads laufen lassen,  dann mag dies eine sinnvoller Ansatz
+sein, wenn aber diese Prozesse nicht mehr als einen Worker-Thread starten,
+wie im Fall des Multi-Processing Moduls &quot;prefork&quot; für den Apache-Webserver,
+dann sollten Sie auf eine Middleware für das Connection-Pooling zurückgreifen,
+die Multi-Processing unterstützt, wie zum Beispiel <a class="reference" href="http://pgpool.projects.postgresql.org">pgpool</a> oder <a class="reference" href="http://pgbouncer.projects.postgresql.org">pgbouncer</a>
+für die PostgreSQL-Datenbank.</p>
 </div>
 <div class="section">
 <h1><a id="zukunft" name="zukunft">Zukunft</a></h1>
@@ -514,12 +526,14 @@ mailing list</a> diskutiert werden.</p>
 <ul class="simple">
 <li><a class="reference" href="http://www.webwareforpython.org/DBUtils">DBUtils</a></li>
 <li><a class="reference" href="http://www.python.org">Python</a></li>
-<li><a class="reference" href="http://www.webwareforpython.org">Webware for Python</a> framework</li>
+<li><a class="reference" href="http://www.webwareforpython.org">Webware for Python</a> Framework</li>
 <li>Python <a class="reference" href="http://www.python.org/dev/peps/pep-0249/">DB-API 2</a></li>
-<li><a class="reference" href="http://www.postgresql.org">PostgreSQL</a> database</li>
-<li><a class="reference" href="http://www.pygresql.org">PyGreSQL</a> adapter</li>
-<li><a class="reference" href="http://www.sqlobject.org">SQLObject</a> object-relational mapper</li>
-<li><a class="reference" href="http://www.sqlalchemy.org">SQLAlchemy</a> object-relational mapper</li>
+<li><a class="reference" href="http://www.postgresql.org">PostgreSQL</a> Datenbank</li>
+<li><a class="reference" href="http://www.pygresql.org">PyGreSQL</a> Python-Adapter for PostgreSQL</li>
+<li><a class="reference" href="http://pgpool.projects.postgresql.org">pgpool</a> Middleware für Connection-Pooling mit PostgreSQL</li>
+<li><a class="reference" href="http://pgbouncer.projects.postgresql.org">pgbouncer</a> Middleware für Connection-Pooling mit PostgreSQL</li>
+<li><a class="reference" href="http://www.sqlobject.org">SQLObject</a> Objekt-relationaler Mapper</li>
+<li><a class="reference" href="http://www.sqlalchemy.org">SQLAlchemy</a> Objekt-relationaler Mapper</li>
 </ul>
 </div>
 <div class="section">
@@ -533,7 +547,8 @@ mailing list</a> diskutiert werden.</p>
 <tr class="field"><th class="field-name">Beiträge:</th><td class="field-body">DBUtils benutzt Code, Anmerkungen und Vorschläge von
 Ian Bicking, Chuck Esterbrook (Webware for Python), Dan Green (DBTools),
 Jay Love, Michael Palmer, Tom Schwaller, Geoffrey Talvola,
-Warren Smith (DbConnectionPool) and Ezio Vernacotola.</td>
+Warren Smith (DbConnectionPool), Ezio Vernacotola,
+Jehiah Czebotar, Matthew Harriger und Gregory Piñero.</td>
 </tr>
 </tbody>
 </table>

@@ -73,7 +73,7 @@ class TestPooledDB(unittest.TestCase):
 			from DBUtils.SteadyDB import SteadyDBConnection
 			self.assert_(isinstance(con, SteadyDBConnection))
 			self.assert_(hasattr(con, '_maxusage'))
-			self.assertEqual(con._maxusage, None)
+			self.assertEqual(con._maxusage, 0)
 			self.assert_(hasattr(con, '_setsession_sql'))
 			self.assert_(con._setsession_sql is None)
 			db = pool.connection()

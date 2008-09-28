@@ -319,22 +319,23 @@ Parameter angeben müssen:
   erzeugt, oder ein DB-API-2-Datenbankadapter-Modul
 
 * ``mincached`` : die anfängliche Anzahl inaktiver Verbindungen, die auf
-  Vorrat gehalten werden sollen (der Standardwert ``0`` bedeutet, dass
-  beim Start keine Verbindungen geöffnet werden)
+  Vorrat gehalten werden sollen (der Standardwert ``0`` bedeutet, dass beim
+  Start keine Verbindungen geöffnet werden)
 
 * ``maxcached``: Obergrenze für die Anzahl inaktiver Verbindungen, die auf
-  Vorrat gehalten werden sollen (der Standardwert ``0`` bedeutet unbegrenzte
-  Größe des Vorratsspeichers)
+  Vorrat gehalten werden sollen (der Standardwert ``0`` oder ``None`` bedeutet
+  unbegrenzte Größe des Vorratsspeichers)
 
 * ``maxshared``: Obergrenze für die Anzahl gemeinsam genutzer Verbindungen
-  (der Standardwert ``0`` bedeutet, dass alle Verbindungen dediziert sind)
+  (der Standardwert ``0`` oder ``None`` bedeutet, dass alle Verbindungen
+  dediziert sind)
 
   Wenn diese Obergrenze erreicht wird, werden Verbindungen wiederverwendet,
   wenn diese als wiederverwendbar angefordert werden.
 
 * ``maxconnections``: Obergrenze für die Anzahl an Datenbankverbindungen,
   die insgesamt überhaupt erlaubt werden sollen (der Standardwert ``0``
-  bedeutet unbegrenzte Anzahl von Datenbankverbindungen)
+  oder ``None`` bedeutet unbegrenzte Anzahl von Datenbankverbindungen)
 
 * ``blocking``: bestimmt das Verhalten bei Überschreitung dieser Obergrenze
 
@@ -446,6 +447,18 @@ ihre eigenen Mechanismen zum Pooling von Datenbankverbindungen eingebaut.
 Tatsächlich hat `SQLObject 2`_ (SQL-API_) das Pooling in eine separate Schicht
 ausgelagert, in der Code von DBUtils verwendet wird.
 
+Wenn Sie eine Lösung verwenden wie den Apache-Webserver mit mod_python_
+oder mod_wsgi_, dann sollten Sie bedenken, dass Ihr Python-Code normalerweise
+im Kontext der Kindprozesse des Webservers läuft. Wenn Sie also das
+``PooledDB``-Modul einsetzen, und mehrere dieser Kindprozesse laufen, dann
+werden Sie ebensoviele Pools mit Datenbankverbindungen erhalten. Wenn diese
+Prozesse viele Threads laufen lassen,  dann mag dies eine sinnvoller Ansatz
+sein, wenn aber diese Prozesse nicht mehr als einen Worker-Thread starten,
+wie im Fall des Multi-Processing Moduls "prefork" für den Apache-Webserver,
+dann sollten Sie auf eine Middleware für das Connection-Pooling zurückgreifen,
+die Multi-Processing unterstützt, wie zum Beispiel pgpool_ oder pgbouncer_
+für die PostgreSQL-Datenbank.
+
 
 Zukunft
 =======
@@ -484,12 +497,14 @@ Einige Links zu verwandter und alternativer Software:
 
 * DBUtils_
 * Python_
-* `Webware for Python`_ framework
+* `Webware for Python`_ Framework
 * Python `DB-API 2`_
-* PostgreSQL_ database
-* PyGreSQL_ adapter
-* SQLObject_ object-relational mapper
-* SQLAlchemy_ object-relational mapper
+* PostgreSQL_ Datenbank
+* PyGreSQL_ Python-Adapter for PostgreSQL
+* pgpool_ Middleware für Connection-Pooling mit PostgreSQL
+* pgbouncer_ Middleware für Connection-Pooling mit PostgreSQL
+* SQLObject_ Objekt-relationaler Mapper
+* SQLAlchemy_ Objekt-relationaler Mapper
 
 .. _DBUtils: http://www.webwareforpython.org/DBUtils
 .. _Python: http://www.python.org
@@ -503,6 +518,11 @@ Einige Links zu verwandter und alternativer Software:
 .. _SQLObject 2: http://www.sqlobject.org/2/
 .. _SQL-API: http://www.sqlobject.org/sqlapi/
 .. _SQLAlchemy: http://www.sqlalchemy.org
+.. _Apache: http://httpd.apache.org
+.. _mod_python: http://www.modpython.org
+.. _mod_wsgi: http://code.google.com/p/modwsgi/
+.. _pgpool: http://pgpool.projects.postgresql.org
+.. _pgbouncer: http://pgbouncer.projects.postgresql.org
 
 
 Autoren
@@ -513,7 +533,8 @@ Autoren
 :Beiträge: DBUtils benutzt Code, Anmerkungen und Vorschläge von
   Ian Bicking, Chuck Esterbrook (Webware for Python), Dan Green (DBTools),
   Jay Love, Michael Palmer, Tom Schwaller, Geoffrey Talvola,
-  Warren Smith (DbConnectionPool) and Ezio Vernacotola.
+  Warren Smith (DbConnectionPool), Ezio Vernacotola,
+  Jehiah Czebotar, Matthew Harriger und Gregory Piñero.
 
 
 Copyright und Lizenz

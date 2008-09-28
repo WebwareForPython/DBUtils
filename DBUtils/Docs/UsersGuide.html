@@ -337,15 +337,15 @@ connection objects or a DB-API 2 compliant database module</p>
 (the default of <tt class="docutils literal"><span class="pre">0</span></tt> means no connections are made at startup)</p>
 </li>
 <li><p class="first"><tt class="docutils literal"><span class="pre">maxcached</span></tt>: the maximum number of idle connections in the pool
-(the default value of <tt class="docutils literal"><span class="pre">0</span></tt> means unlimited pool size)</p>
+(the default value of <tt class="docutils literal"><span class="pre">0</span></tt> or <tt class="docutils literal"><span class="pre">None</span></tt> means unlimited pool size)</p>
 </li>
 <li><p class="first"><tt class="docutils literal"><span class="pre">maxshared</span></tt>: maximum number of shared connections allowed
-(the default value of <tt class="docutils literal"><span class="pre">0</span></tt> means all connections are dedicated)</p>
+(the default value of <tt class="docutils literal"><span class="pre">0</span></tt> or <tt class="docutils literal"><span class="pre">None</span></tt> means all connections are dedicated)</p>
 <p>When this maximum number is reached, connections are shared if they
 have been requested as shareable.</p>
 </li>
 <li><p class="first"><tt class="docutils literal"><span class="pre">maxconnections</span></tt>: maximum number of connections generally allowed
-(the default value of <tt class="docutils literal"><span class="pre">0</span></tt> means any number of connections)</p>
+(the default value of <tt class="docutils literal"><span class="pre">0</span></tt> or <tt class="docutils literal"><span class="pre">None</span></tt> means any number of connections)</p>
 </li>
 <li><p class="first"><tt class="docutils literal"><span class="pre">blocking</span></tt>: determines behavior when exceeding the maximum</p>
 <p>If this is set to true, block and wait until the number of
@@ -442,6 +442,17 @@ the &quot;Pooled&quot; variant, otherwise it will use the &quot;Persistent&quot;
 or <a class="reference" href="http://www.sqlalchemy.org">SQLAlchemy</a>, you won't need DBUtils, since they come with their own
 connection pools. <a class="reference" href="http://www.sqlobject.org/2/">SQLObject 2</a> (<a class="reference" href="http://www.sqlobject.org/sqlapi/">SQL-API</a>) is actually borrowing some code
 from DBUtils to split the pooling out into a separate layer.</p>
+<p>Also note that when you are using a solution like the Apache webserver
+with <a class="reference" href="http://www.modpython.org">mod_python</a> or <a class="reference" href="http://code.google.com/p/modwsgi/">mod_wsgi</a>, then your Python code will be usually run
+in the context of the webserver's child processes. So if you are using
+the <tt class="docutils literal"><span class="pre">PooledDB</span></tt> module, and several of these child processes are running,
+you will have as much database connection pools. If these processes are
+running many threads, this may still be a reasonable approach, but if these
+processes don't spawn more than one worker thread, as in the case of Apache's
+&quot;prefork&quot; multi-processing module, this approach does not make sense.
+If you're running such a configuration, you should resort to a middleware
+for connection pooling that supports multi-processing, such as <a class="reference" href="http://pgpool.projects.postgresql.org">pgpool</a>
+or <a class="reference" href="http://pgbouncer.projects.postgresql.org/">pgbouncer</a> for the PostgreSQL database.</p>
 </div>
 <div class="section">
 <h1><a id="future" name="future">Future</a></h1>
@@ -480,7 +491,9 @@ the <a class="reference" href="https://lists.sourceforge.net/lists/listinfo/webw
 <li><a class="reference" href="http://www.webwareforpython.org">Webware for Python</a> framework</li>
 <li>Python <a class="reference" href="http://www.python.org/dev/peps/pep-0249/">DB-API 2</a></li>
 <li><a class="reference" href="http://www.postgresql.org">PostgreSQL</a> database</li>
-<li><a class="reference" href="http://www.pygresql.org">PyGreSQL</a> adapter</li>
+<li><a class="reference" href="http://www.pygresql.org">PyGreSQL</a> Python adapter for PostgreSQL</li>
+<li><a class="reference" href="http://pgpool.projects.postgresql.org">pgpool</a> middleware for PostgreSQL connection pooling</li>
+<li><a class="reference" href="http://pgbouncer.projects.postgresql.org/">pgbouncer</a> lightweight PostgreSQL connection pooling</li>
 <li><a class="reference" href="http://www.sqlobject.org">SQLObject</a> object-relational mapper</li>
 <li><a class="reference" href="http://www.sqlalchemy.org">SQLAlchemy</a> object-relational mapper</li>
 </ul>
@@ -496,7 +509,8 @@ the <a class="reference" href="https://lists.sourceforge.net/lists/listinfo/webw
 <tr class="field"><th class="field-name">Contributions:</th><td class="field-body">DBUtils uses code, input and suggestions made by
 Ian Bicking, Chuck Esterbrook (Webware for Python), Dan Green (DBTools),
 Jay Love, Michael Palmer, Tom Schwaller, Geoffrey Talvola,
-Warren Smith (DbConnectionPool) and Ezio Vernacotola.</td>
+Warren Smith (DbConnectionPool), Ezio Vernacotola,
+Jehiah Czebotar, Matthew Harriger and Gregory Piñero.</td>
 </tr>
 </tbody>
 </table>
