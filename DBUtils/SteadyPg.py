@@ -35,11 +35,13 @@ Usage:
 You can use the class SteadyPgConnection in the same way as you
 would use the class DB from the classic PyGreSQL API module db.
 The only difference is that you may specify a usage limit as the
-first paramenter when you open a connection (set it to 0
+first paramenter when you open a connection (set it to None
 if you prefer unlimited usage), and an optional list of commands
-that may serve to prepare the session as the second parameter.
-When the connection to the PostgreSQL database is lost or has been
-used too often, it will be automatically reset, without further notice.
+that may serve to prepare the session as the second parameter,
+and you can specify whether is is allowed to close the connection
+(by default this is true). When the connection to the PostgreSQL
+database is lost or has been used too often, it will be automatically
+reset, without further notice.
 
 	from DBUtils.SteadyPg import SteadyPgConnection
 	db = SteadyPgConnection(10000, ["set datestyle to german"],

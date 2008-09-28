@@ -37,6 +37,8 @@ by creating an instance of PersistentPg, passing the following parameters:
 		the connection is automatically reset (closed and reopened).
 	setsession: An optional list of SQL commands that may serve to
 		prepare the session, e.g. ["set datestyle to german", ...]
+	closeable: if this is set to true, then closing connections will
+		be allowed, but by default this will be silently ignored
 
 	Additionally, you have to pass the parameters for the actual
 	PostgreSQL connection which are passed via PyGreSQL,

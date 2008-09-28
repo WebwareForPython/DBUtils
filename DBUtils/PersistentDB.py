@@ -36,6 +36,11 @@ by creating an instance of PersistentDB, passing the following parameters:
 		Whenever the limit is reached, the connection will be reset.
 	setsession: an optional list of SQL commands that may serve to
 		prepare the session, e.g. ["set datestyle to german", ...].
+	failures: an optional exception class or a tuple of exception classes
+		for which the connection failover mechanism shall be applied,
+		if the default (OperationalError, InternalError) is not adequate
+	closeable: if this is set to true, then closing connections will
+		be allowed, but by default this will be silently ignored
 
 	The creator function or the connect function of the DB-API 2 compliant
 	database module specified as the creator will receive any additional

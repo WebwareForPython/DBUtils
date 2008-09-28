@@ -46,11 +46,14 @@ objects as the first parameter. Passing just a function allows
 implementing failover mechanisms and load balancing strategies.
 
 You may also specify a usage limit as the second parameter
-(set it to 0 if you prefer unlimited usage), and an optional
+(set it to None if you prefer unlimited usage), an optional
 list of commands that may serve to prepare the session as a
-third parameter. When the connection to the database is lost
-or has been used too often, it will be transparently reset
-in most situations, without further notice.
+third parameter, the exception classes for which the failover
+mechanism shall be applied, and you can specify whether is is
+allowed to close the connection (by default this is true).
+When the connection to the database is lost or has been used
+too often, it will be transparently reset in most situations,
+without further notice.
 
 	import pgdb # import used DB-API 2 module
 	from DBUtils.SteadyDB import connect

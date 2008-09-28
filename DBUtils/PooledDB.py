@@ -48,6 +48,9 @@ an instance of PooledDB, passing the following parameters:
 		the connection is automatically reset (closed and reopened).
 	setsession: an optional list of SQL commands that may serve to
 		prepare the session, e.g. ["set datestyle to german", ...]
+	failures: an optional exception class or a tuple of exception classes
+		for which the connection failover mechanism shall be applied,
+		if the default (OperationalError, InternalError) is not adequate
 
 	The creator function or the connect function of the DB-API 2 compliant
 	database module specified as the creator will receive any additional
