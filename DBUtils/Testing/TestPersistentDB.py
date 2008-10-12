@@ -21,6 +21,7 @@ import unittest
 
 sys.path.insert(1, '../..')
 # The TestSteadyDB module serves as a mock object for the DB-API 2 module:
+from DBUtils import ThreadingLocal
 from DBUtils.Testing import TestSteadyDB as dbapi
 from DBUtils.PersistentDB import PersistentDB
 
@@ -213,6 +214,14 @@ class TestPersistentDB(unittest.TestCase):
 			cursor.fetchone()
 			cursor.close()
 		self.assertEqual(db._con.session, ['datestyle'])
+
+	def test7_PersistentDBThreadLocal(self):
+		persist = PersistentDB(dbapi)
+		self.assert_(isinstance(persist.thread, ThreadingLocal.local))
+		class threadlocal:
+			pass
+		persist = PersistentDB(dbapi, threadlocal=threadlocal)
+		self.assert_(isinstance(persist.thread, threadlocal))
 
 
 if __name__ == '__main__':
