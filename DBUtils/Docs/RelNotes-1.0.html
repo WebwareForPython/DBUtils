@@ -24,6 +24,11 @@ and <tt>creator.threadsafety</tt> attributes.</li>
 <li>Added a <tt>version</tt> attribute to all exported classes.</li>
 <li>Where <tt>0</tt> has the meaning "unlimited", parameters can now be also
 set to <tt>None</tt> instead.</li>
+<li>It turned out that <tt>threading.local</tt> does not work properly with
+<tt>mod_wsgi</tt>, so we use the Python implementation for thread-local data
+even when a faster <tt>threading.local</tt> implementation is available.
+A new parameter <tt>threadlocal</tt> allows you to pass an arbitrary class
+such as <tt>threading.local</tt> if you know it works in your environment.</li>
 </ul>
 
 <h2>Bugfixes and Improvements:</h2>

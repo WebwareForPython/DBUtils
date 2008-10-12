@@ -41,6 +41,9 @@ by creating an instance of PersistentDB, passing the following parameters:
 		if the default (OperationalError, InternalError) is not adequate
 	closeable: if this is set to true, then closing connections will
 		be allowed, but by default this will be silently ignored
+	threadlocal: an optional class for representing thread-local data
+		that will be used instead of our Python implementation
+		(threading.local is faster, but cannot be used in all cases)
 
 	The creator function or the connect function of the DB-API 2 compliant
 	database module specified as the creator will receive any additional
@@ -70,10 +73,15 @@ contrary to the intent of having persistent connections. Instead,
 the connection will be automatically closed when the thread dies.
 You can change this behavior be setting the closeable parameter.
 
+Note that by setting the threadlocal parameter to threading.local,
+getting connections may become a bit faster, but this may not work in
+all environments (for instance, mod_wsgi is known to cause problems
+since it clears the threading.local data between requests).
+
 
 Requirements:
 
-Minimum requirement: Python 2.2. Recommended: Python 2.4.3.
+Python >= 2.2, < 3.0.
 
 
 Ideas for improvement:
@@ -94,11 +102,12 @@ Licensed under the Open Software License version 2.1.
 
 """
 
-__version__ = '1.0pre'
+__version__ = '1.0rc1'
 __revision__ = "$Rev$"
 __date__ = "$Date$"
 
 
+import ThreadingLocal
 from DBUtils.SteadyDB import connect
 
 
@@ -120,8 +129,8 @@ class PersistentDB:
 	version = __version__
 
 	def __init__(self, creator,
-		maxusage=None, setsession=None, failures=None, closeable=False,
-		*args, **kwargs):
+			maxusage=None, setsession=None, failures=None,
+			closeable=False, threadlocal=None, *args, **kwargs):
 		"""Set up the persistent DB-API 2 connection generator.
 
 		creator: either an arbitrary function returning new DB-API 2
@@ -136,6 +145,9 @@ class PersistentDB:
 			if the default (OperationalError, InternalError) is not adequate
 		closeable: if this is set to true, then closing connections will
 			be allowed, but by default this will be silently ignored
+		threadlocal: an optional class for representing thread-local data
+			that will be used instead of our Python implementation
+			(threading.local is faster, but cannot be used in all cases)
 		args, kwargs: the parameters that shall be passed to the creator
 			function or the connection constructor of the DB-API 2 module
 
@@ -158,7 +170,7 @@ class PersistentDB:
 		self._failures = failures
 		self._closeable = closeable
 		self._args, self._kwargs = args, kwargs
-		self.thread = local()
+		self.thread = (threadlocal or ThreadingLocal.local)()
 
 	def steady_connection(self):
 		"""Get a steady, non-persistent DB-API 2 connection."""
@@ -187,81 +199,3 @@ class PersistentDB:
 	def dedicated_connection(self):
 		"""Alias for connection(shareable=False)."""
 		return self.connection()
-
-
-try: # import a class for representing thread-local objects
-	from threading import local
-except ImportError: # for Python < 2.4, use the following simple implementation
-	from threading import currentThread, enumerate, RLock
-	class _localbase(object):
-		__slots__ = '_local__key', '_local__args', '_local__lock'
-		def __new__(cls, *args, **kwargs):
-			self = object.__new__(cls)
-			key = '_local__key', 'thread.local.' + str(id(self))
-			object.__setattr__(self, '_local__key', key)
-			object.__setattr__(self, '_local__args', (args, kwargs))
-			object.__setattr__(self, '_local__lock', RLock())
-			if args or kwargs and (cls.__init__ is object.__init__):
-				raise TypeError("Initialization arguments are not supported")
-			d = object.__getattribute__(self, '__dict__')
-			currentThread().__dict__[key] = d
-			return self
-	def _patch(self):
-		key = object.__getattribute__(self, '_local__key')
-		d = currentThread().__dict__.get(key)
-		if d is None:
-			d = {}
-			currentThread().__dict__[key] = d
-			object.__setattr__(self, '__dict__', d)
-			cls = type(self)
-			if cls.__init__ is not object.__init__:
-				args, kwargs = object.__getattribute__(self, '_local__args')
-				cls.__init__(self, *args, **kwargs)
-		else:
-			object.__setattr__(self, '__dict__', d)
-	class local(_localbase):
-		def __getattribute__(self, name):
-			lock = object.__getattribute__(self, '_local__lock')
-			lock.acquire()
-			try:
-				_patch(self)
-				return object.__getattribute__(self, name)
-			finally:
-				lock.release()
-		def __setattr__(self, name, value):
-			lock = object.__getattribute__(self, '_local__lock')
-			lock.acquire()
-			try:
-				_patch(self)
-				return object.__setattr__(self, name, value)
-			finally:
-				lock.release()
-		def __delattr__(self, name):
-			lock = object.__getattribute__(self, '_local__lock')
-			lock.acquire()
-			try:
-				_patch(self)
-				return object.__delattr__(self, name)
-			finally:
-				lock.release()
-		def __del__():
-			threading_enumerate = enumerate
-			__getattribute__ = object.__getattribute__
-			def __del__(self):
-				try:
-					key = __getattribute__(self, '_local__key')
-					threads = list(threading_enumerate())
-				except Exception:
-					return
-				for thread in threads:
-					try:
-						__dict__ = thread.__dict__
-					except AttributeError:
-						continue
-					if key in __dict__:
-						try:
-							del __dict__[key]
-						except KeyError:
-							pass
-			return __del__
-		__del__ = __del__()

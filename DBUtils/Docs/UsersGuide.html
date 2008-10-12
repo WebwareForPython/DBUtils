@@ -16,7 +16,7 @@
 <tbody valign="top">
 <tr><th class="docinfo-name">Version:</th>
 <td>1.0pre</td></tr>
-<tr class="field"><th class="docinfo-name">Released:</th><td class="field-body">09/25/08</td>
+<tr class="field"><th class="docinfo-name">Released:</th><td class="field-body">10/12/08</td>
 </tr>
 <tr class="field"><th class="docinfo-name">Translations:</th><td class="field-body">English <a class="reference" href="UsersGuide.de.html">German</a> <a class="reference" href="UsersGuide.zh.html">Chinese</a></td>
 </tr>
@@ -296,6 +296,10 @@ if the default (OperationalError, InternalError) is not adequate</p>
 <li><p class="first"><tt class="docutils literal"><span class="pre">closeable</span></tt>: if this is set to true, then closing connections will
 be allowed, but by default this will be silently ignored</p>
 </li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">threadlocal</span></tt>: an optional class for representing thread-local data
+that will be used instead of our Python implementation
+(threading.local is faster, but cannot be used in all cases)</p>
+</li>
 <li><p class="first">The creator function or the connect function of the DB-API 2 compliant
 database module specified as the creator will receive any additional
 parameters such as the host, database, user, password etc. You may
@@ -323,6 +327,10 @@ ignored since it would be reopened at the next usage anyway and
 contrary to the intent of having persistent connections. Instead,
 the connection will be automatically closed when the thread dies.
 You can change this behavior be setting the <tt class="docutils literal"><span class="pre">closeable</span></tt> parameter.</p>
+<p>Note that by setting the <tt class="docutils literal"><span class="pre">threadlocal</span></tt> parameter to <tt class="docutils literal"><span class="pre">threading.local</span></tt>,
+getting connections may become a bit faster, but this may not work in
+all environments (for instance, <tt class="docutils literal"><span class="pre">mod_wsgi</span></tt> is known to cause problems
+here since it clears the <tt class="docutils literal"><span class="pre">threading.local</span></tt> data between requests).</p>
 </div>
 <div class="section">
 <h2><a id="id2" name="id2">PooledDB</a></h2>

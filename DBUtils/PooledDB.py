@@ -121,7 +121,7 @@ Licensed under the Open Software License version 2.1.
 
 """
 
-__version__ = '1.0pre'
+__version__ = '1.0rc1'
 __revision__ = "$Rev$"
 __date__ = "$Date$"
 
@@ -155,10 +155,10 @@ class PooledDB:
 	version = __version__
 
 	def __init__(self, creator,
-		mincached=0, maxcached=0,
-		maxshared=0, maxconnections=0, blocking=False,
-		maxusage=None, setsession=None, failures=None,
-		*args, **kwargs):
+			mincached=0, maxcached=0,
+			maxshared=0, maxconnections=0, blocking=False,
+			maxusage=None, setsession=None, failures=None,
+			*args, **kwargs):
 		"""Set up the DB-API 2 connection pool.
 
 		creator: either an arbitrary function returning new DB-API 2

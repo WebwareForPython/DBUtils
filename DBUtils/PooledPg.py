@@ -98,7 +98,7 @@ Licensed under the Open Software License version 2.1.
 
 """
 
-__version__ = '1.0pre'
+__version__ = '1.0rc1'
 __revision__ = "$Rev$"
 __date__ = "$Date$"
 
@@ -129,10 +129,10 @@ class PooledPg:
 	version = __version__
 
 	def __init__(self,
-		mincached=0, maxcached=0,
-		maxconnections=0, blocking=False,
-		maxusage=None, setsession=None,
-		*args, **kwargs):
+			mincached=0, maxcached=0,
+			maxconnections=0, blocking=False,
+			maxusage=None, setsession=None,
+			*args, **kwargs):
 		"""Set up the PostgreSQL connection pool.
 
 		mincached: initial number of connections in the pool

@@ -39,6 +39,9 @@ by creating an instance of PersistentPg, passing the following parameters:
 		prepare the session, e.g. ["set datestyle to german", ...]
 	closeable: if this is set to true, then closing connections will
 		be allowed, but by default this will be silently ignored
+	threadlocal: an optional class for representing thread-local data
+		that will be used instead of our Python implementation
+		(threading.local is faster, but cannot be used in all cases)
 
 	Additionally, you have to pass the parameters for the actual
 	PostgreSQL connection which are passed via PyGreSQL,
@@ -65,11 +68,15 @@ contrary to the intent of having persistent connections. Instead,
 the connection will be automatically closed when the thread dies.
 You can change this behavior be setting the closeable parameter.
 
+Note that by setting the threadlocal parameter to threading.local,
+getting connections may become a bit faster, but this may not work in
+all environments (for instance, mod_wsgi is known to cause problems
+since it clears the threading.local data between requests).
+
 
 Requirements:
 
-Minimum requirement: Python 2.2 and PyGreSQL 3.4.
-Recommended: Python 2.4.3 and PyGreSQL 3.8.
+Python >= 2.2, < 3.0, PyGreSQL >= 3.4.
 
 
 Ideas for improvement:
@@ -90,11 +97,12 @@ Licensed under the Open Software License version 2.1.
 
 """
 
-__version__ = '1.0pre'
+__version__ = '1.0rc1'
 __revision__ = "$Rev$"
 __date__ = "$Date$"
 
 
+import ThreadingLocal
 from DBUtils.SteadyPg import SteadyPgConnection
 
 
@@ -108,8 +116,8 @@ class PersistentPg:
 
 	version = __version__
 
-	def __init__(self, maxusage=None, setsession=None, closeable=False,
-			*args, **kwargs):
+	def __init__(self, maxusage=None, setsession=None,
+			closeable=False, threadlocal=None, *args, **kwargs):
 		"""Set up the persistent PostgreSQL connection generator.
 
 		maxusage: maximum number of reuses of a single connection
@@ -120,6 +128,9 @@ class PersistentPg:
 			the session, e.g. ["set datestyle to ...", "set time zone ..."]
 		closeable: if this is set to true, then closing connections will
 			be allowed, but by default this will be silently ignored
+		threadlocal: an optional class for representing thread-local data
+			that will be used instead of our Python implementation
+			(threading.local is faster, but cannot be used in all cases)
 		args, kwargs: the parameters that shall be used to establish
 			the PostgreSQL connections using class PyGreSQL pg.DB()
 
@@ -128,7 +139,7 @@ class PersistentPg:
 		self._setsession = setsession
 		self._closeable = closeable
 		self._args, self._kwargs = args, kwargs
-		self.thread = local()
+		self.thread = (threadlocal or ThreadingLocal.local)()
 
 	def steady_connection(self):
 		"""Get a steady, non-persistent PyGreSQL connection."""
@@ -144,81 +155,3 @@ class PersistentPg:
 			con = self.steady_connection()
 			self.thread.connection = con
 		return con
-
-
-try: # import a class for representing thread-local objects
-	from threading import local
-except ImportError: # for Python < 2.4, use the following simple implementation
-	from threading import currentThread, enumerate, RLock
-	class _localbase(object):
-		__slots__ = '_local__key', '_local__args', '_local__lock'
-		def __new__(cls, *args, **kwargs):
-			self = object.__new__(cls)
-			key = '_local__key', 'thread.local.' + str(id(self))
-			object.__setattr__(self, '_local__key', key)
-			object.__setattr__(self, '_local__args', (args, kwargs))
-			object.__setattr__(self, '_local__lock', RLock())
-			if args or kwargs and (cls.__init__ is object.__init__):
-				raise TypeError("Initialization arguments are not supported")
-			d = object.__getattribute__(self, '__dict__')
-			currentThread().__dict__[key] = d
-			return self
-	def _patch(self):
-		key = object.__getattribute__(self, '_local__key')
-		d = currentThread().__dict__.get(key)
-		if d is None:
-			d = {}
-			currentThread().__dict__[key] = d
-			object.__setattr__(self, '__dict__', d)
-			cls = type(self)
-			if cls.__init__ is not object.__init__:
-				args, kwargs = object.__getattribute__(self, '_local__args')
-				cls.__init__(self, *args, **kwargs)
-		else:
-			object.__setattr__(self, '__dict__', d)
-	class local(_localbase):
-		def __getattribute__(self, name):
-			lock = object.__getattribute__(self, '_local__lock')
-			lock.acquire()
-			try:
-				_patch(self)
-				return object.__getattribute__(self, name)
-			finally:
-				lock.release()
-		def __setattr__(self, name, value):
-			lock = object.__getattribute__(self, '_local__lock')
-			lock.acquire()
-			try:
-				_patch(self)
-				return object.__setattr__(self, name, value)
-			finally:
-				lock.release()
-		def __delattr__(self, name):
-			lock = object.__getattribute__(self, '_local__lock')
-			lock.acquire()
-			try:
-				_patch(self)
-				return object.__delattr__(self, name)
-			finally:
-				lock.release()
-		def __del__():
-			threading_enumerate = enumerate
-			__getattribute__ = object.__getattribute__
-			def __del__(self):
-				try:
-					key = __getattribute__(self, '_local__key')
-					threads = list(threading_enumerate())
-				except Exception:
-					return
-				for thread in threads:
-					try:
-						__dict__ = thread.__dict__
-					except AttributeError:
-						continue
-					if key in __dict__:
-						try:
-							del __dict__[key]
-						except KeyError:
-							pass
-			return __del__
-		__del__ = __del__()

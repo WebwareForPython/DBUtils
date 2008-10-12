@@ -2,7 +2,7 @@
 +++++++++++++++++++++++++++++
 
 :Version: 1.0pre
-:Released: 09/25/08
+:Released: 10/12/08
 :Translations: English_ German Chinese_
 
 .. _English: UsersGuide.html
@@ -278,6 +278,10 @@ Parameter angeben müssen:
 * ``closeable``: wenn dies auf ``True`` gesetzt wird, dann wird das Schließen
   von Verbindungen erlaubt, normalerweise wird es jedoch ignoriert
 
+* ``threadlocal``: eine optionale Klasse zur Speicherung thread-lokaler Daten,
+  die anstelle unserer Python-Implementierung benutzt wird (threading.local
+  ist schneller, kann aber nicht in allen Fällen verwendet werden)
+
 * Die als ``creator`` angegebene Funktion oder die Funktion ``connect``
   des DB-API-2-Datenbankadapter-Moduls erhalten alle weiteren Parameter,
   wie ``host``, ``database``, ``user``, ``password`` usw. Sie können einige
@@ -307,6 +311,11 @@ sowieso wieder geöffnet, und das wäre nicht im Sinne persistenter Verbindungen
 Stattdessen wird die Verbindung automatisch dann geschlossen, wenn der Thread
 endet. Sie können dieses Verhalten ändern, indem Sie den Parameter namens
 ``closeable`` setzen.
+
+Beachten Sie, dass das Holen einer Verbindung etwas beschleunigt werden kann,
+indem Sie den Parameter ``threadlocal`` auf ``threading.local`` setzen; dies
+könnte aber in einigen Umgebungen nicht funktionieren (es ist zum Beispiel
+bekannt, dass ``mod_wsgi`` hier Probleme bereitet, da es Daten, die mit ``threading.local`` gespeichert wurden, zwischen Requests löscht).
 
 PooledDB
 --------
