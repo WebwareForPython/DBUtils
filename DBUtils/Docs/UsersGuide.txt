@@ -2,7 +2,7 @@
 ++++++++++++++++++++
 
 :Version: 1.0pre
-:Released: 09/25/08
+:Released: 10/12/08
 :Translations: English German_ Chinese_
 
 .. _German: UsersGuide.de.html

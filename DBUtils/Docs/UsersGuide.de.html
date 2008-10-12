@@ -16,7 +16,7 @@
 <tbody valign="top">
 <tr><th class="docinfo-name">Version:</th>
 <td>1.0pre</td></tr>
-<tr class="field"><th class="docinfo-name">Released:</th><td class="field-body">09/25/08</td>
+<tr class="field"><th class="docinfo-name">Released:</th><td class="field-body">10/12/08</td>
 </tr>
 <tr class="field"><th class="docinfo-name">Translations:</th><td class="field-body"><a class="reference" href="UsersGuide.html">English</a> German <a class="reference" href="UsersGuide.zh.html">Chinese</a></td>
 </tr>
@@ -316,6 +316,10 @@ bei denen die Ausfallsicherung zum Tragen kommen soll, falls die Vorgabe
 <li><p class="first"><tt class="docutils literal"><span class="pre">closeable</span></tt>: wenn dies auf <tt class="docutils literal"><span class="pre">True</span></tt> gesetzt wird, dann wird das Schließen
 von Verbindungen erlaubt, normalerweise wird es jedoch ignoriert</p>
 </li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">threadlocal</span></tt>: eine optionale Klasse zur Speicherung thread-lokaler Daten,
+die anstelle unserer Python-Implementierung benutzt wird (threading.local
+ist schneller, kann aber nicht in allen Fällen verwendet werden)</p>
+</li>
 <li><p class="first">Die als <tt class="docutils literal"><span class="pre">creator</span></tt> angegebene Funktion oder die Funktion <tt class="docutils literal"><span class="pre">connect</span></tt>
 des DB-API-2-Datenbankadapter-Moduls erhalten alle weiteren Parameter,
 wie <tt class="docutils literal"><span class="pre">host</span></tt>, <tt class="docutils literal"><span class="pre">database</span></tt>, <tt class="docutils literal"><span class="pre">user</span></tt>, <tt class="docutils literal"><span class="pre">password</span></tt> usw. Sie können einige
@@ -345,6 +349,10 @@ sowieso wieder geöffnet, und das wäre nicht im Sinne persistenter Verbindungen
 Stattdessen wird die Verbindung automatisch dann geschlossen, wenn der Thread
 endet. Sie können dieses Verhalten ändern, indem Sie den Parameter namens
 <tt class="docutils literal"><span class="pre">closeable</span></tt> setzen.</p>
+<p>Beachten Sie, dass das Holen einer Verbindung etwas beschleunigt werden kann,
+indem Sie den Parameter <tt class="docutils literal"><span class="pre">threadlocal</span></tt> auf <tt class="docutils literal"><span class="pre">threading.local</span></tt> setzen; dies
+könnte aber in einigen Umgebungen nicht funktionieren (es ist zum Beispiel
+bekannt, dass <tt class="docutils literal"><span class="pre">mod_wsgi</span></tt> hier Probleme bereitet, da es Daten, die mit <tt class="docutils literal"><span class="pre">threading.local</span></tt> gespeichert wurden, zwischen Requests löscht).</p>
 </div>
 <div class="section">
 <h2><a id="id2" name="id2">PooledDB</a></h2>

@@ -10,7 +10,7 @@ Copyright and credit info:
 
 """
 
-__version__ = '1.0pre'
+__version__ = '1.0rc1'
 __revision__ = "$Rev$"
 __date__ = "$Date$"
 

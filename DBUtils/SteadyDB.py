@@ -88,7 +88,7 @@ Licensed under the Open Software License version 2.1.
 
 """
 
-__version__ = '1.0pre'
+__version__ = '1.0rc1'
 __revision__ = "$Rev$"
 __date__ = "$Date$"
 
