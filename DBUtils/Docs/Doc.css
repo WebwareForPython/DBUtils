@@ -11,17 +11,17 @@
 /* Customization for Webware goes here: */
 
 body {
-		background-color: #FFFFFF;
-		font-family: Verdana, Arial, Helvetica, sans-serif;
-		font-size: 10pt;
-		padding: 12pt;
+	background-color: #FFFFFF;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10pt;
+	padding: 12pt;
 }
 table {
 	empty-cells: show;
 }
 td, th {
-		font-family: Verdana, Arial, Helvetica, sans-serif;
-		font-size: 10pt;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10pt;
 }
 p {
 	margin-top: 6pt;

@@ -1,8 +1,14 @@
 /*
 	Default cascading style sheet for the HTML output of Docutils.
-	Written by David Goodger. Version as of Docutils 0.3.9.
+	Written by David Goodger. Version as of Docutils 0.5.
 	This stylesheet has been placed in the public domain.
 */
+
+.borderless, table.borderless td, table.borderless th {
+	border: 0 }
+
+table.borderless td, table.borderless th {
+	padding: 0 0.5em 0 0 ! important }
 
 .first {
 	margin-top: 0 ! important }
@@ -68,9 +74,11 @@ div.dedication p.topic-title {
 	font-style: normal }
 
 div.figure {
-	margin-left: 2em }
+	margin-left: 2em;
+	margin-right: 2em }
 
 div.footer, div.header {
+	clear: both;
 	font-size: smaller }
 
 div.line-block {
@@ -84,7 +92,7 @@ div.line-block div.line-block {
 	margin-left: 1.5em }
 
 div.sidebar {
-	margin-left: 1em;
+	margin: 0 0 0.5em 1em;
 	border: medium outset;
 	padding: 1em;
 	background-color: #ffffee;
@@ -125,6 +133,12 @@ h2.subtitle {
 
 hr.docutils {
 	width: 75% }
+
+img.align-left {
+	clear: left }
+
+img.align-right {
+	clear: right }
 
 ol.simple, ul.simple {
 	margin-bottom: 1em }
@@ -182,14 +196,9 @@ pre.address {
 	font-family: serif;
 	font-size: 100% }
 
-pre.line-block {
-	font-family: serif;
-	font-size: 100% }
-
 pre.literal-block, pre.doctest-block {
 	margin-left: 2em;
-	margin-right: 2em;
-	background-color: #eeeeee }
+	margin-right: 2em }
 
 span.classifier {
 	font-family: sans-serif;
@@ -215,7 +224,8 @@ span.section-subtitle {
 	font-size: 80% }
 
 table.citation {
-	border-left: solid thin gray }
+	border-left: solid 1px gray;
+	margin-left: 1px }
 
 table.docinfo {
 	margin: 2em 4em }
@@ -225,7 +235,8 @@ table.docutils {
 	margin-bottom: 0.5em }
 
 table.footnote {
-	border-left: solid thin black }
+	border-left: solid 1px black;
+	margin-left: 1px }
 
 table.docutils td, table.docutils th,
 table.docinfo td, table.docinfo th {
@@ -242,9 +253,6 @@ table.docutils th.field-name, table.docinfo th.docinfo-name {
 h1 tt.docutils, h2 tt.docutils, h3 tt.docutils,
 h4 tt.docutils, h5 tt.docutils, h6 tt.docutils {
 	font-size: 100% }
-
-tt.docutils {
-	background-color: #eeeeee }
 
 ul.auto-toc {
 	list-style-type: none }
