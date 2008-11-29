@@ -106,10 +106,10 @@ integrate the DBUtils documentation into the Webware documentation::
 Requirements
 ============
 
-DBUtils runs with Python_ version 2.2 and above. The modules in the classic
-PyGreSQL variant need PyGreSQL_ version 3.4 or above, while the modules in
-the universal DB-API 2 variant run with any Python `DB-API 2`_ compliant
-database interface module.
+DBUtils runs with Python_ 2.2 or newer Python 2 versions. The modules in
+the classic PyGreSQL variant need PyGreSQL_ version 3.4 or above, while the
+modules in the universal DB-API 2 variant run with any Python `DB-API 2`_
+compliant database interface module.
 
 
 Functionality
