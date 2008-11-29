@@ -7,9 +7,11 @@ Create a new DBUtils release:
 
 * Check the examples in DBUtils/Examples with the current Webware version.
 
-* Update and check the Release Notes.
+* Update and check the Release Notes and copyright information.
 
 * Set version number and release date with setversion.py.
+
+* Revert to old version number for translations that have not been updated.
 
 * Build html pages using buildhtml.py.
 

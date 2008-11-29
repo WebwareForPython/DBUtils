@@ -121,7 +121,7 @@ Licensed under the Open Software License version 2.1.
 
 """
 
-__version__ = '1.0rc1'
+__version__ = '1.0'
 __revision__ = "$Rev$"
 __date__ = "$Date$"
 
