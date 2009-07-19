@@ -187,7 +187,7 @@ class PooledPg:
 			*self._args, **self._kwargs)
 
 	def connection(self):
-		""""Get a steady, cached PostgreSQL connection from the pool."""
+		"""Get a steady, cached PostgreSQL connection from the pool."""
 		if self._connections:
 			if not self._connections.acquire(self._blocking):
 				raise TooManyConnections

@@ -133,9 +133,9 @@ class PooledPg:
 			self.cache(PgConnection(*args, **kwargs))
 
 	def cache(self, con):
-		""""Add or return a connection to the pool."""
+		"""Add or return a connection to the pool."""
 		self._queue.put(con)
 
 	def connection(self):
-		""""Get a connection from the pool."""
+		"""Get a connection from the pool."""
 		return PooledPgConnection(self, self._queue.get())

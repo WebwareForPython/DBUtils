@@ -135,7 +135,7 @@ class SteadyDBConnection:
 
 	def __init__(self, creator, maxusage=None, setsession=None, failures=None,
 			closeable=True, *args, **kwargs):
-		""""Create a "tough" DB-API 2 connection."""
+		"""Create a "tough" DB-API 2 connection."""
 		# basic initialization to make finalizer work
 		self._con = None
 		self._closed = True
@@ -380,7 +380,7 @@ class SteadyDBCursor:
 	"""A "tough" version of DB-API 2 cursors."""
 
 	def __init__(self, con, *args, **kwargs):
-		""""Create a "tough" DB-API 2 cursor."""
+		"""Create a "tough" DB-API 2 cursor."""
 		# basic initialization to make finalizer work
 		self._cursor = None
 		self._closed = True

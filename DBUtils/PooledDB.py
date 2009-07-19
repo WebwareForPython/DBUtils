@@ -250,7 +250,7 @@ class PooledDB:
 				*self._args, **self._kwargs)
 
 	def connection(self, shareable=True):
-		""""Get a steady, cached DB-API 2 connection from the pool.
+		"""Get a steady, cached DB-API 2 connection from the pool.
 
 		If shareable is set and the underlying DB-API 2 allows it,
 		then the connection may be shared with other threads.
