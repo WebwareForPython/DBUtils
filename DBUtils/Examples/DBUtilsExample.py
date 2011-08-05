@@ -43,7 +43,7 @@ class DBUtilsExample(ExamplePage):
         dbmod_name = 'Persistent'
     else:
         dbmod_name = 'Pooled'
-    dbapi_name = config.get('dbapi', 'pg')
+    dbapi_name = config.pop('dbapi', 'pg')
     if dbapi_name == 'pg': # use the PyGreSQL classic DB API
         dbmod_name += 'Pg'
         if config.has_key('database'):
@@ -60,10 +60,8 @@ class DBUtilsExample(ExamplePage):
         try:
             dbmod = getattr(__import__('DBUtils.' + dbmod_name), dbmod_name)
             try:
-                if dbapi_name == 'pg':
-                    del config['dbapi']
-                else:
-                    config['dbapi'] = dbapi
+                if dbapi_name != 'pg':
+                    config['creator'] = dbapi
                 dbclass = getattr(dbmod, dbmod_name)(**config)
             except dbapi.Error, error:
                 dbstatus = str(error)
