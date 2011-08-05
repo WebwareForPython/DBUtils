@@ -104,7 +104,7 @@ class InvalidCursor(SteadyDBError):
 
 
 def connect(creator, maxusage=None, setsession=None, failures=None,
-        closeable=True, *args, **kwargs):
+        closeable=True, ping=None, *args, **kwargs):
     """A tough version of the connection constructor of a DB-API 2 module.
 
     creator: either an arbitrary function returning new DB-API 2 compliant
@@ -120,12 +120,14 @@ def connect(creator, maxusage=None, setsession=None, failures=None,
         (OperationalError, InternalError) is not adequate
     closeable: if this is set to false, then closing the connection will
         be silently ignored, but by default the connection can be closed
+    ping: determines when the connection should be checked with ping()
+        (0 = default = never, 1 = on cursor(), 2 = on execute(), 3 = both)
     args, kwargs: the parameters that shall be passed to the creator
         function or the connection constructor of the DB-API 2 module
 
     """
     return SteadyDBConnection(creator, maxusage, setsession, failures,
-        closeable, *args, **kwargs)
+        closeable, ping, *args, **kwargs)
 
 
 class SteadyDBConnection:
@@ -134,7 +136,7 @@ class SteadyDBConnection:
     version = __version__
 
     def __init__(self, creator, maxusage=None, setsession=None, failures=None,
-            closeable=True, *args, **kwargs):
+            closeable=True, ping=None, *args, **kwargs):
         """Create a "tough" DB-API 2 connection."""
         # basic initialization to make finalizer work
         self._con = None
@@ -175,6 +177,7 @@ class SteadyDBConnection:
             raise TypeError("'failures' must be a tuple of exceptions.")
         self._failures = failures
         self._closeable = closeable
+        self._ping = ping or 0
         self._args, self._kwargs = args, kwargs
         self._store(self._create())
 
@@ -333,6 +336,10 @@ class SteadyDBConnection:
         """Rollback pending transaction."""
         self._con.rollback()
 
+    def ping(self, *args, **kwargs):
+        """Ping connection."""
+        return self._con.ping(*args, **kwargs)
+
     def _cursor(self, *args, **kwargs):
         """A "tough" version of the method cursor()."""
         # The args and kwargs are not part of the standard,
@@ -342,7 +349,18 @@ class SteadyDBConnection:
                 if self._usage >= self._maxusage:
                     # the connection was used too often
                     raise self._failure
-            cursor = self._con.cursor(*args, **kwargs) # try to get a cursor
+            con = self._con
+            if self._ping & 1:
+                try: # if possible, ping the connection
+                    ping = con.ping()
+                except (AttributeError, TypeError, ValueError):
+                    self._ping = 0 # ping() is not available
+                    ping = None
+                except Exception:
+                    ping = False
+                if ping is not None and not ping:
+                    raise self._failure # connection is dead
+            cursor = con.cursor(*args, **kwargs) # try to get a cursor
         except self._failures, error: # error in getting cursor
             try: # try to reopen the connection
                 con2 = self._create()
@@ -436,20 +454,31 @@ class SteadyDBCursor:
         """Return a "tough" version of the given cursor method."""
         def tough_method(*args, **kwargs):
             execute = name.startswith('execute')
+            con = self._con
             try:
-                if self._con._maxusage:
-                    if self._con._usage >= self._con._maxusage:
+                if con._maxusage:
+                    if con._usage >= con._maxusage:
                         # the connection was used too often
-                        raise self._con._failure
+                        raise con._failure
+                if con._ping & 2:
+                    try: # if possible, ping the connection
+                        ping = con._con.ping()
+                    except (AttributeError, TypeError, ValueError):
+                        self._ping = 0 # ping() is not available
+                        ping = None
+                    except Exception:
+                        ping = False
+                    if ping is not None and not ping:
+                        raise con._failure # connection is dead
                 if execute:
                     self._setsizes()
                 method = getattr(self._cursor, name)
                 result = method(*args, **kwargs) # try to execute
                 if execute:
                     self._clearsizes()
-            except self._con._failures, error: # execution error
+            except con._failures, error: # execution error
                 try:
-                    cursor2 = self._con._cursor(
+                    cursor2 = con._cursor(
                         *self._args, **self._kwargs) # open new cursor
                 except Exception:
                     pass
@@ -466,14 +495,14 @@ class SteadyDBCursor:
                     else:
                         self.close()
                         self._cursor = cursor2
-                        self._con._usage += 1
+                        con._usage += 1
                         return result
                     try:
                         cursor2.close()
                     except Exception:
                         pass
                 try: # try to reopen the connection
-                    con2 = self._con._create()
+                    con2 = con._create()
                 except Exception:
                     pass
                 else:
@@ -499,10 +528,10 @@ class SteadyDBCursor:
                             error = None
                         if use2:
                             self.close()
-                            self._con._close()
-                            self._con._store(con2)
+                            con._close()
+                            con._store(con2)
                             self._cursor = cursor2
-                            self._con._usage += 1
+                            con._usage += 1
                             if error:
                                 raise error # raise the other error
                             return result
@@ -516,7 +545,7 @@ class SteadyDBCursor:
                         pass
                 raise error # reraise the original error again
             else:
-                self._con._usage += 1
+                con._usage += 1
                 return result
         return tough_method
 

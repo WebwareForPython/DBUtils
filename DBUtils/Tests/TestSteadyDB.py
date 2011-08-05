@@ -36,6 +36,9 @@ def connect(database=None, user=None):
 
 class Connection:
 
+    has_ping = False
+    num_pings = 0
+
     def __init__(self, database=None, user=None):
         self.database = database
         self.user = user
@@ -45,6 +48,7 @@ class Connection:
         self.open_cursors = 0
         self.num_uses = 0
         self.num_queries = 0
+        self.num_pings = 0
         self.session = []
         self.valid = True
 
@@ -62,6 +66,14 @@ class Connection:
 
     def rollback(self):
         self.session.append('rollback')
+
+    def ping(self):
+        cls = self.__class__
+        cls.num_pings += 1
+        if not cls.has_ping:
+            raise AttributeError
+        if not self.valid:
+            raise OperationalError
 
     def cursor(self, name=None):
         if not self.valid:
@@ -200,12 +212,23 @@ class TestSteadyDB(unittest.TestCase):
         self.assertRaises(InternalError, cursor.close)
         self.assertRaises(InternalError, cursor.execute, 'select test')
         self.assert_(db.valid)
+        self.assert_(not db.__class__.has_ping)
+        self.assertEqual(db.__class__.num_pings, 0)
+        self.assertRaises(AttributeError, db.ping)
+        self.assertEqual(db.__class__.num_pings, 1)
+        db.__class__.has_ping = True
+        self.assert_(db.ping() is None)
+        self.assertEqual(db.__class__.num_pings, 2)
         db.close()
         self.assert_(not db.valid)
         self.assertEqual(db.num_uses, 0)
         self.assertEqual(db.num_queries, 0)
         self.assertRaises(InternalError, db.close)
         self.assertRaises(InternalError, db.cursor)
+        self.assertRaises(OperationalError, db.ping)
+        self.assertEqual(db.__class__.num_pings, 3)
+        db.__class__.has_ping = False
+        db.__class__.num_pings = 0
 
     def test02_BrokenDBConnection(self):
         self.assertRaises(TypeError, SteadyDBConnection, None)
@@ -239,7 +262,7 @@ class TestSteadyDB(unittest.TestCase):
             self.assert_(not db._con.valid)
 
     def test04_SteadyDBConnection(self):
-        db = SteadyDBconnect(dbapi, 0, None, None, 1,
+        db = SteadyDBconnect(dbapi, 0, None, None, True, 0,
             'SteadyDBTestDB', user='SteadyDBTestUser')
         self.assert_(isinstance(db, SteadyDBConnection))
         self.assert_(hasattr(db, '_con'))
@@ -355,9 +378,9 @@ class TestSteadyDB(unittest.TestCase):
             ['doit', 'commit', 'dont', 'rollback'])
 
     def test05_SteadyDBConnectionCreatorFunction(self):
-        db1 = SteadyDBconnect(dbapi, 0, None, None, 1,
+        db1 = SteadyDBconnect(dbapi, 0, None, None, True,
             'SteadyDBTestDB', user='SteadyDBTestUser')
-        db2 = SteadyDBconnect(connect, 0, None, None, 1,
+        db2 = SteadyDBconnect(connect, 0, None, None, True,
             'SteadyDBTestDB', user='SteadyDBTestUser')
         self.assertEqual(db1.dbapi(), db2.dbapi())
         self.assertEqual(db1.threadsafety(), db2.threadsafety())
@@ -519,6 +542,77 @@ class TestSteadyDB(unittest.TestCase):
         cursor.execute('get sizes')
         result = cursor.fetchone()
         self.assertEqual(result, ([6, 42, 7], {None: 7, 3: 15, 9: 42}))
+
+    def test11_SteadyDBConnectionPing(self):
+        Connection.has_ping = False
+        Connection.num_pings = 0
+        db = SteadyDBconnect(dbapi)
+        db.cursor().execute('select test')
+        self.assertEqual(Connection.num_pings, 0)
+        db.close()
+        db.cursor().execute('select test')
+        self.assertEqual(Connection.num_pings, 0)
+        db = SteadyDBconnect(dbapi, ping=3)
+        db.cursor().execute('select test')
+        self.assertEqual(Connection.num_pings, 1)
+        db.close()
+        db.cursor().execute('select test')
+        self.assertEqual(Connection.num_pings, 1)
+        Connection.has_ping = True
+        db = SteadyDBconnect(dbapi)
+        db.cursor().execute('select test')
+        self.assertEqual(Connection.num_pings, 1)
+        db.close()
+        db.cursor().execute('select test')
+        self.assertEqual(Connection.num_pings, 1)
+        db = SteadyDBconnect(dbapi, ping=3)
+        db.cursor().execute('select test')
+        self.assertEqual(Connection.num_pings, 3)
+        db.close()
+        db.cursor().execute('select test')
+        self.assertEqual(Connection.num_pings, 5)
+        db = SteadyDBconnect(dbapi, ping=1)
+        self.assertEqual(Connection.num_pings, 5)
+        db.cursor()
+        self.assertEqual(Connection.num_pings, 6)
+        db.close()
+        cursor = db.cursor()
+        self.assertEqual(Connection.num_pings, 7)
+        cursor.execute('select test')
+        self.assertEqual(Connection.num_pings, 7)
+        db = SteadyDBconnect(dbapi, ping=2)
+        self.assertEqual(Connection.num_pings, 7)
+        db.cursor()
+        self.assertEqual(Connection.num_pings, 7)
+        db.close()
+        cursor = db.cursor()
+        self.assertEqual(Connection.num_pings, 7)
+        cursor.execute('select test')
+        self.assertEqual(Connection.num_pings, 8)
+        db.close()
+        cursor = db.cursor()
+        self.assertEqual(Connection.num_pings, 8)
+        cursor.execute('select test')
+        self.assertEqual(Connection.num_pings, 9)
+        db = SteadyDBconnect(dbapi, ping=3)
+        self.assertEqual(Connection.num_pings, 9)
+        db.cursor()
+        self.assertEqual(Connection.num_pings, 10)
+        db.close()
+        cursor = db.cursor()
+        self.assertEqual(Connection.num_pings, 11)
+        cursor.execute('select test')
+        self.assertEqual(Connection.num_pings, 12)
+        db.close()
+        cursor = db.cursor()
+        self.assertEqual(Connection.num_pings, 13)
+        cursor.execute('select test')
+        self.assertEqual(Connection.num_pings, 14)
+        db.close()
+        cursor.execute('select test')
+        self.assertEqual(Connection.num_pings, 16)
+        Connection.has_ping = False
+        Connection.num_pings = 0
 
 
 if __name__ == '__main__':

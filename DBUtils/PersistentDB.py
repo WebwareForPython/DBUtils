@@ -176,7 +176,7 @@ class PersistentDB:
         """Get a steady, non-persistent DB-API 2 connection."""
         return connect(self._creator,
             self._maxusage, self._setsession,
-            self._failures, self._closeable,
+            self._failures, self._closeable, None,
             *self._args, **self._kwargs)
 
     def connection(self, shareable=False):

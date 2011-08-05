@@ -246,8 +246,9 @@ class PooledDB:
     def steady_connection(self):
         """Get a steady, unpooled DB-API 2 connection."""
         return connect(self._creator,
-            self._maxusage, self._setsession, self._failures, True,
-                *self._args, **self._kwargs)
+            self._maxusage, self._setsession,
+            self._failures, True, None,
+            *self._args, **self._kwargs)
 
     def connection(self, shareable=True):
         """Get a steady, cached DB-API 2 connection from the pool.
