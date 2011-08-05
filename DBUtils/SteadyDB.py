@@ -103,8 +103,8 @@ class InvalidCursor(SteadyDBError):
     """Database cursor is invalid."""
 
 
-def connect(creator, maxusage=None, setsession=None, failures=None,
-        closeable=True, ping=None, *args, **kwargs):
+def connect(creator, maxusage=None, setsession=None,
+        failures=None, ping=1, closeable=True, *args, **kwargs):
     """A tough version of the connection constructor of a DB-API 2 module.
 
     creator: either an arbitrary function returning new DB-API 2 compliant
@@ -118,16 +118,18 @@ def connect(creator, maxusage=None, setsession=None, failures=None,
     failures: an optional exception class or a tuple of exception classes
         for which the failover mechanism shall be applied, if the default
         (OperationalError, InternalError) is not adequate
+    ping: determines when the connection should be checked with ping()
+        (0 = None = never, 1 = default = when _ping_check() is called,
+        2 = whenever a cursor is created, 4 = when a query is executed,
+        7 = always, and all other bit combinations of these values)
     closeable: if this is set to false, then closing the connection will
         be silently ignored, but by default the connection can be closed
-    ping: determines when the connection should be checked with ping()
-        (0 = default = never, 1 = on cursor(), 2 = on execute(), 3 = both)
     args, kwargs: the parameters that shall be passed to the creator
         function or the connection constructor of the DB-API 2 module
 
     """
-    return SteadyDBConnection(creator, maxusage, setsession, failures,
-        closeable, ping, *args, **kwargs)
+    return SteadyDBConnection(creator, maxusage, setsession,
+        failures, ping, closeable, *args, **kwargs)
 
 
 class SteadyDBConnection:
@@ -135,8 +137,8 @@ class SteadyDBConnection:
 
     version = __version__
 
-    def __init__(self, creator, maxusage=None, setsession=None, failures=None,
-            closeable=True, ping=None, *args, **kwargs):
+    def __init__(self, creator, maxusage=None, setsession=None,
+            failures=None, ping=1, closeable=True, *args, **kwargs):
         """Create a "tough" DB-API 2 connection."""
         # basic initialization to make finalizer work
         self._con = None
@@ -176,8 +178,8 @@ class SteadyDBConnection:
                 failures, tuple) and not issubclass(failures, Exception):
             raise TypeError("'failures' must be a tuple of exceptions.")
         self._failures = failures
+        self._ping = isinstance(ping, int) and ping or 0
         self._closeable = closeable
-        self._ping = ping or 0
         self._args, self._kwargs = args, kwargs
         self._store(self._create())
 
@@ -298,6 +300,38 @@ class SteadyDBConnection:
                 pass
             self._closed = True
 
+    def _ping_check(self, ping=1, reconnect=True):
+        """Check whether the connection is still alive using ping().
+
+        If the the underlying connection is not active and the ping
+        parameter is set accordingly, the connection will be recreated.
+
+        """
+        if ping & self._ping:
+            try: # if possible, ping the connection
+                alive = self._con.ping()
+            except (AttributeError, IndexError, TypeError, ValueError):
+                self._ping = 0 # ping() is not available
+                alive = None
+                reconnect = False
+            except Exception:
+                alive = False
+            else:
+                if alive is None:
+                    alive = True
+                if alive:
+                    reconnect = False
+            if reconnect:
+                try: # try to reopen the connection
+                    con = self._create()
+                except Exception:
+                    pass
+                else:
+                    self._close()
+                    self._store(con)
+                    alive = True
+            return alive
+
     def dbapi(self):
         """Return the underlying DB-API 2 module of the connection."""
         if self._dbapi is None:
@@ -344,39 +378,29 @@ class SteadyDBConnection:
         """A "tough" version of the method cursor()."""
         # The args and kwargs are not part of the standard,
         # but some database modules seem to use these.
+        self._ping_check(2)
         try:
             if self._maxusage:
                 if self._usage >= self._maxusage:
                     # the connection was used too often
                     raise self._failure
-            con = self._con
-            if self._ping & 1:
-                try: # if possible, ping the connection
-                    ping = con.ping()
-                except (AttributeError, TypeError, ValueError):
-                    self._ping = 0 # ping() is not available
-                    ping = None
-                except Exception:
-                    ping = False
-                if ping is not None and not ping:
-                    raise self._failure # connection is dead
-            cursor = con.cursor(*args, **kwargs) # try to get a cursor
+            cursor = self._con.cursor(*args, **kwargs) # try to get a cursor
         except self._failures, error: # error in getting cursor
             try: # try to reopen the connection
-                con2 = self._create()
+                con = self._create()
             except Exception:
                 pass
             else:
                 try: # and try one more time to get a cursor
-                    cursor = con2.cursor(*args, **kwargs)
+                    cursor = con.cursor(*args, **kwargs)
                 except Exception:
                     pass
                 else:
                     self._close()
-                    self._store(con2)
+                    self._store(con)
                     return cursor
                 try:
-                    con2.close()
+                    con.close()
                 except Exception:
                     pass
             raise error # reraise the original error again
@@ -455,21 +479,12 @@ class SteadyDBCursor:
         def tough_method(*args, **kwargs):
             execute = name.startswith('execute')
             con = self._con
+            con._ping_check(4)
             try:
                 if con._maxusage:
                     if con._usage >= con._maxusage:
                         # the connection was used too often
                         raise con._failure
-                if con._ping & 2:
-                    try: # if possible, ping the connection
-                        ping = con._con.ping()
-                    except (AttributeError, TypeError, ValueError):
-                        self._ping = 0 # ping() is not available
-                        ping = None
-                    except Exception:
-                        ping = False
-                    if ping is not None and not ping:
-                        raise con._failure # connection is dead
                 if execute:
                     self._setsizes()
                 method = getattr(self._cursor, name)

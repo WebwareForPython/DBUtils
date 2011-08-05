@@ -39,6 +39,11 @@ by creating an instance of PersistentDB, passing the following parameters:
     failures: an optional exception class or a tuple of exception classes
         for which the connection failover mechanism shall be applied,
         if the default (OperationalError, InternalError) is not adequate
+    ping: an optional flag controlling when connections are checked
+        with the ping() method if such a method is available
+        (0 = None = never, 1 = default = whenever it is requested,
+        2 = when a cursor is created, 4 = when a query is executed,
+        7 = always, and all other bit combinations of these values)
     closeable: if this is set to true, then closing connections will
         be allowed, but by default this will be silently ignored
     threadlocal: an optional class for representing thread-local data
@@ -129,7 +134,7 @@ class PersistentDB:
     version = __version__
 
     def __init__(self, creator,
-            maxusage=None, setsession=None, failures=None,
+            maxusage=None, setsession=None, failures=None, ping=1,
             closeable=False, threadlocal=None, *args, **kwargs):
         """Set up the persistent DB-API 2 connection generator.
 
@@ -143,6 +148,10 @@ class PersistentDB:
         failures: an optional exception class or a tuple of exception classes
             for which the connection failover mechanism shall be applied,
             if the default (OperationalError, InternalError) is not adequate
+        ping: determines when the connection should be checked with ping()
+            (0 = None = never, 1 = default = whenever it is requested,
+            2 = when a cursor is created, 4 = when a query is executed,
+            7 = always, and all other bit combinations of these values)
         closeable: if this is set to true, then closing connections will
             be allowed, but by default this will be silently ignored
         threadlocal: an optional class for representing thread-local data
@@ -168,6 +177,7 @@ class PersistentDB:
         self._maxusage = maxusage
         self._setsession = setsession
         self._failures = failures
+        self._ping = ping
         self._closeable = closeable
         self._args, self._kwargs = args, kwargs
         self.thread = (threadlocal or ThreadingLocal.local)()
@@ -176,7 +186,7 @@ class PersistentDB:
         """Get a steady, non-persistent DB-API 2 connection."""
         return connect(self._creator,
             self._maxusage, self._setsession,
-            self._failures, self._closeable, None,
+            self._failures, self._ping, self._closeable,
             *self._args, **self._kwargs)
 
     def connection(self, shareable=False):
@@ -194,6 +204,7 @@ class PersistentDB:
             if not con.threadsafety():
                 raise NotSupportedError("Database module is not thread-safe.")
             self.thread.connection = con
+        con._ping_check()
         return con
 
     def dedicated_connection(self):

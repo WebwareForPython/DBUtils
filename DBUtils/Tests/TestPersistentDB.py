@@ -223,6 +223,58 @@ class TestPersistentDB(unittest.TestCase):
         persist = PersistentDB(dbapi, threadlocal=threadlocal)
         self.assert_(isinstance(persist.thread, threadlocal))
 
+    def test8_PingCheck(self):
+        Connection = dbapi.Connection
+        Connection.has_ping = True
+        Connection.num_pings = 0
+        persist = PersistentDB(dbapi, 0, None, None, 0, True)
+        db = persist.connection()
+        self.assert_(db._con.valid)
+        self.assertEqual(Connection.num_pings, 0)
+        db.close()
+        db = persist.connection()
+        self.assert_(not db._con.valid)
+        self.assertEqual(Connection.num_pings, 0)
+        persist = PersistentDB(dbapi, 0, None, None, 1, True)
+        db = persist.connection()
+        self.assert_(db._con.valid)
+        self.assertEqual(Connection.num_pings, 1)
+        db.close()
+        db = persist.connection()
+        self.assert_(db._con.valid)
+        self.assertEqual(Connection.num_pings, 2)
+        persist = PersistentDB(dbapi, 0, None, None, 2, True)
+        db = persist.connection()
+        self.assert_(db._con.valid)
+        self.assertEqual(Connection.num_pings, 2)
+        db.close()
+        db = persist.connection()
+        self.assert_(not db._con.valid)
+        self.assertEqual(Connection.num_pings, 2)
+        cursor = db.cursor()
+        self.assert_(db._con.valid)
+        self.assertEqual(Connection.num_pings, 3)
+        cursor.execute('select test')
+        self.assert_(db._con.valid)
+        self.assertEqual(Connection.num_pings, 3)
+        persist = PersistentDB(dbapi, 0, None, None, 4, True)
+        db = persist.connection()
+        self.assert_(db._con.valid)
+        self.assertEqual(Connection.num_pings, 3)
+        db.close()
+        db = persist.connection()
+        self.assert_(not db._con.valid)
+        self.assertEqual(Connection.num_pings, 3)
+        cursor = db.cursor()
+        db._con.close()
+        self.assert_(not db._con.valid)
+        self.assertEqual(Connection.num_pings, 3)
+        cursor.execute('select test')
+        self.assert_(db._con.valid)
+        self.assertEqual(Connection.num_pings, 4)
+        Connection.has_ping = False
+        Connection.num_pings = 0
+
 
 if __name__ == '__main__':
     unittest.main()

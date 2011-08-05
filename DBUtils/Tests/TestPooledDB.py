@@ -56,7 +56,8 @@ class TestPooledDB(unittest.TestCase):
         for threadsafety in (1, 2):
             dbapi.threadsafety = threadsafety
             shareable = threadsafety > 1
-            pool = PooledDB(dbapi, 1, 1, 1, 0, False, None, None, None,
+            pool = PooledDB(dbapi,
+                1, 1, 1, 0, False, None, None, None, None,
                 'PooledDBTestDB', user='PooledDBTestUser')
             self.assert_(hasattr(pool, '_idle_cache'))
             self.assertEqual(len(pool._idle_cache), 1)
@@ -174,7 +175,8 @@ class TestPooledDB(unittest.TestCase):
         for threadsafety in (1, 2):
             dbapi.threadsafety = threadsafety
             shareable = threadsafety > 1
-            pool = PooledDB(dbapi, 0, 1, 1, 0, False, None, None, None,
+            pool = PooledDB(dbapi,
+                0, 1, 1, 0, False, None, None, None, None,
                 'PooledDBTestDB', user='PooledDBTestUser')
             self.assert_(hasattr(pool, '_idle_cache'))
             self.assertEqual(len(pool._idle_cache), 0)
@@ -1002,6 +1004,74 @@ class TestPooledDB(unittest.TestCase):
             self.assertNotEqual(db1, db2)
             self.assertNotEqual(db1._con, db2._con)
             self.assertEqual(db1._con, db1_con)
+
+    def test17_PingCheck(self):
+        Connection = dbapi.Connection
+        Connection.has_ping = True
+        Connection.num_pings = 0
+        dbapi.threadsafety = 2
+        pool = PooledDB(dbapi, 1, 1, 0, 0, False, None, None, None, 0)
+        db = pool.connection()
+        self.assert_(db._con._con.valid)
+        self.assertEqual(Connection.num_pings, 0)
+        db._con.close()
+        db.close()
+        db = pool.connection()
+        self.assert_(not db._con._con.valid)
+        self.assertEqual(Connection.num_pings, 0)
+        pool = PooledDB(dbapi, 1, 1, 1, 0, False, None, None, None, 0)
+        db = pool.connection()
+        self.assert_(db._con._con.valid)
+        self.assertEqual(Connection.num_pings, 0)
+        db._con.close()
+        db = pool.connection()
+        self.assert_(not db._con._con.valid)
+        self.assertEqual(Connection.num_pings, 0)
+        pool = PooledDB(dbapi, 1, 1, 0, 0, False, None, None, None, 1)
+        db = pool.connection()
+        self.assert_(db._con._con.valid)
+        self.assertEqual(Connection.num_pings, 1)
+        db._con.close()
+        db.close()
+        db = pool.connection()
+        self.assert_(db._con._con.valid)
+        self.assertEqual(Connection.num_pings, 2)
+        pool = PooledDB(dbapi, 1, 1, 1, 0, False, None, None, None, 1)
+        db = pool.connection()
+        self.assert_(db._con._con.valid)
+        self.assertEqual(Connection.num_pings, 3)
+        db._con.close()
+        db = pool.connection()
+        self.assert_(db._con._con.valid)
+        self.assertEqual(Connection.num_pings, 4)
+        pool = PooledDB(dbapi, 1, 1, 1, 0, False, None, None, None, 2)
+        db = pool.connection()
+        self.assert_(db._con._con.valid)
+        self.assertEqual(Connection.num_pings, 4)
+        db._con.close()
+        db = pool.connection()
+        self.assert_(not db._con._con.valid)
+        self.assertEqual(Connection.num_pings, 4)
+        db.cursor()
+        self.assert_(db._con._con.valid)
+        self.assertEqual(Connection.num_pings, 5)
+        pool = PooledDB(dbapi, 1, 1, 1, 0, False, None, None, None, 4)
+        db = pool.connection()
+        self.assert_(db._con._con.valid)
+        self.assertEqual(Connection.num_pings, 5)
+        db._con.close()
+        db = pool.connection()
+        self.assert_(not db._con._con.valid)
+        self.assertEqual(Connection.num_pings, 5)
+        cursor = db.cursor()
+        db._con.close()
+        self.assert_(not db._con._con.valid)
+        self.assertEqual(Connection.num_pings, 5)
+        cursor.execute('select test')
+        self.assert_(db._con._con.valid)
+        self.assertEqual(Connection.num_pings, 6)
+        Connection.has_ping = False
+        Connection.num_pings = 0
 
 
 if __name__ == '__main__':

@@ -51,6 +51,11 @@ an instance of PooledDB, passing the following parameters:
     failures: an optional exception class or a tuple of exception classes
         for which the connection failover mechanism shall be applied,
         if the default (OperationalError, InternalError) is not adequate
+    ping: an optional flag controlling when connections are checked
+        with the ping() method if such a method is available
+        (0 = None = never, 1 = default = whenever fetched from the pool,
+        2 = when a cursor is created, 4 = when a query is executed,
+        7 = always, and all other bit combinations of these values)
 
     The creator function or the connect function of the DB-API 2 compliant
     database module specified as the creator will receive any additional
@@ -157,7 +162,8 @@ class PooledDB:
     def __init__(self, creator,
             mincached=0, maxcached=0,
             maxshared=0, maxconnections=0, blocking=False,
-            maxusage=None, setsession=None, failures=None,
+            maxusage=None, setsession=None,
+            failures=None, ping=1,
             *args, **kwargs):
         """Set up the DB-API 2 connection pool.
 
@@ -185,6 +191,10 @@ class PooledDB:
         failures: an optional exception class or a tuple of exception classes
             for which the connection failover mechanism shall be applied,
             if the default (OperationalError, InternalError) is not adequate
+        ping: determines when the connection should be checked with ping()
+            (0 = None = never, 1 = default = whenever fetched from the pool,
+            2 = when a cursor is created, 4 = when a query is executed,
+            7 = always, and all other bit combinations of these values)
         args, kwargs: the parameters that shall be passed to the creator
             function or the connection constructor of the DB-API 2 module
 
@@ -206,6 +216,7 @@ class PooledDB:
         self._maxusage = maxusage
         self._setsession = setsession
         self._failures = failures
+        self._ping = ping
         if mincached is None:
             mincached = 0
         if maxcached is None:
@@ -247,7 +258,7 @@ class PooledDB:
         """Get a steady, unpooled DB-API 2 connection."""
         return connect(self._creator,
             self._maxusage, self._setsession,
-            self._failures, True, None,
+            self._failures, self._ping, True,
             *self._args, **self._kwargs)
 
     def connection(self, shareable=True):
@@ -269,11 +280,14 @@ class PooledDB:
                         con = self._idle_cache.pop(0)
                     except IndexError: # else get a fresh connection
                         con = self.steady_connection()
+                    else:
+                        con._ping_check() # check this connection
                     con = SharedDBConnection(con)
                     self._connections += 1
                 else: # shared cache full or no more connections allowed
                     self._shared_cache.sort() # least shared connection first
                     con = self._shared_cache.pop(0) # get it
+                    con.con._ping_check() # check the underlying connection
                     con.share() # increase share of this connection
                 # put the connection (back) into the shared cache
                 self._shared_cache.append(con)
@@ -292,6 +306,8 @@ class PooledDB:
                     con = self._idle_cache.pop(0)
                 except IndexError: # else get a fresh connection
                     con = self.steady_connection()
+                else:
+                    con._ping_check() # check connection
                 con = PooledDedicatedDBConnection(self, con)
                 self._connections += 1
             finally:
