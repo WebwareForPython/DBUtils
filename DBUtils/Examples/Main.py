@@ -1,10 +1,11 @@
+
 from WebKit.Examples.ExamplePage import ExamplePage
 
 
 class Main(ExamplePage):
 
-	def writeContent(self):
-		self.writeln('''<h2>DBUtils example</h2>
+    def writeContent(self):
+        self.writeln('''<h2>DBUtils example</h2>
 <p>You can set the DBUtils parameters in the following file</p>
 <ul>
 <li><tt>Configs/Database.config</tt></li>
