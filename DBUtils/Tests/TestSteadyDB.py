@@ -470,6 +470,15 @@ class TestSteadyDB(unittest.TestCase):
         db.close()
         db.cursor()
 
+    def test9_SteadyDBConnectionFailureError(self):
+        db = SteadyDBconnect(dbapi)
+        cursor = db.cursor()
+        db.close()
+        cursor.execute('select test')
+        cursor = db.cursor()
+        db.close()
+        self.assertRaises(ProgrammingError, cursor.execute, 'error')
+
 
 if __name__ == '__main__':
     unittest.main()

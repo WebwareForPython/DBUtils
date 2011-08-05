@@ -436,7 +436,7 @@ class SteadyDBCursor:
             self._closed = True
 
     def _get_tough_method(self, name):
-        """Return a "tough" version of the method."""
+        """Return a "tough" version of the given cursor method."""
         def tough_method(*args, **kwargs):
             execute = name.startswith('execute')
             try:
@@ -493,14 +493,21 @@ class SteadyDBCursor:
                             result = method2(*args, **kwargs)
                             if execute:
                                 self._clearsizes()
-                        except Exception:
-                            pass
+                        except error.__class__: # same execution error
+                            use2 = False
+                        except Exception, error: # other execution errors
+                            use2 = True
                         else:
+                            use2 = True
+                            error = None
+                        if use2:
                             self.close()
                             self._con._close()
                             self._con._store(con2)
                             self._cursor = cursor2
                             self._con._usage += 1
+                            if error:
+                                raise error # raise the other error
                             return result
                         try:
                             cursor2.close()
