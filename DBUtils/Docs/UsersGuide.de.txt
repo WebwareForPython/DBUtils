@@ -3,10 +3,9 @@
 
 :Version: 1.0
 :Released: 11/29/08
-:Translations: English_ German Chinese_
+:Translations: English_ German
 
 .. _English: UsersGuide.html
-.. _Chinese: UsersGuide.zh.html
 
 .. contents:: Inhalt
 
@@ -424,7 +423,7 @@ sie gebraucht werden, etwa so::
 
 Benutzung in Webware for Python
 -------------------------------
-Wenn Sie DBUtils verwenden, um von Servlets des Web-Framworks `Webware
+Wenn Sie DBUtils verwenden, um von Servlets des Web-Frameworks `Webware
 for Python`_ auf eine Datenbank zuzugreifen, dann müssen Sie sicherstellen,
 dass die Generatoren zur Erzeugung von Datenbankverbindungen nur einmal
 eingerichtet werden, wenn die Anwendung startet, und nicht jedes Mal, wenn

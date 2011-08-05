@@ -3,10 +3,9 @@
 
 :Version: 1.0
 :Released: 11/29/08
-:Translations: English German_ Chinese_
+:Translations: English German_
 
 .. _German: UsersGuide.de.html
-.. _Chinese: UsersGuide.zh.html
 
 .. contents:: Contents
 

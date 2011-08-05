@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="generator" content="Docutils 0.5: http://docutils.sourceforge.net/" />
+<meta name="generator" content="Docutils 0.8: http://docutils.sourceforge.net/" />
 <title>DBUtils User's Guide</title>
 <link rel="stylesheet" href="Doc.css" type="text/css" />
 </head>
@@ -18,7 +18,7 @@
 <td>1.0</td></tr>
 <tr class="field"><th class="docinfo-name">Released:</th><td class="field-body">11/29/08</td>
 </tr>
-<tr class="field"><th class="docinfo-name">Translations:</th><td class="field-body">English <a class="reference external" href="UsersGuide.de.html">German</a> <a class="reference external" href="UsersGuide.zh.html">Chinese</a></td>
+<tr class="field"><th class="docinfo-name">Translations:</th><td class="field-body">English <a class="reference external" href="UsersGuide.de.html">German</a></td>
 </tr>
 </tbody>
 </table>
@@ -152,7 +152,7 @@ framework only, you should install it as a Webware plug-in:</p>
 <pre class="literal-block">
 python setup.py install --install-lib=/path/to/Webware
 </pre>
-<p>Replace <tt class="docutils literal"><span class="pre">/path/to/Webware</span></tt> with the path to the root directory of
+<p>Replace <tt class="docutils literal">/path/to/Webware</tt> with the path to the root directory of
 your Webware for Python installation. You will also need to run the
 Webware installer if this has not been done already or if you want to
 integrate the DBUtils documentation into the Webware documentation:</p>
@@ -175,17 +175,17 @@ compliant database interface module.</p>
 but the same applies to the classic PyGreSQL variant.</p>
 <div class="section" id="simplepooleddb">
 <h2>SimplePooledDB</h2>
-<p><tt class="docutils literal"><span class="pre">DBUtils.SimplePooledDB</span></tt> is a very basic reference implementation of
+<p><tt class="docutils literal">DBUtils.SimplePooledDB</tt> is a very basic reference implementation of
 a pooled database connection. It is much less sophisticated than the
-regular <tt class="docutils literal"><span class="pre">PooledDB</span></tt> module and is particularly lacking the failover
-functionality. <tt class="docutils literal"><span class="pre">DBUtils.SimplePooledDB</span></tt> is essentially the same as
-the <tt class="docutils literal"><span class="pre">MiscUtils.DBPool</span></tt> module that is part of Webware for Python.
+regular <tt class="docutils literal">PooledDB</tt> module and is particularly lacking the failover
+functionality. <tt class="docutils literal">DBUtils.SimplePooledDB</tt> is essentially the same as
+the <tt class="docutils literal">MiscUtils.DBPool</tt> module that is part of Webware for Python.
 You should consider it a demonstration of concept rather than something
 that should go into production.</p>
 </div>
 <div class="section" id="steadydb">
 <h2>SteadyDB</h2>
-<p><tt class="docutils literal"><span class="pre">DBUtils.SteadyDB</span></tt> is a module implementing &quot;hardened&quot; connections
+<p><tt class="docutils literal">DBUtils.SteadyDB</tt> is a module implementing &quot;hardened&quot; connections
 to a database, based on ordinary connections made by any DB-API 2
 database module. A &quot;hardened&quot; connection will transparently reopen upon
 access when it has been closed or the database connection has been lost
@@ -195,15 +195,15 @@ restarted while your application is still running and has open connections
 to the database, or when your application accesses a remote database in
 a network that is separated by a firewall and the firewall has been
 restarted and lost its state.</p>
-<p>Usually, you will not use the <tt class="docutils literal"><span class="pre">SteadyDB</span></tt> module directly; it merely serves
-as a basis for the next two modules, <tt class="docutils literal"><span class="pre">PersistentDB</span></tt> and <tt class="docutils literal"><span class="pre">PooledDB</span></tt>.</p>
+<p>Usually, you will not use the <tt class="docutils literal">SteadyDB</tt> module directly; it merely serves
+as a basis for the next two modules, <tt class="docutils literal">PersistentDB</tt> and <tt class="docutils literal">PooledDB</tt>.</p>
 </div>
 <div class="section" id="persistentdb">
 <h2>PersistentDB</h2>
-<p><tt class="docutils literal"><span class="pre">DBUtils.PersistentDB</span></tt> implements steady, thread-affine, persistent
+<p><tt class="docutils literal">DBUtils.PersistentDB</tt> implements steady, thread-affine, persistent
 connections to a database, using any DB-API 2 database module.</p>
 <p>The following diagram shows the connection layers involved when you
-are using <tt class="docutils literal"><span class="pre">PersistentDB</span></tt> connections:</p>
+are using <tt class="docutils literal">PersistentDB</tt> connections:</p>
 <img alt="persist.gif" src="persist.gif" />
 <p>Whenever a thread opens a database connection for the first time, a new
 connection to the database will be opened that will be used from now on
@@ -211,50 +211,50 @@ for this specific thread. When the thread closes the database connection,
 it will still be kept open so that the next time when a connection is
 requested by the same thread, this already opened connection can be used.
 The connecton will be closed automatically when the thread dies.</p>
-<p>In short: <tt class="docutils literal"><span class="pre">PersistentDB</span></tt> tries to recycle database connections to
+<p>In short: <tt class="docutils literal">PersistentDB</tt> tries to recycle database connections to
 increase the overall database access performance of your threaded application,
 but it makes sure that connections are never shared between threads.</p>
-<p>Therefore, <tt class="docutils literal"><span class="pre">PersistentDB</span></tt> will work perfectly even if the underlying
+<p>Therefore, <tt class="docutils literal">PersistentDB</tt> will work perfectly even if the underlying
 DB-API module is not thread-safe at the connection level, and it will
 avoid problems when other threads change the database session or perform
 transactions spreading over more than one SQL command.</p>
 </div>
 <div class="section" id="pooleddb">
 <h2>PooledDB</h2>
-<p><tt class="docutils literal"><span class="pre">DBUtils.PooledDB</span></tt> implements a pool of steady, thread-safe cached
+<p><tt class="docutils literal">DBUtils.PooledDB</tt> implements a pool of steady, thread-safe cached
 connections to a database which are transparently reused, using any
 DB-API 2 database module.</p>
 <p>The following diagram shows the connection layers involved when you
-are using <tt class="docutils literal"><span class="pre">PooledDB</span></tt> connections:</p>
+are using <tt class="docutils literal">PooledDB</tt> connections:</p>
 <img alt="pool.gif" src="pool.gif" />
-<p>As the diagram indicates, <tt class="docutils literal"><span class="pre">PooledDB</span></tt> can share opened database connections
+<p>As the diagram indicates, <tt class="docutils literal">PooledDB</tt> can share opened database connections
 between different threads. This will happen by default if you set up the
-connection pool with a positive value of <tt class="docutils literal"><span class="pre">maxshared</span></tt> and the underlying
+connection pool with a positive value of <tt class="docutils literal">maxshared</tt> and the underlying
 DB-API 2 is thread-safe at the connection level, but you can also request
 dedicated database connections that will not be shared between threads.
 Besides the pool of shared connections, you can also set up a pool of
-at least <tt class="docutils literal"><span class="pre">mincached</span></tt> and at the most <tt class="docutils literal"><span class="pre">maxcached</span></tt> idle connections that
+at least <tt class="docutils literal">mincached</tt> and at the most <tt class="docutils literal">maxcached</tt> idle connections that
 will be used whenever a thread is requesting a dedicated database connection
 or the pool of shared connections is not yet full. When a thread closes a
 connection that is not shared any more, it is returned back to the pool of
 idle connections so that it can be recycled again.</p>
 <p>If the underlying DB-API module is not thread-safe, thread locks will be
-used to ensure that the <tt class="docutils literal"><span class="pre">PooledDB</span></tt> connections are thread-safe. So you
+used to ensure that the <tt class="docutils literal">PooledDB</tt> connections are thread-safe. So you
 don't need to worry about that, but you should be careful to use dedicated
 connections whenever you change the database session or perform transactions
 spreading over more than one SQL command.</p>
 </div>
 <div class="section" id="which-one-to-use">
 <h2>Which one to use?</h2>
-<p>Both <tt class="docutils literal"><span class="pre">PersistentDB</span></tt> and <tt class="docutils literal"><span class="pre">PooledDB</span></tt> serve the same purpose to improve
+<p>Both <tt class="docutils literal">PersistentDB</tt> and <tt class="docutils literal">PooledDB</tt> serve the same purpose to improve
 the database access performance by recycling database connections, while
 preserving stability even if database connection will be disrupted.</p>
 <p>So which of these two modules should you use? From the above explanations
-it is clear that <tt class="docutils literal"><span class="pre">PersistentDB</span></tt> will make more sense if your application
+it is clear that <tt class="docutils literal">PersistentDB</tt> will make more sense if your application
 keeps a constant number of threads which frequently use the database. In
 this case, you will always have the same amount of open database connections.
 However, if your application frequently starts and ends threads, then it
-will be better to use <tt class="docutils literal"><span class="pre">PooledDB</span></tt>. The latter will also allow more
+will be better to use <tt class="docutils literal">PooledDB</tt>. The latter will also allow more
 fine-tuning, particularly if you are using a thread-safe DB-API 2 module.</p>
 <p>Since the interface of both modules is similar, you can easily switch from
 one to the other and check which one will suit better.</p>
@@ -265,38 +265,38 @@ one to the other and check which one will suit better.</p>
 <p>The usage of all the modules is similar, but there are also some differences
 in the initialization between the &quot;Pooled&quot; and &quot;Persistent&quot; variants and also
 between the universal DB-API 2 and the classic PyGreSQL variants.</p>
-<p>We will cover here only the <tt class="docutils literal"><span class="pre">PersistentDB</span></tt> module and the more complex
-<tt class="docutils literal"><span class="pre">PooledDB</span></tt> module. For the details of the other modules, have a look
+<p>We will cover here only the <tt class="docutils literal">PersistentDB</tt> module and the more complex
+<tt class="docutils literal">PooledDB</tt> module. For the details of the other modules, have a look
 at their module docstrings. Using the Python interpreter console, you can
-display the documentation of the <tt class="docutils literal"><span class="pre">PooledDB</span></tt> module as follows (this
+display the documentation of the <tt class="docutils literal">PooledDB</tt> module as follows (this
 works analogously for the other modules):</p>
 <pre class="literal-block">
 help(PooledDB)
 </pre>
 <div class="section" id="id1">
 <h2>PersistentDB</h2>
-<p>In order to make use of the <tt class="docutils literal"><span class="pre">PersistentDB</span></tt> module, you first need to set
+<p>In order to make use of the <tt class="docutils literal">PersistentDB</tt> module, you first need to set
 up a generator for your kind of database connections by creating an instance
-of <tt class="docutils literal"><span class="pre">PersistentDB</span></tt>, passing the following parameters:</p>
+of <tt class="docutils literal">PersistentDB</tt>, passing the following parameters:</p>
 <ul>
-<li><p class="first"><tt class="docutils literal"><span class="pre">creator</span></tt>: either an arbitrary function returning new DB-API 2
+<li><p class="first"><tt class="docutils literal">creator</tt>: either an arbitrary function returning new DB-API 2
 connection objects or a DB-API 2 compliant database module</p>
 </li>
-<li><p class="first"><tt class="docutils literal"><span class="pre">maxusage</span></tt>: the maximum number of reuses of a single connection
-(the default of <tt class="docutils literal"><span class="pre">0</span></tt> or <tt class="docutils literal"><span class="pre">None</span></tt> means unlimited reuse)</p>
+<li><p class="first"><tt class="docutils literal">maxusage</tt>: the maximum number of reuses of a single connection
+(the default of <tt class="docutils literal">0</tt> or <tt class="docutils literal">None</tt> means unlimited reuse)</p>
 <p>Whenever the limit is reached, the connection will be reset.</p>
 </li>
-<li><p class="first"><tt class="docutils literal"><span class="pre">setsession</span></tt>: an optional list of SQL commands that may serve to
-prepare the session, e.g. <tt class="docutils literal"><span class="pre">[&quot;set</span> <span class="pre">datestyle</span> <span class="pre">to</span> <span class="pre">german&quot;,</span> <span class="pre">...]</span></tt></p>
+<li><p class="first"><tt class="docutils literal">setsession</tt>: an optional list of SQL commands that may serve to
+prepare the session, e.g. <tt class="docutils literal">[&quot;set datestyle to german&quot;, <span class="pre">...]</span></tt></p>
 </li>
-<li><p class="first"><tt class="docutils literal"><span class="pre">failures</span></tt>: an optional exception class or a tuple of exception classes
+<li><p class="first"><tt class="docutils literal">failures</tt>: an optional exception class or a tuple of exception classes
 for which the connection failover mechanism shall be applied,
 if the default (OperationalError, InternalError) is not adequate</p>
 </li>
-<li><p class="first"><tt class="docutils literal"><span class="pre">closeable</span></tt>: if this is set to true, then closing connections will
+<li><p class="first"><tt class="docutils literal">closeable</tt>: if this is set to true, then closing connections will
 be allowed, but by default this will be silently ignored</p>
 </li>
-<li><p class="first"><tt class="docutils literal"><span class="pre">threadlocal</span></tt>: an optional class for representing thread-local data
+<li><p class="first"><tt class="docutils literal">threadlocal</tt>: an optional class for representing thread-local data
 that will be used instead of our Python implementation
 (threading.local is faster, but cannot be used in all cases)</p>
 </li>
@@ -307,8 +307,8 @@ choose some or all of these parameters in your own creator function,
 allowing for sophisticated failover and load-balancing mechanisms.</p>
 </li>
 </ul>
-<p>For instance, if you are using <tt class="docutils literal"><span class="pre">pgdb</span></tt> as your DB-API 2 database module and
-want every connection to your local database <tt class="docutils literal"><span class="pre">mydb</span></tt> to be reused 1000 times:</p>
+<p>For instance, if you are using <tt class="docutils literal">pgdb</tt> as your DB-API 2 database module and
+want every connection to your local database <tt class="docutils literal">mydb</tt> to be reused 1000 times:</p>
 <pre class="literal-block">
 import pgdb # import used DB-API 2 module
 from DBUtils.PersistentDB import PersistentDB
@@ -320,54 +320,54 @@ database connections of that kind:</p>
 db = persist.connection()
 </pre>
 <p>You can use these connections just as if they were ordinary DB-API 2
-connections. Actually what you get is the hardened <tt class="docutils literal"><span class="pre">SteadyDB</span></tt> version of
+connections. Actually what you get is the hardened <tt class="docutils literal">SteadyDB</tt> version of
 the underlying DB-API 2 connection.</p>
-<p>Closing a persistent connection with <tt class="docutils literal"><span class="pre">db.close()</span></tt> will be silently
+<p>Closing a persistent connection with <tt class="docutils literal">db.close()</tt> will be silently
 ignored since it would be reopened at the next usage anyway and
 contrary to the intent of having persistent connections. Instead,
 the connection will be automatically closed when the thread dies.
-You can change this behavior be setting the <tt class="docutils literal"><span class="pre">closeable</span></tt> parameter.</p>
-<p>Note that by setting the <tt class="docutils literal"><span class="pre">threadlocal</span></tt> parameter to <tt class="docutils literal"><span class="pre">threading.local</span></tt>,
+You can change this behavior be setting the <tt class="docutils literal">closeable</tt> parameter.</p>
+<p>Note that by setting the <tt class="docutils literal">threadlocal</tt> parameter to <tt class="docutils literal">threading.local</tt>,
 getting connections may become a bit faster, but this may not work in
-all environments (for instance, <tt class="docutils literal"><span class="pre">mod_wsgi</span></tt> is known to cause problems
-here since it clears the <tt class="docutils literal"><span class="pre">threading.local</span></tt> data between requests).</p>
+all environments (for instance, <tt class="docutils literal">mod_wsgi</tt> is known to cause problems
+here since it clears the <tt class="docutils literal">threading.local</tt> data between requests).</p>
 </div>
 <div class="section" id="id2">
 <h2>PooledDB</h2>
-<p>In order to make use of the <tt class="docutils literal"><span class="pre">PooledDB</span></tt> module, you first need to set up the
-database connection pool by creating an instance of <tt class="docutils literal"><span class="pre">PooledDB</span></tt>, passing the
+<p>In order to make use of the <tt class="docutils literal">PooledDB</tt> module, you first need to set up the
+database connection pool by creating an instance of <tt class="docutils literal">PooledDB</tt>, passing the
 following parameters:</p>
 <ul>
-<li><p class="first"><tt class="docutils literal"><span class="pre">creator</span></tt>: either an arbitrary function returning new DB-API 2
+<li><p class="first"><tt class="docutils literal">creator</tt>: either an arbitrary function returning new DB-API 2
 connection objects or a DB-API 2 compliant database module</p>
 </li>
-<li><p class="first"><tt class="docutils literal"><span class="pre">mincached</span></tt> : the initial number of idle connections in the pool
-(the default of <tt class="docutils literal"><span class="pre">0</span></tt> means no connections are made at startup)</p>
+<li><p class="first"><tt class="docutils literal">mincached</tt> : the initial number of idle connections in the pool
+(the default of <tt class="docutils literal">0</tt> means no connections are made at startup)</p>
 </li>
-<li><p class="first"><tt class="docutils literal"><span class="pre">maxcached</span></tt>: the maximum number of idle connections in the pool
-(the default value of <tt class="docutils literal"><span class="pre">0</span></tt> or <tt class="docutils literal"><span class="pre">None</span></tt> means unlimited pool size)</p>
+<li><p class="first"><tt class="docutils literal">maxcached</tt>: the maximum number of idle connections in the pool
+(the default value of <tt class="docutils literal">0</tt> or <tt class="docutils literal">None</tt> means unlimited pool size)</p>
 </li>
-<li><p class="first"><tt class="docutils literal"><span class="pre">maxshared</span></tt>: maximum number of shared connections allowed
-(the default value of <tt class="docutils literal"><span class="pre">0</span></tt> or <tt class="docutils literal"><span class="pre">None</span></tt> means all connections are dedicated)</p>
+<li><p class="first"><tt class="docutils literal">maxshared</tt>: maximum number of shared connections allowed
+(the default value of <tt class="docutils literal">0</tt> or <tt class="docutils literal">None</tt> means all connections are dedicated)</p>
 <p>When this maximum number is reached, connections are shared if they
 have been requested as shareable.</p>
 </li>
-<li><p class="first"><tt class="docutils literal"><span class="pre">maxconnections</span></tt>: maximum number of connections generally allowed
-(the default value of <tt class="docutils literal"><span class="pre">0</span></tt> or <tt class="docutils literal"><span class="pre">None</span></tt> means any number of connections)</p>
+<li><p class="first"><tt class="docutils literal">maxconnections</tt>: maximum number of connections generally allowed
+(the default value of <tt class="docutils literal">0</tt> or <tt class="docutils literal">None</tt> means any number of connections)</p>
 </li>
-<li><p class="first"><tt class="docutils literal"><span class="pre">blocking</span></tt>: determines behavior when exceeding the maximum</p>
+<li><p class="first"><tt class="docutils literal">blocking</tt>: determines behavior when exceeding the maximum</p>
 <p>If this is set to true, block and wait until the number of
 connections decreases, but by default an error will be reported.</p>
 </li>
-<li><p class="first"><tt class="docutils literal"><span class="pre">maxusage</span></tt>: maximum number of reuses of a single connection
-(the default of <tt class="docutils literal"><span class="pre">0</span></tt> or <tt class="docutils literal"><span class="pre">None</span></tt> means unlimited reuse)</p>
+<li><p class="first"><tt class="docutils literal">maxusage</tt>: maximum number of reuses of a single connection
+(the default of <tt class="docutils literal">0</tt> or <tt class="docutils literal">None</tt> means unlimited reuse)</p>
 <p>When this maximum usage number of the connection is reached,
 the connection is automatically reset (closed and reopened).</p>
 </li>
-<li><p class="first"><tt class="docutils literal"><span class="pre">setsession</span></tt>: an optional list of SQL commands that may serve to
-prepare the session, e.g. <tt class="docutils literal"><span class="pre">[&quot;set</span> <span class="pre">datestyle</span> <span class="pre">to</span> <span class="pre">german&quot;,</span> <span class="pre">...]</span></tt></p>
+<li><p class="first"><tt class="docutils literal">setsession</tt>: an optional list of SQL commands that may serve to
+prepare the session, e.g. <tt class="docutils literal">[&quot;set datestyle to german&quot;, <span class="pre">...]</span></tt></p>
 </li>
-<li><p class="first"><tt class="docutils literal"><span class="pre">failures</span></tt>: an optional exception class or a tuple of exception classes
+<li><p class="first"><tt class="docutils literal">failures</tt>: an optional exception class or a tuple of exception classes
 for which the connection failover mechanism shall be applied,
 if the default (OperationalError, InternalError) is not adequate</p>
 </li>
@@ -378,8 +378,8 @@ choose some or all of these parameters in your own creator function,
 allowing for sophisticated failover and load-balancing mechanisms.</p>
 </li>
 </ul>
-<p>For instance, if you are using <tt class="docutils literal"><span class="pre">pgdb</span></tt> as your DB-API 2 database module and
-want a pool of at least five connections to your local database <tt class="docutils literal"><span class="pre">mydb</span></tt>:</p>
+<p>For instance, if you are using <tt class="docutils literal">pgdb</tt> as your DB-API 2 database module and
+want a pool of at least five connections to your local database <tt class="docutils literal">mydb</tt>:</p>
 <pre class="literal-block">
 import pgdb # import used DB-API 2 module
 from DBUtils.PooledDB import PooledDB
@@ -391,10 +391,10 @@ from that pool:</p>
 db = pool.connection()
 </pre>
 <p>You can use these connections just as if they were ordinary DB-API 2
-connections. Actually what you get is the hardened <tt class="docutils literal"><span class="pre">SteadyDB</span></tt> version of
+connections. Actually what you get is the hardened <tt class="docutils literal">SteadyDB</tt> version of
 the underlying DB-API 2 connection.</p>
 <p>Please note that the connection may be shared with other threads by default
-if you set a non-zero <tt class="docutils literal"><span class="pre">maxshared</span></tt> parameter and the DB-API 2 module allows
+if you set a non-zero <tt class="docutils literal">maxshared</tt> parameter and the DB-API 2 module allows
 this. If you want to have a dedicated connection, use:</p>
 <pre class="literal-block">
 db = pool.connection(shareable=False)
@@ -404,7 +404,7 @@ db = pool.connection(shareable=False)
 db = pool.dedicated_connection()
 </pre>
 <p>If you don't need it any more, you should immediately return it to the
-pool with <tt class="docutils literal"><span class="pre">db.close()</span></tt>. You can get another connection in the same way.</p>
+pool with <tt class="docutils literal">db.close()</tt>. You can get another connection in the same way.</p>
 <p><em>Warning:</em> In a threaded environment, never do the following:</p>
 <pre class="literal-block">
 pool.connection().cursor().execute(...)
@@ -428,19 +428,19 @@ for Python</a> servlets, you need to make sure that you set up your
 database connection generators only once when the application starts,
 and not every time a servlet instance is created. For this purpose,
 you can add the necessary code to the module or class initialization
-code of your base servlet class, or you can use the <tt class="docutils literal"><span class="pre">contextInitialize()</span></tt>
-function in the <tt class="docutils literal"><span class="pre">__init__.py</span></tt> script of your application context.</p>
-<p>The directory <tt class="docutils literal"><span class="pre">Examples</span></tt> that is part of the DButils distribution
+code of your base servlet class, or you can use the <tt class="docutils literal">contextInitialize()</tt>
+function in the <tt class="docutils literal">__init__.py</tt> script of your application context.</p>
+<p>The directory <tt class="docutils literal">Examples</tt> that is part of the DButils distribution
 contains an example context for Webware for Python that uses a small
 demo database designed to track the attendees for a series of seminars
 (the idea for this example has been taken from the article
 &quot;<a class="reference external" href="http://www.linuxjournal.com/article/2605">The Python DB-API</a>&quot; by Andrew Kuchling).</p>
 <p>The example context can be configured by either creating a config file
-<tt class="docutils literal"><span class="pre">Configs/Database.config</span></tt> or by directly changing the default parameters
-in the example servlet <tt class="docutils literal"><span class="pre">Examples/DBUtilsExample.py</span></tt>. This way you can
+<tt class="docutils literal">Configs/Database.config</tt> or by directly changing the default parameters
+in the example servlet <tt class="docutils literal">Examples/DBUtilsExample.py</tt>. This way you can
 set an appropriate database user and password, and you can choose the
 underlying database module (PyGreSQL classic or any DB-API 2 module).
-If the setting <tt class="docutils literal"><span class="pre">maxcached</span></tt> is present, then the example servlet will use
+If the setting <tt class="docutils literal">maxcached</tt> is present, then the example servlet will use
 the &quot;Pooled&quot; variant, otherwise it will use the &quot;Persistent&quot; variant.</p>
 </div>
 </div>
@@ -453,7 +453,7 @@ from DBUtils to split the pooling out into a separate layer.</p>
 <p>Also note that when you are using a solution like the Apache webserver
 with <a class="reference external" href="http://www.modpython.org">mod_python</a> or <a class="reference external" href="http://code.google.com/p/modwsgi/">mod_wsgi</a>, then your Python code will be usually run
 in the context of the webserver's child processes. So if you are using
-the <tt class="docutils literal"><span class="pre">PooledDB</span></tt> module, and several of these child processes are running,
+the <tt class="docutils literal">PooledDB</tt> module, and several of these child processes are running,
 you will have as much database connection pools. If these processes are
 running many threads, this may still be a reasonable approach, but if these
 processes don't spawn more than one worker thread, as in the case of Apache's
@@ -468,7 +468,7 @@ or <a class="reference external" href="http://pgbouncer.projects.postgresql.org/
 <ul class="simple">
 <li>Alternatively to the maximum number of uses of a connection,
 implement a maximum time to live for connections.</li>
-<li>Create modules <tt class="docutils literal"><span class="pre">MonitorDB</span></tt> and <tt class="docutils literal"><span class="pre">MonitorPg</span></tt> that will run in a separate
+<li>Create modules <tt class="docutils literal">MonitorDB</tt> and <tt class="docutils literal">MonitorPg</tt> that will run in a separate
 thread, monitoring the pool of the idle connections and maybe also the
 shared connections respectively the thread-affine connections. If a
 disrupted connection is detected, then it will be reestablished automatically
