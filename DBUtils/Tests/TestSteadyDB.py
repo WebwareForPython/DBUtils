@@ -77,6 +77,8 @@ class Cursor:
         if name == 'error':
             raise OperationalError
         self.result = None
+        self.inputsizes = []
+        self.outputsizes = {}
         con.open_cursors += 1
         self.valid = True
 
@@ -96,6 +98,10 @@ class Cursor:
         elif operation.startswith('set '):
             self.con.session.append(operation[4:])
             self.result = None
+        elif operation == 'get sizes':
+            self.result = (self.inputsizes, self.outputsizes)
+            self.inputsizes = []
+            self.outputsizes = {}
         else:
             raise ProgrammingError
 
@@ -111,6 +117,16 @@ class Cursor:
             raise InternalError
         self.con.num_uses += 1
 
+    def setinputsizes(self, sizes):
+        if not self.valid:
+            raise InternalError
+        self.inputsizes = sizes
+
+    def setoutputsize(self, size, column=None):
+        if not self.valid:
+            raise InternalError
+        self.outputsizes[column] = size
+
     def __del__(self):
         if self.valid:
             self.close()
@@ -125,14 +141,14 @@ from DBUtils.SteadyDB import SteadyDBConnection, SteadyDBCursor
 
 class TestSteadyDB(unittest.TestCase):
 
-    def test0_CheckVersion(self):
+    def test00_CheckVersion(self):
         from DBUtils import __version__ as DBUtilsVersion
         self.assertEqual(DBUtilsVersion, __version__)
         from DBUtils.SteadyDB import __version__ as SteadyDBVersion
         self.assertEqual(SteadyDBVersion, __version__)
         self.assertEqual(SteadyDBConnection.version, __version__)
 
-    def test1_MockedDBConnection(self):
+    def test01_MockedDBConnection(self):
         db = connect('SteadyDBTestDB',
             user='SteadyDBTestUser')
         self.assert_(hasattr(db, 'database'))
@@ -191,7 +207,7 @@ class TestSteadyDB(unittest.TestCase):
         self.assertRaises(InternalError, db.close)
         self.assertRaises(InternalError, db.cursor)
 
-    def test2_BrokenDBConnection(self):
+    def test02_BrokenDBConnection(self):
         self.assertRaises(TypeError, SteadyDBConnection, None)
         self.assertRaises(TypeError, SteadyDBCursor, None)
         db = SteadyDBconnect(dbapi, database='ok')
@@ -209,7 +225,7 @@ class TestSteadyDB(unittest.TestCase):
             cursor.close()
         self.assertRaises(OperationalError, db.cursor, 'error')
 
-    def test3_SteadyDBClose(self):
+    def test03_SteadyDBClose(self):
         for closeable in (False, True):
             db = SteadyDBconnect(dbapi, closeable=closeable)
             self.assert_(db._con.valid)
@@ -222,7 +238,7 @@ class TestSteadyDB(unittest.TestCase):
             db._close()
             self.assert_(not db._con.valid)
 
-    def test4_SteadyDBConnection(self):
+    def test04_SteadyDBConnection(self):
         db = SteadyDBconnect(dbapi, 0, None, None, 1,
             'SteadyDBTestDB', user='SteadyDBTestUser')
         self.assert_(isinstance(db, SteadyDBConnection))
@@ -338,7 +354,7 @@ class TestSteadyDB(unittest.TestCase):
         self.assertEqual(db._con.session,
             ['doit', 'commit', 'dont', 'rollback'])
 
-    def test5_SteadyDBConnectionCreatorFunction(self):
+    def test05_SteadyDBConnectionCreatorFunction(self):
         db1 = SteadyDBconnect(dbapi, 0, None, None, 1,
             'SteadyDBTestDB', user='SteadyDBTestUser')
         db2 = SteadyDBconnect(connect, 0, None, None, 1,
@@ -351,7 +367,7 @@ class TestSteadyDB(unittest.TestCase):
         db2.close()
         db1.close()
 
-    def test6_SteadyDBConnectionMaxUsage(self):
+    def test06_SteadyDBConnectionMaxUsage(self):
         db = SteadyDBconnect(dbapi, 10)
         cursor = db.cursor()
         for i in range(100):
@@ -397,7 +413,7 @@ class TestSteadyDB(unittest.TestCase):
         self.assertEqual(db._con.num_uses, 1)
         self.assertEqual(db._con.num_queries, 1)
 
-    def test7_SteadyDBConnectionSetSession(self):
+    def test07_SteadyDBConnectionSetSession(self):
         db = SteadyDBconnect(dbapi, 3, ('set time zone', 'set datestyle'))
         self.assert_(hasattr(db, '_usage'))
         self.assertEqual(db._usage, 0)
@@ -455,7 +471,7 @@ class TestSteadyDB(unittest.TestCase):
         self.assertEqual(db._con.num_queries, 1)
         self.assertEqual(db._con.session, ['time zone', 'datestyle'])
 
-    def test8_SteadyDBConnectionFailures(self):
+    def test08_SteadyDBConnectionFailures(self):
         db = SteadyDBconnect(dbapi)
         db.close()
         db.cursor()
@@ -470,7 +486,7 @@ class TestSteadyDB(unittest.TestCase):
         db.close()
         db.cursor()
 
-    def test9_SteadyDBConnectionFailureError(self):
+    def test09_SteadyDBConnectionFailureError(self):
         db = SteadyDBconnect(dbapi)
         cursor = db.cursor()
         db.close()
@@ -478,6 +494,31 @@ class TestSteadyDB(unittest.TestCase):
         cursor = db.cursor()
         db.close()
         self.assertRaises(ProgrammingError, cursor.execute, 'error')
+
+    def test10_SteadyDBConnectionSetSizes(self):
+        db = SteadyDBconnect(dbapi)
+        cursor = db.cursor()
+        cursor.execute('get sizes')
+        result = cursor.fetchone()
+        self.assertEqual(result, ([], {}))
+        cursor.setinputsizes([7, 42, 6])
+        cursor.setoutputsize(9)
+        cursor.setoutputsize(15, 3)
+        cursor.setoutputsize(42, 7)
+        cursor.execute('get sizes')
+        result = cursor.fetchone()
+        self.assertEqual(result, ([7, 42, 6], {None: 9, 3: 15, 7: 42}))
+        cursor.execute('get sizes')
+        result = cursor.fetchone()
+        self.assertEqual(result, ([], {}))
+        cursor.setinputsizes([6, 42, 7])
+        cursor.setoutputsize(7)
+        cursor.setoutputsize(15, 3)
+        cursor.setoutputsize(42, 9)
+        db.close()
+        cursor.execute('get sizes')
+        result = cursor.fetchone()
+        self.assertEqual(result, ([6, 42, 7], {None: 7, 3: 15, 9: 42}))
 
 
 if __name__ == '__main__':

@@ -396,31 +396,28 @@ class SteadyDBCursor:
 
     def setinputsizes(self, sizes):
         """Store input sizes in case cursor needs to be reopened."""
-        self._inputsize = sizes
+        self._inputsizes = sizes
 
     def setoutputsize(self, size, column=None):
         """Store output sizes in case cursor needs to be reopened."""
-        if self._outputsize is None or column is None:
-            self._outputsize = [(column, size)]
-        else:
-            self._outputsize.append(column, size)
+        self._outputsizes[column] = size
 
     def _clearsizes(self):
-        """Clear stored input sizes."""
-        self._inputsize = self._outputsize = None
+        """Clear stored input and output sizes."""
+        self._inputsizes = []
+        self._outputsizes = {}
 
     def _setsizes(self, cursor=None):
         """Set stored input and output sizes for cursor execution."""
         if cursor is None:
             cursor = self._cursor
-        if self._inputsize is not None:
-            cursor.setinputsizes(self._inputsize)
-        if self._outputsize is not None:
-            for column, size in self._outputsize:
-                if column is None:
-                    cursor.setoutputsize(size)
-                else:
-                    cursor.setoutputsize(size, column)
+        if self._inputsizes:
+            cursor.setinputsizes(self._inputsizes)
+        for column, size in self._outputsizes.iteritems():
+            if column is None:
+                cursor.setoutputsize(size)
+            else:
+                cursor.setoutputsize(size, column)
 
     def close(self):
         """Close the tough cursor.
