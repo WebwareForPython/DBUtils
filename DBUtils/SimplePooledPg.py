@@ -8,11 +8,11 @@ This should result in a speedup for persistent applications
 such as the "Webware for Python" AppServer.
 
 For more information on PostgreSQL, see:
-	http://www.postgresql.org
+    http://www.postgresql.org
 For more information on PyGreSQL, see:
-	http://www.pygresql.org
+    http://www.pygresql.org
 For more information on Webware for Python, see:
-	http://www.webwareforpython.org
+    http://www.webwareforpython.org
 
 Measures are taken to make the pool of connections threadsafe
 regardless of the fact that the PyGreSQL pg module itself is
@@ -26,12 +26,12 @@ After you have established your connection pool, stating the
 number of connections to be cached in the pool and the
 connection parameters, e.g.
 
-	from DBUtils.SimplePooledPg import PooledPg
-	dbpool = PooledPg(5, host=..., database=..., user=..., ...)
+    from DBUtils.SimplePooledPg import PooledPg
+    dbpool = PooledPg(5, host=..., database=..., user=..., ...)
 
 you can demand database connections from that pool,
 
-	db = dbpool.connection()
+    db = dbpool.connection()
 
 and use them just as if they were ordinary PyGreSQL pg API
 connections. It's really just a proxy class.
@@ -77,65 +77,65 @@ from pg import DB as PgConnection
 
 
 class PooledPgConnection:
-	"""A proxy class for pooled PostgreSQL connections.
+    """A proxy class for pooled PostgreSQL connections.
 
-	You don't normally deal with this class directly,
-	but use PooledPg to get new connections.
+    You don't normally deal with this class directly,
+    but use PooledPg to get new connections.
 
-	"""
+    """
 
-	def __init__(self, pool, con):
-		self._con = con
-		self._pool = pool
+    def __init__(self, pool, con):
+        self._con = con
+        self._pool = pool
 
-	def close(self):
-		"""Close the pooled connection."""
-		# Instead of actually closing the connection,
-		# return it to the pool so it can be reused.
-		if self._con is not None:
-			self._pool.cache(self._con)
-			self._con = None
+    def close(self):
+        """Close the pooled connection."""
+        # Instead of actually closing the connection,
+        # return it to the pool so it can be reused.
+        if self._con is not None:
+            self._pool.cache(self._con)
+            self._con = None
 
-	def __getattr__(self, name):
-		# All other members are the same.
-		return getattr(self._con, name)
+    def __getattr__(self, name):
+        # All other members are the same.
+        return getattr(self._con, name)
 
-	def __del__(self):
-		self.close()
+    def __del__(self):
+        self.close()
 
 
 class PooledPg:
-	"""A very simple PostgreSQL connection pool.
+    """A very simple PostgreSQL connection pool.
 
-	After you have created the connection pool,
-	you can get connections using getConnection().
+    After you have created the connection pool,
+    you can get connections using getConnection().
 
-	"""
+    """
 
-	version = __version__
+    version = __version__
 
-	def __init__(self, maxconnections, *args, **kwargs):
-		"""Set up the PostgreSQL connection pool.
+    def __init__(self, maxconnections, *args, **kwargs):
+        """Set up the PostgreSQL connection pool.
 
-		maxconnections: the number of connections cached in the pool
-		args, kwargs: the parameters that shall be used to establish
-			the PostgreSQL connections using pg.connect()
+        maxconnections: the number of connections cached in the pool
+        args, kwargs: the parameters that shall be used to establish
+            the PostgreSQL connections using pg.connect()
 
-		"""
-		# Since there is no connection level safety, we
-		# build the pool using the synchronized queue class
-		# that implements all the required locking semantics.
-		from Queue import Queue
-		self._queue = Queue(maxconnections)
-		# Establish all database connections (it would be better to
-		# only establish a part of them now, and the rest on demand).
-		for i in range(maxconnections):
-			self.cache(PgConnection(*args, **kwargs))
+        """
+        # Since there is no connection level safety, we
+        # build the pool using the synchronized queue class
+        # that implements all the required locking semantics.
+        from Queue import Queue
+        self._queue = Queue(maxconnections)
+        # Establish all database connections (it would be better to
+        # only establish a part of them now, and the rest on demand).
+        for i in range(maxconnections):
+            self.cache(PgConnection(*args, **kwargs))
 
-	def cache(self, con):
-		"""Add or return a connection to the pool."""
-		self._queue.put(con)
+    def cache(self, con):
+        """Add or return a connection to the pool."""
+        self._queue.put(con)
 
-	def connection(self):
-		"""Get a connection from the pool."""
-		return PooledPgConnection(self, self._queue.get())
+    def connection(self):
+        """Get a connection from the pool."""
+        return PooledPgConnection(self, self._queue.get())

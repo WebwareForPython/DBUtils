@@ -19,11 +19,11 @@ For best performance, the application server should keep threads persistent.
 For this, you have to set MinServerThreads = MaxServerThreads in Webware.
 
 For more information on PostgreSQL, see:
-	http://www.postgresql.org
+    http://www.postgresql.org
 For more information on PyGreSQL, see:
-	http://www.pygresql.org
+    http://www.pygresql.org
 For more information on Webware for Python, see:
-	http://www.webwareforpython.org
+    http://www.webwareforpython.org
 
 
 Usage:
@@ -31,32 +31,32 @@ Usage:
 First you need to set up a generator for your kind of database connections
 by creating an instance of PersistentPg, passing the following parameters:
 
-	maxusage: the maximum number of reuses of a single connection
-		(the default of 0 or None means unlimited reuse)
-		When this maximum usage number of the connection is reached,
-		the connection is automatically reset (closed and reopened).
-	setsession: An optional list of SQL commands that may serve to
-		prepare the session, e.g. ["set datestyle to german", ...]
-	closeable: if this is set to true, then closing connections will
-		be allowed, but by default this will be silently ignored
-	threadlocal: an optional class for representing thread-local data
-		that will be used instead of our Python implementation
-		(threading.local is faster, but cannot be used in all cases)
+    maxusage: the maximum number of reuses of a single connection
+        (the default of 0 or None means unlimited reuse)
+        When this maximum usage number of the connection is reached,
+        the connection is automatically reset (closed and reopened).
+    setsession: An optional list of SQL commands that may serve to
+        prepare the session, e.g. ["set datestyle to german", ...]
+    closeable: if this is set to true, then closing connections will
+        be allowed, but by default this will be silently ignored
+    threadlocal: an optional class for representing thread-local data
+        that will be used instead of our Python implementation
+        (threading.local is faster, but cannot be used in all cases)
 
-	Additionally, you have to pass the parameters for the actual
-	PostgreSQL connection which are passed via PyGreSQL,
-	such as the names of the host, database, user, password etc.
+    Additionally, you have to pass the parameters for the actual
+    PostgreSQL connection which are passed via PyGreSQL,
+    such as the names of the host, database, user, password etc.
 
 For instance, if you want every connection to your local database 'mydb'
 to be reused 1000 times:
 
-	from DBUtils.PersistentPg import PersistentPg
-	persist = PersistentPg(5, dbname='mydb')
+    from DBUtils.PersistentPg import PersistentPg
+    persist = PersistentPg(5, dbname='mydb')
 
 Once you have set up the generator with these parameters, you can
 request database connections of that kind:
 
-	db = persist.connection()
+    db = persist.connection()
 
 You can use these connections just as if they were ordinary
 classic PyGreSQL API connections. Actually what you get is the
@@ -107,51 +107,51 @@ from DBUtils.SteadyPg import SteadyPgConnection
 
 
 class PersistentPg:
-	"""Generator for persistent classic PyGreSQL connections.
+    """Generator for persistent classic PyGreSQL connections.
 
-	After you have created the connection pool, you can use
-	connection() to get thread-affine, steady PostgreSQL connections.
+    After you have created the connection pool, you can use
+    connection() to get thread-affine, steady PostgreSQL connections.
 
-	"""
+    """
 
-	version = __version__
+    version = __version__
 
-	def __init__(self, maxusage=None, setsession=None,
-			closeable=False, threadlocal=None, *args, **kwargs):
-		"""Set up the persistent PostgreSQL connection generator.
+    def __init__(self, maxusage=None, setsession=None,
+            closeable=False, threadlocal=None, *args, **kwargs):
+        """Set up the persistent PostgreSQL connection generator.
 
-		maxusage: maximum number of reuses of a single connection
-			(0 or None means unlimited reuse)
-			When this maximum usage number of the connection is reached,
-			the connection is automatically reset (closed and reopened).
-		setsession: optional list of SQL commands that may serve to prepare
-			the session, e.g. ["set datestyle to ...", "set time zone ..."]
-		closeable: if this is set to true, then closing connections will
-			be allowed, but by default this will be silently ignored
-		threadlocal: an optional class for representing thread-local data
-			that will be used instead of our Python implementation
-			(threading.local is faster, but cannot be used in all cases)
-		args, kwargs: the parameters that shall be used to establish
-			the PostgreSQL connections using class PyGreSQL pg.DB()
+        maxusage: maximum number of reuses of a single connection
+            (0 or None means unlimited reuse)
+            When this maximum usage number of the connection is reached,
+            the connection is automatically reset (closed and reopened).
+        setsession: optional list of SQL commands that may serve to prepare
+            the session, e.g. ["set datestyle to ...", "set time zone ..."]
+        closeable: if this is set to true, then closing connections will
+            be allowed, but by default this will be silently ignored
+        threadlocal: an optional class for representing thread-local data
+            that will be used instead of our Python implementation
+            (threading.local is faster, but cannot be used in all cases)
+        args, kwargs: the parameters that shall be used to establish
+            the PostgreSQL connections using class PyGreSQL pg.DB()
 
-		"""
-		self._maxusage = maxusage
-		self._setsession = setsession
-		self._closeable = closeable
-		self._args, self._kwargs = args, kwargs
-		self.thread = (threadlocal or ThreadingLocal.local)()
+        """
+        self._maxusage = maxusage
+        self._setsession = setsession
+        self._closeable = closeable
+        self._args, self._kwargs = args, kwargs
+        self.thread = (threadlocal or ThreadingLocal.local)()
 
-	def steady_connection(self):
-		"""Get a steady, non-persistent PyGreSQL connection."""
-		return SteadyPgConnection(
-			self._maxusage, self._setsession, self._closeable,
-			*self._args, **self._kwargs)
+    def steady_connection(self):
+        """Get a steady, non-persistent PyGreSQL connection."""
+        return SteadyPgConnection(
+            self._maxusage, self._setsession, self._closeable,
+            *self._args, **self._kwargs)
 
-	def connection(self):
-		"""Get a steady, persistent PyGreSQL connection."""
-		try:
-			con = self.thread.connection
-		except AttributeError:
-			con = self.steady_connection()
-			self.thread.connection = con
-		return con
+    def connection(self):
+        """Get a steady, persistent PyGreSQL connection."""
+        try:
+            con = self.thread.connection
+        except AttributeError:
+            con = self.steady_connection()
+            self.thread.connection = con
+        return con

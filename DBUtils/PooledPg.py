@@ -16,11 +16,11 @@ regardless of the fact that the classic PyGreSQL pg module itself
 is not thread-safe at the connection level.
 
 For more information on PostgreSQL, see:
-	http://www.postgresql.org
+    http://www.postgresql.org
 For more information on PyGreSQL, see:
-	http://www.pygresql.org
+    http://www.pygresql.org
 For more information on Webware for Python, see:
-	http://www.webwareforpython.org
+    http://www.webwareforpython.org
 
 
 Usage:
@@ -28,36 +28,36 @@ Usage:
 First you need to set up the database connection pool by creating
 an instance of PooledPg, passing the following parameters:
 
-	mincached: the initial number of connections in the pool
-		(the default of 0 means no connections are made at startup)
-	maxcached: the maximum number of connections in the pool
-		(the default value of 0 or None means unlimited pool size)
-	maxconnections: maximum number of connections generally allowed
-		(the default value of 0 or None means any number of connections)
-	blocking: determines behavior when exceeding the maximum
-		(if this is set to true, block and wait until the number of
-		connections decreases, but by default an error will be reported)
-	maxusage: maximum number of reuses of a single connection
-		(the default of 0 or None means unlimited reuse)
-		When this maximum usage number of the connection is reached,
-		the connection is automatically reset (closed and reopened).
-	setsession: an optional list of SQL commands that may serve to
-		prepare the session, e.g. ["set datestyle to german", ...]
+    mincached: the initial number of connections in the pool
+        (the default of 0 means no connections are made at startup)
+    maxcached: the maximum number of connections in the pool
+        (the default value of 0 or None means unlimited pool size)
+    maxconnections: maximum number of connections generally allowed
+        (the default value of 0 or None means any number of connections)
+    blocking: determines behavior when exceeding the maximum
+        (if this is set to true, block and wait until the number of
+        connections decreases, but by default an error will be reported)
+    maxusage: maximum number of reuses of a single connection
+        (the default of 0 or None means unlimited reuse)
+        When this maximum usage number of the connection is reached,
+        the connection is automatically reset (closed and reopened).
+    setsession: an optional list of SQL commands that may serve to
+        prepare the session, e.g. ["set datestyle to german", ...]
 
-	Additionally, you have to pass the parameters for the actual
-	PostgreSQL connection which are passed via PyGreSQL,
-	such as the names of the host, database, user, password etc.
+    Additionally, you have to pass the parameters for the actual
+    PostgreSQL connection which are passed via PyGreSQL,
+    such as the names of the host, database, user, password etc.
 
 For instance, if you want a pool of at least five connections
 to your local database 'mydb':
 
-	from DBUtils.PooledPg import PooledPg
-	pool = PooledPg(5, dbname='mydb')
+    from DBUtils.PooledPg import PooledPg
+    pool = PooledPg(5, dbname='mydb')
 
 Once you have set up the connection pool you can request
 database connections from that pool:
 
-	db = pool.connection()
+    db = pool.connection()
 
 You can use these connections just as if they were ordinary
 classic PyGreSQL API connections. Actually what you get is a
@@ -69,15 +69,15 @@ You can get another connection in the same way or with db.reopen().
 
 Warning: In a threaded environment, never do the following:
 
-	res = pool.connection().query(...).getresult()
+    res = pool.connection().query(...).getresult()
 
 This would release the connection too early for reuse which may be
 fatal because the connections are not thread-safe. Make sure that the
 connection object stays alive as long as you are using it, like that:
 
-	db = pool.connection()
-	res = db.query(...).getresult()
-	db.close() # or del db
+    db = pool.connection()
+    res = db.query(...).getresult()
+    db.close() # or del db
 
 
 Ideas for improvement:
@@ -109,168 +109,168 @@ from DBUtils.SteadyPg import SteadyPgConnection
 
 
 class PooledPgError(Exception):
-	"""General PooledPg error."""
+    """General PooledPg error."""
 
 class InvalidConnection(PooledPgError):
-	"""Database connection is invalid."""
+    """Database connection is invalid."""
 
 class TooManyConnections(PooledPgError):
-	"""Too many database connections were opened."""
+    """Too many database connections were opened."""
 
 
 class PooledPg:
-	"""Pool for classic PyGreSQL connections.
+    """Pool for classic PyGreSQL connections.
 
-	After you have created the connection pool, you can use
-	connection() to get pooled, steady PostgreSQL connections.
+    After you have created the connection pool, you can use
+    connection() to get pooled, steady PostgreSQL connections.
 
-	"""
+    """
 
-	version = __version__
+    version = __version__
 
-	def __init__(self,
-			mincached=0, maxcached=0,
-			maxconnections=0, blocking=False,
-			maxusage=None, setsession=None,
-			*args, **kwargs):
-		"""Set up the PostgreSQL connection pool.
+    def __init__(self,
+            mincached=0, maxcached=0,
+            maxconnections=0, blocking=False,
+            maxusage=None, setsession=None,
+            *args, **kwargs):
+        """Set up the PostgreSQL connection pool.
 
-		mincached: initial number of connections in the pool
-			(0 means no connections are made at startup)
-		maxcached: maximum number of connections in the pool
-			(0 or None means unlimited pool size)
-		maxconnections: maximum number of connections generally allowed
-			(0 or None means an arbitrary number of connections)
-		blocking: determines behavior when exceeding the maximum
-			(if this is set to true, block and wait until the number of
-			connections decreases, otherwise an error will be reported)
-		maxusage: maximum number of reuses of a single connection
-			(0 or None means unlimited reuse)
-			When this maximum usage number of the connection is reached,
-			the connection is automatically reset (closed and reopened).
-		setsession: optional list of SQL commands that may serve to prepare
-			the session, e.g. ["set datestyle to ...", "set time zone ..."]
-		args, kwargs: the parameters that shall be used to establish
-			the PostgreSQL connections using class PyGreSQL pg.DB()
+        mincached: initial number of connections in the pool
+            (0 means no connections are made at startup)
+        maxcached: maximum number of connections in the pool
+            (0 or None means unlimited pool size)
+        maxconnections: maximum number of connections generally allowed
+            (0 or None means an arbitrary number of connections)
+        blocking: determines behavior when exceeding the maximum
+            (if this is set to true, block and wait until the number of
+            connections decreases, otherwise an error will be reported)
+        maxusage: maximum number of reuses of a single connection
+            (0 or None means unlimited reuse)
+            When this maximum usage number of the connection is reached,
+            the connection is automatically reset (closed and reopened).
+        setsession: optional list of SQL commands that may serve to prepare
+            the session, e.g. ["set datestyle to ...", "set time zone ..."]
+        args, kwargs: the parameters that shall be used to establish
+            the PostgreSQL connections using class PyGreSQL pg.DB()
 
-		"""
-		self._args, self._kwargs = args, kwargs
-		self._maxusage = maxusage
-		self._setsession = setsession
-		if mincached is None:
-			mincached = 0
-		if maxcached is None:
-			maxcached = 0
-		if maxconnections is None:
-			maxconnections = 0
-		if maxcached:
-			if maxcached < mincached:
-				maxcached = mincached
-		if maxconnections:
-			if maxconnections < maxcached:
-				maxconnections = maxcached
-			# Create semaphore for number of allowed connections generally:
-			from threading import Semaphore
-			self._connections = Semaphore(maxconnections)
-			self._blocking = blocking
-		else:
-			self._connections = None
-		self._cache = Queue(maxcached) # the actual connection pool
-		# Establish an initial number of database connections:
-		idle = [self.connection() for i in range(mincached)]
-		while idle:
-			idle.pop().close()
+        """
+        self._args, self._kwargs = args, kwargs
+        self._maxusage = maxusage
+        self._setsession = setsession
+        if mincached is None:
+            mincached = 0
+        if maxcached is None:
+            maxcached = 0
+        if maxconnections is None:
+            maxconnections = 0
+        if maxcached:
+            if maxcached < mincached:
+                maxcached = mincached
+        if maxconnections:
+            if maxconnections < maxcached:
+                maxconnections = maxcached
+            # Create semaphore for number of allowed connections generally:
+            from threading import Semaphore
+            self._connections = Semaphore(maxconnections)
+            self._blocking = blocking
+        else:
+            self._connections = None
+        self._cache = Queue(maxcached) # the actual connection pool
+        # Establish an initial number of database connections:
+        idle = [self.connection() for i in range(mincached)]
+        while idle:
+            idle.pop().close()
 
-	def steady_connection(self):
-		"""Get a steady, unpooled PostgreSQL connection."""
-		return SteadyPgConnection(self._maxusage, self._setsession, True,
-			*self._args, **self._kwargs)
+    def steady_connection(self):
+        """Get a steady, unpooled PostgreSQL connection."""
+        return SteadyPgConnection(self._maxusage, self._setsession, True,
+            *self._args, **self._kwargs)
 
-	def connection(self):
-		"""Get a steady, cached PostgreSQL connection from the pool."""
-		if self._connections:
-			if not self._connections.acquire(self._blocking):
-				raise TooManyConnections
-		try:
-			con = self._cache.get(0)
-		except Empty:
-			con = self.steady_connection()
-		return PooledPgConnection(self, con)
+    def connection(self):
+        """Get a steady, cached PostgreSQL connection from the pool."""
+        if self._connections:
+            if not self._connections.acquire(self._blocking):
+                raise TooManyConnections
+        try:
+            con = self._cache.get(0)
+        except Empty:
+            con = self.steady_connection()
+        return PooledPgConnection(self, con)
 
-	def cache(self, con):
-		"""Put a connection back into the pool cache."""
-		try:
-			self._cache.put(con, 0)
-		except Full:
-			con.close()
-		if self._connections:
-			self._connections.release()
+    def cache(self, con):
+        """Put a connection back into the pool cache."""
+        try:
+            self._cache.put(con, 0)
+        except Full:
+            con.close()
+        if self._connections:
+            self._connections.release()
 
-	def close(self):
-		"""Close all connections in the pool."""
-		while 1:
-			try:
-				con = self._cache.get(0)
-				try:
-					con.close()
-				except Exception:
-					pass
-				if self._connections:
-					self._connections.release()
-			except Empty:
-				break
+    def close(self):
+        """Close all connections in the pool."""
+        while 1:
+            try:
+                con = self._cache.get(0)
+                try:
+                    con.close()
+                except Exception:
+                    pass
+                if self._connections:
+                    self._connections.release()
+            except Empty:
+                break
 
-	def __del__(self):
-		"""Delete the pool."""
-		try:
-			self.close()
-		except Exception:
-			pass
+    def __del__(self):
+        """Delete the pool."""
+        try:
+            self.close()
+        except Exception:
+            pass
 
 
 # Auxiliary class for pooled connections
 
 class PooledPgConnection:
-	"""Proxy class for pooled PostgreSQL connections."""
+    """Proxy class for pooled PostgreSQL connections."""
 
-	def __init__(self, pool, con):
-		"""Create a pooled DB-API 2 connection.
+    def __init__(self, pool, con):
+        """Create a pooled DB-API 2 connection.
 
-		pool: the corresponding PooledPg instance
-		con: the underlying SteadyPg connection
+        pool: the corresponding PooledPg instance
+        con: the underlying SteadyPg connection
 
-		"""
-		self._pool = pool
-		self._con = con
+        """
+        self._pool = pool
+        self._con = con
 
-	def close(self):
-		"""Close the pooled connection."""
-		# Instead of actually closing the connection,
-		# return it to the pool so it can be reused.
-		if self._con:
-			self._pool.cache(self._con)
-			self._con = None
+    def close(self):
+        """Close the pooled connection."""
+        # Instead of actually closing the connection,
+        # return it to the pool so it can be reused.
+        if self._con:
+            self._pool.cache(self._con)
+            self._con = None
 
-	def reopen(self):
-		"""Reopen the pooled connection."""
-		# If the connection is already back in the pool,
-		# get another connection from the pool,
-		# otherwise reopen the unerlying connection.
-		if self._con:
-			self._con.reopen()
-		else:
-			self._con = self._pool.connection()
+    def reopen(self):
+        """Reopen the pooled connection."""
+        # If the connection is already back in the pool,
+        # get another connection from the pool,
+        # otherwise reopen the unerlying connection.
+        if self._con:
+            self._con.reopen()
+        else:
+            self._con = self._pool.connection()
 
-	def __getattr__(self, name):
-		"""Proxy all members of the class."""
-		if self._con:
-			return getattr(self._con, name)
-		else:
-			raise InvalidConnection
+    def __getattr__(self, name):
+        """Proxy all members of the class."""
+        if self._con:
+            return getattr(self._con, name)
+        else:
+            raise InvalidConnection
 
-	def __del__(self):
-		"""Delete the pooled connection."""
-		try:
-			self.close()
-		except Exception:
-			pass
+    def __del__(self):
+        """Delete the pooled connection."""
+        try:
+            self.close()
+        except Exception:
+            pass
