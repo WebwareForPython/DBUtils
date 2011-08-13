@@ -6,11 +6,13 @@ using the classic (not DB-API 2 compliant) PyGreSQL API.
 The connections are transparently reopened when they are
 closed or the database connection has been lost or when
 they are used more often than an optional usage limit.
+Only connections which have been marked as being in a database
+transaction with a begin() call will not be silently replaced.
 
 A typical situation where database connections are lost
 is when the database server or an intervening firewall is
 shutdown and restarted for maintenance reasons. In such a
-case, all database connections would become unusuable, even
+case, all database connections would become unusable, even
 though the database service may be already available again.
 
 The "hardened" connections provided by this module will
@@ -35,7 +37,7 @@ Usage:
 You can use the class SteadyPgConnection in the same way as you
 would use the class DB from the classic PyGreSQL API module db.
 The only difference is that you may specify a usage limit as the
-first paramenter when you open a connection (set it to None
+first parameter when you open a connection (set it to None
 if you prefer unlimited usage), and an optional list of commands
 that may serve to prepare the session as the second parameter,
 and you can specify whether is is allowed to close the connection
@@ -125,6 +127,7 @@ class SteadyPgConnection:
         self._setsession_sql = setsession
         self._closeable = closeable
         self._con = PgConnection(*args, **kwargs)
+        self._transaction = False
         self._closed = False
         self._setsession()
         self._usage = 0
@@ -147,6 +150,7 @@ class SteadyPgConnection:
                 self._con.close()
             except Exception:
                 pass
+            self._transaction = False
             self._closed = True
 
     def close(self):
@@ -162,6 +166,8 @@ class SteadyPgConnection:
         """
         if self._closeable:
             self._close()
+        elif self._transaction:
+            self.reset()
 
     def reopen(self):
         """Reopen the tough connection.
@@ -172,8 +178,14 @@ class SteadyPgConnection:
         try:
             self._con.reopen()
         except Exception:
-            pass
+            if self._transcation:
+                self._transaction = False
+                try:
+                    self._con.query('rollback')
+                except Exception:
+                    pass
         else:
+            self._transaction = False
             self._closed = False
             self._setsession()
             self._usage = 0
@@ -187,10 +199,70 @@ class SteadyPgConnection:
         """
         try:
             self._con.reset()
+            self._transaction = False
             self._setsession()
             self._usage = 0
         except Exception:
-            self.reopen()
+            try:
+                self.reopen()
+            except Exception:
+                try:
+                    self.rollback()
+                except Exception:
+                    pass
+
+    def begin(self, sql=None):
+        """Begin a transaction."""
+        self._transaction = True
+        try:
+            begin = self._con.begin
+        except AttributeError:
+            return self._con.query(sql or 'begin')
+        else:
+            # use existing method if available
+            if sql:
+                return begin(sql=sql)
+            else:
+                return begin()
+
+    def end(self, sql=None):
+        """Commit the current transaction."""
+        self._transaction = False
+        try:
+            end = self._con.end
+        except AttributeError:
+            return self._con.query(sql or 'end')
+        else:
+            if sql:
+                return end(sql=sql)
+            else:
+                return end()
+
+    def commit(self, sql=None):
+        """Commit the current transaction."""
+        self._transaction = False
+        try:
+            commit = self._con.commit
+        except AttributeError:
+            return self._con.query(sql or 'commit')
+        else:
+            if sql:
+                return commit(sql=sql)
+            else:
+                return commit()
+
+    def rollback(self, sql=None):
+        """Rollback the current transaction."""
+        self._transaction = False
+        try:
+            rollback = self._con.rollback
+        except AttributeError:
+            return self._con.query(sql or 'rollback')
+        else:
+            if sql:
+                return rollback(sql=sql)
+            else:
+                return rollback()
 
     def _get_tough_method(self, method):
         """Return a "tough" version of a connection class method.
@@ -201,18 +273,23 @@ class SteadyPgConnection:
 
         """
         def tough_method(*args, **kwargs):
-            try: # check whether connection status is bad
-                if not self._con.db.status:
-                    raise AttributeError
-                if self._maxusage: # or connection used too often
-                    if self._usage >= self._maxusage:
+            transaction = self._transaction
+            if not transaction:
+                try: # check whether connection status is bad
+                    if not self._con.db.status:
                         raise AttributeError
-            except Exception:
-                self.reset() # then reset the connection
+                    if self._maxusage: # or connection used too often
+                        if self._usage >= self._maxusage:
+                            raise AttributeError
+                except Exception:
+                    self.reset() # then reset the connection
             try:
                 result = method(*args, **kwargs) # try connection method
             except Exception: # error in query
-                if self._con.db.status: # if it was not a connection problem
+                if transaction: # inside a transaction
+                    self._transaction = False
+                    raise # propagate the error
+                elif self._con.db.status: # if it was not a connection problem
                     raise # then propagate the error
                 else: # otherwise
                     self.reset() # reset the connection

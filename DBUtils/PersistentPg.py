@@ -9,6 +9,10 @@ application server of "Webware for Python," without loss of robustness.
 Robustness is provided by using "hardened" SteadyPg connections.
 Even if the underlying database is restarted and all connections
 are lost, they will be automatically and transparently reopened.
+However, since you don't want this to happen in the middle of a database
+transaction, you must explicitly start transactions with the begin()
+method so that SteadyPg knows that the underlying connection shall not
+be replaced and errors passed on until the transaction is completed.
 
 Measures are taken to make the database connections thread-affine.
 This means the same thread always uses the same cached connection,
@@ -68,9 +72,15 @@ contrary to the intent of having persistent connections. Instead,
 the connection will be automatically closed when the thread dies.
 You can change this behavior be setting the closeable parameter.
 
-Note that by setting the threadlocal parameter to threading.local,
-getting connections may become a bit faster, but this may not work in
-all environments (for instance, mod_wsgi is known to cause problems
+Note that you need to explicitly start transactions by calling the
+begin() method. This ensures that the transparent reopening will be
+suspended until the end of the transaction, and that the connection
+will be rolled back before being reused in the same thread. To end
+transactions, use on of the end(), commit() or rollback() methods.
+
+By setting the threadlocal parameter to threading.local, getting
+connections may become a bit faster, but this may not work in all
+environments (for instance, mod_wsgi is known to cause problems
 since it clears the threading.local data between requests).
 
 

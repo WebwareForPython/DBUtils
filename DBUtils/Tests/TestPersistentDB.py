@@ -275,6 +275,21 @@ class TestPersistentDB(unittest.TestCase):
         Connection.has_ping = False
         Connection.num_pings = 0
 
+    def test9_FailedTransaction(self):
+        persist = PersistentDB(dbapi)
+        db = persist.connection()
+        cursor = db.cursor()
+        db._con.close()
+        cursor.execute('select test')
+        db.begin()
+        db._con.close()
+        self.assertRaises(dbapi.InternalError, cursor.execute, 'select test')
+        cursor.execute('select test')
+        db.begin()
+        db.cancel()
+        db._con.close()
+        cursor.execute('select test')
+
 
 if __name__ == '__main__':
     unittest.main()

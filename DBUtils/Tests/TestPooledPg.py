@@ -35,14 +35,16 @@ class TestPooledPg(unittest.TestCase):
         self.assertEqual(PooledPg.version, __version__)
 
     def test1_CreateConnection(self):
-        pool = PooledPg(1, 1, 0, False, None, None,
+        pool = PooledPg(1, 1, 0, False, None, None, False,
             'PooledPgTestDB', user='PooledPgTestUser')
         self.assert_(hasattr(pool, '_cache'))
         self.assertEqual(pool._cache.qsize(), 1)
         self.assert_(hasattr(pool, '_maxusage'))
-        self.assertEqual(pool._maxusage, None)
+        self.assert_(pool._maxusage is None)
         self.assert_(hasattr(pool, '_setsession'))
         self.assert_(pool._setsession is None)
+        self.assert_(hasattr(pool, '_reset'))
+        self.assertEqual(pool._reset, False)
         db_con = pool._cache.get(0)
         pool._cache.put(db_con, 0)
         from DBUtils.SteadyPg import SteadyPgConnection
@@ -80,7 +82,7 @@ class TestPooledPg(unittest.TestCase):
         self.assertEqual(db._setsession_sql, ('set datestyle',))
 
     def test2_CloseConnection(self):
-        pool = PooledPg(0, 1, 0, False, None, None,
+        pool = PooledPg(0, 1, 0, False, None, None, False,
             'PooledPgTestDB', user='PooledPgTestUser')
         db = pool.connection()
         self.assert_(hasattr(db, '_con'))
@@ -270,6 +272,47 @@ class TestPooledPg(unittest.TestCase):
         self.assertNotEqual(db1, db2)
         self.assertNotEqual(db1._con, db2._con)
         self.assertEqual(db1._con, db1_con)
+
+    def test7_ResetTransaction(self):
+        pool = PooledPg(1)
+        db = pool.connection()
+        db.begin()
+        con = db._con
+        self.assert_(con._transaction)
+        db.query('select test')
+        self.assertEqual(con.num_queries, 1)
+        db.close()
+        self.assert_(pool.connection()._con is con)
+        self.assert_(not con._transaction)
+        self.assertEqual(con.session, ['begin', 'rollback'])
+        self.assertEqual(con.num_queries, 1)
+        pool = PooledPg(1, reset=1)
+        db = pool.connection()
+        db.begin()
+        con = db._con
+        self.assert_(con._transaction)
+        self.assertEqual(con.session, ['rollback', 'begin'])
+        db.query('select test')
+        self.assertEqual(con.num_queries, 1)
+        db.close()
+        self.assert_(pool.connection()._con is con)
+        self.assert_(not con._transaction)
+        self.assertEqual(con.session,
+            ['rollback', 'begin', 'rollback', 'rollback'])
+        self.assertEqual(con.num_queries, 1)
+        pool = PooledPg(1, reset=2)
+        db = pool.connection()
+        db.begin()
+        con = db._con
+        self.assert_(con._transaction)
+        self.assertEqual(con.session, ['begin'])
+        db.query('select test')
+        self.assertEqual(con.num_queries, 1)
+        db.close()
+        self.assert_(pool.connection()._con is con)
+        self.assert_(not con._transaction)
+        self.assertEqual(con.session, [])
+        self.assertEqual(con.num_queries, 0)
 
 
 if __name__ == '__main__':

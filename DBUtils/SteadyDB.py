@@ -13,6 +13,8 @@ after the execution, when rows are already fetched from the
 database, this will give an error and the cursor will not
 be reopened automatically, because there is no reliable way
 to recover the state of the cursor in such a situation.
+Connections which have been marked as being in a transaction
+with a begin() call will not be silently replaced either.
 
 A typical situation where database connections are lost
 is when the database server or an intervening firewall is
@@ -283,6 +285,7 @@ class SteadyDBConnection:
     def _store(self, con):
         """Store a database connection for subsequent use."""
         self._con = con
+        self._transaction = False
         self._closed = False
         self._usage = 0
 
@@ -298,13 +301,27 @@ class SteadyDBConnection:
                 self._con.close()
             except Exception:
                 pass
+            self._transaction = False
             self._closed = True
+
+    def _reset(self, force=False):
+        """Reset a tough connection.
+
+        Rollback if forced or the connection was in a transaction.
+
+        """
+        if force or self._transaction:
+            try:
+                self.rollback()
+            except Exception:
+                pass
 
     def _ping_check(self, ping=1, reconnect=True):
         """Check whether the connection is still alive using ping().
 
         If the the underlying connection is not active and the ping
-        parameter is set accordingly, the connection will be recreated.
+        parameter is set accordingly, the connection will be recreated
+        unless the connection is currently inside a transaction.
 
         """
         if ping & self._ping:
@@ -321,7 +338,7 @@ class SteadyDBConnection:
                     alive = True
                 if alive:
                     reconnect = False
-            if reconnect:
+            if reconnect and not self._transaction:
                 try: # try to reopen the connection
                     con = self._create()
                 except Exception:
@@ -361,14 +378,50 @@ class SteadyDBConnection:
         """
         if self._closeable:
             self._close()
+        elif self._transaction:
+            self._reset()
+
+    def begin(self, *args, **kwargs):
+        """Indicate the beginning of a transaction.
+
+        During a transaction, connections will not not transparently
+        replaced, and all errors will be raised to the application.
+
+        If the underlying driver supports this method, it will be called
+        with the given parameters (e.g. for distributed transactions).
+
+        """
+        self._transaction = True
+        try:
+            begin = self._con.begin
+        except AttributeError:
+            pass
+        else:
+            begin(*args, **kwargs)
 
     def commit(self):
         """Commit any pending transaction."""
+        self._transaction = False
         self._con.commit()
 
     def rollback(self):
         """Rollback pending transaction."""
+        self._transaction = False
         self._con.rollback()
+
+    def cancel(self):
+        """Cancel a long-running transaction.
+
+        If the underlying driver supports this method, it will be called.
+
+        """
+        self._transaction = False
+        try:
+            cancel = self._con.cancel
+        except AttributeError:
+            pass
+        else:
+            cancel()
 
     def ping(self, *args, **kwargs):
         """Ping connection."""
@@ -378,7 +431,9 @@ class SteadyDBConnection:
         """A "tough" version of the method cursor()."""
         # The args and kwargs are not part of the standard,
         # but some database modules seem to use these.
-        self._ping_check(2)
+        transaction = self._transaction
+        if not transaction:
+            self._ping_check(2)
         try:
             if self._maxusage:
                 if self._usage >= self._maxusage:
@@ -398,11 +453,15 @@ class SteadyDBConnection:
                 else:
                     self._close()
                     self._store(con)
+                    if transaction:
+                        raise error # reraise the original error again
                     return cursor
                 try:
                     con.close()
                 except Exception:
                     pass
+            if transaction:
+                self._transaction = False
             raise error # reraise the original error again
         return cursor
 
@@ -479,7 +538,9 @@ class SteadyDBCursor:
         def tough_method(*args, **kwargs):
             execute = name.startswith('execute')
             con = self._con
-            con._ping_check(4)
+            transaction = con._transaction
+            if not transaction:
+                con._ping_check(4)
             try:
                 if con._maxusage:
                     if con._usage >= con._maxusage:
@@ -492,30 +553,31 @@ class SteadyDBCursor:
                 if execute:
                     self._clearsizes()
             except con._failures, error: # execution error
-                try:
-                    cursor2 = con._cursor(
-                        *self._args, **self._kwargs) # open new cursor
-                except Exception:
-                    pass
-                else:
-                    try: # and try one more time to execute
-                        if execute:
-                            self._setsizes(cursor2)
-                        method = getattr(cursor2, name)
-                        result = method(*args, **kwargs)
-                        if execute:
-                            self._clearsizes()
+                if not transaction:
+                    try:
+                        cursor2 = con._cursor(
+                            *self._args, **self._kwargs) # open new cursor
                     except Exception:
                         pass
                     else:
-                        self.close()
-                        self._cursor = cursor2
-                        con._usage += 1
-                        return result
-                    try:
-                        cursor2.close()
-                    except Exception:
-                        pass
+                        try: # and try one more time to execute
+                            if execute:
+                                self._setsizes(cursor2)
+                            method = getattr(cursor2, name)
+                            result = method(*args, **kwargs)
+                            if execute:
+                                self._clearsizes()
+                        except Exception:
+                            pass
+                        else:
+                            self.close()
+                            self._cursor = cursor2
+                            con._usage += 1
+                            return result
+                        try:
+                            cursor2.close()
+                        except Exception:
+                            pass
                 try: # try to reopen the connection
                     con2 = con._create()
                 except Exception:
@@ -527,6 +589,12 @@ class SteadyDBCursor:
                     except Exception:
                         pass
                     else:
+                        if transaction:
+                            self.close()
+                            con._close()
+                            con._store(con2)
+                            self._cursor = cursor2
+                            raise error # raise the original error again
                         try: # try one more time to execute
                             if execute:
                                 self._setsizes(cursor2)
@@ -558,6 +626,8 @@ class SteadyDBCursor:
                         con2.close()
                     except Exception:
                         pass
+                if transaction:
+                    self._transaction = False
                 raise error # reraise the original error again
             else:
                 con._usage += 1

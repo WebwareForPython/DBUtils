@@ -21,7 +21,7 @@ import unittest
 
 sys.path.insert(1, '../..')
 # The TestSteadyPg module serves as a mock object for the pg API module:
-from DBUtils.Tests import TestSteadyPg
+from DBUtils.Tests import TestSteadyPg as pg
 from DBUtils.PersistentPg import PersistentPg
 
 
@@ -178,6 +178,21 @@ class TestPersistentPg(unittest.TestCase):
             self.assertEqual(db.db.session, ['datestyle', 'test'])
             db.query('select test')
         self.assertEqual(db.db.session, ['datestyle'])
+
+    def test5_PersistentPgFailedTransaction(self):
+        persist = PersistentPg()
+        db = persist.connection()
+        db._con.close()
+        self.assertEqual(db.query('select test'), 'test')
+        db.begin()
+        db._con.close()
+        self.assertRaises(pg.InternalError, db.query, 'select test')
+        self.assertEqual(db.query('select test'), 'test')
+        db.begin()
+        self.assertEqual(db.query('select test'), 'test')
+        db.rollback()
+        db._con.close()
+        self.assertEqual(db.query('select test'), 'test')
 
 
 if __name__ == '__main__':

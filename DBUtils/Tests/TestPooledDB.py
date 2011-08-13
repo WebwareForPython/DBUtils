@@ -22,7 +22,7 @@ import unittest
 sys.path.insert(1, '../..')
 # The TestSteadyDB module serves as a mock object for the DB-API 2 module:
 from DBUtils.Tests import TestSteadyDB as dbapi
-from DBUtils.PooledDB import PooledDB
+from DBUtils.PooledDB import PooledDB, TooManyConnections
 
 
 class TestPooledDB(unittest.TestCase):
@@ -57,7 +57,7 @@ class TestPooledDB(unittest.TestCase):
             dbapi.threadsafety = threadsafety
             shareable = threadsafety > 1
             pool = PooledDB(dbapi,
-                1, 1, 1, 0, False, None, None, None, None,
+                1, 1, 1, 0, False, None, None, True, None, None,
                 'PooledDBTestDB', user='PooledDBTestUser')
             self.assert_(hasattr(pool, '_idle_cache'))
             self.assertEqual(len(pool._idle_cache), 1)
@@ -176,7 +176,7 @@ class TestPooledDB(unittest.TestCase):
             dbapi.threadsafety = threadsafety
             shareable = threadsafety > 1
             pool = PooledDB(dbapi,
-                0, 1, 1, 0, False, None, None, None, None,
+                0, 1, 1, 0, False, None, None, True, None, None,
                 'PooledDBTestDB', user='PooledDBTestUser')
             self.assert_(hasattr(pool, '_idle_cache'))
             self.assertEqual(len(pool._idle_cache), 0)
@@ -626,7 +626,6 @@ class TestPooledDB(unittest.TestCase):
                 'doit2', 'commit', 'rollback'])
 
     def test12_MaxConnections(self):
-        from DBUtils.PooledDB import TooManyConnections
         for threadsafety in (1, 2):
             dbapi.threadsafety = threadsafety
             shareable = threadsafety > 1
@@ -1010,7 +1009,7 @@ class TestPooledDB(unittest.TestCase):
         Connection.has_ping = True
         Connection.num_pings = 0
         dbapi.threadsafety = 2
-        pool = PooledDB(dbapi, 1, 1, 0, 0, False, None, None, None, 0)
+        pool = PooledDB(dbapi, 1, 1, 0, 0, False, None, None, True, None, 0)
         db = pool.connection()
         self.assert_(db._con._con.valid)
         self.assertEqual(Connection.num_pings, 0)
@@ -1019,7 +1018,7 @@ class TestPooledDB(unittest.TestCase):
         db = pool.connection()
         self.assert_(not db._con._con.valid)
         self.assertEqual(Connection.num_pings, 0)
-        pool = PooledDB(dbapi, 1, 1, 1, 0, False, None, None, None, 0)
+        pool = PooledDB(dbapi, 1, 1, 1, 0, False, None, None, True, None, 0)
         db = pool.connection()
         self.assert_(db._con._con.valid)
         self.assertEqual(Connection.num_pings, 0)
@@ -1027,7 +1026,7 @@ class TestPooledDB(unittest.TestCase):
         db = pool.connection()
         self.assert_(not db._con._con.valid)
         self.assertEqual(Connection.num_pings, 0)
-        pool = PooledDB(dbapi, 1, 1, 0, 0, False, None, None, None, 1)
+        pool = PooledDB(dbapi, 1, 1, 0, 0, False, None, None, True, None, 1)
         db = pool.connection()
         self.assert_(db._con._con.valid)
         self.assertEqual(Connection.num_pings, 1)
@@ -1036,7 +1035,7 @@ class TestPooledDB(unittest.TestCase):
         db = pool.connection()
         self.assert_(db._con._con.valid)
         self.assertEqual(Connection.num_pings, 2)
-        pool = PooledDB(dbapi, 1, 1, 1, 0, False, None, None, None, 1)
+        pool = PooledDB(dbapi, 1, 1, 1, 0, False, None, None, True, None, 1)
         db = pool.connection()
         self.assert_(db._con._con.valid)
         self.assertEqual(Connection.num_pings, 3)
@@ -1044,7 +1043,7 @@ class TestPooledDB(unittest.TestCase):
         db = pool.connection()
         self.assert_(db._con._con.valid)
         self.assertEqual(Connection.num_pings, 4)
-        pool = PooledDB(dbapi, 1, 1, 1, 0, False, None, None, None, 2)
+        pool = PooledDB(dbapi, 1, 1, 1, 0, False, None, None, True, None, 2)
         db = pool.connection()
         self.assert_(db._con._con.valid)
         self.assertEqual(Connection.num_pings, 4)
@@ -1055,7 +1054,7 @@ class TestPooledDB(unittest.TestCase):
         db.cursor()
         self.assert_(db._con._con.valid)
         self.assertEqual(Connection.num_pings, 5)
-        pool = PooledDB(dbapi, 1, 1, 1, 0, False, None, None, None, 4)
+        pool = PooledDB(dbapi, 1, 1, 1, 0, False, None, None, True, None, 4)
         db = pool.connection()
         self.assert_(db._con._con.valid)
         self.assertEqual(Connection.num_pings, 5)
@@ -1072,6 +1071,65 @@ class TestPooledDB(unittest.TestCase):
         self.assertEqual(Connection.num_pings, 6)
         Connection.has_ping = False
         Connection.num_pings = 0
+
+    def test18_FailedTransaction(self):
+        dbapi.threadsafety = 2
+        pool = PooledDB(dbapi, 0, 1, 1)
+        db = pool.connection()
+        cursor = db.cursor()
+        db._con._con.close()
+        cursor.execute('select test')
+        db.begin()
+        db._con._con.close()
+        self.assertRaises(dbapi.InternalError, cursor.execute, 'select test')
+        cursor.execute('select test')
+        db.begin()
+        db.cancel()
+        db._con._con.close()
+        cursor.execute('select test')
+        pool = PooledDB(dbapi, 1, 1, 0)
+        db = pool.connection()
+        cursor = db.cursor()
+        db._con._con.close()
+        cursor.execute('select test')
+        db.begin()
+        db._con._con.close()
+        self.assertRaises(dbapi.InternalError, cursor.execute, 'select test')
+        cursor.execute('select test')
+        db.begin()
+        db.cancel()
+        db._con._con.close()
+        cursor.execute('select test')
+
+    def test19_AllSharedInTransaction(self):
+        dbapi.threadsafety = 2
+        pool = PooledDB(dbapi, 0, 1, 1)
+        db = pool.connection()
+        db.begin()
+        pool.connection(0)
+        self.assertRaises(TooManyConnections, pool.connection)
+
+    def test20_ResetTransaction(self):
+        pool = PooledDB(dbapi, 1, 1, 0)
+        db = pool.connection()
+        db.begin()
+        con = db._con
+        self.assert_(con._transaction)
+        self.assertEqual(con._con.session, ['rollback'])
+        db.close()
+        self.assert_(pool.connection()._con is con)
+        self.assert_(not con._transaction)
+        self.assertEqual(con._con.session, ['rollback'] * 3)
+        pool = PooledDB(dbapi, 1, 1, 0, reset=False)
+        db = pool.connection()
+        db.begin()
+        con = db._con
+        self.assert_(con._transaction)
+        self.assertEqual(con._con.session, [])
+        db.close()
+        self.assert_(pool.connection()._con is con)
+        self.assert_(not con._transaction)
+        self.assertEqual(con._con.session, ['rollback'])
 
 
 if __name__ == '__main__':

@@ -10,6 +10,10 @@ application server of "Webware for Python," without loss of robustness.
 Robustness is provided by using "hardened" SteadyPg connections.
 Even if the underlying database is restarted and all connections
 are lost, they will be automatically and transparently reopened.
+However, since you don't want this to happen in the middle of a database
+transaction, you must explicitly start transactions with the begin()
+method so that SteadyPg knows that the underlying connection shall not
+be replaced and errors passed on until the transaction is completed.
 
 Measures are taken to make the pool of connections thread-safe
 regardless of the fact that the classic PyGreSQL pg module itself
@@ -79,6 +83,12 @@ connection object stays alive as long as you are using it, like that:
     res = db.query(...).getresult()
     db.close() # or del db
 
+Note that you need to explicitly start transactions by calling the
+begin() method. This ensures that the transparent reopening will be
+suspended until the end of the transaction, and that the connection will
+be rolled back before being given back to the connection pool. To end
+transactions, use on of the end(), commit() or rollback() methods.
+
 
 Ideas for improvement:
 
@@ -131,7 +141,7 @@ class PooledPg:
     def __init__(self,
             mincached=0, maxcached=0,
             maxconnections=0, blocking=False,
-            maxusage=None, setsession=None,
+            maxusage=None, setsession=None, reset=None,
             *args, **kwargs):
         """Set up the PostgreSQL connection pool.
 
@@ -150,6 +160,9 @@ class PooledPg:
             the connection is automatically reset (closed and reopened).
         setsession: optional list of SQL commands that may serve to prepare
             the session, e.g. ["set datestyle to ...", "set time zone ..."]
+        reset: how connections should be reset when returned to the pool
+            (0 or None to rollback transcations started with begin(),
+            1 to always issue a rollback, 2 for a complete reset)
         args, kwargs: the parameters that shall be used to establish
             the PostgreSQL connections using class PyGreSQL pg.DB()
 
@@ -157,6 +170,7 @@ class PooledPg:
         self._args, self._kwargs = args, kwargs
         self._maxusage = maxusage
         self._setsession = setsession
+        self._reset = reset or 0
         if mincached is None:
             mincached = 0
         if maxcached is None:
@@ -200,7 +214,15 @@ class PooledPg:
     def cache(self, con):
         """Put a connection back into the pool cache."""
         try:
-            self._cache.put(con, 0)
+            if self._reset == 2:
+                con.reset() # reset the connection completely
+            else:
+                if self._reset or con._transaction:
+                    try:
+                        con.rollback() # rollback a possible transaction
+                    except Exception:
+                        pass
+            self._cache.put(con, 0) # and then put it back into the cache
         except Full:
             con.close()
         if self._connections:
@@ -255,7 +277,7 @@ class PooledPgConnection:
         """Reopen the pooled connection."""
         # If the connection is already back in the pool,
         # get another connection from the pool,
-        # otherwise reopen the unerlying connection.
+        # otherwise reopen the underlying connection.
         if self._con:
             self._con.reopen()
         else:

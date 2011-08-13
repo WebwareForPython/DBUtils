@@ -10,6 +10,10 @@ application server of "Webware for Python," without loss of robustness.
 Robustness is provided by using "hardened" SteadyDB connections.
 Even if the underlying database is restarted and all connections
 are lost, they will be automatically and transparently reopened.
+However, since you don't want this to happen in the middle of a database
+transaction, you must explicitly start transactions with the begin()
+method so that SteadyDB knows that the underlying connection shall not
+be replaced and errors passed on until the transaction is completed.
 
 Measures are taken to make the pool of connections thread-safe.
 If the underlying DB-API module is thread-safe at the connection level,
@@ -48,6 +52,9 @@ an instance of PooledDB, passing the following parameters:
         the connection is automatically reset (closed and reopened).
     setsession: an optional list of SQL commands that may serve to
         prepare the session, e.g. ["set datestyle to german", ...]
+    reset: how connections should be reset when returned to the pool
+        (False or None to rollback transcations started with begin(),
+        the default value True always issues a rollback for safety's sake)
     failures: an optional exception class or a tuple of exception classes
         for which the connection failover mechanism shall be applied,
         if the default (OperationalError, InternalError) is not adequate
@@ -107,6 +114,12 @@ connection object stays alive as long as you are using it, like that:
     cur.close() # or del cur
     db.close() # or del db
 
+Note that you need to explicitly start transactions by calling the
+begin() method. This ensures that the connection will not be shared
+with other threads, that the transparent reopening will be suspended
+until the end of the transaction, and that the connection will be rolled
+back before being given back to the connection pool.
+
 
 Ideas for improvement:
 
@@ -162,7 +175,7 @@ class PooledDB:
     def __init__(self, creator,
             mincached=0, maxcached=0,
             maxshared=0, maxconnections=0, blocking=False,
-            maxusage=None, setsession=None,
+            maxusage=None, setsession=None, reset=True,
             failures=None, ping=1,
             *args, **kwargs):
         """Set up the DB-API 2 connection pool.
@@ -188,6 +201,9 @@ class PooledDB:
             the connection is automatically reset (closed and reopened).
         setsession: optional list of SQL commands that may serve to prepare
             the session, e.g. ["set datestyle to ...", "set time zone ..."]
+        reset: how connections should be reset when returned to the pool
+            (False or None to rollback transcations started with begin(),
+            True to always issue a rollback for safety's sake)
         failures: an optional exception class or a tuple of exception classes
             for which the connection failover mechanism shall be applied,
             if the default (OperationalError, InternalError) is not adequate
@@ -215,6 +231,7 @@ class PooledDB:
         self._args, self._kwargs = args, kwargs
         self._maxusage = maxusage
         self._setsession = setsession
+        self._reset = reset
         self._failures = failures
         self._ping = ping
         if mincached is None:
@@ -287,6 +304,12 @@ class PooledDB:
                 else: # shared cache full or no more connections allowed
                     self._shared_cache.sort() # least shared connection first
                     con = self._shared_cache.pop(0) # get it
+                    while con.con._transaction:
+                        # do not share connections which are in a transaction
+                        self._shared_cache.insert(0, con)
+                        self._condition.wait()
+                        self._shared_cache.sort()
+                        con = self._shared_cache.pop(0)
                     con.con._ping_check() # check the underlying connection
                     con.share() # increase share of this connection
                 # put the connection (back) into the shared cache
@@ -339,14 +362,8 @@ class PooledDB:
         self._condition.acquire()
         try:
             if not self._maxcached or len(self._idle_cache) < self._maxcached:
-                # the idle cache is not full, so put it there, but
-                try: # before returning the connection back to the pool,
-                    con.rollback() # perform a rollback
-                    # in order to prevent uncommited actions from being
-                    # unintentionally commited by some other thread
-                except Exception:
-                    # if an error occurs (no transaction, not supported)
-                    pass # then it will be silently ignored
+                con._reset(force=self._reset) # rollback possible transaction
+                # the idle cache is not full, so put it there
                 self._idle_cache.append(con) # append it to the idle cache
             else: # if the idle cache is already full,
                 con.close() # then close the connection
@@ -440,9 +457,30 @@ class SharedDBConnection:
         self.con = con
         self.shared = 1
 
-    def __cmp__(self, other):
-        """Compare how often the connections are shared."""
-        return self.shared - other.shared
+    def __lt__(self, other):
+        if self.con._transaction == other.con._transaction:
+            return self.shared < other.shared
+        else:
+            return not self.con._transaction
+
+    def __le__(self, other):
+        if self.con._transaction == other.con._transaction:
+            return self.shared == other.shared
+        else:
+            return not self.con._transaction
+
+    def __eq__(self, other):
+        return (self.con._transaction == other.con._transaction
+            and self.shared == other.shared)
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __gt__(self, other):
+        return other.__lt__(self)
+
+    def __ge__(self, other):
+        return other.__le__(self)
 
     def share(self):
         """Increase the share of this connection."""

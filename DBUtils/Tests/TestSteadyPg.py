@@ -65,12 +65,13 @@ class pgConnection:
     def query(self, qstr):
         if not self.valid:
             raise InternalError
-        if qstr.startswith('select '):
+        if qstr in ('begin', 'end', 'commit', 'rollback'):
+            self.session.append(qstr)
+        elif qstr.startswith('select '):
             self.num_queries += 1
             return qstr[7:]
         elif qstr.startswith('set '):
             self.session.append(qstr[4:])
-            return None
         else:
             raise ProgrammingError
 
@@ -348,6 +349,57 @@ class TestSteadyPg(unittest.TestCase):
         db.query('set test')
         self.assertEqual(db.num_queries, 0)
         self.assertEqual(db.session, ['time zone', 'datestyle', 'test'])
+
+    def test7_SteadyPgBegin(self):
+        for closeable in (False, True):
+            db = SteadyPgConnection(closeable=closeable)
+            db.begin()
+            self.assertEqual(db.session, ['begin'])
+            db.query('select test')
+            self.assertEqual(db.num_queries, 1)
+            db.close()
+            db.query('select test')
+            self.assertEqual(db.num_queries, 1)
+            db.begin()
+            self.assertEqual(db.session, ['begin'])
+            db.db.close()
+            self.assertRaises(InternalError, db.query, 'select test')
+            self.assertEqual(db.num_queries, 0)
+            db.query('select test')
+            self.assertEqual(db.num_queries, 1)
+            self.assertEqual(db.begin('select sql:begin'), 'sql:begin')
+            self.assertEqual(db.num_queries, 2)
+
+    def test8_SteadyPgEnd(self):
+        for closeable in (False, True):
+            db = SteadyPgConnection(closeable=closeable)
+            db.begin()
+            db.query('select test')
+            db.end()
+            self.assertEqual(db.session, ['begin', 'end'])
+            db.db.close()
+            db.query('select test')
+            self.assertEqual(db.num_queries, 1)
+            self.assertEqual(db.begin('select sql:end'), 'sql:end')
+            self.assertEqual(db.num_queries, 2)
+            db.begin()
+            db.query('select test')
+            db.commit()
+            self.assertEqual(db.session, ['begin', 'commit'])
+            db.db.close()
+            db.query('select test')
+            self.assertEqual(db.num_queries, 1)
+            self.assertEqual(db.begin('select sql:commit'), 'sql:commit')
+            self.assertEqual(db.num_queries, 2)
+            db.begin()
+            db.query('select test')
+            db.rollback()
+            self.assertEqual(db.session, ['begin', 'rollback'])
+            db.db.close()
+            db.query('select test')
+            self.assertEqual(db.num_queries, 1)
+            self.assertEqual(db.begin('select sql:rollback'), 'sql:rollback')
+            self.assertEqual(db.num_queries, 2)
 
 
 if __name__ == '__main__':
