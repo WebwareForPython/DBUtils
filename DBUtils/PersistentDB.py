@@ -95,7 +95,7 @@ since it clears the threading.local data between requests).
 
 Requirements:
 
-Python >= 2.2, < 3.0.
+Python >= 2.3, < 3.0.
 
 
 Ideas for improvement:
@@ -116,7 +116,7 @@ Licensed under the Open Software License version 2.1.
 
 """
 
-__version__ = '1.0'
+__version__ = '1.1'
 __revision__ = "$Rev$"
 __date__ = "$Date$"
 

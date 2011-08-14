@@ -13,10 +13,10 @@ consistently in all files of the distribution.
 # releaseDate format should be 'MM/DD/YY'.
 
 # Update this to change the current version and release date:
-version = ('X', 'Y', 0)
-version = (1, 0, 0)
-releaseDate = '@@/@@/@@'
-releaseDate = '11/29/08'
+# version = ('X', 'Y', 0)
+version = (1, 1, 0)
+# releaseDate = '@@/@@/@@'
+releaseDate = '08/14/11'
 
 # Verbose output (output unchanged files also):
 verbose = False

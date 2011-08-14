@@ -11,7 +11,7 @@ Copyright and credit info:
 
 """
 
-__version__ = '1.0'
+__version__ = '1.1'
 __revision__ = "$Rev$"
 __date__ = "$Date$"
 

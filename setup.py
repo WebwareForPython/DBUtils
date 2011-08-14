@@ -1,3 +1,18 @@
+"""Setup Script for DBUtils"""
+
+__version__ = '1.1'
+__revision__ = "$Rev$"
+__date__ = "$Date$"
+
+from sys import version_info
+
+py_version = version_info[:2]
+if not (2, 7) <= py_version < (3, 0):
+    raise ImportError('Python %d.%d is not supported by DBUtils.' % py_version)
+
+import warnings
+warnings.filterwarnings('ignore', 'Unknown distribution option')
+
 try:
     from setuptools import setup
 except ImportError:
@@ -23,13 +38,6 @@ except ImportError:
             DistributionMetadata.zip_safe
         except AttributeError:
             DistributionMetadata.zip_safe = None
-
-import warnings
-warnings.filterwarnings('ignore', 'Unknown distribution option')
-
-__version__ = '1.0'
-__revision__ = "$Rev$"
-__date__ = "$Date$"
 
 setup(
     name='DBUtils',
