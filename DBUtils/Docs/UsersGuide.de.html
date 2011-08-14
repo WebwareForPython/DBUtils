@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" lang="de">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="generator" content="Docutils 0.8: http://docutils.sourceforge.net/" />
+<meta name="generator" content="Docutils 0.7: http://docutils.sourceforge.net/" />
 <title>Benutzeranleitung für DBUtils</title>
 <link rel="stylesheet" href="Doc.css" type="text/css" />
 </head>
@@ -15,8 +15,8 @@
 <col class="docinfo-content" />
 <tbody valign="top">
 <tr><th class="docinfo-name">Version:</th>
-<td>1.0</td></tr>
-<tr class="field"><th class="docinfo-name">Released:</th><td class="field-body">11/29/08</td>
+<td>1.1</td></tr>
+<tr class="field"><th class="docinfo-name">Released:</th><td class="field-body">08/14/11</td>
 </tr>
 <tr class="field"><th class="docinfo-name">Translations:</th><td class="field-body"><a class="reference external" href="UsersGuide.html">English</a> German</td>
 </tr>
@@ -314,6 +314,12 @@ der Datenbanksitzung, z.B. <tt class="docutils literal">[&quot;set datestyle to 
 bei denen die Ausfallsicherung zum Tragen kommen soll, falls die Vorgabe
 (OperationalError, InternalError) nicht geeignet sein sollte</p>
 </li>
+<li><p class="first"><tt class="docutils literal">ping</tt>: mit diesem Parameter kann eingestellt werden, wann Verbindungen
+mit der <tt class="docutils literal">ping()</tt>-Methode geprüft werden, falls eine solche vorhanden ist
+(<tt class="docutils literal">0</tt> = <tt class="docutils literal">None</tt> = nie, <tt class="docutils literal">1</tt> = Standardwert = immer wenn neu angefragt,
+<tt class="docutils literal">2</tt> = vor Erzeugen eines Cursors, <tt class="docutils literal">4</tt> = vor dem Ausführen von Abfragen,
+<tt class="docutils literal">7</tt> = immer, und alle Bitkombinationen dieser Werte)</p>
+</li>
 <li><p class="first"><tt class="docutils literal">closeable</tt>: wenn dies auf <tt class="docutils literal">True</tt> gesetzt wird, dann wird das Schließen
 von Verbindungen erlaubt, normalerweise wird es jedoch ignoriert</p>
 </li>
@@ -350,10 +356,16 @@ sowieso wieder geöffnet, und das wäre nicht im Sinne persistenter Verbindungen
 Stattdessen wird die Verbindung automatisch dann geschlossen, wenn der Thread
 endet. Sie können dieses Verhalten ändern, indem Sie den Parameter namens
 <tt class="docutils literal">closeable</tt> setzen.</p>
-<p>Beachten Sie, dass das Holen einer Verbindung etwas beschleunigt werden kann,
-indem Sie den Parameter <tt class="docutils literal">threadlocal</tt> auf <tt class="docutils literal">threading.local</tt> setzen; dies
-könnte aber in einigen Umgebungen nicht funktionieren (es ist zum Beispiel
-bekannt, dass <tt class="docutils literal">mod_wsgi</tt> hier Probleme bereitet, da es Daten, die mit <tt class="docutils literal">threading.local</tt> gespeichert wurden, zwischen Requests löscht).</p>
+<p>Bitte beachten Sie, dass Transaktionen explizit durch Aufruf der Methode
+<tt class="docutils literal">begin()</tt> eingeleiten werden müssen. Hierdurch wird sichergestellt, dass
+das transparente Neueröffnen von Verbindungen bis zum Ende der Transaktion
+ausgesetzt wird, und dass die Verbindung zurückgerollt wird, before sie vom
+gleichen Thread erneut benutzt wird.</p>
+<p>Das Holen einer Verbindung kann etwas beschleunigt werden, indem man den
+Parameter <tt class="docutils literal">threadlocal</tt> auf <tt class="docutils literal">threading.local</tt> setzt; dies könnte aber in
+einigen Umgebungen nicht funktionieren (es ist zum Beispiel bekannt, dass
+<tt class="docutils literal">mod_wsgi</tt> hier Probleme bereitet, da es Daten, die mit <tt class="docutils literal">threading.local</tt>
+gespeichert wurden, zwischen Requests löscht).</p>
 </div>
 <div class="section" id="id2">
 <h2>PooledDB</h2>
@@ -397,9 +409,20 @@ zurückgesetzt (geschlossen und wieder neu geöffnet).</p>
 <li><p class="first"><tt class="docutils literal">setsession</tt>: eine optionale Liste von SQL-Befehlen zur Initialisierung
 der Datenbanksitzung, z.B. <tt class="docutils literal">[&quot;set datestyle to german&quot;, <span class="pre">...]</span></tt></p>
 </li>
+<li><p class="first"><tt class="docutils literal">reset</tt>: wie Verbindungen zurückgesetzt werden sollen, bevor sie wieder
+in den Verbindungspool zurückgegeben werden (<tt class="docutils literal">False</tt> oder <tt class="docutils literal">None</tt>
+um mit <tt class="docutils literal">begin()</tt> gestartete Transaktionen zurückzurollen, der Standardwert
+<tt class="docutils literal">True</tt> rollt sicherheitshalber mögliche Transaktionen immer zurück)</p>
+</li>
 <li><p class="first"><tt class="docutils literal">failures</tt>: eine optionale Exception-Klasse oder ein Tupel von Exceptions
 bei denen die Ausfallsicherung zum Tragen kommen soll, falls die Vorgabe
 (OperationalError, InternalError) nicht geeignet sein sollte</p>
+</li>
+<li><p class="first"><tt class="docutils literal">ping</tt>: mit diesem Parameter kann eingestellt werden, wann Verbindungen
+mit der <tt class="docutils literal">ping()</tt>-Methode geprüft werden, falls eine solche vorhanden ist
+(<tt class="docutils literal">0</tt> = <tt class="docutils literal">None</tt> = nie, <tt class="docutils literal">1</tt> = Standardwert = immer wenn neu angefragt,
+<tt class="docutils literal">2</tt> = vor Erzeugen eines Cursors, <tt class="docutils literal">4</tt> = vor dem Ausführen von Abfragen,
+<tt class="docutils literal">7</tt> = immer, und alle Bitkombinationen dieser Werte)</p>
 </li>
 <li><p class="first">Die als <tt class="docutils literal">creator</tt> angegebene Funktion oder die Funktion <tt class="docutils literal">connect</tt>
 des DB-API-2-Datenbankadapter-Moduls erhalten alle weiteren Parameter,
@@ -455,6 +478,12 @@ res = cur.fetchone()
 cur.close() # oder del cur
 db.close() # oder del db
 </pre>
+<p>Bitte beachten Sie, dass Transaktionen explizit durch Aufruf der Methode
+<tt class="docutils literal">begin()</tt> eingeleiten werden müssen. Hierdurch wird sichergestellt,
+dass die Verbindung nicht mehr mit anderen Threads geteilt wird, dass das
+transparente Neueröffnen von Verbindungen bis zum Ende der Transaktion
+ausgesetzt wird, und dass die Verbindung zurückgerollt wird, bevor sie
+wieder an den Verbindungspool zurückgegeben wird.</p>
 </div>
 <div class="section" id="benutzung-in-webware-for-python">
 <h2>Benutzung in Webware for Python</h2>
@@ -556,15 +585,15 @@ mailing list</a> diskutiert werden.</p>
 <tr class="field"><th class="field-name">Beiträge:</th><td class="field-body">DBUtils benutzt Code, Anmerkungen und Vorschläge von
 Ian Bicking, Chuck Esterbrook (Webware for Python), Dan Green (DBTools),
 Jay Love, Michael Palmer, Tom Schwaller, Geoffrey Talvola,
-Warren Smith (DbConnectionPool), Ezio Vernacotola,
-Jehiah Czebotar, Matthew Harriger und Gregory Piñero.</td>
+Warren Smith (DbConnectionPool), Ezio Vernacotola, Jehiah Czebotar,
+Matthew Harriger, Gregory Piñero und Josef van Eenbergen.</td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="copyright-und-lizenz">
 <h1>Copyright und Lizenz</h1>
-<p>Copyright © 2005-2008 Christoph Zwerschke.
+<p>Copyright © 2005-2011 Christoph Zwerschke.
 Alle Rechte vorbehalten.</p>
 <p>DBUtils ist freie und quelloffene Software,
 lizenziert unter der <a class="reference external" href="http://www.opensource.org/licenses/osl-2.1.php">Open Software License version 2.1</a>.</p>

@@ -1,0 +1,45 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>DBUtils 1.1 Release Notes</title>
+<link rel="stylesheet" href="Doc.css" type="text/css">
+</head>
+<body>
+<h1 class="header">DBUtils 1.1 Release Notes</h1>
+
+<p>DBUtils 1.1 was released on August 14, 2011.</p>
+
+<p>This is the seventh public release of DBUtils.</p>
+
+<h2>Improvements:</h2>
+<ul>
+<li>The transparent reopening of connections is actually an undesired behavior
+if it happens during database transactions. In these cases, the transaction
+should fail and the error be reported back to the application instead of the
+rest of the transaction being executed in a new connection and therefore in
+a new transaction. Therefore DBUtils now allows suspending the transparent
+reopening during transactions. All you need to do is indicate the beginning
+of a transaction by calling the <tt>begin()</tt> method of the connection.
+DBUtils makes sure that this method always exists, even if the database driver
+does not support it.</li>
+<li>If the database driver supports a <tt>ping()</tt> method, then DBUtils
+can use it to check whether connections are alive instead of just trying
+to use the connection and reestablishing it in case it was dead. Since these
+checks are done at the expense of some performance, you have exact control
+when these are executed via the new <tt>ping</tt> parameter.</li>
+<li><tt>PooledDB</tt> has got another new parameter <tt>reset</tt> for
+controlling how connections are reset before being put back into the pool.</li>
+</ul>
+
+<h2>Bugfixes:</h2>
+<ul>
+<li>Fixed propagation of error messages when the connection was lost.</li>
+<li>Fixed an issue with the <tt>setoutputsize()</tt> cursor method.</li>
+<li>Fixed some minor issues with the <tt>DBUtilsExample</tt> for Webware.</li>
+</ul>
+
+<div class="footer">
+DBUtils (<a href="http://www.webwareforpython.org/DBUtils">www.webwareforpython.org/DBUtils</a>)
+</div>
+</body>
+</html>

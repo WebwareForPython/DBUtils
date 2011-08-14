@@ -1,8 +1,8 @@
 ﻿Benutzeranleitung für DBUtils
 +++++++++++++++++++++++++++++
 
-:Version: 1.0
-:Released: 11/29/08
+:Version: 1.1
+:Released: 08/14/11
 :Translations: English_ German
 
 .. _English: UsersGuide.html
@@ -275,6 +275,12 @@ Parameter angeben müssen:
   bei denen die Ausfallsicherung zum Tragen kommen soll, falls die Vorgabe
   (OperationalError, InternalError) nicht geeignet sein sollte
 
+* ``ping``: mit diesem Parameter kann eingestellt werden, wann Verbindungen
+  mit der ``ping()``-Methode geprüft werden, falls eine solche vorhanden ist
+  (``0`` = ``None`` = nie, ``1`` = Standardwert = immer wenn neu angefragt,
+  ``2`` = vor Erzeugen eines Cursors, ``4`` = vor dem Ausführen von Abfragen,
+  ``7`` = immer, und alle Bitkombinationen dieser Werte)
+
 * ``closeable``: wenn dies auf ``True`` gesetzt wird, dann wird das Schließen
   von Verbindungen erlaubt, normalerweise wird es jedoch ignoriert
 
@@ -312,10 +318,17 @@ Stattdessen wird die Verbindung automatisch dann geschlossen, wenn der Thread
 endet. Sie können dieses Verhalten ändern, indem Sie den Parameter namens
 ``closeable`` setzen.
 
-Beachten Sie, dass das Holen einer Verbindung etwas beschleunigt werden kann,
-indem Sie den Parameter ``threadlocal`` auf ``threading.local`` setzen; dies
-könnte aber in einigen Umgebungen nicht funktionieren (es ist zum Beispiel
-bekannt, dass ``mod_wsgi`` hier Probleme bereitet, da es Daten, die mit ``threading.local`` gespeichert wurden, zwischen Requests löscht).
+Bitte beachten Sie, dass Transaktionen explizit durch Aufruf der Methode
+``begin()`` eingeleiten werden müssen. Hierdurch wird sichergestellt, dass
+das transparente Neueröffnen von Verbindungen bis zum Ende der Transaktion
+ausgesetzt wird, und dass die Verbindung zurückgerollt wird, before sie vom
+gleichen Thread erneut benutzt wird.
+
+Das Holen einer Verbindung kann etwas beschleunigt werden, indem man den
+Parameter ``threadlocal`` auf ``threading.local`` setzt; dies könnte aber in
+einigen Umgebungen nicht funktionieren (es ist zum Beispiel bekannt, dass
+``mod_wsgi`` hier Probleme bereitet, da es Daten, die mit ``threading.local``
+gespeichert wurden, zwischen Requests löscht).
 
 PooledDB
 --------
@@ -362,9 +375,20 @@ Parameter angeben müssen:
 * ``setsession``: eine optionale Liste von SQL-Befehlen zur Initialisierung
   der Datenbanksitzung, z.B. ``["set datestyle to german", ...]``
 
+* ``reset``: wie Verbindungen zurückgesetzt werden sollen, bevor sie wieder
+  in den Verbindungspool zurückgegeben werden (``False`` oder ``None``
+  um mit ``begin()`` gestartete Transaktionen zurückzurollen, der Standardwert
+  ``True`` rollt sicherheitshalber mögliche Transaktionen immer zurück)
+
 * ``failures``: eine optionale Exception-Klasse oder ein Tupel von Exceptions
   bei denen die Ausfallsicherung zum Tragen kommen soll, falls die Vorgabe
   (OperationalError, InternalError) nicht geeignet sein sollte
+
+* ``ping``: mit diesem Parameter kann eingestellt werden, wann Verbindungen
+  mit der ``ping()``-Methode geprüft werden, falls eine solche vorhanden ist
+  (``0`` = ``None`` = nie, ``1`` = Standardwert = immer wenn neu angefragt,
+  ``2`` = vor Erzeugen eines Cursors, ``4`` = vor dem Ausführen von Abfragen,
+  ``7`` = immer, und alle Bitkombinationen dieser Werte)
 
 * Die als ``creator`` angegebene Funktion oder die Funktion ``connect``
   des DB-API-2-Datenbankadapter-Moduls erhalten alle weiteren Parameter,
@@ -420,6 +444,13 @@ sie gebraucht werden, etwa so::
   res = cur.fetchone()
   cur.close() # oder del cur
   db.close() # oder del db
+
+Bitte beachten Sie, dass Transaktionen explizit durch Aufruf der Methode
+``begin()`` eingeleiten werden müssen. Hierdurch wird sichergestellt,
+dass die Verbindung nicht mehr mit anderen Threads geteilt wird, dass das
+transparente Neueröffnen von Verbindungen bis zum Ende der Transaktion
+ausgesetzt wird, und dass die Verbindung zurückgerollt wird, bevor sie
+wieder an den Verbindungspool zurückgegeben wird.
 
 Benutzung in Webware for Python
 -------------------------------
@@ -542,14 +573,14 @@ Autoren
 :Beiträge: DBUtils benutzt Code, Anmerkungen und Vorschläge von
   Ian Bicking, Chuck Esterbrook (Webware for Python), Dan Green (DBTools),
   Jay Love, Michael Palmer, Tom Schwaller, Geoffrey Talvola,
-  Warren Smith (DbConnectionPool), Ezio Vernacotola,
-  Jehiah Czebotar, Matthew Harriger und Gregory Piñero.
+  Warren Smith (DbConnectionPool), Ezio Vernacotola, Jehiah Czebotar,
+  Matthew Harriger, Gregory Piñero und Josef van Eenbergen.
 
 
 Copyright und Lizenz
 ====================
 
-Copyright © 2005-2008 Christoph Zwerschke.
+Copyright © 2005-2011 Christoph Zwerschke.
 Alle Rechte vorbehalten.
 
 DBUtils ist freie und quelloffene Software,
