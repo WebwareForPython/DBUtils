@@ -43,7 +43,7 @@ class TestPersistentDB(unittest.TestCase):
         for dbapi.threadsafety in (None, 0):
             self.assertRaises(NotSupportedError, PersistentDB, dbapi)
 
-    def test2_PersistentDBClose(self):
+    def test2_Close(self):
         for closeable in (False, True):
             persist = PersistentDB(dbapi, closeable=closeable)
             db = persist.connection()
@@ -57,7 +57,7 @@ class TestPersistentDB(unittest.TestCase):
             db._close()
             self.assert_(not db._con.valid)
 
-    def test3_PersistentDBConnection(self):
+    def test3_Connection(self):
         persist = PersistentDB(dbapi)
         db = persist.connection()
         db_con = db._con
@@ -71,7 +71,7 @@ class TestPersistentDB(unittest.TestCase):
         db2.close()
         db.close()
 
-    def test4_PersistentDBThreads(self):
+    def test4_Threads(self):
         numThreads = 3
         persist = PersistentDB(dbapi, closeable=True)
         from Queue import Queue, Empty
@@ -181,7 +181,7 @@ class TestPersistentDB(unittest.TestCase):
             except TypeError:
                 queryQueue[i].put(None, 1)
 
-    def test5_PersistentDBMaxUsage(self):
+    def test5_MaxUsage(self):
         persist = PersistentDB(dbapi, 20)
         db = persist.connection()
         self.assertEqual(db._maxusage, 20)
@@ -197,7 +197,7 @@ class TestPersistentDB(unittest.TestCase):
             self.assertEqual(db._con.num_uses, j)
             self.assertEqual(db._con.num_queries, j)
 
-    def test6_PersistentDBSetSession(self):
+    def test6_SetSession(self):
         persist = PersistentDB(dbapi, 3, ('set datestyle',))
         db = persist.connection()
         self.assertEqual(db._maxusage, 3)
@@ -215,7 +215,7 @@ class TestPersistentDB(unittest.TestCase):
             cursor.close()
         self.assertEqual(db._con.session, ['datestyle'])
 
-    def test7_PersistentDBThreadLocal(self):
+    def test7_ThreadLocal(self):
         persist = PersistentDB(dbapi)
         self.assert_(isinstance(persist.thread, ThreadingLocal.local))
         class threadlocal:

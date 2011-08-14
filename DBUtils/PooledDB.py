@@ -465,7 +465,7 @@ class SharedDBConnection:
 
     def __le__(self, other):
         if self.con._transaction == other.con._transaction:
-            return self.shared == other.shared
+            return self.shared <= other.shared
         else:
             return not self.con._transaction
 

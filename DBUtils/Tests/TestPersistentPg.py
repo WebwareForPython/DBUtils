@@ -34,7 +34,7 @@ class TestPersistentPg(unittest.TestCase):
         self.assertEqual(PersistentPgVersion, __version__)
         self.assertEqual(PersistentPg.version, __version__)
 
-    def test1_PersistentPgClose(self):
+    def test1_Close(self):
         for closeable in (False, True):
             persist = PersistentPg(closeable=closeable)
             db = persist.connection()
@@ -50,7 +50,7 @@ class TestPersistentPg(unittest.TestCase):
             db._close()
             self.assert_(not db._con.db or not db._con.valid)
 
-    def test2_PersistentPgThreads(self):
+    def test2_Threads(self):
         numThreads = 3
         persist = PersistentPg()
         from Queue import Queue, Empty
@@ -155,7 +155,7 @@ class TestPersistentPg(unittest.TestCase):
             except TypeError:
                 queryQueue[i].put(None, 1)
 
-    def test3_PersistentPgMaxUsage(self):
+    def test3_MaxUsage(self):
         persist = PersistentPg(20)
         db = persist.connection()
         self.assertEqual(db._maxusage, 20)
@@ -167,7 +167,7 @@ class TestPersistentPg(unittest.TestCase):
             self.assertEqual(db._usage, j)
             self.assertEqual(db.num_queries, j)
 
-    def test4_PersistentPgSetSession(self):
+    def test4_SetSession(self):
         persist = PersistentPg(3, ('set datestyle',))
         db = persist.connection()
         self.assertEqual(db._maxusage, 3)
@@ -179,7 +179,7 @@ class TestPersistentPg(unittest.TestCase):
             db.query('select test')
         self.assertEqual(db.db.session, ['datestyle'])
 
-    def test5_PersistentPgFailedTransaction(self):
+    def test5_FailedTransaction(self):
         persist = PersistentPg()
         db = persist.connection()
         db._con.close()

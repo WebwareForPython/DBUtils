@@ -132,7 +132,7 @@ class TestSteadyPg(unittest.TestCase):
         self.assertEqual(SteadyPgVersion, __version__)
         self.assertEqual(SteadyPgConnection.version, __version__)
 
-    def test1_MockedPgConnection(self):
+    def test1_MockedConnection(self):
         PgConnection = DB
         db = PgConnection('SteadyPgTestDB',
             user='SteadyPgTestUser')
@@ -181,7 +181,7 @@ class TestSteadyPg(unittest.TestCase):
         self.assertRaises(InternalError, db.query, 'select test')
         self.assertRaises(InternalError, db.get_tables)
 
-    def test2_BrokenPgConnection(self):
+    def test2_BrokenConnection(self):
         self.assertRaises(TypeError, SteadyPgConnection, 'wrong')
         db = SteadyPgConnection(dbname='ok')
         InternalError = sys.modules[db._con.__module__].InternalError
@@ -190,7 +190,7 @@ class TestSteadyPg(unittest.TestCase):
         del db
         self.assertRaises(InternalError, SteadyPgConnection, dbname='error')
 
-    def test3_SteadyPgClose(self):
+    def test3_Close(self):
         for closeable in (False, True):
             db = SteadyPgConnection(closeable=closeable)
             self.assert_(db._con.db and db._con.valid)
@@ -205,7 +205,7 @@ class TestSteadyPg(unittest.TestCase):
             db._close()
             self.assert_(not db._con.db or not db._con.valid)
 
-    def test4_SteadyPgConnection(self):
+    def test4_Connection(self):
         db = SteadyPgConnection(0, None, 1,
             'SteadyPgTestDB', user='SteadyPgTestUser')
         self.assert_(hasattr(db, 'db'))
@@ -285,7 +285,7 @@ class TestSteadyPg(unittest.TestCase):
         self.assertEqual(db._usage, 1)
         self.assertEqual(db.num_queries, 0)
 
-    def test5_SteadyPgConnectionMaxUsage(self):
+    def test5_ConnectionMaxUsage(self):
         db = SteadyPgConnection(10)
         for i in range(100):
             r = db.query('select test%d' % i)
@@ -329,7 +329,7 @@ class TestSteadyPg(unittest.TestCase):
         self.assertEqual(db._usage, 1)
         self.assertEqual(db.num_queries, 1)
 
-    def test6_SteadyPgConnectionSetSession(self):
+    def test6_ConnectionSetSession(self):
         db = SteadyPgConnection(3, ('set time zone', 'set datestyle'))
         self.assert_(hasattr(db, 'num_queries'))
         self.assertEqual(db.num_queries, 0)
@@ -350,7 +350,7 @@ class TestSteadyPg(unittest.TestCase):
         self.assertEqual(db.num_queries, 0)
         self.assertEqual(db.session, ['time zone', 'datestyle', 'test'])
 
-    def test7_SteadyPgBegin(self):
+    def test7_Begin(self):
         for closeable in (False, True):
             db = SteadyPgConnection(closeable=closeable)
             db.begin()
@@ -370,7 +370,7 @@ class TestSteadyPg(unittest.TestCase):
             self.assertEqual(db.begin('select sql:begin'), 'sql:begin')
             self.assertEqual(db.num_queries, 2)
 
-    def test8_SteadyPgEnd(self):
+    def test8_End(self):
         for closeable in (False, True):
             db = SteadyPgConnection(closeable=closeable)
             db.begin()

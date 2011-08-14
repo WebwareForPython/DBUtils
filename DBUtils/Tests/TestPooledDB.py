@@ -22,7 +22,7 @@ import unittest
 sys.path.insert(1, '../..')
 # The TestSteadyDB module serves as a mock object for the DB-API 2 module:
 from DBUtils.Tests import TestSteadyDB as dbapi
-from DBUtils.PooledDB import PooledDB, TooManyConnections
+from DBUtils.PooledDB import PooledDB, TooManyConnections, SharedDBConnection
 
 
 class TestPooledDB(unittest.TestCase):
@@ -393,7 +393,7 @@ class TestPooledDB(unittest.TestCase):
             else:
                 self.assertEqual(len(pool._idle_cache), 3)
 
-    def test07_MinMaxCached(self):
+    def test08_MinMaxCached(self):
         for threadsafety in (1, 2):
             dbapi.threadsafety = threadsafety
             shareable = threadsafety > 1
@@ -507,7 +507,26 @@ class TestPooledDB(unittest.TestCase):
             if shareable:
                 self.assertEqual(len(pool._shared_cache), 7)
 
-    def test09_EquallyShared(self):
+    def test09_SortShared(self):
+        dbapi.threadsafety = 2
+        pool = PooledDB(dbapi, 0, 4, 4)
+        cache = []
+        for i in range(6):
+            db = pool.connection()
+            db.cursor().execute('select test')
+            cache.append(db)
+        for i, db in enumerate(cache):
+            self.assertEqual(db._shared_con.shared, 2 <= i < 4 and 1 or 2)
+        cache[2].begin()
+        cache[3].begin()
+        db = pool.connection()
+        self.assert_(db._con is cache[0]._con)
+        db.close()
+        cache[3].rollback()
+        db = pool.connection()
+        self.assert_(db._con is cache[3]._con)
+
+    def test10_EquallyShared(self):
         for threadsafety in (1, 2):
             dbapi.threadsafety = threadsafety
             shareable = threadsafety > 1
@@ -542,7 +561,7 @@ class TestPooledDB(unittest.TestCase):
             if shareable:
                 self.assertEqual(len(pool._shared_cache), 0)
 
-    def test10_SortShared(self):
+    def test11_ManyShared(self):
         for threadsafety in (1, 2):
             dbapi.threadsafety = threadsafety
             shareable = threadsafety > 1
@@ -593,7 +612,7 @@ class TestPooledDB(unittest.TestCase):
             else:
                 self.assertEqual(len(pool._idle_cache), 35)
 
-    def test11_Rollback(self):
+    def test12_Rollback(self):
         for threadsafety in (1, 2):
             dbapi.threadsafety = threadsafety
             pool = PooledDB(dbapi, 0, 1)
@@ -625,7 +644,7 @@ class TestPooledDB(unittest.TestCase):
                 'doit1', 'commit', 'dont1', 'rollback',
                 'doit2', 'commit', 'rollback'])
 
-    def test12_MaxConnections(self):
+    def test13_MaxConnections(self):
         for threadsafety in (1, 2):
             dbapi.threadsafety = threadsafety
             shareable = threadsafety > 1
@@ -827,7 +846,7 @@ class TestPooledDB(unittest.TestCase):
             self.assertEqual(session, ['rollback',
                 'rollback', 'thread', 'rollback'])
 
-    def test13_MaxUsage(self):
+    def test14_MaxUsage(self):
         for threadsafety in (1, 2):
             dbapi.threadsafety = threadsafety
             for maxusage in (0, 3, 7):
@@ -862,7 +881,7 @@ class TestPooledDB(unittest.TestCase):
                 self.assertEqual(db._con._con.num_uses, j + 1)
                 self.assertEqual(db._con._con.num_queries, j)
 
-    def test14_SetSession(self):
+    def test15_SetSession(self):
         for threadsafety in (1, 2):
             dbapi.threadsafety = threadsafety
             setsession = ('set time zone', 'set datestyle')
@@ -890,7 +909,7 @@ class TestPooledDB(unittest.TestCase):
             self.assertEqual(db._con._con.session,
                 ['time zone', 'datestyle', 'test2'])
 
-    def test15_OneThreadTwoConnections(self):
+    def test16_OneThreadTwoConnections(self):
         for threadsafety in (1, 2):
             dbapi.threadsafety = threadsafety
             shareable = threadsafety > 1
@@ -947,7 +966,7 @@ class TestPooledDB(unittest.TestCase):
             self.assertNotEqual(db1, db2)
             self.assertNotEqual(db1._con, db2._con)
 
-    def test16_ThreeThreadsTwoConnections(self):
+    def test17_ThreeThreadsTwoConnections(self):
         for threadsafety in (1, 2):
             dbapi.threadsafety = threadsafety
             pool = PooledDB(dbapi, 2, 2, 0, 2, True)
@@ -1004,7 +1023,7 @@ class TestPooledDB(unittest.TestCase):
             self.assertNotEqual(db1._con, db2._con)
             self.assertEqual(db1._con, db1_con)
 
-    def test17_PingCheck(self):
+    def test18_PingCheck(self):
         Connection = dbapi.Connection
         Connection.has_ping = True
         Connection.num_pings = 0
@@ -1072,7 +1091,7 @@ class TestPooledDB(unittest.TestCase):
         Connection.has_ping = False
         Connection.num_pings = 0
 
-    def test18_FailedTransaction(self):
+    def test19_FailedTransaction(self):
         dbapi.threadsafety = 2
         pool = PooledDB(dbapi, 0, 1, 1)
         db = pool.connection()
@@ -1101,15 +1120,35 @@ class TestPooledDB(unittest.TestCase):
         db._con._con.close()
         cursor.execute('select test')
 
-    def test19_AllSharedInTransaction(self):
+    def test20_SharedInTransaction(self):
         dbapi.threadsafety = 2
         pool = PooledDB(dbapi, 0, 1, 1)
         db = pool.connection()
         db.begin()
-        pool.connection(0)
+        pool.connection(False)
         self.assertRaises(TooManyConnections, pool.connection)
+        pool = PooledDB(dbapi, 0, 2, 2)
+        db1 = pool.connection()
+        db2 = pool.connection()
+        self.assert_(db2._con is not db1._con)
+        db2.close()
+        db2 = pool.connection()
+        self.assert_(db2._con is not db1._con)
+        db = pool.connection()
+        self.assert_(db._con is db1._con)
+        db.close()
+        db1.begin()
+        db = pool.connection()
+        self.assert_(db._con is db2._con)
+        db.close()
+        db2.begin()
+        pool.connection(False)
+        self.assertRaises(TooManyConnections, pool.connection)
+        db1.rollback()
+        db = pool.connection()
+        self.assert_(db._con is db1._con)
 
-    def test20_ResetTransaction(self):
+    def test21_ResetTransaction(self):
         pool = PooledDB(dbapi, 1, 1, 0)
         db = pool.connection()
         db.begin()
@@ -1130,6 +1169,53 @@ class TestPooledDB(unittest.TestCase):
         self.assert_(pool.connection()._con is con)
         self.assert_(not con._transaction)
         self.assertEqual(con._con.session, ['rollback'])
+
+
+class TestSharedDBConnection(unittest.TestCase):
+
+    def test01_CreateConnection(self):
+        db_con = dbapi.connect()
+        con = SharedDBConnection(db_con)
+        self.assertEqual(con.con, db_con)
+        self.assertEqual(con.shared, 1)
+
+    def test01_ShareAndUnshare(self):
+        con = SharedDBConnection(dbapi.connect())
+        self.assertEqual(con.shared, 1)
+        con.share()
+        self.assertEqual(con.shared, 2)
+        con.share()
+        self.assertEqual(con.shared, 3)
+        con.unshare()
+        self.assertEqual(con.shared, 2)
+        con.unshare()
+        self.assertEqual(con.shared, 1)
+
+    def test02_Comparison(self):
+        con1 = SharedDBConnection(dbapi.connect())
+        con1.con._transaction = False
+        con2 = SharedDBConnection(dbapi.connect())
+        con2.con._transaction = False
+        self.assert_(con1 == con2)
+        self.assert_(con1 <= con2)
+        self.assert_(con1 >= con2)
+        self.assert_(not con1 != con2)
+        self.assert_(not con1 < con2)
+        self.assert_(not con1 > con2)
+        con2.share()
+        self.assert_(not con1 == con2)
+        self.assert_(con1 <= con2)
+        self.assert_(not con1 >= con2)
+        self.assert_(con1 != con2)
+        self.assert_(con1 < con2)
+        self.assert_(not con1 > con2)
+        con1.con._transaction = True
+        self.assert_(not con1 == con2)
+        self.assert_(not con1 <= con2)
+        self.assert_(con1 >= con2)
+        self.assert_(con1 != con2)
+        self.assert_(not con1 < con2)
+        self.assert_(con1 > con2)
 
 
 if __name__ == '__main__':
