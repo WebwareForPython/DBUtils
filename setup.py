@@ -7,7 +7,7 @@ __date__ = "$Date$"
 from sys import version_info
 
 py_version = version_info[:2]
-if not (2, 7) <= py_version < (3, 0):
+if not (2, 3) <= py_version < (3, 0):
     raise ImportError('Python %d.%d is not supported by DBUtils.' % py_version)
 
 import warnings
