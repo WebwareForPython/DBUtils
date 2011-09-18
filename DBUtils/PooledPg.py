@@ -87,7 +87,7 @@ Note that you need to explicitly start transactions by calling the
 begin() method. This ensures that the transparent reopening will be
 suspended until the end of the transaction, and that the connection will
 be rolled back before being given back to the connection pool. To end
-transactions, use on of the end(), commit() or rollback() methods.
+transactions, use one of the end(), commit() or rollback() methods.
 
 
 Ideas for improvement:
