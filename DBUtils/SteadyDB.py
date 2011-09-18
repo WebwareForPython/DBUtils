@@ -384,7 +384,7 @@ class SteadyDBConnection:
     def begin(self, *args, **kwargs):
         """Indicate the beginning of a transaction.
 
-        During a transaction, connections will not not transparently
+        During a transaction, connections won't be transparently
         replaced, and all errors will be raised to the application.
 
         If the underlying driver supports this method, it will be called
