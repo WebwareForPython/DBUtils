@@ -229,6 +229,7 @@ class PooledDB:
             raise NotSupportedError("Database module is not thread-safe.")
         self._creator = creator
         self._args, self._kwargs = args, kwargs
+        self._blocking = blocking
         self._maxusage = maxusage
         self._setsession = setsession
         self._reset = reset
@@ -260,11 +261,7 @@ class PooledDB:
         else:
             self._maxconnections = 0
         self._idle_cache = [] # the actual pool of idle connections
-        self._condition = Condition()
-        if not blocking:
-            def wait():
-                raise TooManyConnections
-            self._condition.wait = wait
+        self._lock = Condition()
         self._connections = 0
         # Establish an initial number of idle database connections:
         idle = [self.dedicated_connection() for i in range(mincached)]
@@ -286,11 +283,11 @@ class PooledDB:
 
         """
         if shareable and self._maxshared:
-            self._condition.acquire()
+            self._lock.acquire()
             try:
                 while (not self._shared_cache and self._maxconnections
                         and self._connections >= self._maxconnections):
-                    self._condition.wait()
+                    self._wait_lock()
                 if len(self._shared_cache) < self._maxshared:
                     # shared cache is not full, get a dedicated connection
                     try: # first try to get it from the idle cache
@@ -307,23 +304,23 @@ class PooledDB:
                     while con.con._transaction:
                         # do not share connections which are in a transaction
                         self._shared_cache.insert(0, con)
-                        self._condition.wait()
+                        self._wait_lock()
                         self._shared_cache.sort()
                         con = self._shared_cache.pop(0)
                     con.con._ping_check() # check the underlying connection
                     con.share() # increase share of this connection
                 # put the connection (back) into the shared cache
                 self._shared_cache.append(con)
-                self._condition.notify()
+                self._lock.notify()
             finally:
-                self._condition.release()
+                self._lock.release()
             con = PooledSharedDBConnection(self, con)
         else: # try to get a dedicated connection
-            self._condition.acquire()
+            self._lock.acquire()
             try:
                 while (self._maxconnections
                         and self._connections >= self._maxconnections):
-                    self._condition.wait()
+                    self._wait_lock()
                 # connection limit not reached, get a dedicated connection
                 try: # first try to get it from the idle cache
                     con = self._idle_cache.pop(0)
@@ -334,7 +331,7 @@ class PooledDB:
                 con = PooledDedicatedDBConnection(self, con)
                 self._connections += 1
             finally:
-                self._condition.release()
+                self._lock.release()
         return con
 
     def dedicated_connection(self):
@@ -343,7 +340,7 @@ class PooledDB:
 
     def unshare(self, con):
         """Decrease the share of a connection in the shared cache."""
-        self._condition.acquire()
+        self._lock.acquire()
         try:
             con.unshare()
             shared = con.shared
@@ -353,13 +350,13 @@ class PooledDB:
                 except ValueError:
                     pass # pool has already been closed
         finally:
-            self._condition.release()
+            self._lock.release()
         if not shared: # connection has become idle,
             self.cache(con.con) # so add it to the idle cache
 
     def cache(self, con):
         """Put a dedicated connection back into the idle cache."""
-        self._condition.acquire()
+        self._lock.acquire()
         try:
             if not self._maxcached or len(self._idle_cache) < self._maxcached:
                 con._reset(force=self._reset) # rollback possible transaction
@@ -368,13 +365,13 @@ class PooledDB:
             else: # if the idle cache is already full,
                 con.close() # then close the connection
             self._connections -= 1
-            self._condition.notify()
+            self._lock.notify()
         finally:
-            self._condition.release()
+            self._lock.release()
 
     def close(self):
         """Close all connections in the pool."""
-        self._condition.acquire()
+        self._lock.acquire()
         try:
             while self._idle_cache: # close all idle connections
                 con = self._idle_cache.pop(0)
@@ -390,9 +387,9 @@ class PooledDB:
                     except Exception:
                         pass
                     self._connections -= 1
-            self._condition.notifyAll()
+            self._lock.notifyAll()
         finally:
-            self._condition.release()
+            self._lock.release()
 
     def __del__(self):
         """Delete the pool."""
@@ -400,6 +397,12 @@ class PooledDB:
             self.close()
         except Exception:
             pass
+
+    def _wait_lock(self):
+        """Wait until notified or report an error."""
+        if not self._blocking:
+            raise TooManyConnections
+        self._lock.wait()
 
 
 # Auxiliary classes for pooled connections
