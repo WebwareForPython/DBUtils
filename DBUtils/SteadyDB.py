@@ -595,6 +595,7 @@ class SteadyDBCursor:
                             con._store(con2)
                             self._cursor = cursor2
                             raise error # raise the original error again
+                        error2 = None
                         try: # try one more time to execute
                             if execute:
                                 self._setsizes(cursor2)
@@ -604,19 +605,20 @@ class SteadyDBCursor:
                                 self._clearsizes()
                         except error.__class__: # same execution error
                             use2 = False
+                            error2 = error
                         except Exception, error: # other execution errors
                             use2 = True
+                            error2 = error
                         else:
                             use2 = True
-                            error = None
                         if use2:
                             self.close()
                             con._close()
                             con._store(con2)
                             self._cursor = cursor2
                             con._usage += 1
-                            if error:
-                                raise error # raise the other error
+                            if error2:
+                                raise error2 # raise the other error
                             return result
                         try:
                             cursor2.close()

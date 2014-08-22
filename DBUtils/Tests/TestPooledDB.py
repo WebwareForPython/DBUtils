@@ -22,7 +22,8 @@ import unittest
 sys.path.insert(1, '../..')
 # The TestSteadyDB module serves as a mock object for the DB-API 2 module:
 from DBUtils.Tests import TestSteadyDB as dbapi
-from DBUtils.PooledDB import PooledDB, TooManyConnections, SharedDBConnection
+from DBUtils.PooledDB import (PooledDB, SharedDBConnection,
+    InvalidConnection, TooManyConnections)
 
 
 class TestPooledDB(unittest.TestCase):
@@ -208,7 +209,7 @@ class TestPooledDB(unittest.TestCase):
             if shareable:
                 self.assertEqual(db._shared_con, None)
                 self.assertEqual(shared_con.shared, 0)
-            self.assert_(not hasattr(db, '_usage'))
+            self.assertRaises(InvalidConnection, getattr, db, '_usage')
             self.assert_(not hasattr(db_con, '_num_queries'))
             self.assertEqual(len(pool._idle_cache), 1)
             self.assertEqual(pool._idle_cache[0]._con, db_con)

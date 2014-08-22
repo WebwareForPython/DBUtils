@@ -22,7 +22,7 @@ import unittest
 sys.path.insert(1, '../..')
 # The TestSteadyPg module serves as a mock object for the pg API module:
 from DBUtils.Tests import TestSteadyPg
-from DBUtils.PooledPg import PooledPg
+from DBUtils.PooledPg import PooledPg, InvalidConnection
 
 
 class TestPooledPg(unittest.TestCase):
@@ -95,7 +95,7 @@ class TestPooledPg(unittest.TestCase):
         db.query('select test')
         self.assertEqual(db.num_queries, 1)
         db.close()
-        self.assert_(not hasattr(db, 'num_queries'))
+        self.assertRaises(InvalidConnection, getattr, db, 'num_queries')
         db = pool.connection()
         self.assert_(hasattr(db, 'dbname'))
         self.assertEqual(db.dbname, 'PooledPgTestDB')
