@@ -310,7 +310,7 @@ class SteadyDBConnection:
         Rollback if forced or the connection was in a transaction.
 
         """
-        if force or self._transaction:
+        if not self._closed and (force or self._transaction):
             try:
                 self.rollback()
             except Exception:
