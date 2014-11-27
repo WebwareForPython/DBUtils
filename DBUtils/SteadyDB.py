@@ -402,12 +402,32 @@ class SteadyDBConnection:
     def commit(self):
         """Commit any pending transaction."""
         self._transaction = False
-        self._con.commit()
+        try:
+            self._con.commit()
+        except self._failures, error: # cannot commit
+            try: # try to reopen the connection
+                con = self._create()
+            except Exception:
+                pass
+            else:
+                self._close()
+                self._store(con)
+            raise error # reraise the original error
 
     def rollback(self):
         """Rollback pending transaction."""
         self._transaction = False
-        self._con.rollback()
+        try:
+            self._con.rollback()
+        except self._failures, error: # cannot rollback
+            try: # try to reopen the connection
+                con = self._create()
+            except Exception:
+                pass
+            else:
+                self._close()
+                self._store(con)
+            raise error # reraise the original error
 
     def cancel(self):
         """Cancel a long-running transaction.

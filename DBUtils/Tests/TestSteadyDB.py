@@ -62,9 +62,13 @@ class Connection:
         self.valid = False
 
     def commit(self):
+        if not self.valid:
+            raise InternalError
         self.session.append('commit')
 
     def rollback(self):
+        if not self.valid:
+            raise InternalError
         self.session.append('rollback')
 
     def ping(self):
@@ -702,6 +706,50 @@ class TestSteadyDB(unittest.TestCase):
         self.assert_(not db._con.session)
         db.close()
         self.assertEqual(db._con.session, ['rollback'])
+
+    def test17_CommitError(self):
+        db = SteadyDBconnect(dbapi, database='ok')
+        db.begin()
+        self.assert_(not db._con.session)
+        self.assert_(db._con.valid)
+        db.commit()
+        self.assertEqual(db._con.session, ['commit'])
+        self.assert_(db._con.valid)
+        db.begin()
+        db._con.valid = False
+        con = db._con
+        self.assertRaises(InternalError, db.commit)
+        self.assert_(not db._con.session)
+        self.assert_(db._con.valid)
+        self.assert_(con is not db._con)
+        db.begin()
+        self.assert_(not db._con.session)
+        self.assert_(db._con.valid)
+        db.commit()
+        self.assertEqual(db._con.session, ['commit'])
+        self.assert_(db._con.valid)
+
+    def test18_RollbackError(self):
+        db = SteadyDBconnect(dbapi, database='ok')
+        db.begin()
+        self.assert_(not db._con.session)
+        self.assert_(db._con.valid)
+        db.rollback()
+        self.assertEqual(db._con.session, ['rollback'])
+        self.assert_(db._con.valid)
+        db.begin()
+        db._con.valid = False
+        con = db._con
+        self.assertRaises(InternalError, db.rollback)
+        self.assert_(not db._con.session)
+        self.assert_(db._con.valid)
+        self.assert_(con is not db._con)
+        db.begin()
+        self.assert_(not db._con.session)
+        self.assert_(db._con.valid)
+        db.rollback()
+        self.assertEqual(db._con.session, ['rollback'])
+        self.assert_(db._con.valid)
 
 
 if __name__ == '__main__':
