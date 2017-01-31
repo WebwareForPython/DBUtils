@@ -1,7 +1,7 @@
 """Thread-local objects.
 
 This module provides a Python version of the threading.local class.
-It is avaliable as _threading_local in the standard library since Python 2.4.
+It is available as _threading_local in the standard library since Python 2.4.
 
 Depending on the version of Python you're using, there may be a faster
 threading.local class available in the standard library.
@@ -9,7 +9,7 @@ threading.local class available in the standard library.
 However, the C implementation turned out to be unusable with mod_wsgi,
 since it does not keep the thread-local data between requests.
 To have a reliable solution that works the same with all Python versions,
-we fall back to this Python implemention in DBUtils.
+we fall back to this Python implementation in DBUtils.
 
 """
 

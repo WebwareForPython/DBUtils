@@ -1,0 +1,14 @@
+*~
+*.bak
+*.default
+*.log
+*.patch
+*.pid
+*.pstats
+*.pyc
+*.pyo
+*.swp
+
+Thumbs.db
+
+.idea

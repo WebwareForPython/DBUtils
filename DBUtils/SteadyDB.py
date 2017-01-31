@@ -86,14 +86,11 @@ Copyright, credits and license:
 * Allowing creator functions as first parameter as in SQLAlchemy
   suggested by Ezio Vernacotola in December 2006
 
-Licensed under the Open Software License version 2.1.
+Licensed under the MIT license.
 
 """
 
-__version__ = '1.1'
-__revision__ = "$Rev$"
-__date__ = "$Date$"
-
+__version__ = '1.1.1b1'
 
 import sys
 

@@ -69,14 +69,11 @@ Copyright, credits and license:
 * Clean-up and detailed commenting, rename and move to DBUtils
   by Christoph Zwerschke in September 2005
 
-Licensed under the Open Software License version 2.1.
+Licensed under the MIT license.
 
 """
 
-__version__ = '1.1'
-__revision__ = "$Rev$"
-__date__ = "$Date$"
-
+__version__ = '1.1.1b1'
 
 class PooledDBError(Exception):
     """General PooledDB error."""

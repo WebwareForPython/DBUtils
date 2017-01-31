@@ -12,13 +12,9 @@ Copyright and credit info:
 
 """
 
-__version__ = '1.1'
-__revision__ = "$Rev$"
-__date__ = "$Date$"
-
+__version__ = '1.1.1b1'
 
 import sys
-
 
 # This module also serves as a mock object for an arbitrary DB-API 2 module:
 

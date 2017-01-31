@@ -1,8 +1,6 @@
 """Setup Script for DBUtils"""
 
-__version__ = '1.1'
-__revision__ = "$Rev$"
-__date__ = "$Date$"
+__version__ = '1.1.1b1'
 
 from sys import version_info
 
@@ -52,7 +50,7 @@ DB-API 2 compliant database interfaces and the classic PyGreSQL interface.
     classifiers=['Development Status :: 4 - Beta',
         'Environment :: Web Environment',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: Open Software License',
+        'License :: OSI Approved :: MIT License',
         'Programming Language :: Python',
         'Topic :: Database',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
@@ -63,7 +61,7 @@ DB-API 2 compliant database interfaces and the classic PyGreSQL interface.
     url='http://www.webwareforpython.org/DBUtils',
     download_url='http://www.webwareforpython.org/downloads/DBUtils/',
     platforms=['any'],
-    license='Open Software License',
+    license='MIT License',
     packages=['DBUtils', 'DBUtils.Examples', 'DBUtils.Tests'],
     package_data={'DBUtils': ['Docs/*']},
     zip_safe=0

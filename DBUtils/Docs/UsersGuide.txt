@@ -1,8 +1,8 @@
 ﻿DBUtils User's Guide
 ++++++++++++++++++++
 
-:Version: 1.1
-:Released: 08/14/11
+:Version: 1.1.1b1
+:Released: 01/31/17
 :Translations: English German_
 
 .. _German: UsersGuide.de.html
@@ -536,10 +536,10 @@ Credits
 Copyright and License
 =====================
 
-Copyright © 2005-2011 by Christoph Zwerschke.
+Copyright © 2005-2017 by Christoph Zwerschke.
 All Rights Reserved.
 
 DBUtils is free and open source software,
-licensed under the `Open Software License version 2.1`__.
+licensed under the `MIT license`__.
 
-__ http://www.opensource.org/licenses/osl-2.1.php
+__ https://opensource.org/licenses/MIT

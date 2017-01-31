@@ -112,14 +112,11 @@ Copyright, credits and license:
 * Based on an idea presented on the Webware developer mailing list
   by Geoffrey Talvola in July 2005
 
-Licensed under the Open Software License version 2.1.
+Licensed under the MIT license.
 
 """
 
-__version__ = '1.1'
-__revision__ = "$Rev$"
-__date__ = "$Date$"
-
+__version__ = '1.1.1b1'
 
 import ThreadingLocal
 from DBUtils.SteadyDB import connect

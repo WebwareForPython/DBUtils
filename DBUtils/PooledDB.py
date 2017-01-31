@@ -135,13 +135,11 @@ Copyright, credits and license:
 * Based on the code of DBPool, contributed to Webware for Python
   by Dan Green in December 2000
 
-Licensed under the Open Software License version 2.1.
+Licensed under the MIT license.
 
 """
 
-__version__ = '1.1'
-__revision__ = "$Rev$"
-__date__ = "$Date$"
+__version__ = '1.1.1b1'
 
 
 from threading import Condition

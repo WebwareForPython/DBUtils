@@ -1,0 +1,29 @@
+* text=auto eol=lf
+
+*.bat text eol=crlf
+*.config text eol=lf
+*.css text eol=lf
+*.html text eol=lf
+*.js text eol=lf
+*.prefs text
+*.py text eol=lf
+*.rst text eol=lf
+*.sh text eol=lf
+*.txt text eol=lf
+*.po text eol=lf
+*.pot text eol=lf
+*.styl text eol=lf
+*.xml text
+
+*.gif binary
+*.ico binary
+*.jpg binary
+*.lnk binary
+*.mo binary
+*.png binary
+*.exe binary
+*.so binary
+*.ppt binary
+*.pdf binary
+*.gz binary
+*.zip binary

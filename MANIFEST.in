@@ -1,3 +1,2 @@
 exclude Release.txt setversion.py
 include DBUtils/Docs/*
-prune DBUtils/Docs/.svn
