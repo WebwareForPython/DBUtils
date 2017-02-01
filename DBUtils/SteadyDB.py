@@ -33,9 +33,9 @@ Note, however, that the connections themselves may not be
 thread-safe (depending on the used DB-API module).
 
 For the Python DB-API 2 specification, see:
-    http://www.python.org/peps/pep-0249.html
+    https://www.python.org/dev/peps/pep-0249/
 For information on Webware for Python, see:
-    http://www.webwareforpython.org
+    https://cito.github.io/w4py/
 
 Usage:
 

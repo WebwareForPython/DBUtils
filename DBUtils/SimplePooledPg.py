@@ -8,11 +8,11 @@ This should result in a speedup for persistent applications
 such as the "Webware for Python" AppServer.
 
 For more information on PostgreSQL, see:
-    http://www.postgresql.org
+    https://www.postgresql.org/
 For more information on PyGreSQL, see:
     http://www.pygresql.org
 For more information on Webware for Python, see:
-    http://www.webwareforpython.org
+    https://cito.github.io/w4py/
 
 Measures are taken to make the pool of connections threadsafe
 regardless of the fact that the PyGreSQL pg module itself is

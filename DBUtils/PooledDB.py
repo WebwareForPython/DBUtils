@@ -21,9 +21,9 @@ the requested connections may be shared with other threads by default,
 but you can also request dedicated connections in case you need them.
 
 For the Python DB-API 2 specification, see:
-    http://www.python.org/peps/pep-0249.html
+    https://www.python.org/dev/peps/pep-0249/
 For information on Webware for Python, see:
-    http://www.webwareforpython.org
+    https://cito.github.io/w4py/
 
 
 Usage:

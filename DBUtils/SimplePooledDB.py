@@ -7,9 +7,9 @@ This should result in a speedup for persistent applications
 such as the "Webware for Python" AppServer.
 
 For more information on the DB-API 2, see:
-    http://www.python.org/peps/pep-0249.html
+    https://www.python.org/dev/peps/pep-0249/
 For more information on Webware for Python, see:
-    http://www.webwareforpython.org
+    https://cito.github.io/w4py/
 
 Measures are taken to make the pool of connections threadsafe
 regardless of whether the DB-API 2 module used is threadsafe

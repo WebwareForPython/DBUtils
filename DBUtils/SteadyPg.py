@@ -25,11 +25,11 @@ such as the application server of "Webware for Python."
 Note, however, that the connections themselves are not thread-safe.
 
 For more information on PostgreSQL, see:
-    http://www.postgresql.org
+    https://www.postgresql.org/
 For more information on PyGreSQL, see:
     http://www.pygresql.org
 For more information on Webware for Python, see:
-    http://www.webwareforpython.org
+    https://cito.github.io/w4py/
 
 
 Usage:
