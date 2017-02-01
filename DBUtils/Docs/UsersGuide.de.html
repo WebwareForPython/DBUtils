@@ -58,11 +58,11 @@
 </div>
 <div class="section" id="zusammenfassung">
 <h1>Zusammenfassung</h1>
-<p><a class="reference external" href="http://www.webwareforpython.org/DBUtils">DBUtils</a> ist eine Sammlung von Python-Modulen, mit deren Hilfe man in <a class="reference external" href="http://www.python.org">Python</a>
+<p><a class="reference external" href="https://github.com/Cito/DBUtils">DBUtils</a> ist eine Sammlung von Python-Modulen, mit deren Hilfe man in <a class="reference external" href="https://www.python.org">Python</a>
 geschriebene Multithread-Anwendungen auf sichere und effiziente Weise an
-Datenbanken anbinden kann. DBUtils wurde mit Blick auf <a class="reference external" href="http://www.webwareforpython.org">Webware for Python</a>
-als Anwendung und <a class="reference external" href="http://www.pygresql.org">PyGreSQL</a> als <a class="reference external" href="http://www.postgresql.org">PostgreSQL</a>-Datenbankadapter entwickelt,
-kann aber für beliebige Python-Anwendungen und beliebige auf <a class="reference external" href="http://www.python.org/dev/peps/pep-0249/">DB-API 2</a>
+Datenbanken anbinden kann. DBUtils wurde mit Blick auf <a class="reference external" href="https://cito.github.io/w4py/">Webware for Python</a>
+als Anwendung und <a class="reference external" href="http://www.pygresql.org/">PyGreSQL</a> als <a class="reference external" href="https://www.postgresql.org/">PostgreSQL</a>-Datenbankadapter entwickelt,
+kann aber für beliebige Python-Anwendungen und beliebige auf <a class="reference external" href="https://www.python.org/dev/peps/pep-0249/">DB-API 2</a>
 beruhende Python-Datenbankadapter verwendet werden.</p>
 </div>
 <div class="section" id="module">
@@ -127,14 +127,15 @@ PyGreSQL-Adapter sehen ähnlich aus:</p>
 </div>
 <div class="section" id="download">
 <h1>Download</h1>
-<p>Die aktuelle Version von DBUtils kann von der Homepage von Webware for Python
+<p>Die aktuelle Version von DBUtils kann vom Python Package Index
 heruntergeladen werden:</p>
-<blockquote>
-<a class="reference external" href="http://www.webwareforpython.org/downloads/DBUtils/">http://www.webwareforpython.org/downloads/DBUtils/</a></blockquote>
-<p>Außerdem befindet sie sich im Python Package Index (auch bekannt als der
-&quot;Cheese Shop&quot;) und kann von dort heruntergeladen werden:</p>
-<blockquote>
-<a class="reference external" href="http://www.python.org/pypi/DBUtils/">http://www.python.org/pypi/DBUtils/</a></blockquote>
+<pre class="literal-block">
+https://pypi.python.org/pypi/DBUtils
+</pre>
+<p>Das Source-Code-Repository befindet sich hier auf GitHub:</p>
+<pre class="literal-block">
+https://github.com/Cito/DBUtils
+</pre>
 </div>
 <div class="section" id="installation">
 <h1>Installation</h1>
@@ -144,6 +145,10 @@ heruntergeladen werden:</p>
 möchten, empfiehlt es sich, das Paket auf die übliche Weise zu installieren:</p>
 <pre class="literal-block">
 python setup.py install
+</pre>
+<p>Sie können auch <a class="reference external" href="https://pip.pypa.io/">pip</a> für Download und Installation verwenden:</p>
+<pre class="literal-block">
+pip install DBUtils
 </pre>
 </div>
 <div class="section" id="installation-als-unterpaket-plug-in-von-webware-for-python">
@@ -165,11 +170,11 @@ python install.py
 </div>
 <div class="section" id="anforderungen">
 <h1>Anforderungen</h1>
-<p>DBUtils arbeitet mit <a class="reference external" href="http://www.python.org">Python</a> 2.3 oder einer neueren Version von Python 2.
-Die Module in der Variante für klassisches PyGreSQL benötigen <a class="reference external" href="http://www.pygresql.org">PyGreSQL</a>
+<p>DBUtils arbeitet mit <a class="reference external" href="https://www.python.org">Python</a> 2.3 oder einer neueren Version von Python 2.
+Die Module in der Variante für klassisches PyGreSQL benötigen <a class="reference external" href="http://www.pygresql.org/">PyGreSQL</a>
 Version 3.4 oder höher, während die Module in der allgemeinen Variante
 für DB-API 2 mit jedem beliebigen Python-Datenbankadapter-Modul
-zusammenarbeiten, das auf <a class="reference external" href="http://www.python.org/dev/peps/pep-0249/">DB-API 2</a> basiert.</p>
+zusammenarbeiten, das auf <a class="reference external" href="https://www.python.org/dev/peps/pep-0249/">DB-API 2</a> basiert.</p>
 </div>
 <div class="section" id="funktionalitat">
 <h1>Funktionalität</h1>
@@ -487,7 +492,7 @@ wieder an den Verbindungspool zurückgegeben wird.</p>
 </div>
 <div class="section" id="benutzung-in-webware-for-python">
 <h2>Benutzung in Webware for Python</h2>
-<p>Wenn Sie DBUtils verwenden, um von Servlets des Web-Frameworks <a class="reference external" href="http://www.webwareforpython.org">Webware
+<p>Wenn Sie DBUtils verwenden, um von Servlets des Web-Frameworks <a class="reference external" href="https://cito.github.io/w4py/">Webware
 for Python</a> auf eine Datenbank zuzugreifen, dann müssen Sie sicherstellen,
 dass die Generatoren zur Erzeugung von Datenbankverbindungen nur einmal
 eingerichtet werden, wenn die Anwendung startet, und nicht jedes Mal, wenn
@@ -512,13 +517,13 @@ klassische PyGreSQL-Modul oder irgendein DB-API-2-Modul). Wenn der Parameter
 </div>
 <div class="section" id="anmerkungen">
 <h1>Anmerkungen</h1>
-<p>Wenn Sie einen der bekannten &quot;Object-Relational Mapper&quot; <a class="reference external" href="http://www.sqlobject.org">SQLObject</a> oder
+<p>Wenn Sie einen der bekannten &quot;Object-Relational Mapper&quot; <a class="reference external" href="http://www.sqlobject.org/">SQLObject</a> oder
 <a class="reference external" href="http://www.sqlalchemy.org">SQLAlchemy</a> verwenden, dann benötigen Sie DBUtils nicht, denn diese haben
 ihre eigenen Mechanismen zum Pooling von Datenbankverbindungen eingebaut.
-Tatsächlich hat <a class="reference external" href="http://www.sqlobject.org/2/">SQLObject 2</a> (<a class="reference external" href="http://www.sqlobject.org/sqlapi/">SQL-API</a>) das Pooling in eine separate Schicht
+Tatsächlich hat SQLObject 2 (SQL-API) das Pooling in eine separate Schicht
 ausgelagert, in der Code von DBUtils verwendet wird.</p>
-<p>Wenn Sie eine Lösung verwenden wie den Apache-Webserver mit <a class="reference external" href="http://www.modpython.org">mod_python</a>
-oder <a class="reference external" href="http://code.google.com/p/modwsgi/">mod_wsgi</a>, dann sollten Sie bedenken, dass Ihr Python-Code normalerweise
+<p>Wenn Sie eine Lösung verwenden wie den Apache-Webserver mit <a class="reference external" href="http://modpython.org/">mod_python</a>
+oder <a class="reference external" href="https://github.com/GrahamDumpleton/mod_wsgi">mod_wsgi</a>, dann sollten Sie bedenken, dass Ihr Python-Code normalerweise
 im Kontext der Kindprozesse des Webservers läuft. Wenn Sie also das
 <tt class="docutils literal">PooledDB</tt>-Modul einsetzen, und mehrere dieser Kindprozesse laufen, dann
 werden Sie ebensoviele Pools mit Datenbankverbindungen erhalten. Wenn diese
@@ -526,7 +531,7 @@ Prozesse viele Threads laufen lassen,  dann mag dies eine sinnvoller Ansatz
 sein, wenn aber diese Prozesse nicht mehr als einen Worker-Thread starten,
 wie im Fall des Multi-Processing Moduls &quot;prefork&quot; für den Apache-Webserver,
 dann sollten Sie auf eine Middleware für das Connection-Pooling zurückgreifen,
-die Multi-Processing unterstützt, wie zum Beispiel <a class="reference external" href="http://pgpool.projects.postgresql.org">pgpool</a> oder <a class="reference external" href="http://pgbouncer.projects.postgresql.org">pgbouncer</a>
+die Multi-Processing unterstützt, wie zum Beispiel <a class="reference external" href="http://www.pgpool.net/">pgpool</a> oder <a class="reference external" href="https://pgbouncer.github.io/">pgbouncer</a>
 für die PostgreSQL-Datenbank.</p>
 </div>
 <div class="section" id="zukunft">
@@ -562,15 +567,15 @@ mailing list</a> diskutiert werden.</p>
 <h1>Links</h1>
 <p>Einige Links zu verwandter und alternativer Software:</p>
 <ul class="simple">
-<li><a class="reference external" href="http://www.webwareforpython.org/DBUtils">DBUtils</a></li>
-<li><a class="reference external" href="http://www.python.org">Python</a></li>
-<li><a class="reference external" href="http://www.webwareforpython.org">Webware for Python</a> Framework</li>
-<li>Python <a class="reference external" href="http://www.python.org/dev/peps/pep-0249/">DB-API 2</a></li>
-<li><a class="reference external" href="http://www.postgresql.org">PostgreSQL</a> Datenbank</li>
-<li><a class="reference external" href="http://www.pygresql.org">PyGreSQL</a> Python-Adapter for PostgreSQL</li>
-<li><a class="reference external" href="http://pgpool.projects.postgresql.org">pgpool</a> Middleware für Connection-Pooling mit PostgreSQL</li>
-<li><a class="reference external" href="http://pgbouncer.projects.postgresql.org">pgbouncer</a> Middleware für Connection-Pooling mit PostgreSQL</li>
-<li><a class="reference external" href="http://www.sqlobject.org">SQLObject</a> Objekt-relationaler Mapper</li>
+<li><a class="reference external" href="https://github.com/Cito/DBUtils">DBUtils</a></li>
+<li><a class="reference external" href="https://www.python.org">Python</a></li>
+<li><a class="reference external" href="https://cito.github.io/w4py/">Webware for Python</a> Framework</li>
+<li>Python <a class="reference external" href="https://www.python.org/dev/peps/pep-0249/">DB-API 2</a></li>
+<li><a class="reference external" href="https://www.postgresql.org/">PostgreSQL</a> Datenbank</li>
+<li><a class="reference external" href="http://www.pygresql.org/">PyGreSQL</a> Python-Adapter for PostgreSQL</li>
+<li><a class="reference external" href="http://www.pgpool.net/">pgpool</a> Middleware für Connection-Pooling mit PostgreSQL</li>
+<li><a class="reference external" href="https://pgbouncer.github.io/">pgbouncer</a> Middleware für Connection-Pooling mit PostgreSQL</li>
+<li><a class="reference external" href="http://www.sqlobject.org/">SQLObject</a> Objekt-relationaler Mapper</li>
 <li><a class="reference external" href="http://www.sqlalchemy.org">SQLAlchemy</a> Objekt-relationaler Mapper</li>
 </ul>
 </div>

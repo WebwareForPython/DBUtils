@@ -66,15 +66,14 @@ PyGreSQL-Adapter sehen ähnlich aus:
 Download
 ========
 
-Die aktuelle Version von DBUtils kann von der Homepage von Webware for Python
-heruntergeladen werden:
+Die aktuelle Version von DBUtils kann vom Python Package Index
+heruntergeladen werden::
 
-  http://www.webwareforpython.org/downloads/DBUtils/
+  https://pypi.python.org/pypi/DBUtils
 
-Außerdem befindet sie sich im Python Package Index (auch bekannt als der
-"Cheese Shop") und kann von dort heruntergeladen werden:
+Das Source-Code-Repository befindet sich hier auf GitHub::
 
-  http://www.python.org/pypi/DBUtils/
+  https://github.com/Cito/DBUtils
 
 
 Installation
@@ -86,6 +85,12 @@ Wenn Sie DBUtils für andere Anwendungen als Webware for Python verwenden
 möchten, empfiehlt es sich, das Paket auf die übliche Weise zu installieren::
 
   python setup.py install
+
+Sie können auch `pip`_ für Download und Installation verwenden::
+
+  pip install DBUtils
+
+.. _pip: https://pip.pypa.io/
 
 Installation als Unterpaket (Plug-In) von Webware for Python
 ------------------------------------------------------------
@@ -484,7 +489,7 @@ Anmerkungen
 Wenn Sie einen der bekannten "Object-Relational Mapper" SQLObject_ oder
 SQLAlchemy_ verwenden, dann benötigen Sie DBUtils nicht, denn diese haben
 ihre eigenen Mechanismen zum Pooling von Datenbankverbindungen eingebaut.
-Tatsächlich hat `SQLObject 2`_ (SQL-API_) das Pooling in eine separate Schicht
+Tatsächlich hat SQLObject 2 (SQL-API) das Pooling in eine separate Schicht
 ausgelagert, in der Code von DBUtils verwendet wird.
 
 Wenn Sie eine Lösung verwenden wie den Apache-Webserver mit mod_python_
@@ -546,23 +551,21 @@ Einige Links zu verwandter und alternativer Software:
 * SQLObject_ Objekt-relationaler Mapper
 * SQLAlchemy_ Objekt-relationaler Mapper
 
-.. _DBUtils: http://www.webwareforpython.org/DBUtils
-.. _Python: http://www.python.org
-.. _Webware for Python: http://www.webwareforpython.org
+.. _DBUtils: https://github.com/Cito/DBUtils
+.. _Python: https://www.python.org
+.. _Webware for Python: https://cito.github.io/w4py/
 .. _Webware for Python mailing list: https://lists.sourceforge.net/lists/listinfo/webware-discuss
-.. _DB-API 2: http://www.python.org/dev/peps/pep-0249/
+.. _DB-API 2: https://www.python.org/dev/peps/pep-0249/
 .. _The Python DB-API: http://www.linuxjournal.com/article/2605
-.. _PostgresQL: http://www.postgresql.org
-.. _PyGreSQL: http://www.pygresql.org
-.. _SQLObject: http://www.sqlobject.org
-.. _SQLObject 2: http://www.sqlobject.org/2/
-.. _SQL-API: http://www.sqlobject.org/sqlapi/
+.. _PostgresQL: https://www.postgresql.org/
+.. _PyGreSQL: http://www.pygresql.org/
+.. _SQLObject: http://www.sqlobject.org/
 .. _SQLAlchemy: http://www.sqlalchemy.org
-.. _Apache: http://httpd.apache.org
-.. _mod_python: http://www.modpython.org
-.. _mod_wsgi: http://code.google.com/p/modwsgi/
-.. _pgpool: http://pgpool.projects.postgresql.org
-.. _pgbouncer: http://pgbouncer.projects.postgresql.org
+.. _Apache: http://httpd.apache.org/
+.. _mod_python: http://modpython.org/
+.. _mod_wsgi: https://github.com/GrahamDumpleton/mod_wsgi
+.. _pgpool: http://www.pgpool.net/
+.. _pgbouncer: https://pgbouncer.github.io/
 
 
 Autoren
