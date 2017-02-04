@@ -19,8 +19,8 @@ import unittest
 sys.path.insert(1, '../..')
 # The TestSteadyDB module serves as a mock object for the DB-API 2 module:
 from DBUtils.Tests import TestSteadyDB as dbapi
-from DBUtils.PooledDB import (PooledDB, SharedDBConnection,
-    InvalidConnection, TooManyConnections)
+from DBUtils.PooledDB import PooledDB, SharedDBConnection, \
+    InvalidConnection, TooManyConnections
 
 
 class TestPooledDB(unittest.TestCase):
