@@ -303,7 +303,7 @@ Wenn Sie beispielsweise ``pgdb`` als DB-API-2-Datenbankadapter verwenden, und
 möchten, dass jede Verbindung Ihrer lokalen Datenbank ``meinedb`` 1000 mal
 wiederverwendet werden soll, sieht die Initialisierung so aus::
 
-  import pgdb # importiere das verwendete DB-API-2-Modul
+  import pgdb  # importiere das verwendete DB-API-2-Modul
   from DBUtils.PersistentDB import PersistentDB
   persist = PersistentDB(pgdb, 1000, database='meinedb')
 
@@ -405,7 +405,7 @@ Wenn Sie beispielsweise ``pgdb`` als DB-API-2-Datenbankadapter benutzen,
 und einen Pool von mindestens fünf Datenbankverbindungen zu Ihrer Datenbank
 ``meinedb`` verwenden möchten, dann sieht die Initialisierung so aus::
 
-  import pgdb # importiere das verwendete DB-API-2-Modul
+  import pgdb  # importiere das verwendete DB-API-2-Modul
   from DBUtils.PooledDB import PooledDB
   pool = PooledDB(pgdb, 5, database='meinedb')
 
@@ -447,8 +447,8 @@ sie gebraucht werden, etwa so::
   cur = db.cursor()
   cur.execute(...)
   res = cur.fetchone()
-  cur.close() # oder del cur
-  db.close() # oder del db
+  cur.close()  # oder del cur
+  db.close()  # oder del db
 
 Bitte beachten Sie, dass Transaktionen explizit durch Aufruf der Methode
 ``begin()`` eingeleiten werden müssen. Hierdurch wird sichergestellt,

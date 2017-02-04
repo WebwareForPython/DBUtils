@@ -13,8 +13,8 @@ For more information on Webware for Python, see:
 
 Measures are taken to make the pool of connections threadsafe
 regardless of whether the DB-API 2 module used is threadsafe
-on the connection level (threadsafety > 1) or not. It must only
-be threadsafe on the module level (threadsafety = 1). If the
+on the connection level (threadsafety > 1) or not.  It must only
+be threadsafe on the module level (threadsafety = 1).  If the
 DB-API 2 module is threadsafe, the connections will be shared
 between threads (keep this in mind if you use transactions).
 
@@ -25,7 +25,7 @@ After you have established your connection pool, stating the
 DB-API 2 module to be used, the number of connections
 to be cached in the pool and the connection parameters, e.g.
 
-    import pgdb # import used DB-API 2 module
+    import pgdb  # import used DB-API 2 module
     from DBUtils.SimplePooledDB import PooledDB
     dbpool = PooledDB(pgdb, 5, host=..., database=..., user=..., ...)
 
@@ -37,7 +37,7 @@ and use them just as if they were ordinary DB-API 2 connections.
 It's really just a proxy class.
 
 db.close() will return the connection to the pool, it will not
-actually close it. This is so your existing code works nicely.
+actually close it.  This is so your existing code works nicely.
 
 Ideas for improvement:
 
@@ -51,7 +51,7 @@ allowing for both sharable and non-sharable connections.
 
 Please note that these and other ideas have been already
 implemented in in PooledDB, a more sophisticated version
-of SimplePooledDB. You might also consider using PersistentDB
+of SimplePooledDB.  You might also consider using PersistentDB
 instead for thread-affine persistent database connections.
 SimplePooledDB may still serve as a very simple reference
 and example implementation for developers.
@@ -141,7 +141,7 @@ class PooledDB:
             # the pool using the synchronized queue class
             # that implements all the required locking semantics.
             from Queue import Queue
-            self._queue = Queue(maxconnections) # create the queue
+            self._queue = Queue(maxconnections)  # create the queue
             self.connection = self._unthreadsafe_get_connection
             self.addConnection = self._unthreadsafe_add_connection
             self.returnConnection = self._unthreadsafe_return_connection
@@ -150,9 +150,9 @@ class PooledDB:
             # pool with an ordinary list used as a circular buffer.
             # We only need a minimum of locking in this case.
             from threading import Lock
-            self._lock = Lock() # create a lock object to be used later
-            self._nextConnection = 0 # index of the next connection to be used
-            self._connections = [] # the list of connections
+            self._lock = Lock()  # create a lock object to be used later
+            self._nextConnection = 0  # index of the next connection to be used
+            self._connections = []  # the list of connections
             self.connection = self._threadsafe_get_connection
             self.addConnection = self._threadsafe_add_connection
             self.returnConnection = self._threadsafe_return_connection

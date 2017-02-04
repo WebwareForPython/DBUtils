@@ -66,14 +66,14 @@ an instance of PooledDB, passing the following parameters:
 
     The creator function or the connect function of the DB-API 2 compliant
     database module specified as the creator will receive any additional
-    parameters such as the host, database, user, password etc. You may
+    parameters such as the host, database, user, password etc.  You may
     choose some or all of these parameters in your own creator function,
     allowing for sophisticated failover and load-balancing mechanisms.
 
 For instance, if you are using pgdb as your DB-API 2 database module and
 want a pool of at least five connections to your local database 'mydb':
 
-    import pgdb # import used DB-API 2 module
+    import pgdb  # import used DB-API 2 module
     from DBUtils.PooledDB import PooledDB
     pool = PooledDB(pgdb, 5, database='mydb')
 
@@ -83,12 +83,12 @@ database connections from that pool:
     db = pool.connection()
 
 You can use these connections just as if they were ordinary
-DB-API 2 connections. Actually what you get is the hardened
+DB-API 2 connections.  Actually what you get is the hardened
 SteadyDB version of the underlying DB-API 2 connection.
 
 Please note that the connection may be shared with other threads
 by default if you set a non-zero maxshared parameter and the DB-API 2
-module allows this. If you want to have a dedicated connection, use:
+module allows this.  If you want to have a dedicated connection, use:
 
     db = pool.connection(shareable=False)
 
@@ -97,25 +97,25 @@ You can also use this to get a dedicated connection:
     db = pool.dedicated_connection()
 
 If you don't need it any more, you should immediately return it to the
-pool with db.close(). You can get another connection in the same way.
+pool with db.close().  You can get another connection in the same way.
 
 Warning: In a threaded environment, never do the following:
 
     pool.connection().cursor().execute(...)
 
 This would release the connection too early for reuse which may be
-fatal if the connections are not thread-safe. Make sure that the
+fatal if the connections are not thread-safe.  Make sure that the
 connection object stays alive as long as you are using it, like that:
 
     db = pool.connection()
     cur = db.cursor()
     cur.execute(...)
     res = cur.fetchone()
-    cur.close() # or del cur
-    db.close() # or del db
+    cur.close()  # or del cur
+    db.close()  # or del db
 
 Note that you need to explicitly start transactions by calling the
-begin() method. This ensures that the connection will not be shared
+begin() method.  This ensures that the connection will not be shared
 with other threads, that the transparent reopening will be suspended
 until the end of the transaction, and that the connection will be rolled
 back before being given back to the connection pool.
@@ -247,7 +247,7 @@ class PooledDB:
             self._maxcached = 0
         if threadsafety > 1 and maxshared:
             self._maxshared = maxshared
-            self._shared_cache = [] # the cache for shared connections
+            self._shared_cache = []  # the cache for shared connections
         else:
             self._maxshared = 0
         if maxconnections:
@@ -258,7 +258,7 @@ class PooledDB:
             self._maxconnections = maxconnections
         else:
             self._maxconnections = 0
-        self._idle_cache = [] # the actual pool of idle connections
+        self._idle_cache = []  # the actual pool of idle connections
         self._lock = Condition()
         self._connections = 0
         # Establish an initial number of idle database connections:
@@ -288,44 +288,44 @@ class PooledDB:
                     self._wait_lock()
                 if len(self._shared_cache) < self._maxshared:
                     # shared cache is not full, get a dedicated connection
-                    try: # first try to get it from the idle cache
+                    try:  # first try to get it from the idle cache
                         con = self._idle_cache.pop(0)
-                    except IndexError: # else get a fresh connection
+                    except IndexError:  # else get a fresh connection
                         con = self.steady_connection()
                     else:
-                        con._ping_check() # check this connection
+                        con._ping_check()  # check this connection
                     con = SharedDBConnection(con)
                     self._connections += 1
-                else: # shared cache full or no more connections allowed
-                    self._shared_cache.sort() # least shared connection first
-                    con = self._shared_cache.pop(0) # get it
+                else:  # shared cache full or no more connections allowed
+                    self._shared_cache.sort()  # least shared connection first
+                    con = self._shared_cache.pop(0)  # get it
                     while con.con._transaction:
                         # do not share connections which are in a transaction
                         self._shared_cache.insert(0, con)
                         self._wait_lock()
                         self._shared_cache.sort()
                         con = self._shared_cache.pop(0)
-                    con.con._ping_check() # check the underlying connection
-                    con.share() # increase share of this connection
+                    con.con._ping_check()  # check the underlying connection
+                    con.share()  # increase share of this connection
                 # put the connection (back) into the shared cache
                 self._shared_cache.append(con)
                 self._lock.notify()
             finally:
                 self._lock.release()
             con = PooledSharedDBConnection(self, con)
-        else: # try to get a dedicated connection
+        else:  # try to get a dedicated connection
             self._lock.acquire()
             try:
                 while (self._maxconnections
                         and self._connections >= self._maxconnections):
                     self._wait_lock()
                 # connection limit not reached, get a dedicated connection
-                try: # first try to get it from the idle cache
+                try:  # first try to get it from the idle cache
                     con = self._idle_cache.pop(0)
-                except IndexError: # else get a fresh connection
+                except IndexError:  # else get a fresh connection
                     con = self.steady_connection()
                 else:
-                    con._ping_check() # check connection
+                    con._ping_check()  # check connection
                 con = PooledDedicatedDBConnection(self, con)
                 self._connections += 1
             finally:
@@ -342,26 +342,26 @@ class PooledDB:
         try:
             con.unshare()
             shared = con.shared
-            if not shared: # connection is idle,
-                try: # so try to remove it
-                    self._shared_cache.remove(con) # from shared cache
+            if not shared:  # connection is idle,
+                try:  # so try to remove it
+                    self._shared_cache.remove(con)  # from shared cache
                 except ValueError:
-                    pass # pool has already been closed
+                    pass  # pool has already been closed
         finally:
             self._lock.release()
-        if not shared: # connection has become idle,
-            self.cache(con.con) # so add it to the idle cache
+        if not shared:  # connection has become idle,
+            self.cache(con.con)  # so add it to the idle cache
 
     def cache(self, con):
         """Put a dedicated connection back into the idle cache."""
         self._lock.acquire()
         try:
             if not self._maxcached or len(self._idle_cache) < self._maxcached:
-                con._reset(force=self._reset) # rollback possible transaction
+                con._reset(force=self._reset)  # rollback possible transaction
                 # the idle cache is not full, so put it there
-                self._idle_cache.append(con) # append it to the idle cache
-            else: # if the idle cache is already full,
-                con.close() # then close the connection
+                self._idle_cache.append(con)  # append it to the idle cache
+            else:  # if the idle cache is already full,
+                con.close()  # then close the connection
             self._connections -= 1
             self._lock.notify()
         finally:
@@ -371,13 +371,13 @@ class PooledDB:
         """Close all connections in the pool."""
         self._lock.acquire()
         try:
-            while self._idle_cache: # close all idle connections
+            while self._idle_cache:  # close all idle connections
                 con = self._idle_cache.pop(0)
                 try:
                     con.close()
                 except Exception:
                     pass
-            if self._maxshared: # close all shared connections
+            if self._maxshared:  # close all shared connections
                 while self._shared_cache:
                     con = self._shared_cache.pop(0).con
                     try:

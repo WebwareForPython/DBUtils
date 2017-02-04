@@ -204,7 +204,7 @@ connection to the database will be opened that will be used from now on
 for this specific thread. When the thread closes the database connection,
 it will still be kept open so that the next time when a connection is
 requested by the same thread, this already opened connection can be used.
-The connecton will be closed automatically when the thread dies.</p>
+The connection will be closed automatically when the thread dies.</p>
 <p>In short: <span class="docutils literal">PersistentDB</span> tries to recycle database connections to
 increase the overall database access performance of your threaded application,
 but it makes sure that connections are never shared between threads.</p>
@@ -300,7 +300,7 @@ allowing for sophisticated failover and load-balancing mechanisms.</p></li>
 </ul>
 <p>For instance, if you are using <span class="docutils literal">pgdb</span> as your DB-API 2 database module and
 want every connection to your local database <span class="docutils literal">mydb</span> to be reused 1000 times:</p>
-<pre class="literal-block">import pgdb # import used DB-API 2 module
+<pre class="literal-block">import pgdb  # import used DB-API 2 module
 from DBUtils.PersistentDB import PersistentDB
 persist = PersistentDB(pgdb, 1000, database='mydb')</pre>
 <p>Once you have set up the generator with these parameters, you can request
@@ -372,7 +372,7 @@ allowing for sophisticated failover and load-balancing mechanisms.</p></li>
 </ul>
 <p>For instance, if you are using <span class="docutils literal">pgdb</span> as your DB-API 2 database module and
 want a pool of at least five connections to your local database <span class="docutils literal">mydb</span>:</p>
-<pre class="literal-block">import pgdb # import used DB-API 2 module
+<pre class="literal-block">import pgdb  # import used DB-API 2 module
 from DBUtils.PooledDB import PooledDB
 pool = PooledDB(pgdb, 5, database='mydb')</pre>
 <p>Once you have set up the connection pool you can request database connections
@@ -398,8 +398,8 @@ object stays alive as long as you are using it, like that:</p>
 cur = db.cursor()
 cur.execute(...)
 res = cur.fetchone()
-cur.close() # or del cur
-db.close() # or del db</pre>
+cur.close()  # or del cur
+db.close()  # or del db</pre>
 <p>Note that you need to explicitly start transactions by calling the
 <span class="docutils literal">begin()</span> method. This ensures that the connection will not be shared
 with other threads, that the transparent reopening will be suspended

@@ -16,7 +16,7 @@ be replaced and errors passed on until the transaction is completed.
 
 Measures are taken to make the database connections thread-affine.
 This means the same thread always uses the same cached connection,
-and no other thread will use it. So even if the underlying DB-API module
+and no other thread will use it.  So even if the underlying DB-API module
 is not thread-safe at the connection level this will be no problem here.
 
 For best performance, the application server should keep threads persistent.
@@ -56,14 +56,14 @@ by creating an instance of PersistentDB, passing the following parameters:
 
     The creator function or the connect function of the DB-API 2 compliant
     database module specified as the creator will receive any additional
-    parameters such as the host, database, user, password etc. You may
+    parameters such as the host, database, user, password etc.  You may
     choose some or all of these parameters in your own creator function,
     allowing for sophisticated failover and load-balancing mechanisms.
 
 For instance, if you are using pgdb as your DB-API 2 database module and want
 every connection to your local database 'mydb' to be reused 1000 times:
 
-    import pgdb # import used DB-API 2 module
+    import pgdb  # import used DB-API 2 module
     from DBUtils.PersistentDB import PersistentDB
     persist = PersistentDB(pgdb, 1000, database='mydb')
 
@@ -73,17 +73,17 @@ request database connections of that kind:
     db = persist.connection()
 
 You can use these connections just as if they were ordinary
-DB-API 2 connections. Actually what you get is the hardened
+DB-API 2 connections.  Actually what you get is the hardened
 SteadyDB version of the underlying DB-API 2 connection.
 
 Closing a persistent connection with db.close() will be silently
 ignored since it would be reopened at the next usage anyway and
-contrary to the intent of having persistent connections. Instead,
+contrary to the intent of having persistent connections.  Instead,
 the connection will be automatically closed when the thread dies.
 You can change this behavior be setting the closeable parameter.
 
 Note that you need to explicitly start transactions by calling the
-begin() method. This ensures that the transparent reopening will be
+begin() method.  This ensures that the transparent reopening will be
 suspended until the end of the transaction, and that the connection
 will be rolled back before being reused by the same thread.
 
@@ -199,7 +199,7 @@ class PersistentDB:
         """Get a steady, persistent DB-API 2 connection.
 
         The shareable parameter exists only for compatibility with the
-        PooledDB connection method. In reality, persistent connections
+        PooledDB connection method.  In reality, persistent connections
         are of course never shared with other threads.
 
         """

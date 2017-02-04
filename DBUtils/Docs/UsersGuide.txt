@@ -164,7 +164,7 @@ connection to the database will be opened that will be used from now on
 for this specific thread. When the thread closes the database connection,
 it will still be kept open so that the next time when a connection is
 requested by the same thread, this already opened connection can be used.
-The connecton will be closed automatically when the thread dies.
+The connection will be closed automatically when the thread dies.
 
 In short: ``PersistentDB`` tries to recycle database connections to
 increase the overall database access performance of your threaded application,
@@ -280,7 +280,7 @@ of ``PersistentDB``, passing the following parameters:
 For instance, if you are using ``pgdb`` as your DB-API 2 database module and
 want every connection to your local database ``mydb`` to be reused 1000 times::
 
-  import pgdb # import used DB-API 2 module
+  import pgdb  # import used DB-API 2 module
   from DBUtils.PersistentDB import PersistentDB
   persist = PersistentDB(pgdb, 1000, database='mydb')
 
@@ -370,7 +370,7 @@ following parameters:
 For instance, if you are using ``pgdb`` as your DB-API 2 database module and
 want a pool of at least five connections to your local database ``mydb``::
 
-  import pgdb # import used DB-API 2 module
+  import pgdb  # import used DB-API 2 module
   from DBUtils.PooledDB import PooledDB
   pool = PooledDB(pgdb, 5, database='mydb')
 
@@ -408,8 +408,8 @@ object stays alive as long as you are using it, like that::
   cur = db.cursor()
   cur.execute(...)
   res = cur.fetchone()
-  cur.close() # or del cur
-  db.close() # or del db
+  cur.close()  # or del cur
+  db.close()  # or del db
 
 Note that you need to explicitly start transactions by calling the
 ``begin()`` method. This ensures that the connection will not be shared

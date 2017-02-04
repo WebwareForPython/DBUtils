@@ -11,7 +11,7 @@ transaction with a begin() call will not be silently replaced.
 
 A typical situation where database connections are lost
 is when the database server or an intervening firewall is
-shutdown and restarted for maintenance reasons. In such a
+shutdown and restarted for maintenance reasons.  In such a
 case, all database connections would become unusable, even
 though the database service may be already available again.
 
@@ -41,7 +41,7 @@ first parameter when you open a connection (set it to None
 if you prefer unlimited usage), and an optional list of commands
 that may serve to prepare the session as the second parameter,
 and you can specify whether is is allowed to close the connection
-(by default this is true). When the connection to the PostgreSQL
+(by default this is true).  When the connection to the PostgreSQL
 database is lost or has been used too often, it will be automatically
 reset, without further notice.
 
@@ -157,7 +157,7 @@ class SteadyPgConnection:
         and it will not complain if you close it more than once.
 
         You can disallow closing connections by setting
-        the closeable parameter to something false. In this case,
+        the closeable parameter to something false.  In this case,
         closing tough connections will be silently ignored.
 
         """
@@ -272,25 +272,25 @@ class SteadyPgConnection:
         def tough_method(*args, **kwargs):
             transaction = self._transaction
             if not transaction:
-                try: # check whether connection status is bad
+                try:  # check whether connection status is bad
                     if not self._con.db.status:
                         raise AttributeError
-                    if self._maxusage: # or connection used too often
+                    if self._maxusage:  # or connection used too often
                         if self._usage >= self._maxusage:
                             raise AttributeError
                 except Exception:
-                    self.reset() # then reset the connection
+                    self.reset()  # then reset the connection
             try:
-                result = method(*args, **kwargs) # try connection method
-            except Exception: # error in query
-                if transaction: # inside a transaction
+                result = method(*args, **kwargs)  # try connection method
+            except Exception:  # error in query
+                if transaction:  # inside a transaction
                     self._transaction = False
-                    raise # propagate the error
-                elif self._con.db.status: # if it was not a connection problem
-                    raise # then propagate the error
-                else: # otherwise
-                    self.reset() # reset the connection
-                    result = method(*args, **kwargs) # and try one more time
+                    raise  # propagate the error
+                elif self._con.db.status:  # if it was not a connection problem
+                    raise  # then propagate the error
+                else:  # otherwise
+                    self.reset()  # reset the connection
+                    result = method(*args, **kwargs)  # and try one more time
             self._usage += 1
             return result
         return tough_method
@@ -313,6 +313,6 @@ class SteadyPgConnection:
     def __del__(self):
         """Delete the steady connection."""
         try:
-            self._close() # make sure the connection is closed
+            self._close()  # make sure the connection is closed
         except Exception:
             pass

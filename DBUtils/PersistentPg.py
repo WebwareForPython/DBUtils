@@ -16,7 +16,7 @@ be replaced and errors passed on until the transaction is completed.
 
 Measures are taken to make the database connections thread-affine.
 This means the same thread always uses the same cached connection,
-and no other thread will use it. So the fact that the classic PyGreSQL
+and no other thread will use it.  So the fact that the classic PyGreSQL
 pg module is not thread-safe at the connection level is no problem here.
 
 For best performance, the application server should keep threads persistent.
@@ -63,19 +63,19 @@ request database connections of that kind:
     db = persist.connection()
 
 You can use these connections just as if they were ordinary
-classic PyGreSQL API connections. Actually what you get is the
+classic PyGreSQL API connections.  Actually what you get is the
 hardened SteadyPg version of a classic PyGreSQL connection.
 
 Closing a persistent connection with db.close() will be silently
 ignored since it would be reopened at the next usage anyway and
-contrary to the intent of having persistent connections. Instead,
+contrary to the intent of having persistent connections.  Instead,
 the connection will be automatically closed when the thread dies.
 You can change this behavior be setting the closeable parameter.
 
 Note that you need to explicitly start transactions by calling the
-begin() method. This ensures that the transparent reopening will be
+begin() method.  This ensures that the transparent reopening will be
 suspended until the end of the transaction, and that the connection
-will be rolled back before being reused in the same thread. To end
+will be rolled back before being reused in the same thread.  To end
 transactions, use one of the end(), commit() or rollback() methods.
 
 By setting the threadlocal parameter to threading.local, getting

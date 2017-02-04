@@ -64,10 +64,10 @@ database connections from that pool:
     db = pool.connection()
 
 You can use these connections just as if they were ordinary
-classic PyGreSQL API connections. Actually what you get is a
+classic PyGreSQL API connections.  Actually what you get is a
 proxy class for the hardened SteadyPg version of the connection.
 
-The connection will not be shared with other threads. If you don't need
+The connection will not be shared with other threads.  If you don't need
 it any more, you should immediately return it to the pool with db.close().
 You can get another connection in the same way or with db.reopen().
 
@@ -76,17 +76,17 @@ Warning: In a threaded environment, never do the following:
     res = pool.connection().query(...).getresult()
 
 This would release the connection too early for reuse which may be
-fatal because the connections are not thread-safe. Make sure that the
+fatal because the connections are not thread-safe.  Make sure that the
 connection object stays alive as long as you are using it, like that:
 
     db = pool.connection()
     res = db.query(...).getresult()
-    db.close() # or del db
+    db.close()  # or del db
 
 Note that you need to explicitly start transactions by calling the
-begin() method. This ensures that the transparent reopening will be
+begin() method.  This ensures that the transparent reopening will be
 suspended until the end of the transaction, and that the connection will
-be rolled back before being given back to the connection pool. To end
+be rolled back before being given back to the connection pool.  To end
 transactions, use one of the end(), commit() or rollback() methods.
 
 
@@ -186,7 +186,7 @@ class PooledPg:
             self._blocking = blocking
         else:
             self._connections = None
-        self._cache = Queue(maxcached) # the actual connection pool
+        self._cache = Queue(maxcached)  # the actual connection pool
         # Establish an initial number of database connections:
         idle = [self.connection() for i in range(mincached)]
         while idle:
@@ -212,14 +212,14 @@ class PooledPg:
         """Put a connection back into the pool cache."""
         try:
             if self._reset == 2:
-                con.reset() # reset the connection completely
+                con.reset()  # reset the connection completely
             else:
                 if self._reset or con._transaction:
                     try:
-                        con.rollback() # rollback a possible transaction
+                        con.rollback()  # rollback a possible transaction
                     except Exception:
                         pass
-            self._cache.put(con, 0) # and then put it back into the cache
+            self._cache.put(con, 0)  # and then put it back into the cache
         except Full:
             con.close()
         if self._connections:

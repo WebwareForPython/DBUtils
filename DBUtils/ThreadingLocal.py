@@ -18,7 +18,7 @@ __all__ = ["local"]
 
 try:
     from threading import current_thread
-except ImportError: # Python >2.5
+except ImportError:  # Python >2.5
     from threading import currentThread as current_thread
 from threading import RLock, enumerate
 

@@ -16,7 +16,7 @@ For more information on Webware for Python, see:
 
 Measures are taken to make the pool of connections threadsafe
 regardless of the fact that the PyGreSQL pg module itself is
-not threadsafe at the connection level. Connections will never be
+not threadsafe at the connection level.  Connections will never be
 shared between threads, so you can safely use transactions.
 
 Usage:
@@ -34,16 +34,16 @@ you can demand database connections from that pool,
     db = dbpool.connection()
 
 and use them just as if they were ordinary PyGreSQL pg API
-connections. It's really just a proxy class.
+connections.  It's really just a proxy class.
 
 db.close() will return the connection to the pool, it will not
-actually close it. This is so your existing code works nicely.
+actually close it.  This is so your existing code works nicely.
 
 Ideas for improvement:
 
 * Do not create the maximum number of connections on startup
 already, but only a certain number and the rest on demand.
-* Detect and transparently reset "bad" connections. The PyGreSQL
+* Detect and transparently reset "bad" connections.  The PyGreSQL
 pg API provides a status attribute and a reset() method for that.
 * Connections should have some sort of "maximum usage limit"
 after which they should be automatically closed and reopened.
@@ -51,7 +51,7 @@ after which they should be automatically closed and reopened.
 
 Please note that these and other ideas have been already
 implemented in in PooledPg, a more sophisticated version
-of SimplePooledPg. You might also consider using PersistentPg
+of SimplePooledPg.  You might also consider using PersistentPg
 instead for thread-affine persistent PyGreSQL connections.
 SimplePooledPg may still serve as a very simple reference
 and example implementation for developers.

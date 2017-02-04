@@ -44,7 +44,7 @@ class DBUtilsExample(ExamplePage):
     else:
         dbmod_name = 'Pooled'
     dbapi_name = config.pop('dbapi', 'pg')
-    if dbapi_name == 'pg': # use the PyGreSQL classic DB API
+    if dbapi_name == 'pg':  # use the PyGreSQL classic DB API
         dbmod_name += 'Pg'
         if config.has_key('database'):
             config['dbname'] = config['database']
@@ -52,7 +52,7 @@ class DBUtilsExample(ExamplePage):
         if config.has_key('password'):
             config['passwd'] = config['password']
             del config['password']
-    else: # use a DB-API 2 compliant module
+    else:  # use a DB-API 2 compliant module
         dbmod_name += 'DB'
     dbapi = dbmod = dbclass = dbstatus = None
     try:
