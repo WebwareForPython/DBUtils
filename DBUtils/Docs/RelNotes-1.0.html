@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!DOCTYPE html>
 <html>
 <head>
 <title>DBUtils 1.0 Release Notes</title>
@@ -13,22 +13,22 @@
 
 <h2>Changes:</h2>
 <ul>
-<li>Added a <tt>failures</tt> parameter for configuring the exception classes for
+<li>Added a <code>failures</code> parameter for configuring the exception classes for
 which the failover mechanisms is applied (as suggested by Matthew Harriger).</li>
-<li>Added a <tt>closeable</tt> parameter for configuring whether connections
+<li>Added a <code>closeable</code> parameter for configuring whether connections
 can be closed (otherwise closing connections will be silently ignored).</li>
-<li>It is now possible to override defaults via the <tt>creator.dbapi</tt>
-and <tt>creator.threadsafety</tt> attributes.</li>
-<li>Added alias method <tt>dedicated_connection</tt> for
-<tt>connection(shareable=False)</tt>.</li>
-<li>Added a <tt>version</tt> attribute to all exported classes.</li>
-<li>Where <tt>0</tt> has the meaning "unlimited", parameters can now be also
-set to <tt>None</tt> instead.</li>
-<li>It turned out that <tt>threading.local</tt> does not work properly with
-<tt>mod_wsgi</tt>, so we use the Python implementation for thread-local data
-even when a faster <tt>threading.local</tt> implementation is available.
-A new parameter <tt>threadlocal</tt> allows you to pass an arbitrary class
-such as <tt>threading.local</tt> if you know it works in your environment.</li>
+<li>It is now possible to override defaults via the <code>creator.dbapi</code>
+and <code>creator.threadsafety</code> attributes.</li>
+<li>Added alias method <code>dedicated_connection</code> for
+<code>connection(shareable=False)</code>.</li>
+<li>Added a <code>version</code> attribute to all exported classes.</li>
+<li>Where <code>0</code> has the meaning "unlimited", parameters can now be also
+set to <code>None</code> instead.</li>
+<li>It turned out that <code>threading.local</code> does not work properly with
+<code>mod_wsgi</code>, so we use the Python implementation for thread-local data
+even when a faster <code>threading.local</code> implementation is available.
+A new parameter <code>threadlocal</code> allows you to pass an arbitrary class
+such as <code>threading.local</code> if you know it works in your environment.</li>
 </ul>
 
 <h2>Bugfixes and Improvements:</h2>
@@ -42,7 +42,7 @@ MySQLdb module (problem reported by Gregory Pinero).</li>
 </ul>
 
 <div class="footer">
-DBUtils (<a href="http://www.webwareforpython.org/DBUtils">www.webwareforpython.org/DBUtils</a>)
+DBUtils (<a href="https://github.com/Cito/DBUtils">github.com/Cito/DBUtils</a>)
 </div>
 </body>
 </html>

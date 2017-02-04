@@ -1,5 +1,5 @@
 /*
-	Webware for Python (http://www.webwareforpython.org)
+	Webware for Python (https://cito.github.io/w4py/)
 
 	Common style sheet for Webware's documentation pages
 */
@@ -18,10 +18,21 @@ body {
 }
 table {
 	empty-cells: show;
+	border-collapse: collapse;
+	margin: 0 auto;
+}
+table.doc {
+	border-spacing: 2px;
+	border-collapse: separate;
+	border-style: none;
 }
 td, th {
 	font-family: Verdana, Arial, Helvetica, sans-serif;
 	font-size: 10pt;
+}
+table.doc td, table.doc th {
+	padding: 4px;
+	border-style: none;
 }
 p {
 	margin-top: 6pt;
@@ -64,7 +75,7 @@ h1.titlebar {
 	color: white;
 	background-color: #025;
 }
-h1.header {
+h1.title, h1.header {
 	padding: 4pt;
 	margin-bottom: 12pt;
 	text-align: center;
@@ -87,6 +98,12 @@ div.footer {
 }
 .center {
 	text-align: center;
+}
+.top {
+	vertical-align: top;
+}
+.nowrap {
+	white-space: nowrap;
 }
 .contents {
 	font-family: Tahoma, Arial, Helvetica, sans-serif;

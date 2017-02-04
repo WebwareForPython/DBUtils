@@ -22,7 +22,7 @@ for rst_file in glob(join('DBUtils', 'Docs', '*.txt')):
 
     source = open(rst_file, 'r')
     destination=open(html_file, 'w')
-    publish_file(writer_name='html',
+    publish_file(writer_name='html5',
         source=source, destination=destination,
         settings_overrides = dict(
             stylesheet_path='Doc.css',
