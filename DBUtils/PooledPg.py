@@ -110,7 +110,10 @@ Licensed under the MIT license.
 
 __version__ = '1.1.1b1'
 
-from Queue import Queue, Empty, Full
+try:
+    from Queue import Queue, Empty, Full
+except ImportError:  # Python 3
+    from queue import Queue, Empty, Full
 
 from DBUtils.SteadyPg import SteadyPgConnection
 

@@ -26,8 +26,11 @@ class TestThreadingLocal(unittest.TestCase):
 
     def test2_ThreadLocal(self):
         def f():
-            items = mydata.__dict__.items()
-            items.sort()
+            try:
+                items = sorted(mydata.__dict__.items())
+            except NameError:  # Python < 2.4
+                items = mydata.__dict__.items()
+                items.sort()
             log.append(items)
             mydata.number = 11
             log.append(mydata.number)
@@ -57,8 +60,11 @@ class TestThreadingLocal(unittest.TestCase):
         del mydata.color
         self.assertEqual(mydata.squared(), 4)
         def f():
-            items = mydata.__dict__.items()
-            items.sort()
+            try:
+                items = sorted(mydata.__dict__.items())
+            except NameError:  # Python < 2.4
+                items = mydata.__dict__.items()
+                items.sort()
             log.append(items)
             mydata.number = 7
             log.append(mydata.number)

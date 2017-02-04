@@ -49,7 +49,7 @@ from DBUtils import SimplePooledDB
 
 def versionString(version):
     """Create version string."""
-    ver = map(str, version)
+    ver = [str(v) for v in version]
     numbers, rest = ver[:ver[2] == '0' and 2 or 3], ver[3:]
     return '.'.join(numbers) + '-'.join(rest)
 
@@ -131,7 +131,10 @@ class TestSimplePooledDB(unittest.TestCase):
 
     def test5_threadsafety_1(self):
         dbpool = self.my_dbpool(1, 2)
-        from Queue import Queue, Empty
+        try:
+            from Queue import Queue, Empty
+        except ImportError:  # Python 3
+            from queue import Queue, Empty
         queue = Queue(3)
         def connection():
             queue.put(dbpool.connection())
@@ -164,7 +167,7 @@ class TestSimplePooledDB(unittest.TestCase):
             dbpool = self.my_dbpool(threadsafety, 2)
             db1 = dbpool.connection()
             db2 = dbpool.connection()
-            for i in xrange(100):
+            for i in range(100):
                 dbpool.connection().cursor()
             self.assertEqual(db1.open_cursors, 50)
             self.assertEqual(db2.open_cursors, 50)

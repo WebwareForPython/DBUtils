@@ -20,7 +20,7 @@ import sys
 
 sys.modules['pg'] = sys.modules[__name__]
 
-class Error(StandardError): pass
+class Error(Exception): pass
 class DatabaseError(Error): pass
 class InternalError(DatabaseError): pass
 class ProgrammingError(DatabaseError): pass

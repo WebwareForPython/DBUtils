@@ -74,6 +74,11 @@ __version__ = '1.1.1b1'
 
 from pg import DB as PgConnection
 
+try:
+    baseint = (int, long)
+except NameError:  # Python 3
+    baseint = int
+
 
 class SteadyPgError(Exception):
     """General SteadyPg error."""
@@ -118,7 +123,7 @@ class SteadyPgConnection:
         # proper initialization of the connection
         if maxusage is None:
             maxusage = 0
-        if not isinstance(maxusage, (int, long)):
+        if not isinstance(maxusage, baseint):
             raise TypeError("'maxusage' must be an integer value.")
         self._maxusage = maxusage
         self._setsession_sql = setsession

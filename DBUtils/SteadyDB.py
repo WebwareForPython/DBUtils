@@ -94,6 +94,11 @@ __version__ = '1.1.1b1'
 
 import sys
 
+try:
+    baseint = (int, long)
+except NameError:  # Python 3
+    baseint = int
+
 
 class SteadyDBError(Exception):
     """General SteadyDB error."""
@@ -169,7 +174,7 @@ class SteadyDBConnection:
             raise TypeError("%r is not a connection provider." % (creator,))
         if maxusage is None:
             maxusage = 0
-        if not isinstance(maxusage, (int, long)):
+        if not isinstance(maxusage, baseint):
             raise TypeError("'maxusage' must be an integer value.")
         self._maxusage = maxusage
         self._setsession_sql = setsession

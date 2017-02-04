@@ -20,7 +20,7 @@ dbapi = sys.modules[__name__]
 
 threadsafety = 2
 
-class Error(StandardError): pass
+class Error(Exception): pass
 class DatabaseError(Error): pass
 class OperationalError(DatabaseError): pass
 class InternalError(DatabaseError): pass
