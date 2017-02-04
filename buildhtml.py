@@ -8,7 +8,7 @@ from docutils.core import publish_file
 
 print "Creating the documentation..."
 
-for rst_file in glob(join('DBUtils', 'Docs', '*.txt')):
+for rst_file in glob(join('DBUtils', 'Docs', '*.rst')):
     name = splitext(rst_file)[0]
     lang = splitext(name)[1]
     if lang.startswith('.'):
