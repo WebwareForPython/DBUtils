@@ -3,7 +3,7 @@
 
 :Version: 1.1.1b1
 :Released: 01/31/17
-:Translations: English German_
+:Translations: English | German_
 
 .. _German: UsersGuide.de.html
 
