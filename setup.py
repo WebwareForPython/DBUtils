@@ -1,6 +1,6 @@
 """Setup Script for DBUtils"""
 
-__version__ = '1.1.1b1'
+__version__ = '1.1.1'
 
 from sys import version_info
 
@@ -25,10 +25,6 @@ except ImportError:
         except AttributeError:
             DistributionMetadata.classifiers = None
         try:
-            DistributionMetadata.download_url
-        except AttributeError:
-            DistributionMetadata.download_url = None
-        try:
             DistributionMetadata.package_data
         except AttributeError:
             DistributionMetadata.package_data = None
@@ -47,7 +43,7 @@ to a database that can be used in all kinds of multi-threaded environments
 like Webware for Python or other web application servers. The suite supports
 DB-API 2 compliant database interfaces and the classic PyGreSQL interface.
 ''',
-    classifiers=['Development Status :: 4 - Beta',
+    classifiers=['Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
@@ -63,7 +59,7 @@ DB-API 2 compliant database interfaces and the classic PyGreSQL interface.
     ],
     author='Christoph Zwerschke',
     author_email='cito@online.de',
-    url='https://github.com/Cito/DBUtils',
+    url='https://cito.github.io/DBUtils/',
     platforms=['any'],
     license='MIT License',
     packages=['DBUtils', 'DBUtils.Examples', 'DBUtils.Tests'],

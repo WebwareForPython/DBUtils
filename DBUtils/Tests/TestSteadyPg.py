@@ -12,7 +12,7 @@ Copyright and credit info:
 
 """
 
-__version__ = '1.1.1b1'
+__version__ = '1.1.1'
 
 import sys
 

@@ -108,7 +108,7 @@ Licensed under the MIT license.
 
 """
 
-__version__ = '1.1.1b1'
+__version__ = '1.1.1'
 
 try:
     from Queue import Queue, Empty, Full

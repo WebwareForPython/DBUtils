@@ -14,9 +14,9 @@ consistently in all files of the distribution.
 
 # Update this to change the current version and release date:
 # version = ('X', 'Y', 0)
-version = (1, 1, 1, 'b1')
+version = (1, 1, 1)
 # releaseDate = '@@/@@/@@'
-releaseDate = '01/31/17'
+releaseDate = '02/04/17'
 
 # Verbose output (output unchanged files also):
 verbose = False
@@ -111,4 +111,4 @@ propReplace.replaceGlob('DBUtils/Properties.py')
 htmlReplace.replaceGlob('DBUtils/Docs/*.html')
 
 # Replace in reStructuredText files:
-rstReplace.replaceGlob('DBUtils/Docs/*.txt')
+rstReplace.replaceGlob('DBUtils/Docs/*.rst')

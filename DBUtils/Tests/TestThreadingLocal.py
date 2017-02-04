@@ -1,6 +1,6 @@
 """Test the ThreadingLocal module."""
 
-__version__ = '1.1.1b1'
+__version__ = '1.1.1'
 
 import sys
 from threading import Thread

@@ -16,7 +16,7 @@ Create a new DBUtils release:
 
 * Build html pages using `buildhtml.py`.
 
-* Create a tag in the SVN repository.
+* Create a tag in the Git repository.
 
 * Create a source tarball with:
 
@@ -26,33 +26,44 @@ Create a new DBUtils release:
 
   Under Windows, this will be a .zip file, otherwise a .tar.gz file.
   You can force .tar.gz under Windows with `--formats=gztar`,
-  but you need to use Cygwin or have a tar binary installed.
+  but you need to use WSL, Cygwin or have a tar binary installed.
   Generally, it is better to create the release under Unix to avoid
-  problems with DOS linefeeds and missing file permission.
+  problems with DOS line feeds and wrong file permission.
 
-* Upload to the Python Package Index (PyPI, aka "cheese shop"):
+* Upload to the Python Package Index:
 
-    In your (Unix/Cygwin) home directory, create a .pypirc file as follows:
+    Create a .pypirc file in your home directory as follows:
 
-        echo "[server-login]
+        echo "[pypi]
+        repository=https://pypi.python.org/pypi
         username:myusername
-        password:mypassword" > .pypirc
+        password:mypassword
+        
+        [pypitest]
+        repository=https://testpypi.python.org/pypi
+        username:myusername
+        password:mypassword       
+        " > ~.pypirc
 
-* Register the project with:
+* Register the project on the test PyPI with:
 
-        python setup.py register
+        python setup.py register -r pypitest
 
-* Upload the source package with:
+* Upload the source package to the test PyPI with:
 
-        python setup.py sdist upload
+        python setup.py sdist upload -r pypitest
 
   You have to install setuptools to make this work.
-  Alternatively, you can simply upload using the web interface.
+  
+* Register and upload the project to the real PyPI with:
 
-  See also: http://www.python.org/~jeremy/weblog/030924.html
+        python setup.py register -r pypi
+        python setup.py sdist upload -r pypi
 
-* Also, don't forget to update the Webware homepage:
+    See also: http://peterdowns.com/posts/first-time-with-pypi.html
 
-  * http://www.w4py.org/DBUtils
-  * http://www.w4py.org/DBUtils/Docs/
-  * http://www.w4py.org/downloads/DBUtils/
+* Don't forget to update the home page:
+
+    * https://cito.github.io/DBUtils/
+    * https://cito.github.io/w4py/
+
