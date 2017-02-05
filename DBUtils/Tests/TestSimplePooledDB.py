@@ -49,7 +49,7 @@ from DBUtils import SimplePooledDB
 def versionString(version):
     """Create version string."""
     ver = [str(v) for v in version]
-    numbers, rest = ver[:ver[2] == '0' and 2 or 3], ver[3:]
+    numbers, rest = ver[:2 if ver[2] == '0' else 3], ver[3:]
     return '.'.join(numbers) + '-'.join(rest)
 
 

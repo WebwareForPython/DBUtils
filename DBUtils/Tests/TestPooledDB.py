@@ -514,7 +514,7 @@ class TestPooledDB(unittest.TestCase):
             db.cursor().execute('select test')
             cache.append(db)
         for i, db in enumerate(cache):
-            self.assertEqual(db._shared_con.shared, 2 <= i < 4 and 1 or 2)
+            self.assertEqual(db._shared_con.shared, 1 if 2 <= i < 4 else 2)
         cache[2].begin()
         cache[3].begin()
         db = pool.connection()

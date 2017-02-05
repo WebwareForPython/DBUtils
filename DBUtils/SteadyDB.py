@@ -188,7 +188,7 @@ class SteadyDBConnection:
                 failures, tuple) and not issubclass(failures, Exception):
             raise TypeError("'failures' must be a tuple of exceptions.")
         self._failures = failures
-        self._ping = isinstance(ping, int) and ping or 0
+        self._ping = ping if isinstance(ping, int) else 0
         self._closeable = closeable
         self._args, self._kwargs = args, kwargs
         self._store(self._create())
@@ -667,7 +667,7 @@ class SteadyDBCursor:
     def __getattr__(self, name):
         """Inherit methods and attributes of underlying cursor."""
         if self._cursor:
-            if name.startswith('execute') or name.startswith('call'):
+            if name.startswith(('execute', 'call')):
                 # make execution methods "tough"
                 return self._get_tough_method(name)
             else:

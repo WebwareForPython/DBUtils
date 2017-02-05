@@ -440,10 +440,10 @@ class TestSteadyDB(unittest.TestCase):
             if i == 5:
                 db._con.valid = cursor._cursor.valid = False
             cursor.callproc('test')
-            j = (i + (i < 5 and 3 or -5)) % 10 + 1
+            j = (i + (3 if i < 5 else -5)) % 10 + 1
             self.assertEqual(db._usage, j)
             self.assertEqual(db._con.num_uses, j)
-            j = i < 5 and 3 or 0
+            j = 3 if i < 5 else 0
             self.assertEqual(db._con.num_queries, j)
         db.close()
         cursor.execute('select test1')

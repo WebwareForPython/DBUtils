@@ -321,9 +321,9 @@ class TestSteadyPg(unittest.TestCase):
                 db.db.status = False
             r = db.get_tables()
             self.assertEqual(r, 'test')
-            j = (i + (i < 5 and 3 or -5)) % 10 + 1
+            j = (i + (3 if i < 5 else -5)) % 10 + 1
             self.assertEqual(db._usage, j)
-            j = i < 5 and 3 or 0
+            j = 3 if i < 5 else 0
             self.assertEqual(db.num_queries, j)
         db.close()
         self.assertEqual(db.query('select test1'), 'test1')

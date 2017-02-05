@@ -63,7 +63,7 @@ class DBUtilsExample(ExamplePage):
                 if dbapi_name != 'pg':
                     config['creator'] = dbapi
                 dbclass = getattr(dbmod, dbmod_name)(**config)
-            except dbapi.Error, error:
+            except dbapi.Error as error:
                 dbstatus = str(error)
             except Exception:
                 dbstatus = 'Could not connect to the database.'
@@ -107,7 +107,7 @@ class DBUtilsExample(ExamplePage):
 
     def outputMsg(self, msg, error=False):
         self._output.append('<p style="color:%s">%s</p>'
-            % (error and 'red' or 'green', msg))
+            % ('red' if error else 'green', msg))
 
     def connection(self, shareable=True):
         if self.dbstatus:
@@ -118,7 +118,7 @@ class DBUtilsExample(ExamplePage):
                     return self.dbclass.connection(shareable)
                 else:
                     return self.dbclass.connection()
-            except self.dbapi.Error, error:
+            except self.dbapi.Error as error:
                 error = str(error)
             except Exception:
                 error = 'Cannot connect to the database.'
@@ -288,7 +288,7 @@ class DBUtilsExample(ExamplePage):
             '<tr><th>Name</th><th>Seminar</th><th>Paid</th>'
             '<th>%s</th></tr>' % button)
         for name, id, title, paid in result:
-            paid = paid and 'Yes' or 'No'
+            paid = 'Yes' if paid else 'No'
             id = id.ljust(4) + name
             wr('<tr><td>%s</td><td>%s</td><td>%s</td>'
                 '<td><input type="checkbox" name="id" value="%s"></td>'
