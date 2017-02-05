@@ -1,0 +1,18 @@
+# Travis CI configuration
+# see https://docs.travis-ci.com/user/languages/python
+
+language: python
+
+python:
+  - "2.6"
+  - "2.7"
+  - "3.3"
+  - "3.4"
+  - "3.5"
+  - "3.6"
+
+install:
+  - pip install -U pytest
+  - pip install .
+
+script: pytest DBUtils/Tests/Test*.py
