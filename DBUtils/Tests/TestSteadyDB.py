@@ -10,21 +10,34 @@ Copyright and credit info:
 
 """
 
-__version__ = '1.1.1'
-
 import sys
 
-# This module also serves as a mock object for the DB-API 2 module:
+__version__ = '1.2'
 
+# This module also serves as a mock object for the DB-API 2 module:
 dbapi = sys.modules[__name__]
 
 threadsafety = 2
 
-class Error(Exception): pass
-class DatabaseError(Error): pass
-class OperationalError(DatabaseError): pass
-class InternalError(DatabaseError): pass
-class ProgrammingError(DatabaseError): pass
+
+class Error(Exception):
+    pass
+
+
+class DatabaseError(Error):
+    pass
+
+
+class OperationalError(DatabaseError):
+    pass
+
+
+class InternalError(DatabaseError):
+    pass
+
+
+class ProgrammingError(DatabaseError):
+    pass
 
 
 def connect(database=None, user=None):
@@ -166,18 +179,18 @@ class TestSteadyDB(unittest.TestCase):
             user='SteadyDBTestUser')
         db.__class__.has_ping = False
         db.__class__.num_pings = 0
-        self.assert_(hasattr(db, 'database'))
+        self.assertTrue(hasattr(db, 'database'))
         self.assertEqual(db.database, 'SteadyDBTestDB')
-        self.assert_(hasattr(db, 'user'))
+        self.assertTrue(hasattr(db, 'user'))
         self.assertEqual(db.user, 'SteadyDBTestUser')
-        self.assert_(hasattr(db, 'cursor'))
-        self.assert_(hasattr(db, 'close'))
-        self.assert_(hasattr(db, 'open_cursors'))
-        self.assert_(hasattr(db, 'num_uses'))
-        self.assert_(hasattr(db, 'num_queries'))
-        self.assert_(hasattr(db, 'session'))
-        self.assert_(hasattr(db, 'valid'))
-        self.assert_(db.valid)
+        self.assertTrue(hasattr(db, 'cursor'))
+        self.assertTrue(hasattr(db, 'close'))
+        self.assertTrue(hasattr(db, 'open_cursors'))
+        self.assertTrue(hasattr(db, 'num_uses'))
+        self.assertTrue(hasattr(db, 'num_queries'))
+        self.assertTrue(hasattr(db, 'session'))
+        self.assertTrue(hasattr(db, 'valid'))
+        self.assertTrue(db.valid)
         self.assertEqual(db.open_cursors, 0)
         for i in range(3):
             cursor = db.cursor()
@@ -191,39 +204,39 @@ class TestSteadyDB(unittest.TestCase):
         del cursor
         self.assertEqual(db.open_cursors, 0)
         cursor = db.cursor()
-        self.assert_(hasattr(cursor, 'execute'))
-        self.assert_(hasattr(cursor, 'fetchone'))
-        self.assert_(hasattr(cursor, 'callproc'))
-        self.assert_(hasattr(cursor, 'close'))
-        self.assert_(hasattr(cursor, 'valid'))
-        self.assert_(cursor.valid)
+        self.assertTrue(hasattr(cursor, 'execute'))
+        self.assertTrue(hasattr(cursor, 'fetchone'))
+        self.assertTrue(hasattr(cursor, 'callproc'))
+        self.assertTrue(hasattr(cursor, 'close'))
+        self.assertTrue(hasattr(cursor, 'valid'))
+        self.assertTrue(cursor.valid)
         self.assertEqual(db.open_cursors, 1)
         for i in range(3):
             self.assertEqual(db.num_uses, i)
             self.assertEqual(db.num_queries, i)
             cursor.execute('select test%d' % i)
             self.assertEqual(cursor.fetchone(), 'test%d' % i)
-        self.assert_(cursor.valid)
+        self.assertTrue(cursor.valid)
         self.assertEqual(db.open_cursors, 1)
         for i in range(4):
             cursor.callproc('test')
         cursor.close()
-        self.assert_(not cursor.valid)
+        self.assertTrue(not cursor.valid)
         self.assertEqual(db.open_cursors, 0)
         self.assertEqual(db.num_uses, 7)
         self.assertEqual(db.num_queries, 3)
         self.assertRaises(InternalError, cursor.close)
         self.assertRaises(InternalError, cursor.execute, 'select test')
-        self.assert_(db.valid)
-        self.assert_(not db.__class__.has_ping)
+        self.assertTrue(db.valid)
+        self.assertTrue(not db.__class__.has_ping)
         self.assertEqual(db.__class__.num_pings, 0)
         self.assertRaises(AttributeError, db.ping)
         self.assertEqual(db.__class__.num_pings, 1)
         db.__class__.has_ping = True
-        self.assert_(db.ping() is None)
+        self.assertTrue(db.ping() is None)
         self.assertEqual(db.__class__.num_pings, 2)
         db.close()
-        self.assert_(not db.valid)
+        self.assertTrue(not db.valid)
         self.assertEqual(db.num_uses, 0)
         self.assertEqual(db.num_queries, 0)
         self.assertRaises(InternalError, db.close)
@@ -254,37 +267,37 @@ class TestSteadyDB(unittest.TestCase):
     def test03_Close(self):
         for closeable in (False, True):
             db = SteadyDBconnect(dbapi, closeable=closeable)
-            self.assert_(db._con.valid)
+            self.assertTrue(db._con.valid)
             db.close()
-            self.assert_(closeable ^ db._con.valid)
+            self.assertTrue(closeable ^ db._con.valid)
             db.close()
-            self.assert_(closeable ^ db._con.valid)
+            self.assertTrue(closeable ^ db._con.valid)
             db._close()
-            self.assert_(not db._con.valid)
+            self.assertTrue(not db._con.valid)
             db._close()
-            self.assert_(not db._con.valid)
+            self.assertTrue(not db._con.valid)
 
     def test04_Connection(self):
         db = SteadyDBconnect(dbapi, 0, None, None, None, True,
             'SteadyDBTestDB', user='SteadyDBTestUser')
-        self.assert_(isinstance(db, SteadyDBConnection))
-        self.assert_(hasattr(db, '_con'))
-        self.assert_(hasattr(db, '_usage'))
+        self.assertTrue(isinstance(db, SteadyDBConnection))
+        self.assertTrue(hasattr(db, '_con'))
+        self.assertTrue(hasattr(db, '_usage'))
         self.assertEqual(db._usage, 0)
-        self.assert_(hasattr(db._con, 'valid'))
-        self.assert_(db._con.valid)
-        self.assert_(hasattr(db._con, 'cursor'))
-        self.assert_(hasattr(db._con, 'close'))
-        self.assert_(hasattr(db._con, 'open_cursors'))
-        self.assert_(hasattr(db._con, 'num_uses'))
-        self.assert_(hasattr(db._con, 'num_queries'))
-        self.assert_(hasattr(db._con, 'session'))
-        self.assert_(hasattr(db._con, 'database'))
+        self.assertTrue(hasattr(db._con, 'valid'))
+        self.assertTrue(db._con.valid)
+        self.assertTrue(hasattr(db._con, 'cursor'))
+        self.assertTrue(hasattr(db._con, 'close'))
+        self.assertTrue(hasattr(db._con, 'open_cursors'))
+        self.assertTrue(hasattr(db._con, 'num_uses'))
+        self.assertTrue(hasattr(db._con, 'num_queries'))
+        self.assertTrue(hasattr(db._con, 'session'))
+        self.assertTrue(hasattr(db._con, 'database'))
         self.assertEqual(db._con.database, 'SteadyDBTestDB')
-        self.assert_(hasattr(db._con, 'user'))
+        self.assertTrue(hasattr(db._con, 'user'))
         self.assertEqual(db._con.user, 'SteadyDBTestUser')
-        self.assert_(hasattr(db, 'cursor'))
-        self.assert_(hasattr(db, 'close'))
+        self.assertTrue(hasattr(db, 'cursor'))
+        self.assertTrue(hasattr(db, 'close'))
         self.assertEqual(db._con.open_cursors, 0)
         for i in range(3):
             cursor = db.cursor()
@@ -298,12 +311,12 @@ class TestSteadyDB(unittest.TestCase):
         del cursor
         self.assertEqual(db._con.open_cursors, 0)
         cursor = db.cursor()
-        self.assert_(hasattr(cursor, 'execute'))
-        self.assert_(hasattr(cursor, 'fetchone'))
-        self.assert_(hasattr(cursor, 'callproc'))
-        self.assert_(hasattr(cursor, 'close'))
-        self.assert_(hasattr(cursor, 'valid'))
-        self.assert_(cursor.valid)
+        self.assertTrue(hasattr(cursor, 'execute'))
+        self.assertTrue(hasattr(cursor, 'fetchone'))
+        self.assertTrue(hasattr(cursor, 'callproc'))
+        self.assertTrue(hasattr(cursor, 'close'))
+        self.assertTrue(hasattr(cursor, 'valid'))
+        self.assertTrue(cursor.valid)
         self.assertEqual(db._con.open_cursors, 1)
         for i in range(3):
             self.assertEqual(db._usage, i)
@@ -311,27 +324,27 @@ class TestSteadyDB(unittest.TestCase):
             self.assertEqual(db._con.num_queries, i)
             cursor.execute('select test%d' % i)
             self.assertEqual(cursor.fetchone(), 'test%d' % i)
-        self.assert_(cursor.valid)
+        self.assertTrue(cursor.valid)
         self.assertEqual(db._con.open_cursors, 1)
         for i in range(4):
             cursor.callproc('test')
         cursor.close()
-        self.assert_(not cursor.valid)
+        self.assertTrue(not cursor.valid)
         self.assertEqual(db._con.open_cursors, 0)
         self.assertEqual(db._usage, 7)
         self.assertEqual(db._con.num_uses, 7)
         self.assertEqual(db._con.num_queries, 3)
         cursor.close()
         cursor.execute('select test8')
-        self.assert_(cursor.valid)
+        self.assertTrue(cursor.valid)
         self.assertEqual(db._con.open_cursors, 1)
         self.assertEqual(cursor.fetchone(), 'test8')
         self.assertEqual(db._usage, 8)
         self.assertEqual(db._con.num_uses, 8)
         self.assertEqual(db._con.num_queries, 4)
-        self.assert_(db._con.valid)
+        self.assertTrue(db._con.valid)
         db.close()
-        self.assert_(not db._con.valid)
+        self.assertTrue(not db._con.valid)
         self.assertEqual(db._con.open_cursors, 0)
         self.assertEqual(db._usage, 8)
         self.assertEqual(db._con.num_uses, 0)
@@ -340,7 +353,7 @@ class TestSteadyDB(unittest.TestCase):
         db.close()
         self.assertRaises(InternalError, db._con.cursor)
         cursor = db.cursor()
-        self.assert_(db._con.valid)
+        self.assertTrue(db._con.valid)
         cursor.execute('select test11')
         self.assertEqual(cursor.fetchone(), 'test11')
         cursor.execute('select test12')
@@ -358,19 +371,19 @@ class TestSteadyDB(unittest.TestCase):
         self.assertEqual(db._con.open_cursors, 0)
         self.assertEqual(db._con.num_queries, 0)
         cursor = db.cursor()
-        self.assert_(cursor.valid)
+        self.assertTrue(cursor.valid)
         cursor.callproc('test')
         cursor._cursor.valid = False
-        self.assert_(not cursor.valid)
+        self.assertTrue(not cursor.valid)
         self.assertRaises(InternalError, cursor._cursor.callproc, 'test')
         cursor.callproc('test')
-        self.assert_(cursor.valid)
+        self.assertTrue(cursor.valid)
         cursor._cursor.callproc('test')
         self.assertEqual(db._usage, 2)
         self.assertEqual(db._con.num_uses, 3)
         db._con.valid = cursor._cursor.valid = False
         cursor.callproc('test')
-        self.assert_(cursor.valid)
+        self.assertTrue(cursor.valid)
         self.assertEqual(db._usage, 1)
         self.assertEqual(db._con.num_uses, 1)
         cursor.execute('set doit')
@@ -400,7 +413,7 @@ class TestSteadyDB(unittest.TestCase):
             cursor.execute('select test%d' % i)
             r = cursor.fetchone()
             self.assertEqual(r, 'test%d' % i)
-            self.assert_(db._con.valid)
+            self.assertTrue(db._con.valid)
             j = i % 10 + 1
             self.assertEqual(db._usage, j)
             self.assertEqual(db._con.num_uses, j)
@@ -408,7 +421,7 @@ class TestSteadyDB(unittest.TestCase):
         self.assertEqual(db._con.open_cursors, 1)
         for i in range(100):
             cursor.callproc('test')
-            self.assert_(db._con.valid)
+            self.assertTrue(db._con.valid)
             j = i % 10 + 1
             self.assertEqual(db._usage, j)
             self.assertEqual(db._con.num_uses, j)
@@ -441,15 +454,15 @@ class TestSteadyDB(unittest.TestCase):
 
     def test07_ConnectionSetSession(self):
         db = SteadyDBconnect(dbapi, 3, ('set time zone', 'set datestyle'))
-        self.assert_(hasattr(db, '_usage'))
+        self.assertTrue(hasattr(db, '_usage'))
         self.assertEqual(db._usage, 0)
-        self.assert_(hasattr(db._con, 'open_cursors'))
+        self.assertTrue(hasattr(db._con, 'open_cursors'))
         self.assertEqual(db._con.open_cursors, 0)
-        self.assert_(hasattr(db._con, 'num_uses'))
+        self.assertTrue(hasattr(db._con, 'num_uses'))
         self.assertEqual(db._con.num_uses, 2)
-        self.assert_(hasattr(db._con, 'num_queries'))
+        self.assertTrue(hasattr(db._con, 'num_queries'))
         self.assertEqual(db._con.num_queries, 0)
-        self.assert_(hasattr(db._con, 'session'))
+        self.assertTrue(hasattr(db._con, 'session'))
         self.assertEqual(tuple(db._con.session), ('time zone', 'datestyle'))
         for i in range(11):
             db.cursor().execute('select test')
@@ -555,7 +568,7 @@ class TestSteadyDB(unittest.TestCase):
         db.close()
         db.cursor().execute('select test')
         self.assertEqual(Connection.num_pings, 0)
-        self.assert_(db._ping_check() is None)
+        self.assertTrue(db._ping_check() is None)
         self.assertEqual(Connection.num_pings, 1)
         db = SteadyDBconnect(dbapi, ping=7)
         db.cursor().execute('select test')
@@ -563,7 +576,7 @@ class TestSteadyDB(unittest.TestCase):
         db.close()
         db.cursor().execute('select test')
         self.assertEqual(Connection.num_pings, 2)
-        self.assert_(db._ping_check() is None)
+        self.assertTrue(db._ping_check() is None)
         self.assertEqual(Connection.num_pings, 2)
         Connection.has_ping = True
         db = SteadyDBconnect(dbapi)
@@ -572,7 +585,7 @@ class TestSteadyDB(unittest.TestCase):
         db.close()
         db.cursor().execute('select test')
         self.assertEqual(Connection.num_pings, 2)
-        self.assert_(db._ping_check())
+        self.assertTrue(db._ping_check())
         self.assertEqual(Connection.num_pings, 3)
         db = SteadyDBconnect(dbapi, ping=1)
         db.cursor().execute('select test')
@@ -580,10 +593,10 @@ class TestSteadyDB(unittest.TestCase):
         db.close()
         db.cursor().execute('select test')
         self.assertEqual(Connection.num_pings, 3)
-        self.assert_(db._ping_check())
+        self.assertTrue(db._ping_check())
         self.assertEqual(Connection.num_pings, 4)
         db.close()
-        self.assert_(db._ping_check())
+        self.assertTrue(db._ping_check())
         self.assertEqual(Connection.num_pings, 5)
         db = SteadyDBconnect(dbapi, ping=7)
         db.cursor().execute('select test')
@@ -695,58 +708,58 @@ class TestSteadyDB(unittest.TestCase):
     def test16_ResetTransaction(self):
         db = SteadyDBconnect(dbapi, database='ok')
         db.begin()
-        self.assert_(not db._con.session)
+        self.assertTrue(not db._con.session)
         db.close()
-        self.assert_(not db._con.session)
+        self.assertTrue(not db._con.session)
         db = SteadyDBconnect(dbapi, database='ok', closeable=False)
         db.begin()
-        self.assert_(not db._con.session)
+        self.assertTrue(not db._con.session)
         db.close()
         self.assertEqual(db._con.session, ['rollback'])
 
     def test17_CommitError(self):
         db = SteadyDBconnect(dbapi, database='ok')
         db.begin()
-        self.assert_(not db._con.session)
-        self.assert_(db._con.valid)
+        self.assertTrue(not db._con.session)
+        self.assertTrue(db._con.valid)
         db.commit()
         self.assertEqual(db._con.session, ['commit'])
-        self.assert_(db._con.valid)
+        self.assertTrue(db._con.valid)
         db.begin()
         db._con.valid = False
         con = db._con
         self.assertRaises(InternalError, db.commit)
-        self.assert_(not db._con.session)
-        self.assert_(db._con.valid)
-        self.assert_(con is not db._con)
+        self.assertTrue(not db._con.session)
+        self.assertTrue(db._con.valid)
+        self.assertTrue(con is not db._con)
         db.begin()
-        self.assert_(not db._con.session)
-        self.assert_(db._con.valid)
+        self.assertTrue(not db._con.session)
+        self.assertTrue(db._con.valid)
         db.commit()
         self.assertEqual(db._con.session, ['commit'])
-        self.assert_(db._con.valid)
+        self.assertTrue(db._con.valid)
 
     def test18_RollbackError(self):
         db = SteadyDBconnect(dbapi, database='ok')
         db.begin()
-        self.assert_(not db._con.session)
-        self.assert_(db._con.valid)
+        self.assertTrue(not db._con.session)
+        self.assertTrue(db._con.valid)
         db.rollback()
         self.assertEqual(db._con.session, ['rollback'])
-        self.assert_(db._con.valid)
+        self.assertTrue(db._con.valid)
         db.begin()
         db._con.valid = False
         con = db._con
         self.assertRaises(InternalError, db.rollback)
-        self.assert_(not db._con.session)
-        self.assert_(db._con.valid)
-        self.assert_(con is not db._con)
+        self.assertTrue(not db._con.session)
+        self.assertTrue(db._con.valid)
+        self.assertTrue(con is not db._con)
         db.begin()
-        self.assert_(not db._con.session)
-        self.assert_(db._con.valid)
+        self.assertTrue(not db._con.session)
+        self.assertTrue(db._con.valid)
         db.rollback()
         self.assertEqual(db._con.session, ['rollback'])
-        self.assert_(db._con.valid)
+        self.assertTrue(db._con.valid)
 
 
 if __name__ == '__main__':

@@ -12,12 +12,11 @@ Copyright and credit info:
 
 """
 
-__version__ = '1.1.1'
-
 import sys
 
-# This module also serves as a mock object for an arbitrary DB-API 2 module:
+__version__ = '1.2'
 
+# This module also serves as a mock object for an arbitrary DB-API 2 module:
 dbModule = sys.modules[__name__]
 
 threadsafety = 1
@@ -79,12 +78,12 @@ class TestSimplePooledDB(unittest.TestCase):
         for threadsafety in (1, 2, 3):
             dbpool = self.my_dbpool(threadsafety, 1)
             db = dbpool.connection()
-            self.assert_(hasattr(db, 'cursor'))
-            self.assert_(hasattr(db, 'open_cursors'))
+            self.assertTrue(hasattr(db, 'cursor'))
+            self.assertTrue(hasattr(db, 'open_cursors'))
             self.assertEqual(db.open_cursors, 0)
-            self.assert_(hasattr(db, 'database'))
+            self.assertTrue(hasattr(db, 'database'))
             self.assertEqual(db.database, 'SimplePooledDBTestDB')
-            self.assert_(hasattr(db, 'user'))
+            self.assertTrue(hasattr(db, 'user'))
             self.assertEqual(db.user, 'SimplePooledDBTestUser')
             db.cursor()
             self.assertEqual(db.open_cursors, 1)
@@ -97,11 +96,11 @@ class TestSimplePooledDB(unittest.TestCase):
             db.cursor()
             self.assertEqual(db.open_cursors, 1)
             db.close()
-            self.assert_(not hasattr(db, 'open_cursors'))
+            self.assertTrue(not hasattr(db, 'open_cursors'))
             db = dbpool.connection()
-            self.assert_(hasattr(db, 'database'))
+            self.assertTrue(hasattr(db, 'database'))
             self.assertEqual(db.database, 'SimplePooledDBTestDB')
-            self.assert_(hasattr(db, 'user'))
+            self.assertTrue(hasattr(db, 'user'))
             self.assertEqual(db.user, 'SimplePooledDBTestUser')
             self.assertEqual(db.open_cursors, 1)
             db.cursor()
@@ -122,7 +121,7 @@ class TestSimplePooledDB(unittest.TestCase):
             db1.close()
             db1 = dbpool.connection()
             self.assertNotEqual(db1, db2)
-            self.assert_(hasattr(db1, 'cursor'))
+            self.assertTrue(hasattr(db1, 'cursor'))
             for i in range(3):
                 db1.cursor()
             self.assertEqual(db1.open_cursors, 8)

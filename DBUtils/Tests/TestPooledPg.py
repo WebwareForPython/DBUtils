@@ -11,8 +11,6 @@ Copyright and credit info:
 
 """
 
-__version__ = '1.1.1'
-
 import sys
 import unittest
 
@@ -20,6 +18,8 @@ sys.path.insert(1, '../..')
 # The TestSteadyPg module serves as a mock object for the pg API module:
 from DBUtils.Tests import TestSteadyPg
 from DBUtils.PooledPg import PooledPg, InvalidConnection
+
+__version__ = '1.2'
 
 
 class TestPooledPg(unittest.TestCase):
@@ -34,42 +34,42 @@ class TestPooledPg(unittest.TestCase):
     def test1_CreateConnection(self):
         pool = PooledPg(1, 1, 0, False, None, None, False,
             'PooledPgTestDB', user='PooledPgTestUser')
-        self.assert_(hasattr(pool, '_cache'))
+        self.assertTrue(hasattr(pool, '_cache'))
         self.assertEqual(pool._cache.qsize(), 1)
-        self.assert_(hasattr(pool, '_maxusage'))
-        self.assert_(pool._maxusage is None)
-        self.assert_(hasattr(pool, '_setsession'))
-        self.assert_(pool._setsession is None)
-        self.assert_(hasattr(pool, '_reset'))
+        self.assertTrue(hasattr(pool, '_maxusage'))
+        self.assertTrue(pool._maxusage is None)
+        self.assertTrue(hasattr(pool, '_setsession'))
+        self.assertTrue(pool._setsession is None)
+        self.assertTrue(hasattr(pool, '_reset'))
         self.assertEqual(pool._reset, False)
         db_con = pool._cache.get(0)
         pool._cache.put(db_con, 0)
         from DBUtils.SteadyPg import SteadyPgConnection
-        self.assert_(isinstance(db_con, SteadyPgConnection))
+        self.assertTrue(isinstance(db_con, SteadyPgConnection))
         db = pool.connection()
         self.assertEqual(pool._cache.qsize(), 0)
-        self.assert_(hasattr(db, '_con'))
+        self.assertTrue(hasattr(db, '_con'))
         self.assertEqual(db._con, db_con)
-        self.assert_(hasattr(db, 'query'))
-        self.assert_(hasattr(db, 'num_queries'))
+        self.assertTrue(hasattr(db, 'query'))
+        self.assertTrue(hasattr(db, 'num_queries'))
         self.assertEqual(db.num_queries, 0)
-        self.assert_(hasattr(db, '_maxusage'))
+        self.assertTrue(hasattr(db, '_maxusage'))
         self.assertEqual(db._maxusage, 0)
-        self.assert_(hasattr(db, '_setsession_sql'))
-        self.assert_(db._setsession_sql is None)
-        self.assert_(hasattr(db, 'dbname'))
+        self.assertTrue(hasattr(db, '_setsession_sql'))
+        self.assertTrue(db._setsession_sql is None)
+        self.assertTrue(hasattr(db, 'dbname'))
         self.assertEqual(db.dbname, 'PooledPgTestDB')
-        self.assert_(hasattr(db, 'user'))
+        self.assertTrue(hasattr(db, 'user'))
         self.assertEqual(db.user, 'PooledPgTestUser')
         db.query('select test')
         self.assertEqual(db.num_queries, 1)
         pool = PooledPg(1)
         db = pool.connection()
-        self.assert_(hasattr(db, 'dbname'))
-        self.assert_(db.dbname is None)
-        self.assert_(hasattr(db, 'user'))
-        self.assert_(db.user is None)
-        self.assert_(hasattr(db, 'num_queries'))
+        self.assertTrue(hasattr(db, 'dbname'))
+        self.assertTrue(db.dbname is None)
+        self.assertTrue(hasattr(db, 'user'))
+        self.assertTrue(db.user is None)
+        self.assertTrue(hasattr(db, 'num_queries'))
         self.assertEqual(db.num_queries, 0)
         pool = PooledPg(0, 0, 0, False, 3, ('set datestyle',),)
         self.assertEqual(pool._maxusage, 3)
@@ -82,11 +82,11 @@ class TestPooledPg(unittest.TestCase):
         pool = PooledPg(0, 1, 0, False, None, None, False,
             'PooledPgTestDB', user='PooledPgTestUser')
         db = pool.connection()
-        self.assert_(hasattr(db, '_con'))
+        self.assertTrue(hasattr(db, '_con'))
         db_con = db._con
         from DBUtils.SteadyPg import SteadyPgConnection
-        self.assert_(isinstance(db_con, SteadyPgConnection))
-        self.assert_(hasattr(pool, '_cache'))
+        self.assertTrue(isinstance(db_con, SteadyPgConnection))
+        self.assertTrue(hasattr(pool, '_cache'))
         self.assertEqual(pool._cache.qsize(), 0)
         self.assertEqual(db.num_queries, 0)
         db.query('select test')
@@ -94,9 +94,9 @@ class TestPooledPg(unittest.TestCase):
         db.close()
         self.assertRaises(InvalidConnection, getattr, db, 'num_queries')
         db = pool.connection()
-        self.assert_(hasattr(db, 'dbname'))
+        self.assertTrue(hasattr(db, 'dbname'))
         self.assertEqual(db.dbname, 'PooledPgTestDB')
-        self.assert_(hasattr(db, 'user'))
+        self.assertTrue(hasattr(db, 'user'))
         self.assertEqual(db.user, 'PooledPgTestUser')
         self.assertEqual(db.num_queries, 1)
         db.query('select test')
@@ -107,7 +107,7 @@ class TestPooledPg(unittest.TestCase):
 
     def test3_MinMaxCached(self):
         pool = PooledPg(3)
-        self.assert_(hasattr(pool, '_cache'))
+        self.assertTrue(hasattr(pool, '_cache'))
         self.assertEqual(pool._cache.qsize(), 3)
         cache = []
         for i in range(3):
@@ -123,7 +123,7 @@ class TestPooledPg(unittest.TestCase):
             cache.pop().close()
         self.assertEqual(pool._cache.qsize(), 6)
         pool = PooledPg(3, 4)
-        self.assert_(hasattr(pool, '_cache'))
+        self.assertTrue(hasattr(pool, '_cache'))
         self.assertEqual(pool._cache.qsize(), 3)
         cache = []
         for i in range(3):
@@ -139,7 +139,7 @@ class TestPooledPg(unittest.TestCase):
             cache.pop().close()
         self.assertEqual(pool._cache.qsize(), 4)
         pool = PooledPg(3, 2)
-        self.assert_(hasattr(pool, '_cache'))
+        self.assertTrue(hasattr(pool, '_cache'))
         self.assertEqual(pool._cache.qsize(), 3)
         cache = []
         for i in range(4):
@@ -149,7 +149,7 @@ class TestPooledPg(unittest.TestCase):
             cache.pop().close()
         self.assertEqual(pool._cache.qsize(), 3)
         pool = PooledPg(2, 5)
-        self.assert_(hasattr(pool, '_cache'))
+        self.assertTrue(hasattr(pool, '_cache'))
         self.assertEqual(pool._cache.qsize(), 2)
         cache = []
         for i in range(10):
@@ -200,13 +200,13 @@ class TestPooledPg(unittest.TestCase):
         thread = Thread(target=connection)
         thread.start()
         thread.join(0.1)
-        self.assert_(thread.isAlive())
+        self.assertTrue(thread.isAlive())
         self.assertEqual(pool._cache.qsize(), 0)
         session = db._con.session
         self.assertEqual(session, [])
         del db
         thread.join(0.1)
-        self.assert_(not thread.isAlive())
+        self.assertTrue(not thread.isAlive())
         self.assertEqual(pool._cache.qsize(), 1)
         db = pool.connection()
         self.assertEqual(pool._cache.qsize(), 0)
@@ -228,7 +228,7 @@ class TestPooledPg(unittest.TestCase):
         db1 = pool.connection()
         self.assertNotEqual(db1, db2)
         self.assertNotEqual(db1._con, db2._con)
-        self.assert_(hasattr(db1, 'query'))
+        self.assertTrue(hasattr(db1, 'query'))
         for i in range(3):
             db1.query('select test')
         self.assertEqual(db1.num_queries, 8)
@@ -278,25 +278,25 @@ class TestPooledPg(unittest.TestCase):
         db = pool.connection()
         db.begin()
         con = db._con
-        self.assert_(con._transaction)
+        self.assertTrue(con._transaction)
         db.query('select test')
         self.assertEqual(con.num_queries, 1)
         db.close()
-        self.assert_(pool.connection()._con is con)
-        self.assert_(not con._transaction)
+        self.assertTrue(pool.connection()._con is con)
+        self.assertTrue(not con._transaction)
         self.assertEqual(con.session, ['begin', 'rollback'])
         self.assertEqual(con.num_queries, 1)
         pool = PooledPg(1, reset=1)
         db = pool.connection()
         db.begin()
         con = db._con
-        self.assert_(con._transaction)
+        self.assertTrue(con._transaction)
         self.assertEqual(con.session, ['rollback', 'begin'])
         db.query('select test')
         self.assertEqual(con.num_queries, 1)
         db.close()
-        self.assert_(pool.connection()._con is con)
-        self.assert_(not con._transaction)
+        self.assertTrue(pool.connection()._con is con)
+        self.assertTrue(not con._transaction)
         self.assertEqual(con.session,
             ['rollback', 'begin', 'rollback', 'rollback'])
         self.assertEqual(con.num_queries, 1)
@@ -304,13 +304,13 @@ class TestPooledPg(unittest.TestCase):
         db = pool.connection()
         db.begin()
         con = db._con
-        self.assert_(con._transaction)
+        self.assertTrue(con._transaction)
         self.assertEqual(con.session, ['begin'])
         db.query('select test')
         self.assertEqual(con.num_queries, 1)
         db.close()
-        self.assert_(pool.connection()._con is con)
-        self.assert_(not con._transaction)
+        self.assertTrue(pool.connection()._con is con)
+        self.assertTrue(not con._transaction)
         self.assertEqual(con.session, [])
         self.assertEqual(con.num_queries, 0)
 

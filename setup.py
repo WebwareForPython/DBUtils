@@ -1,37 +1,17 @@
 """Setup Script for DBUtils"""
 
-__version__ = '1.1.1'
-
 from sys import version_info
 
+__version__ = '1.2'
+
 py_version = version_info[:2]
-if not (2, 3) <= py_version < (3, 0):
+if py_version < (2, 6):
     raise ImportError('Python %d.%d is not supported by DBUtils.' % py_version)
 
 import warnings
 warnings.filterwarnings('ignore', 'Unknown distribution option')
 
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
-    try:
-        from distutils.dist import DistributionMetadata
-    except ImportError:
-        pass
-    else:
-        try:
-            DistributionMetadata.classifiers
-        except AttributeError:
-            DistributionMetadata.classifiers = None
-        try:
-            DistributionMetadata.package_data
-        except AttributeError:
-            DistributionMetadata.package_data = None
-        try:
-            DistributionMetadata.zip_safe
-        except AttributeError:
-            DistributionMetadata.zip_safe = None
+from distutils.core import setup
 
 setup(
     name='DBUtils',
@@ -48,11 +28,17 @@ DB-API 2 compliant database interfaces and the classic PyGreSQL interface.
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2.3',
-        'Programming Language :: Python :: 2.4',
-        'Programming Language :: Python :: 2.5',
+        'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.0',
+        'Programming Language :: Python :: 3.1',
+        'Programming Language :: Python :: 3.2',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
         'Topic :: Database',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
         'Topic :: Software Development :: Libraries :: Python Modules'
@@ -63,6 +49,5 @@ DB-API 2 compliant database interfaces and the classic PyGreSQL interface.
     platforms=['any'],
     license='MIT License',
     packages=['DBUtils', 'DBUtils.Examples', 'DBUtils.Tests'],
-    package_data={'DBUtils': ['Docs/*']},
-    zip_safe=0
+    package_data={'DBUtils': ['Docs/*']}
 )

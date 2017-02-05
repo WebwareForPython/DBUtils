@@ -11,16 +11,16 @@ Copyright and credit info:
 
 """
 
-__version__ = '1.1.1'
-
 import sys
 import unittest
 
-sys.path.insert(1, '../..')
 # The TestSteadyDB module serves as a mock object for the DB-API 2 module:
+sys.path.insert(1, '../..')
 from DBUtils.Tests import TestSteadyDB as dbapi
-from DBUtils.PooledDB import PooledDB, SharedDBConnection, \
-    InvalidConnection, TooManyConnections
+from DBUtils.PooledDB import (PooledDB, SharedDBConnection,
+    InvalidConnection, TooManyConnections)
+
+__version__ = '1.2'
 
 
 class TestPooledDB(unittest.TestCase):
@@ -42,13 +42,13 @@ class TestPooledDB(unittest.TestCase):
         for threadsafety in (1, 2, 3):
             dbapi.threadsafety = threadsafety
             pool = PooledDB(dbapi, 0, 0, 1)
-            self.assert_(hasattr(pool, '_maxshared'))
+            self.assertTrue(hasattr(pool, '_maxshared'))
             if threadsafety > 1:
                 self.assertEqual(pool._maxshared, 1)
-                self.assert_(hasattr(pool, '_shared_cache'))
+                self.assertTrue(hasattr(pool, '_shared_cache'))
             else:
                 self.assertEqual(pool._maxshared, 0)
-                self.assert_(not hasattr(pool, '_shared_cache'))
+                self.assertTrue(not hasattr(pool, '_shared_cache'))
 
     def test03_CreateConnection(self):
         for threadsafety in (1, 2):
@@ -57,44 +57,44 @@ class TestPooledDB(unittest.TestCase):
             pool = PooledDB(dbapi,
                 1, 1, 1, 0, False, None, None, True, None, None,
                 'PooledDBTestDB', user='PooledDBTestUser')
-            self.assert_(hasattr(pool, '_idle_cache'))
+            self.assertTrue(hasattr(pool, '_idle_cache'))
             self.assertEqual(len(pool._idle_cache), 1)
             if shareable:
-                self.assert_(hasattr(pool, '_shared_cache'))
+                self.assertTrue(hasattr(pool, '_shared_cache'))
                 self.assertEqual(len(pool._shared_cache), 0)
             else:
-                self.assert_(not hasattr(pool, '_shared_cache'))
-            self.assert_(hasattr(pool, '_maxusage'))
+                self.assertTrue(not hasattr(pool, '_shared_cache'))
+            self.assertTrue(hasattr(pool, '_maxusage'))
             self.assertEqual(pool._maxusage, None)
-            self.assert_(hasattr(pool, '_setsession'))
-            self.assert_(pool._setsession is None)
+            self.assertTrue(hasattr(pool, '_setsession'))
+            self.assertTrue(pool._setsession is None)
             con = pool._idle_cache[0]
             from DBUtils.SteadyDB import SteadyDBConnection
-            self.assert_(isinstance(con, SteadyDBConnection))
-            self.assert_(hasattr(con, '_maxusage'))
+            self.assertTrue(isinstance(con, SteadyDBConnection))
+            self.assertTrue(hasattr(con, '_maxusage'))
             self.assertEqual(con._maxusage, 0)
-            self.assert_(hasattr(con, '_setsession_sql'))
-            self.assert_(con._setsession_sql is None)
+            self.assertTrue(hasattr(con, '_setsession_sql'))
+            self.assertTrue(con._setsession_sql is None)
             db = pool.connection()
             self.assertEqual(len(pool._idle_cache), 0)
             if shareable:
                 self.assertEqual(len(pool._shared_cache), 1)
-            self.assert_(hasattr(db, '_con'))
+            self.assertTrue(hasattr(db, '_con'))
             self.assertEqual(db._con, con)
-            self.assert_(hasattr(db, 'cursor'))
-            self.assert_(hasattr(db, '_usage'))
+            self.assertTrue(hasattr(db, 'cursor'))
+            self.assertTrue(hasattr(db, '_usage'))
             self.assertEqual(db._usage, 0)
-            self.assert_(hasattr(con, '_con'))
+            self.assertTrue(hasattr(con, '_con'))
             db_con = con._con
-            self.assert_(hasattr(db_con, 'database'))
+            self.assertTrue(hasattr(db_con, 'database'))
             self.assertEqual(db_con.database, 'PooledDBTestDB')
-            self.assert_(hasattr(db_con, 'user'))
+            self.assertTrue(hasattr(db_con, 'user'))
             self.assertEqual(db_con.user, 'PooledDBTestUser')
-            self.assert_(hasattr(db_con, 'open_cursors'))
+            self.assertTrue(hasattr(db_con, 'open_cursors'))
             self.assertEqual(db_con.open_cursors, 0)
-            self.assert_(hasattr(db_con, 'num_uses'))
+            self.assertTrue(hasattr(db_con, 'num_uses'))
             self.assertEqual(db_con.num_uses, 0)
-            self.assert_(hasattr(db_con, 'num_queries'))
+            self.assertTrue(hasattr(db_con, 'num_queries'))
             self.assertEqual(db_con.num_queries, 0)
             cursor = db.cursor()
             self.assertEqual(db_con.open_cursors, 1)
@@ -144,8 +144,8 @@ class TestPooledDB(unittest.TestCase):
                 self.assertEqual(len(pool._shared_cache), 0)
             self.assertEqual(db._usage, 0)
             db_con = db._con._con
-            self.assert_(db_con.database is None)
-            self.assert_(db_con.user is None)
+            self.assertTrue(db_con.database is None)
+            self.assertTrue(db_con.user is None)
             db.close()
             self.assertEqual(len(pool._idle_cache), 1)
             if shareable:
@@ -156,8 +156,8 @@ class TestPooledDB(unittest.TestCase):
                 self.assertEqual(len(pool._shared_cache), 0)
             self.assertEqual(db._usage, 0)
             db_con = db._con._con
-            self.assert_(db_con.database is None)
-            self.assert_(db_con.user is None)
+            self.assertTrue(db_con.database is None)
+            self.assertTrue(db_con.user is None)
             db.close()
             self.assertEqual(len(pool._idle_cache), 1)
             if shareable:
@@ -176,26 +176,26 @@ class TestPooledDB(unittest.TestCase):
             pool = PooledDB(dbapi,
                 0, 1, 1, 0, False, None, None, True, None, None,
                 'PooledDBTestDB', user='PooledDBTestUser')
-            self.assert_(hasattr(pool, '_idle_cache'))
+            self.assertTrue(hasattr(pool, '_idle_cache'))
             self.assertEqual(len(pool._idle_cache), 0)
             db = pool.connection()
-            self.assert_(hasattr(db, '_con'))
+            self.assertTrue(hasattr(db, '_con'))
             con = db._con
             self.assertEqual(len(pool._idle_cache), 0)
             if shareable:
                 self.assertEqual(len(pool._shared_cache), 1)
-                self.assert_(hasattr(db, '_shared_con'))
+                self.assertTrue(hasattr(db, '_shared_con'))
                 shared_con = db._shared_con
                 self.assertEqual(pool._shared_cache[0], shared_con)
-                self.assert_(hasattr(shared_con, 'shared'))
+                self.assertTrue(hasattr(shared_con, 'shared'))
                 self.assertEqual(shared_con.shared, 1)
-                self.assert_(hasattr(shared_con, 'con'))
+                self.assertTrue(hasattr(shared_con, 'con'))
                 self.assertEqual(shared_con.con, con)
             from DBUtils.SteadyDB import SteadyDBConnection
-            self.assert_(isinstance(con, SteadyDBConnection))
-            self.assert_(hasattr(con, '_con'))
+            self.assertTrue(isinstance(con, SteadyDBConnection))
+            self.assertTrue(hasattr(con, '_con'))
             db_con = con._con
-            self.assert_(hasattr(db_con, 'num_queries'))
+            self.assertTrue(hasattr(db_con, 'num_queries'))
             self.assertEqual(db._usage, 0)
             self.assertEqual(db_con.num_queries, 0)
             db.cursor().execute('select test')
@@ -207,7 +207,7 @@ class TestPooledDB(unittest.TestCase):
                 self.assertEqual(db._shared_con, None)
                 self.assertEqual(shared_con.shared, 0)
             self.assertRaises(InvalidConnection, getattr, db, '_usage')
-            self.assert_(not hasattr(db_con, '_num_queries'))
+            self.assertTrue(not hasattr(db_con, '_num_queries'))
             self.assertEqual(len(pool._idle_cache), 1)
             self.assertEqual(pool._idle_cache[0]._con, db_con)
             if shareable:
@@ -226,9 +226,9 @@ class TestPooledDB(unittest.TestCase):
                 self.assertEqual(shared_con.shared, 1)
             self.assertEqual(db._usage, 1)
             self.assertEqual(db_con.num_queries, 1)
-            self.assert_(hasattr(db_con, 'database'))
+            self.assertTrue(hasattr(db_con, 'database'))
             self.assertEqual(db_con.database, 'PooledDBTestDB')
-            self.assert_(hasattr(db_con, 'user'))
+            self.assertTrue(hasattr(db_con, 'user'))
             self.assertEqual(db_con.user, 'PooledDBTestUser')
             db.cursor().execute('select test')
             self.assertEqual(db_con.num_queries, 2)
@@ -518,11 +518,11 @@ class TestPooledDB(unittest.TestCase):
         cache[2].begin()
         cache[3].begin()
         db = pool.connection()
-        self.assert_(db._con is cache[0]._con)
+        self.assertTrue(db._con is cache[0]._con)
         db.close()
         cache[3].rollback()
         db = pool.connection()
-        self.assert_(db._con is cache[3]._con)
+        self.assertTrue(db._con is cache[3]._con)
 
     def test10_EquallyShared(self):
         for threadsafety in (1, 2):
@@ -647,9 +647,9 @@ class TestPooledDB(unittest.TestCase):
             dbapi.threadsafety = threadsafety
             shareable = threadsafety > 1
             pool = PooledDB(dbapi, 1, 2, 2, 3)
-            self.assert_(hasattr(pool, '_maxconnections'))
+            self.assertTrue(hasattr(pool, '_maxconnections'))
             self.assertEqual(pool._maxconnections, 3)
-            self.assert_(hasattr(pool, '_connections'))
+            self.assertTrue(hasattr(pool, '_connections'))
             self.assertEqual(pool._connections, 0)
             self.assertEqual(len(pool._idle_cache), 1)
             cache = []
@@ -824,7 +824,7 @@ class TestPooledDB(unittest.TestCase):
             thread = Thread(target=connection)
             thread.start()
             thread.join(0.1)
-            self.assert_(thread.isAlive())
+            self.assertTrue(thread.isAlive())
             self.assertEqual(pool._connections, 1)
             self.assertEqual(len(pool._idle_cache), 0)
             if shareable:
@@ -833,7 +833,7 @@ class TestPooledDB(unittest.TestCase):
             self.assertEqual(session, ['rollback'])
             del db
             thread.join(0.1)
-            self.assert_(not thread.isAlive())
+            self.assertTrue(not thread.isAlive())
             self.assertEqual(pool._connections, 0)
             self.assertEqual(len(pool._idle_cache), 1)
             if shareable:
@@ -1031,63 +1031,63 @@ class TestPooledDB(unittest.TestCase):
         dbapi.threadsafety = 2
         pool = PooledDB(dbapi, 1, 1, 0, 0, False, None, None, True, None, 0)
         db = pool.connection()
-        self.assert_(db._con._con.valid)
+        self.assertTrue(db._con._con.valid)
         self.assertEqual(Connection.num_pings, 0)
         db._con.close()
         db.close()
         db = pool.connection()
-        self.assert_(not db._con._con.valid)
+        self.assertTrue(not db._con._con.valid)
         self.assertEqual(Connection.num_pings, 0)
         pool = PooledDB(dbapi, 1, 1, 1, 0, False, None, None, True, None, 0)
         db = pool.connection()
-        self.assert_(db._con._con.valid)
+        self.assertTrue(db._con._con.valid)
         self.assertEqual(Connection.num_pings, 0)
         db._con.close()
         db = pool.connection()
-        self.assert_(not db._con._con.valid)
+        self.assertTrue(not db._con._con.valid)
         self.assertEqual(Connection.num_pings, 0)
         pool = PooledDB(dbapi, 1, 1, 0, 0, False, None, None, True, None, 1)
         db = pool.connection()
-        self.assert_(db._con._con.valid)
+        self.assertTrue(db._con._con.valid)
         self.assertEqual(Connection.num_pings, 1)
         db._con.close()
         db.close()
         db = pool.connection()
-        self.assert_(db._con._con.valid)
+        self.assertTrue(db._con._con.valid)
         self.assertEqual(Connection.num_pings, 2)
         pool = PooledDB(dbapi, 1, 1, 1, 0, False, None, None, True, None, 1)
         db = pool.connection()
-        self.assert_(db._con._con.valid)
+        self.assertTrue(db._con._con.valid)
         self.assertEqual(Connection.num_pings, 3)
         db._con.close()
         db = pool.connection()
-        self.assert_(db._con._con.valid)
+        self.assertTrue(db._con._con.valid)
         self.assertEqual(Connection.num_pings, 4)
         pool = PooledDB(dbapi, 1, 1, 1, 0, False, None, None, True, None, 2)
         db = pool.connection()
-        self.assert_(db._con._con.valid)
+        self.assertTrue(db._con._con.valid)
         self.assertEqual(Connection.num_pings, 4)
         db._con.close()
         db = pool.connection()
-        self.assert_(not db._con._con.valid)
+        self.assertTrue(not db._con._con.valid)
         self.assertEqual(Connection.num_pings, 4)
         db.cursor()
-        self.assert_(db._con._con.valid)
+        self.assertTrue(db._con._con.valid)
         self.assertEqual(Connection.num_pings, 5)
         pool = PooledDB(dbapi, 1, 1, 1, 0, False, None, None, True, None, 4)
         db = pool.connection()
-        self.assert_(db._con._con.valid)
+        self.assertTrue(db._con._con.valid)
         self.assertEqual(Connection.num_pings, 5)
         db._con.close()
         db = pool.connection()
-        self.assert_(not db._con._con.valid)
+        self.assertTrue(not db._con._con.valid)
         self.assertEqual(Connection.num_pings, 5)
         cursor = db.cursor()
         db._con.close()
-        self.assert_(not db._con._con.valid)
+        self.assertTrue(not db._con._con.valid)
         self.assertEqual(Connection.num_pings, 5)
         cursor.execute('select test')
-        self.assert_(db._con._con.valid)
+        self.assertTrue(db._con._con.valid)
         self.assertEqual(Connection.num_pings, 6)
         Connection.has_ping = False
         Connection.num_pings = 0
@@ -1131,44 +1131,44 @@ class TestPooledDB(unittest.TestCase):
         pool = PooledDB(dbapi, 0, 2, 2)
         db1 = pool.connection()
         db2 = pool.connection()
-        self.assert_(db2._con is not db1._con)
+        self.assertTrue(db2._con is not db1._con)
         db2.close()
         db2 = pool.connection()
-        self.assert_(db2._con is not db1._con)
+        self.assertTrue(db2._con is not db1._con)
         db = pool.connection()
-        self.assert_(db._con is db1._con)
+        self.assertTrue(db._con is db1._con)
         db.close()
         db1.begin()
         db = pool.connection()
-        self.assert_(db._con is db2._con)
+        self.assertTrue(db._con is db2._con)
         db.close()
         db2.begin()
         pool.connection(False)
         self.assertRaises(TooManyConnections, pool.connection)
         db1.rollback()
         db = pool.connection()
-        self.assert_(db._con is db1._con)
+        self.assertTrue(db._con is db1._con)
 
     def test21_ResetTransaction(self):
         pool = PooledDB(dbapi, 1, 1, 0)
         db = pool.connection()
         db.begin()
         con = db._con
-        self.assert_(con._transaction)
+        self.assertTrue(con._transaction)
         self.assertEqual(con._con.session, ['rollback'])
         db.close()
-        self.assert_(pool.connection()._con is con)
-        self.assert_(not con._transaction)
+        self.assertTrue(pool.connection()._con is con)
+        self.assertTrue(not con._transaction)
         self.assertEqual(con._con.session, ['rollback'] * 3)
         pool = PooledDB(dbapi, 1, 1, 0, reset=False)
         db = pool.connection()
         db.begin()
         con = db._con
-        self.assert_(con._transaction)
+        self.assertTrue(con._transaction)
         self.assertEqual(con._con.session, [])
         db.close()
-        self.assert_(pool.connection()._con is con)
-        self.assert_(not con._transaction)
+        self.assertTrue(pool.connection()._con is con)
+        self.assertTrue(not con._transaction)
         self.assertEqual(con._con.session, ['rollback'])
 
 
@@ -1197,26 +1197,26 @@ class TestSharedDBConnection(unittest.TestCase):
         con1.con._transaction = False
         con2 = SharedDBConnection(dbapi.connect())
         con2.con._transaction = False
-        self.assert_(con1 == con2)
-        self.assert_(con1 <= con2)
-        self.assert_(con1 >= con2)
-        self.assert_(not con1 != con2)
-        self.assert_(not con1 < con2)
-        self.assert_(not con1 > con2)
+        self.assertTrue(con1 == con2)
+        self.assertTrue(con1 <= con2)
+        self.assertTrue(con1 >= con2)
+        self.assertTrue(not con1 != con2)
+        self.assertTrue(not con1 < con2)
+        self.assertTrue(not con1 > con2)
         con2.share()
-        self.assert_(not con1 == con2)
-        self.assert_(con1 <= con2)
-        self.assert_(not con1 >= con2)
-        self.assert_(con1 != con2)
-        self.assert_(con1 < con2)
-        self.assert_(not con1 > con2)
+        self.assertTrue(not con1 == con2)
+        self.assertTrue(con1 <= con2)
+        self.assertTrue(not con1 >= con2)
+        self.assertTrue(con1 != con2)
+        self.assertTrue(con1 < con2)
+        self.assertTrue(not con1 > con2)
         con1.con._transaction = True
-        self.assert_(not con1 == con2)
-        self.assert_(not con1 <= con2)
-        self.assert_(con1 >= con2)
-        self.assert_(con1 != con2)
-        self.assert_(not con1 < con2)
-        self.assert_(con1 > con2)
+        self.assertTrue(not con1 == con2)
+        self.assertTrue(not con1 <= con2)
+        self.assertTrue(con1 >= con2)
+        self.assertTrue(con1 != con2)
+        self.assertTrue(not con1 < con2)
+        self.assertTrue(con1 > con2)
 
 
 if __name__ == '__main__':

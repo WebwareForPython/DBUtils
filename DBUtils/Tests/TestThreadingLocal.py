@@ -1,13 +1,13 @@
 """Test the ThreadingLocal module."""
 
-__version__ = '1.1.1'
-
 import sys
-from threading import Thread
 import unittest
+from threading import Thread
 
 sys.path.insert(1, '../..')
-from DBUtils.ThreadingLocal import local
+from DBUtils.PersistentDB import local
+
+__version__ = '1.2'
 
 
 class TestThreadingLocal(unittest.TestCase):
@@ -26,11 +26,7 @@ class TestThreadingLocal(unittest.TestCase):
 
     def test2_ThreadLocal(self):
         def f():
-            try:
-                items = sorted(mydata.__dict__.items())
-            except NameError:  # Python < 2.4
-                items = mydata.__dict__.items()
-                items.sort()
+            items = sorted(mydata.__dict__.items())
             log.append(items)
             mydata.number = 11
             log.append(mydata.number)
@@ -60,11 +56,7 @@ class TestThreadingLocal(unittest.TestCase):
         del mydata.color
         self.assertEqual(mydata.squared(), 4)
         def f():
-            try:
-                items = sorted(mydata.__dict__.items())
-            except NameError:  # Python < 2.4
-                items = mydata.__dict__.items()
-                items.sort()
+            items = sorted(mydata.__dict__.items())
             log.append(items)
             mydata.number = 7
             log.append(mydata.number)
@@ -75,7 +67,7 @@ class TestThreadingLocal(unittest.TestCase):
         self.assertEqual(log,
             [[('color', 'red'), ('initialized', 1)], 7])
         self.assertEqual(mydata.number, 2)
-        self.assert_(not hasattr(mydata, 'color'))
+        self.assertTrue(not hasattr(mydata, 'color'))
         class MyLocal(local):
             __slots__ = 'number'
         mydata = MyLocal()

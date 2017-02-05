@@ -108,8 +108,6 @@ Licensed under the MIT license.
 
 """
 
-__version__ = '1.1.1'
-
 try:
     from Queue import Queue, Empty, Full
 except ImportError:  # Python 3
@@ -117,12 +115,16 @@ except ImportError:  # Python 3
 
 from DBUtils.SteadyPg import SteadyPgConnection
 
+__version__ = '1.2'
+
 
 class PooledPgError(Exception):
     """General PooledPg error."""
 
+
 class InvalidConnection(PooledPgError):
     """Database connection is invalid."""
+
 
 class TooManyConnections(PooledPgError):
     """Too many database connections were opened."""

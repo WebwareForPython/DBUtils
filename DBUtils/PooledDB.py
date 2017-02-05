@@ -139,22 +139,30 @@ Licensed under the MIT license.
 
 """
 
-__version__ = '1.1.1'
-
-
 from threading import Condition
 
 from DBUtils.SteadyDB import connect
+
+__version__ = '1.2'
+
+try:
+    callable
+except NameError:  # Python 3.0 or 3.1
+    def callable(obj):
+        return any('__call__' in cls.__dict__ for cls in type(obj).__mro__)
 
 
 class PooledDBError(Exception):
     """General PooledDB error."""
 
+
 class InvalidConnection(PooledDBError):
     """Database connection is invalid."""
 
+
 class NotSupportedError(PooledDBError):
     """DB-API module not supported by PooledDB."""
+
 
 class TooManyConnections(PooledDBError):
     """Too many database connections were opened."""

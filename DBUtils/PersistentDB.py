@@ -95,7 +95,7 @@ since it clears the threading.local data between requests).
 
 Requirements:
 
-Python >= 2.3, < 3.0.
+Python >= 2.6.
 
 
 Ideas for improvement:
@@ -116,14 +116,28 @@ Licensed under the MIT license.
 
 """
 
-__version__ = '1.1.1'
-
-import ThreadingLocal
 from DBUtils.SteadyDB import connect
+
+__version__ = '1.2'
+
+try:
+    callable
+except NameError:  # Python 3.0 or 3.1
+    def callable(obj):
+        return any('__call__' in cls.__dict__ for cls in type(obj).__mro__)
+try:
+    # Prefer the pure Python version of threading.local.
+    # The C implementation turned out to be problematic with mod_wsgi,
+    # since it does not keep the thread-local data between requests.
+    from _threading_local import local
+except ImportError:
+    # Fall back to the default version of threading.local.
+    from threading import local
 
 
 class PersistentDBError(Exception):
     """General PersistentDB error."""
+
 
 class NotSupportedError(PersistentDBError):
     """DB-API module not supported by PersistentDB."""
@@ -186,12 +200,12 @@ class PersistentDB:
         self._ping = ping
         self._closeable = closeable
         self._args, self._kwargs = args, kwargs
-        self.thread = (threadlocal or ThreadingLocal.local)()
+        self.thread = (threadlocal or local)()
 
     def steady_connection(self):
         """Get a steady, non-persistent DB-API 2 connection."""
-        return connect(self._creator,
-            self._maxusage, self._setsession,
+        return connect(
+            self._creator, self._maxusage, self._setsession,
             self._failures, self._ping, self._closeable,
             *self._args, **self._kwargs)
 

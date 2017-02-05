@@ -90,18 +90,24 @@ Licensed under the MIT license.
 
 """
 
-__version__ = '1.1.1'
-
 import sys
+
+__version__ = '1.2'
 
 try:
     baseint = (int, long)
 except NameError:  # Python 3
     baseint = int
+try:
+    callable
+except NameError:  # Python 3.0 or 3.1
+    def callable(obj):
+        return any('__call__' in cls.__dict__ for cls in type(obj).__mro__)
 
 
 class SteadyDBError(Exception):
     """General SteadyDB error."""
+
 
 class InvalidCursor(SteadyDBError):
     """Database cursor is invalid."""
@@ -264,7 +270,7 @@ class SteadyDBConnection:
             else:
                 self._failure = self._failures
             self._setsession(con)
-        except Exception, error:
+        except Exception as error:
             # the database module could not be determined
             # or the session could not be prepared
             try:  # close the connection first
@@ -406,7 +412,7 @@ class SteadyDBConnection:
         self._transaction = False
         try:
             self._con.commit()
-        except self._failures, error:  # cannot commit
+        except self._failures as error:  # cannot commit
             try:  # try to reopen the connection
                 con = self._create()
             except Exception:
@@ -421,7 +427,7 @@ class SteadyDBConnection:
         self._transaction = False
         try:
             self._con.rollback()
-        except self._failures, error:  # cannot rollback
+        except self._failures as error:  # cannot rollback
             try:  # try to reopen the connection
                 con = self._create()
             except Exception:
@@ -462,7 +468,7 @@ class SteadyDBConnection:
                     # the connection was used too often
                     raise self._failure
             cursor = self._con.cursor(*args, **kwargs)  # try to get a cursor
-        except self._failures, error:  # error in getting cursor
+        except self._failures as error:  # error in getting cursor
             try:  # try to reopen the connection
                 con = self._create()
             except Exception:
@@ -536,7 +542,7 @@ class SteadyDBCursor:
             cursor = self._cursor
         if self._inputsizes:
             cursor.setinputsizes(self._inputsizes)
-        for column, size in self._outputsizes.iteritems():
+        for column, size in self._outputsizes.items():
             if column is None:
                 cursor.setoutputsize(size)
             else:
@@ -574,7 +580,7 @@ class SteadyDBCursor:
                 result = method(*args, **kwargs)  # try to execute
                 if execute:
                     self._clearsizes()
-            except con._failures, error:  # execution error
+            except con._failures as error:  # execution error
                 if not transaction:
                     try:
                         cursor2 = con._cursor(
@@ -628,7 +634,7 @@ class SteadyDBCursor:
                         except error.__class__:  # same execution error
                             use2 = False
                             error2 = error
-                        except Exception, error:  # other execution errors
+                        except Exception as error:  # other execution errors
                             use2 = True
                             error2 = error
                         else:

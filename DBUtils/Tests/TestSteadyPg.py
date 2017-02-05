@@ -12,18 +12,28 @@ Copyright and credit info:
 
 """
 
-__version__ = '1.1.1'
-
 import sys
 
-# This module also serves as a mock object for the pg API module:
+__version__ = '1.2'
 
+# This module also serves as a mock object for the pg API module:
 sys.modules['pg'] = sys.modules[__name__]
 
-class Error(Exception): pass
-class DatabaseError(Error): pass
-class InternalError(DatabaseError): pass
-class ProgrammingError(DatabaseError): pass
+
+class Error(Exception):
+    pass
+
+
+class DatabaseError(Error):
+    pass
+
+
+class InternalError(DatabaseError):
+    pass
+
+
+class ProgrammingError(DatabaseError):
+    pass
 
 
 def connect(*args, **kwargs):
@@ -133,38 +143,38 @@ class TestSteadyPg(unittest.TestCase):
         PgConnection = DB
         db = PgConnection('SteadyPgTestDB',
             user='SteadyPgTestUser')
-        self.assert_(hasattr(db, 'db'))
-        self.assert_(hasattr(db.db, 'status'))
-        self.assert_(db.db.status)
-        self.assert_(hasattr(db.db, 'query'))
-        self.assert_(hasattr(db.db, 'close'))
-        self.assert_(not hasattr(db.db, 'reopen'))
-        self.assert_(hasattr(db, 'reset'))
-        self.assert_(hasattr(db.db, 'num_queries'))
-        self.assert_(hasattr(db.db, 'session'))
-        self.assert_(not hasattr(db.db, 'get_tables'))
-        self.assert_(hasattr(db.db, 'db'))
+        self.assertTrue(hasattr(db, 'db'))
+        self.assertTrue(hasattr(db.db, 'status'))
+        self.assertTrue(db.db.status)
+        self.assertTrue(hasattr(db.db, 'query'))
+        self.assertTrue(hasattr(db.db, 'close'))
+        self.assertTrue(not hasattr(db.db, 'reopen'))
+        self.assertTrue(hasattr(db, 'reset'))
+        self.assertTrue(hasattr(db.db, 'num_queries'))
+        self.assertTrue(hasattr(db.db, 'session'))
+        self.assertTrue(not hasattr(db.db, 'get_tables'))
+        self.assertTrue(hasattr(db.db, 'db'))
         self.assertEqual(db.db.db, 'SteadyPgTestDB')
-        self.assert_(hasattr(db.db, 'user'))
+        self.assertTrue(hasattr(db.db, 'user'))
         self.assertEqual(db.db.user, 'SteadyPgTestUser')
-        self.assert_(hasattr(db, 'query'))
-        self.assert_(hasattr(db, 'close'))
-        self.assert_(hasattr(db, 'reopen'))
-        self.assert_(hasattr(db, 'reset'))
-        self.assert_(hasattr(db, 'num_queries'))
-        self.assert_(hasattr(db, 'session'))
-        self.assert_(hasattr(db, 'get_tables'))
-        self.assert_(hasattr(db, 'dbname'))
+        self.assertTrue(hasattr(db, 'query'))
+        self.assertTrue(hasattr(db, 'close'))
+        self.assertTrue(hasattr(db, 'reopen'))
+        self.assertTrue(hasattr(db, 'reset'))
+        self.assertTrue(hasattr(db, 'num_queries'))
+        self.assertTrue(hasattr(db, 'session'))
+        self.assertTrue(hasattr(db, 'get_tables'))
+        self.assertTrue(hasattr(db, 'dbname'))
         self.assertEqual(db.dbname, 'SteadyPgTestDB')
-        self.assert_(hasattr(db, 'user'))
+        self.assertTrue(hasattr(db, 'user'))
         self.assertEqual(db.user, 'SteadyPgTestUser')
         for i in range(3):
             self.assertEqual(db.num_queries, i)
             self.assertEqual(db.query('select test%d' % i),
                 'test%d' % i)
-        self.assert_(db.db.status)
+        self.assertTrue(db.db.status)
         db.reopen()
-        self.assert_(db.db.status)
+        self.assertTrue(db.db.status)
         self.assertEqual(db.num_queries, 0)
         self.assertEqual(db.query('select test4'), 'test4')
         self.assertEqual(db.get_tables(), 'test')
@@ -173,7 +183,7 @@ class TestSteadyPg(unittest.TestCase):
             status = db.db.status
         except AttributeError:
             status = False
-        self.assert_(not status)
+        self.assertTrue(not status)
         self.assertRaises(InternalError, db.close)
         self.assertRaises(InternalError, db.query, 'select test')
         self.assertRaises(InternalError, db.get_tables)
@@ -190,95 +200,95 @@ class TestSteadyPg(unittest.TestCase):
     def test3_Close(self):
         for closeable in (False, True):
             db = SteadyPgConnection(closeable=closeable)
-            self.assert_(db._con.db and db._con.valid)
+            self.assertTrue(db._con.db and db._con.valid)
             db.close()
-            self.assert_(closeable ^
+            self.assertTrue(closeable ^
                 (db._con.db is not None and db._con.valid))
             db.close()
-            self.assert_(closeable ^
+            self.assertTrue(closeable ^
                 (db._con.db is not None and db._con.valid))
             db._close()
-            self.assert_(not db._con.db or not db._con.valid)
+            self.assertTrue(not db._con.db or not db._con.valid)
             db._close()
-            self.assert_(not db._con.db or not db._con.valid)
+            self.assertTrue(not db._con.db or not db._con.valid)
 
     def test4_Connection(self):
         db = SteadyPgConnection(0, None, 1,
             'SteadyPgTestDB', user='SteadyPgTestUser')
-        self.assert_(hasattr(db, 'db'))
-        self.assert_(hasattr(db, '_con'))
+        self.assertTrue(hasattr(db, 'db'))
+        self.assertTrue(hasattr(db, '_con'))
         self.assertEqual(db.db, db._con.db)
-        self.assert_(hasattr(db, '_usage'))
+        self.assertTrue(hasattr(db, '_usage'))
         self.assertEqual(db._usage, 0)
-        self.assert_(hasattr(db.db, 'status'))
-        self.assert_(db.db.status)
-        self.assert_(hasattr(db.db, 'query'))
-        self.assert_(hasattr(db.db, 'close'))
-        self.assert_(not hasattr(db.db, 'reopen'))
-        self.assert_(hasattr(db.db, 'reset'))
-        self.assert_(hasattr(db.db, 'num_queries'))
-        self.assert_(hasattr(db.db, 'session'))
-        self.assert_(hasattr(db.db, 'db'))
+        self.assertTrue(hasattr(db.db, 'status'))
+        self.assertTrue(db.db.status)
+        self.assertTrue(hasattr(db.db, 'query'))
+        self.assertTrue(hasattr(db.db, 'close'))
+        self.assertTrue(not hasattr(db.db, 'reopen'))
+        self.assertTrue(hasattr(db.db, 'reset'))
+        self.assertTrue(hasattr(db.db, 'num_queries'))
+        self.assertTrue(hasattr(db.db, 'session'))
+        self.assertTrue(hasattr(db.db, 'db'))
         self.assertEqual(db.db.db, 'SteadyPgTestDB')
-        self.assert_(hasattr(db.db, 'user'))
+        self.assertTrue(hasattr(db.db, 'user'))
         self.assertEqual(db.db.user, 'SteadyPgTestUser')
-        self.assert_(not hasattr(db.db, 'get_tables'))
-        self.assert_(hasattr(db, 'query'))
-        self.assert_(hasattr(db, 'close'))
-        self.assert_(hasattr(db, 'reopen'))
-        self.assert_(hasattr(db, 'reset'))
-        self.assert_(hasattr(db, 'num_queries'))
-        self.assert_(hasattr(db, 'session'))
-        self.assert_(hasattr(db, 'dbname'))
+        self.assertTrue(not hasattr(db.db, 'get_tables'))
+        self.assertTrue(hasattr(db, 'query'))
+        self.assertTrue(hasattr(db, 'close'))
+        self.assertTrue(hasattr(db, 'reopen'))
+        self.assertTrue(hasattr(db, 'reset'))
+        self.assertTrue(hasattr(db, 'num_queries'))
+        self.assertTrue(hasattr(db, 'session'))
+        self.assertTrue(hasattr(db, 'dbname'))
         self.assertEqual(db.dbname, 'SteadyPgTestDB')
-        self.assert_(hasattr(db, 'user'))
+        self.assertTrue(hasattr(db, 'user'))
         self.assertEqual(db.user, 'SteadyPgTestUser')
-        self.assert_(hasattr(db, 'get_tables'))
+        self.assertTrue(hasattr(db, 'get_tables'))
         for i in range(3):
             self.assertEqual(db._usage, i)
             self.assertEqual(db.num_queries, i)
             self.assertEqual(db.query('select test%d' % i),
                 'test%d' % i)
-        self.assert_(db.db.status)
+        self.assertTrue(db.db.status)
         self.assertEqual(db.get_tables(), 'test')
-        self.assert_(db.db.status)
+        self.assertTrue(db.db.status)
         self.assertEqual(db._usage, 4)
         self.assertEqual(db.num_queries, 3)
         db.reopen()
-        self.assert_(db.db.status)
+        self.assertTrue(db.db.status)
         self.assertEqual(db._usage, 0)
         self.assertEqual(db.num_queries, 0)
         self.assertEqual(db.query('select test'), 'test')
-        self.assert_(db.db.status)
-        self.assert_(hasattr(db._con, 'status'))
-        self.assert_(db._con.status)
-        self.assert_(hasattr(db._con, 'close'))
-        self.assert_(hasattr(db._con, 'query'))
+        self.assertTrue(db.db.status)
+        self.assertTrue(hasattr(db._con, 'status'))
+        self.assertTrue(db._con.status)
+        self.assertTrue(hasattr(db._con, 'close'))
+        self.assertTrue(hasattr(db._con, 'query'))
         db.close()
         try:
             status = db.db.status
         except AttributeError:
             status = False
-        self.assert_(not status)
-        self.assert_(hasattr(db._con, 'close'))
-        self.assert_(hasattr(db._con, 'query'))
+        self.assertTrue(not status)
+        self.assertTrue(hasattr(db._con, 'close'))
+        self.assertTrue(hasattr(db._con, 'query'))
         InternalError = sys.modules[db._con.__module__].InternalError
         self.assertRaises(InternalError, db._con.close)
         self.assertRaises(InternalError, db._con.query, 'select test')
         self.assertEqual(db.query('select test'), 'test')
-        self.assert_(db.db.status)
+        self.assertTrue(db.db.status)
         self.assertEqual(db._usage, 1)
         self.assertEqual(db.num_queries, 1)
         db.db.status = False
-        self.assert_(not db.db.status)
+        self.assertTrue(not db.db.status)
         self.assertEqual(db.query('select test'), 'test')
-        self.assert_(db.db.status)
+        self.assertTrue(db.db.status)
         self.assertEqual(db._usage, 1)
         self.assertEqual(db.num_queries, 1)
         db.db.status = False
-        self.assert_(not db.db.status)
+        self.assertTrue(not db.db.status)
         self.assertEqual(db.get_tables(), 'test')
-        self.assert_(db.db.status)
+        self.assertTrue(db.db.status)
         self.assertEqual(db._usage, 1)
         self.assertEqual(db.num_queries, 0)
 
@@ -287,14 +297,14 @@ class TestSteadyPg(unittest.TestCase):
         for i in range(100):
             r = db.query('select test%d' % i)
             self.assertEqual(r, 'test%d' % i)
-            self.assert_(db.db.status)
+            self.assertTrue(db.db.status)
             j = i % 10 + 1
             self.assertEqual(db._usage, j)
             self.assertEqual(db.num_queries, j)
         for i in range(100):
             r = db.get_tables()
             self.assertEqual(r, 'test')
-            self.assert_(db.db.status)
+            self.assertTrue(db.db.status)
             j = i % 10 + 1
             self.assertEqual(db._usage, j)
             self.assertEqual(db.num_queries, 0)
@@ -328,9 +338,9 @@ class TestSteadyPg(unittest.TestCase):
 
     def test6_ConnectionSetSession(self):
         db = SteadyPgConnection(3, ('set time zone', 'set datestyle'))
-        self.assert_(hasattr(db, 'num_queries'))
+        self.assertTrue(hasattr(db, 'num_queries'))
         self.assertEqual(db.num_queries, 0)
-        self.assert_(hasattr(db, 'session'))
+        self.assertTrue(hasattr(db, 'session'))
         self.assertEqual(tuple(db.session), ('time zone', 'datestyle'))
         for i in range(11):
             db.query('select test')

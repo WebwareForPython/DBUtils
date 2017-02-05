@@ -68,9 +68,9 @@ Licensed under the MIT license.
 
 """
 
-__version__ = '1.1.1'
-
 from pg import DB as PgConnection
+
+__version__ = '1.2'
 
 
 class PooledPgConnection:

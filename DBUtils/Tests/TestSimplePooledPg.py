@@ -11,13 +11,14 @@ Copyright and credit info:
 
 """
 
-__version__ = '1.1.1'
-
 import sys
+import unittest
+
+__version__ = '1.2'
 
 # This module also serves as a mock object for the pg API module:
-
 sys.modules['pg'] = sys.modules[__name__]
+
 
 class DB:
 
@@ -32,8 +33,6 @@ class DB:
     def query(self):
         self.num_queries += 1
 
-
-import unittest
 
 sys.path.insert(1, '../..')
 from DBUtils import SimplePooledPg
@@ -54,12 +53,12 @@ class TestSimplePooledPg(unittest.TestCase):
     def test1_create_connection(self):
         dbpool = self.my_dbpool(1)
         db = dbpool.connection()
-        self.assert_(hasattr(db, 'query'))
-        self.assert_(hasattr(db, 'num_queries'))
+        self.assertTrue(hasattr(db, 'query'))
+        self.assertTrue(hasattr(db, 'num_queries'))
         self.assertEqual(db.num_queries, 0)
-        self.assert_(hasattr(db, 'dbname'))
+        self.assertTrue(hasattr(db, 'dbname'))
         self.assertEqual(db.dbname, 'SimplePooledPgTestDB')
-        self.assert_(hasattr(db, 'user'))
+        self.assertTrue(hasattr(db, 'user'))
         self.assertEqual(db.user, 'SimplePooledPgTestUser')
         db.query()
         self.assertEqual(db.num_queries, 1)
@@ -71,11 +70,11 @@ class TestSimplePooledPg(unittest.TestCase):
         db.query()
         self.assertEqual(db.num_queries, 1)
         db.close()
-        self.assert_(not hasattr(db, 'num_queries'))
+        self.assertTrue(not hasattr(db, 'num_queries'))
         db = dbpool.connection()
-        self.assert_(hasattr(db, 'dbname'))
+        self.assertTrue(hasattr(db, 'dbname'))
         self.assertEqual(db.dbname, 'SimplePooledPgTestDB')
-        self.assert_(hasattr(db, 'user'))
+        self.assertTrue(hasattr(db, 'user'))
         self.assertEqual(db.user, 'SimplePooledPgTestUser')
         self.assertEqual(db.num_queries, 1)
         db.query()
@@ -97,7 +96,7 @@ class TestSimplePooledPg(unittest.TestCase):
         db1 = dbpool.connection()
         self.assertNotEqual(db1, db2)
         self.assertNotEqual(db1._con, db2._con)
-        self.assert_(hasattr(db1, 'query'))
+        self.assertTrue(hasattr(db1, 'query'))
         for i in range(3):
             db1.query()
         self.assertEqual(db1.num_queries, 8)

@@ -86,7 +86,7 @@ since it clears the threading.local data between requests).
 
 Requirements:
 
-Python >= 2.3, < 3.0, PyGreSQL >= 3.4.
+Python >= 2.6, PyGreSQL >= 3.4.
 
 
 Ideas for improvement:
@@ -107,11 +107,18 @@ Licensed under the MIT license.
 
 """
 
-__version__ = '1.1.1'
-
-
-import ThreadingLocal
 from DBUtils.SteadyPg import SteadyPgConnection
+
+__version__ = '1.2'
+
+try:
+    # Prefer the pure Python version of threading.local.
+    # The C implementation turned out to be problematic with mod_wsgi,
+    # since it does not keep the thread-local data between requests.
+    from _threading_local import local
+except ImportError:
+    # Fall back to the default version of threading.local.
+    from threading import local
 
 
 class PersistentPg:
@@ -147,7 +154,7 @@ class PersistentPg:
         self._setsession = setsession
         self._closeable = closeable
         self._args, self._kwargs = args, kwargs
-        self.thread = (threadlocal or ThreadingLocal.local)()
+        self.thread = (threadlocal or local)()
 
     def steady_connection(self):
         """Get a steady, non-persistent PyGreSQL connection."""

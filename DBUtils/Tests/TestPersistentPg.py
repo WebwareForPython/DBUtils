@@ -11,15 +11,15 @@ Copyright and credit info:
 
 """
 
-__version__ = '1.1.1'
-
 import sys
 import unittest
 
-sys.path.insert(1, '../..')
 # The TestSteadyPg module serves as a mock object for the pg API module:
+sys.path.insert(1, '../..')
 from DBUtils.Tests import TestSteadyPg as pg
 from DBUtils.PersistentPg import PersistentPg
+
+__version__ = '1.2'
 
 
 class TestPersistentPg(unittest.TestCase):
@@ -35,17 +35,17 @@ class TestPersistentPg(unittest.TestCase):
         for closeable in (False, True):
             persist = PersistentPg(closeable=closeable)
             db = persist.connection()
-            self.assert_(db._con.db and db._con.valid)
+            self.assertTrue(db._con.db and db._con.valid)
             db.close()
-            self.assert_(closeable ^
+            self.assertTrue(closeable ^
                 (db._con.db is not None and db._con.valid))
             db.close()
-            self.assert_(closeable ^
+            self.assertTrue(closeable ^
                 (db._con.db is not None and db._con.valid))
             db._close()
-            self.assert_(not db._con.db or not db._con.valid)
+            self.assertTrue(not db._con.db or not db._con.valid)
             db._close()
-            self.assert_(not db._con.db or not db._con.valid)
+            self.assertTrue(not db._con.db or not db._con.valid)
 
     def test2_Threads(self):
         numThreads = 3
@@ -104,7 +104,7 @@ class TestPersistentPg(unittest.TestCase):
             except TypeError:
                 r = resultQueue[i].get(1)
             self.assertEqual(r, '%d(0): ok - thread alive' % i)
-            self.assert_(threads[i].isAlive())
+            self.assertTrue(threads[i].isAlive())
         for i in range(numThreads):
             for j in range(i + 1):
                 try:
@@ -137,7 +137,7 @@ class TestPersistentPg(unittest.TestCase):
                 r = resultQueue[1].get(1)
             self.assertEqual(r, '1(%d): test%d' % (j + 1, j))
         for i in range(numThreads):
-            self.assert_(threads[i].isAlive())
+            self.assertTrue(threads[i].isAlive())
             try:
                 queryQueue[i].put('ping', 1, 1)
             except TypeError:
@@ -148,7 +148,7 @@ class TestPersistentPg(unittest.TestCase):
             except TypeError:
                 r = resultQueue[i].get(1)
             self.assertEqual(r, '%d(%d): ok - thread alive' % (i, i + 1))
-            self.assert_(threads[i].isAlive())
+            self.assertTrue(threads[i].isAlive())
         for i in range(numThreads):
             try:
                 queryQueue[i].put(None, 1, 1)
@@ -162,7 +162,7 @@ class TestPersistentPg(unittest.TestCase):
         for i in range(100):
             r = db.query('select test%d' % i)
             self.assertEqual(r, 'test%d' % i)
-            self.assert_(db.db.status)
+            self.assertTrue(db.db.status)
             j = i % 20 + 1
             self.assertEqual(db._usage, j)
             self.assertEqual(db.num_queries, j)

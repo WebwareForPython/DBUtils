@@ -11,16 +11,15 @@ Copyright and credit info:
 
 """
 
-__version__ = '1.1.1'
-
 import sys
 import unittest
 
-sys.path.insert(1, '../..')
 # The TestSteadyDB module serves as a mock object for the DB-API 2 module:
-from DBUtils import ThreadingLocal
+sys.path.insert(1, '../..')
 from DBUtils.Tests import TestSteadyDB as dbapi
-from DBUtils.PersistentDB import PersistentDB
+from DBUtils.PersistentDB import PersistentDB, local
+
+__version__ = '1.2'
 
 
 class TestPersistentDB(unittest.TestCase):
@@ -44,22 +43,22 @@ class TestPersistentDB(unittest.TestCase):
         for closeable in (False, True):
             persist = PersistentDB(dbapi, closeable=closeable)
             db = persist.connection()
-            self.assert_(db._con.valid)
+            self.assertTrue(db._con.valid)
             db.close()
-            self.assert_(closeable ^ db._con.valid)
+            self.assertTrue(closeable ^ db._con.valid)
             db.close()
-            self.assert_(closeable ^ db._con.valid)
+            self.assertTrue(closeable ^ db._con.valid)
             db._close()
-            self.assert_(not db._con.valid)
+            self.assertTrue(not db._con.valid)
             db._close()
-            self.assert_(not db._con.valid)
+            self.assertTrue(not db._con.valid)
 
     def test3_Connection(self):
         persist = PersistentDB(dbapi)
         db = persist.connection()
         db_con = db._con
-        self.assert_(db_con.database is None)
-        self.assert_(db_con.user is None)
+        self.assertTrue(db_con.database is None)
+        self.assertTrue(db_con.user is None)
         db2 = persist.connection()
         self.assertEqual(db, db2)
         db3 = persist.dedicated_connection()
@@ -128,7 +127,7 @@ class TestPersistentDB(unittest.TestCase):
             except TypeError:
                 r = resultQueue[i].get(1)
             self.assertEqual(r, '%d(0): ok - thread alive' % i)
-            self.assert_(threads[i].isAlive())
+            self.assertTrue(threads[i].isAlive())
         for i in range(numThreads):
             for j in range(i + 1):
                 try:
@@ -163,7 +162,7 @@ class TestPersistentDB(unittest.TestCase):
                 r = resultQueue[1].get(1)
             self.assertEqual(r, '1(%d): test%d' % (j + 1, j))
         for i in range(numThreads):
-            self.assert_(threads[i].isAlive())
+            self.assertTrue(threads[i].isAlive())
             try:
                 queryQueue[i].put('ping', 1, 1)
             except TypeError:
@@ -174,7 +173,7 @@ class TestPersistentDB(unittest.TestCase):
             except TypeError:
                 r = resultQueue[i].get(1)
             self.assertEqual(r, '%d(%d): ok - thread alive' % (i, i + 1))
-            self.assert_(threads[i].isAlive())
+            self.assertTrue(threads[i].isAlive())
         for i in range(numThreads):
             try:
                 queryQueue[i].put(None, 1, 1)
@@ -191,7 +190,7 @@ class TestPersistentDB(unittest.TestCase):
             r = cursor.fetchone()
             cursor.close()
             self.assertEqual(r, 'test%d' % i)
-            self.assert_(db._con.valid)
+            self.assertTrue(db._con.valid)
             j = i % 20 + 1
             self.assertEqual(db._usage, j)
             self.assertEqual(db._con.num_uses, j)
@@ -217,11 +216,11 @@ class TestPersistentDB(unittest.TestCase):
 
     def test7_ThreadLocal(self):
         persist = PersistentDB(dbapi)
-        self.assert_(isinstance(persist.thread, ThreadingLocal.local))
+        self.assertTrue(isinstance(persist.thread, local))
         class threadlocal:
             pass
         persist = PersistentDB(dbapi, threadlocal=threadlocal)
-        self.assert_(isinstance(persist.thread, threadlocal))
+        self.assertTrue(isinstance(persist.thread, threadlocal))
 
     def test8_PingCheck(self):
         Connection = dbapi.Connection
@@ -229,48 +228,48 @@ class TestPersistentDB(unittest.TestCase):
         Connection.num_pings = 0
         persist = PersistentDB(dbapi, 0, None, None, 0, True)
         db = persist.connection()
-        self.assert_(db._con.valid)
+        self.assertTrue(db._con.valid)
         self.assertEqual(Connection.num_pings, 0)
         db.close()
         db = persist.connection()
-        self.assert_(not db._con.valid)
+        self.assertTrue(not db._con.valid)
         self.assertEqual(Connection.num_pings, 0)
         persist = PersistentDB(dbapi, 0, None, None, 1, True)
         db = persist.connection()
-        self.assert_(db._con.valid)
+        self.assertTrue(db._con.valid)
         self.assertEqual(Connection.num_pings, 1)
         db.close()
         db = persist.connection()
-        self.assert_(db._con.valid)
+        self.assertTrue(db._con.valid)
         self.assertEqual(Connection.num_pings, 2)
         persist = PersistentDB(dbapi, 0, None, None, 2, True)
         db = persist.connection()
-        self.assert_(db._con.valid)
+        self.assertTrue(db._con.valid)
         self.assertEqual(Connection.num_pings, 2)
         db.close()
         db = persist.connection()
-        self.assert_(not db._con.valid)
+        self.assertTrue(not db._con.valid)
         self.assertEqual(Connection.num_pings, 2)
         cursor = db.cursor()
-        self.assert_(db._con.valid)
+        self.assertTrue(db._con.valid)
         self.assertEqual(Connection.num_pings, 3)
         cursor.execute('select test')
-        self.assert_(db._con.valid)
+        self.assertTrue(db._con.valid)
         self.assertEqual(Connection.num_pings, 3)
         persist = PersistentDB(dbapi, 0, None, None, 4, True)
         db = persist.connection()
-        self.assert_(db._con.valid)
+        self.assertTrue(db._con.valid)
         self.assertEqual(Connection.num_pings, 3)
         db.close()
         db = persist.connection()
-        self.assert_(not db._con.valid)
+        self.assertTrue(not db._con.valid)
         self.assertEqual(Connection.num_pings, 3)
         cursor = db.cursor()
         db._con.close()
-        self.assert_(not db._con.valid)
+        self.assertTrue(not db._con.valid)
         self.assertEqual(Connection.num_pings, 3)
         cursor.execute('select test')
-        self.assert_(db._con.valid)
+        self.assertTrue(db._con.valid)
         self.assertEqual(Connection.num_pings, 4)
         Connection.has_ping = False
         Connection.num_pings = 0

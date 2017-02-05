@@ -70,9 +70,9 @@ Licensed under the MIT license.
 
 """
 
-__version__ = '1.1.1'
-
 from pg import DB as PgConnection
+
+__version__ = '1.2'
 
 try:
     baseint = (int, long)
@@ -82,6 +82,7 @@ except NameError:  # Python 3
 
 class SteadyPgError(Exception):
     """General SteadyPg error."""
+
 
 class InvalidConnection(SteadyPgError):
     """Database connection is invalid."""

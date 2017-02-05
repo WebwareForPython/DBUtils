@@ -4,7 +4,7 @@ Create a new DBUtils release:
 * Check the documentation. If possible, update all translations.
   (Chinese translation was too old and has been removed for the time being.)
 
-* Run all tests in DBUtils/Tests with Python version from 2.3 to 2.7.
+* Run all tests in DBUtils/Tests with Python version from 2.6 to 3.6.
 
 * Check the examples in DBUtils/Examples with the current Webware version.
 
@@ -52,9 +52,7 @@ Create a new DBUtils release:
 * Upload the source package to the test PyPI with:
 
         python setup.py sdist upload -r pypitest
-
-  You have to install setuptools to make this work.
-  
+ 
 * Register and upload the project to the real PyPI with:
 
         python setup.py register -r pypi

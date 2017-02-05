@@ -73,10 +73,12 @@ Licensed under the MIT license.
 
 """
 
-__version__ = '1.1.1'
+__version__ = '1.2'
+
 
 class PooledDBError(Exception):
     """General PooledDB error."""
+
 
 class NotSupportedError(PooledDBError):
     """DB-API module not supported by PooledDB."""
