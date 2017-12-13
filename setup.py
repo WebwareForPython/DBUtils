@@ -14,7 +14,7 @@ warnings.filterwarnings('ignore', 'Unknown distribution option')
 from distutils.core import setup
 
 setup(
-    name='DBUtils',
+    name='CTDBUtils',
     version=__version__,
     description='Database connections for multi-threaded environments.',
     long_description='''\
