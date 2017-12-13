@@ -364,7 +364,9 @@ class PooledDB:
         """Put a dedicated connection back into the idle cache."""
         self._lock.acquire()
         try:
-            if not self._maxcached or len(self._idle_cache) < self._maxcached:
+            if self._maxcached is None or self._maxcached == 0:
+                con.close() # Do not cache any connection
+            elif not self._maxcached or len(self._idle_cache) < self._maxcached:
                 con._reset(force=self._reset)  # rollback possible transaction
                 # the idle cache is not full, so put it there
                 self._idle_cache.append(con)  # append it to the idle cache

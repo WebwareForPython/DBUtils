@@ -2,7 +2,7 @@
 
 from sys import version_info
 
-__version__ = '1.2'
+__version__ = '1.2.1'
 
 py_version = version_info[:2]
 if py_version < (2, 6):
@@ -14,7 +14,7 @@ warnings.filterwarnings('ignore', 'Unknown distribution option')
 from distutils.core import setup
 
 setup(
-    name='DBUtils',
+    name='CTDBUtils',
     version=__version__,
     description='Database connections for multi-threaded environments.',
     long_description='''\
@@ -22,6 +22,8 @@ DBUtils is a suite of tools providing solid, persistent and pooled connections
 to a database that can be used in all kinds of multi-threaded environments
 like Webware for Python or other web application servers. The suite supports
 DB-API 2 compliant database interfaces and the classic PyGreSQL interface.
+
+Based on https://cito.github.io/DBUtils/
 ''',
     classifiers=['Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',
@@ -43,9 +45,9 @@ DB-API 2 compliant database interfaces and the classic PyGreSQL interface.
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
         'Topic :: Software Development :: Libraries :: Python Modules'
     ],
-    author='Christoph Zwerschke',
-    author_email='cito@online.de',
-    url='https://cito.github.io/DBUtils/',
+    author='Xu Rui',
+    author_email='xurui1@chinatelecom.cn',
+    url='https://github.com/189cn/CTDBUtils',
     platforms=['any'],
     license='MIT License',
     packages=['DBUtils', 'DBUtils.Examples', 'DBUtils.Tests'],
