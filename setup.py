@@ -2,7 +2,7 @@
 
 from sys import version_info
 
-__version__ = '1.2'
+__version__ = '1.2.1'
 
 py_version = version_info[:2]
 if py_version < (2, 6):
