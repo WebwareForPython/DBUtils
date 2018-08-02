@@ -7,6 +7,13 @@ consistently in all files of the distribution.
 
 """
 
+from __future__ import print_function
+
+import os
+import sys
+import re
+from glob import glob
+
 # Version format is (Major, Minor, Sub, Alpha/Beta/etc)
 # The Sub is optional, and if 0 is not returned.
 # Examples: (0, 8, 1, 'b1'), (0, 8, 2) or (0, 9, 0, 'rc1')
@@ -21,13 +28,10 @@ releaseDate = '02/05/17'
 # Verbose output (output unchanged files also):
 verbose = False
 
-from glob import glob
-import os, sys, re
-
 path = os.path.dirname(os.path.abspath(sys.argv[0]))
 sys.path.append(path)
 os.chdir(path)
-print "Setversion", path
+print("Setversion", path)
 
 
 def versionString(version):
@@ -38,17 +42,18 @@ def versionString(version):
     The micro version number is only excluded from the string if it is zero.
 
     """
-    ver = map(str, version)
+    ver = list(map(str, version))
     numbers, rest = ver[:2 if ver[2] == '0' else 3], ver[3:]
     return '.'.join(numbers) + '-'.join(rest)
+
 
 versionString = versionString(version)
 
 if versionString == 'X.Y':
-    print "Please set the version."
+    print("Please set the version.")
     sys.exit(1)
 if releaseDate == '@@/@@/@@':
-    print "Please set the release date."
+    print("Please set the release date.")
     sys.exit(1)
 
 
@@ -68,13 +73,13 @@ class Replacer:
 
     def replaceInFile(self, filename):
         data = open(filename).read()
-        newdata = self.replaceInStr(data)
-        if data == newdata:
+        newData = self.replaceInStr(data)
+        if data == newData:
             if verbose:
-                print 'Unchanged ' + filename
+                print("Unchanged", filename)
         else:
-            print 'Updating ' + filename
-            open(filename, 'w').write(newdata)
+            print("Updating", filename)
+            open(filename, 'w').write(newData)
 
     def replaceGlob(self, pattern):
         for file in glob(pattern):
@@ -90,14 +95,18 @@ propReplace.add(r"(version\s*=\s*).*", r"\g<1>%s" % repr(version))
 propReplace.add(r"(releaseDate\s*=\s*).*", r"\g<1>%s" % repr(releaseDate))
 
 htmlReplace = Replacer()
-htmlReplace.add(r"<!--\s*version\s*-->[^<]*<!--\s*/version\s*-->",
-        r"<!-- version --> %s <!-- /version -->" % versionString)
-htmlReplace.add(r"<!--\s*relDate\s*-->[^<]*<!--\s*/relDate\s*-->",
-        r"<!-- relDate --> %s <!-- /relDate -->" % releaseDate)
+htmlReplace.add(
+    r"<!--\s*version\s*-->[^<]*<!--\s*/version\s*-->",
+    r"<!-- version --> %s <!-- /version -->" % versionString)
+htmlReplace.add(
+    r"<!--\s*relDate\s*-->[^<]*<!--\s*/relDate\s*-->",
+    r"<!-- relDate --> %s <!-- /relDate -->" % releaseDate)
 
 rstReplace = Replacer()
-rstReplace.add(r"^:(.+)?: (X|\d+)\.(Y|\d+)(\.\d+)?$", r":\1: %s" % versionString)
-rstReplace.add(r"^:(.+)?: (@|\d){2}/(@|\d){2}/(@|\d){2}$", r":\1: %s" % releaseDate)
+rstReplace.add(
+    r"^:(.+)?: (X|\d+)\.(Y|\d+)(\.\d+)?$", r":\1: %s" % versionString)
+rstReplace.add(
+    r"^:(.+)?: (@|\d){2}/(@|\d){2}/(@|\d){2}$", r":\1: %s" % releaseDate)
 
 # Replace in Python files:
 pyReplace.replaceGlob('*.py')
