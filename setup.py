@@ -2,10 +2,10 @@
 
 from sys import version_info
 
-__version__ = '1.3'
+__version__ = '1.2.1'
 
 py_version = version_info[:2]
-if not (2, 6) <= py_version <= (2, 7) or py_version >= (3, 4):
+if not (2, 6) <= py_version <= (2, 7) and not (3, 4) <= py_version < (4, 0):
     raise ImportError('Python %d.%d is not supported by DBUtils.' % py_version)
 
 import warnings
