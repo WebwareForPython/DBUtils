@@ -24,9 +24,6 @@ Create a new DBUtils release:
 
   You will find the tarball in the "dist" folder.
 
-  Under Windows, this will be a .zip file, otherwise a .tar.gz file.
-  You can force .tar.gz under Windows with `--formats=gztar`,
-  but you need to use WSL, Cygwin or have a tar binary installed.
   Generally, it is better to create the release under Unix to avoid
   problems with DOS line feeds and wrong file permission.
 
@@ -35,33 +32,26 @@ Create a new DBUtils release:
     Create a .pypirc file in your home directory as follows:
 
         echo "[pypi]
-        repository=https://pypi.python.org/pypi
-        username:myusername
-        password:mypassword
+        repository: https://upload.pypi.org/legacy/
+        username: your username
+        password: your password
         
         [pypitest]
-        repository=https://testpypi.python.org/pypi
-        username:myusername
-        password:mypassword       
+        repository: https://test.pypi.org/legacy/
+        username: your username
+        password: your password     
         " > ~.pypirc
 
-* Register the project on the test PyPI with:
-
-        python setup.py register -r pypitest
 
 * Upload the source package to the test PyPI with:
 
-        python setup.py sdist upload -r pypitest
+        twine upload -r pypitest dist/*.tar.gz
  
 * Register and upload the project to the real PyPI with:
 
-        python setup.py register -r pypi
-        python setup.py sdist upload -r pypi
-
-    See also: http://peterdowns.com/posts/first-time-with-pypi.html
+        twine upload -r pypi dist/*.tar.gz
 
 * Don't forget to update the home page:
 
     * https://cito.github.io/DBUtils/
     * https://cito.github.io/w4py/
-
