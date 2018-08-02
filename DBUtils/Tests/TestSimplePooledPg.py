@@ -12,29 +12,12 @@ Copyright and credit info:
 """
 
 import unittest
-import sys
 
-# This module also serves as a mock object for the pg API module:
-sys.modules['pg'] = sys.modules[__name__]
+import DBUtils.Tests.mock_pg  # noqa
+
+from DBUtils import SimplePooledPg
 
 __version__ = '1.2'
-
-
-class DB:
-
-    def __init__(self, dbname, user):
-        self.dbname = dbname
-        self.user = user
-        self.num_queries = 0
-
-    def close(self):
-        self.num_queries = 0
-
-    def query(self):
-        self.num_queries += 1
-
-
-from DBUtils import SimplePooledPg  # noqa
 
 
 class TestSimplePooledPg(unittest.TestCase):
@@ -59,14 +42,14 @@ class TestSimplePooledPg(unittest.TestCase):
         self.assertEqual(db.dbname, 'SimplePooledPgTestDB')
         self.assertTrue(hasattr(db, 'user'))
         self.assertEqual(db.user, 'SimplePooledPgTestUser')
-        db.query()
+        db.query('select 1')
         self.assertEqual(db.num_queries, 1)
 
     def test2_close_connection(self):
         dbpool = self.my_dbpool(1)
         db = dbpool.connection()
         self.assertEqual(db.num_queries, 0)
-        db.query()
+        db.query('select 1')
         self.assertEqual(db.num_queries, 1)
         db.close()
         self.assertTrue(not hasattr(db, 'num_queries'))
@@ -76,19 +59,19 @@ class TestSimplePooledPg(unittest.TestCase):
         self.assertTrue(hasattr(db, 'user'))
         self.assertEqual(db.user, 'SimplePooledPgTestUser')
         self.assertEqual(db.num_queries, 1)
-        db.query()
+        db.query('select 1')
         self.assertEqual(db.num_queries, 2)
 
     def test3_two_connections(self):
         dbpool = self.my_dbpool(2)
         db1 = dbpool.connection()
         for i in range(5):
-            db1.query()
+            db1.query('select 1')
         db2 = dbpool.connection()
         self.assertNotEqual(db1, db2)
         self.assertNotEqual(db1._con, db2._con)
         for i in range(7):
-            db2.query()
+            db2.query('select 1')
         self.assertEqual(db1.num_queries, 5)
         self.assertEqual(db2.num_queries, 7)
         db1.close()
@@ -97,9 +80,9 @@ class TestSimplePooledPg(unittest.TestCase):
         self.assertNotEqual(db1._con, db2._con)
         self.assertTrue(hasattr(db1, 'query'))
         for i in range(3):
-            db1.query()
+            db1.query('select 1')
         self.assertEqual(db1.num_queries, 8)
-        db2.query()
+        db2.query('select 1')
         self.assertEqual(db2.num_queries, 8)
 
     def test4_threads(self):

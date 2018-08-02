@@ -13,34 +13,12 @@ Copyright and credit info:
 """
 
 import unittest
-import sys
 
-# This module also serves as a mock object for an arbitrary DB-API 2 module:
-dbModule = sys.modules[__name__]
+import DBUtils.Tests.mock_db as dbapi
 
-from DBUtils import SimplePooledDB  # noqa
+from DBUtils import SimplePooledDB
 
 __version__ = '1.2'
-
-threadsafety = 1
-
-
-def connect(database, user):
-    return Connection(database, user)
-
-
-class Connection:
-
-    def __init__(self, database, user):
-        self.database = database
-        self.user = user
-        self.open_cursors = 0
-
-    def close(self):
-        self.open_cursors = 0
-
-    def cursor(self):
-        self.open_cursors += 1
 
 
 def versionString(version):
@@ -53,11 +31,14 @@ def versionString(version):
 class TestSimplePooledDB(unittest.TestCase):
 
     def my_dbpool(self, mythreadsafety, maxConnections):
-        global threadsafety
-        threadsafety = mythreadsafety
-        return SimplePooledDB.PooledDB(
-            dbModule, maxConnections,
-            'SimplePooledDBTestDB', 'SimplePooledDBTestUser')
+        threadsafety = dbapi.threadsafety
+        dbapi.threadsafety = mythreadsafety
+        try:
+            return SimplePooledDB.PooledDB(
+                dbapi, maxConnections,
+                'SimplePooledDBTestDB', 'SimplePooledDBTestUser')
+        finally:
+            dbapi.threadsafety = threadsafety
 
     def test0_check_version(self):
         from DBUtils import __version__ as DBUtilsVersion
@@ -84,15 +65,16 @@ class TestSimplePooledDB(unittest.TestCase):
             self.assertEqual(db.database, 'SimplePooledDBTestDB')
             self.assertTrue(hasattr(db, 'user'))
             self.assertEqual(db.user, 'SimplePooledDBTestUser')
-            db.cursor()
+            cursor = db.cursor()
             self.assertEqual(db.open_cursors, 1)
+            del cursor
 
     def test3_close_connection(self):
         for threadsafety in (1, 2, 3):
             dbpool = self.my_dbpool(threadsafety, 1)
             db = dbpool.connection()
             self.assertEqual(db.open_cursors, 0)
-            db.cursor()
+            cursor1 = db.cursor()
             self.assertEqual(db.open_cursors, 1)
             db.close()
             self.assertTrue(not hasattr(db, 'open_cursors'))
@@ -102,19 +84,19 @@ class TestSimplePooledDB(unittest.TestCase):
             self.assertTrue(hasattr(db, 'user'))
             self.assertEqual(db.user, 'SimplePooledDBTestUser')
             self.assertEqual(db.open_cursors, 1)
-            db.cursor()
+            cursor2 = db.cursor()
             self.assertEqual(db.open_cursors, 2)
+            del cursor2
+            del cursor1
 
     def test4_two_connections(self):
         for threadsafety in (1, 2, 3):
             dbpool = self.my_dbpool(threadsafety, 2)
             db1 = dbpool.connection()
-            for i in range(5):
-                db1.cursor()
+            cursors1 = [db1.cursor() for i in range(5)]
             db2 = dbpool.connection()
             self.assertNotEqual(db1, db2)
-            for i in range(7):
-                db2.cursor()
+            cursors2 = [db2.cursor() for i in range(7)]
             self.assertEqual(db1.open_cursors, 5)
             self.assertEqual(db2.open_cursors, 7)
             db1.close()
@@ -122,10 +104,12 @@ class TestSimplePooledDB(unittest.TestCase):
             self.assertNotEqual(db1, db2)
             self.assertTrue(hasattr(db1, 'cursor'))
             for i in range(3):
-                db1.cursor()
+                cursors1.append(db1.cursor())
             self.assertEqual(db1.open_cursors, 8)
-            db2.cursor()
+            cursors2.append(db2.cursor())
             self.assertEqual(db2.open_cursors, 8)
+            del cursors2
+            del cursors1
 
     def test5_threadsafety_1(self):
         dbpool = self.my_dbpool(1, 2)
@@ -166,10 +150,10 @@ class TestSimplePooledDB(unittest.TestCase):
             dbpool = self.my_dbpool(threadsafety, 2)
             db1 = dbpool.connection()
             db2 = dbpool.connection()
-            for i in range(100):
-                dbpool.connection().cursor()
+            cursors = [dbpool.connection().cursor() for i in range(100)]
             self.assertEqual(db1.open_cursors, 50)
             self.assertEqual(db2.open_cursors, 50)
+            del cursors
 
 
 if __name__ == '__main__':

@@ -13,8 +13,7 @@ Copyright and credit info:
 
 import unittest
 
-# The TestSteadyDB module serves as a mock object for the DB-API 2 module:
-from DBUtils.Tests import TestSteadyDB as dbapi
+import DBUtils.Tests.mock_db as dbapi
 
 from DBUtils.PersistentDB import PersistentDB, local
 

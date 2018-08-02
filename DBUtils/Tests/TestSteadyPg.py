@@ -15,116 +15,11 @@ Copyright and credit info:
 import unittest
 import sys
 
-# This module also serves as a mock object for the pg API module:
-sys.modules['pg'] = sys.modules[__name__]
+import DBUtils.Tests.mock_pg as pg
 
-from DBUtils.SteadyPg import SteadyPgConnection  # noqa
+from DBUtils.SteadyPg import SteadyPgConnection
 
 __version__ = '1.2'
-
-
-class Error(Exception):
-    pass
-
-
-class DatabaseError(Error):
-    pass
-
-
-class InternalError(DatabaseError):
-    pass
-
-
-class ProgrammingError(DatabaseError):
-    pass
-
-
-def connect(*args, **kwargs):
-    return pgConnection(*args, **kwargs)
-
-
-class pgConnection:
-    """The underlying pg API connection class."""
-
-    def __init__(self, dbname=None, user=None):
-        self.db = dbname
-        self.user = user
-        self.num_queries = 0
-        self.session = []
-        if dbname == 'error':
-            self.status = False
-            self.valid = False
-            raise InternalError
-        self.status = True
-        self.valid = True
-
-    def close(self):
-        if not self.valid:
-            raise InternalError
-        self.num_queries = 0
-        self.session = []
-        self.status = False
-        self.valid = False
-
-    def reset(self):
-        self.num_queries = 0
-        self.session = []
-        self.status = True
-        self.valid = True
-
-    def query(self, qstr):
-        if not self.valid:
-            raise InternalError
-        if qstr in ('begin', 'end', 'commit', 'rollback'):
-            self.session.append(qstr)
-        elif qstr.startswith('select '):
-            self.num_queries += 1
-            return qstr[7:]
-        elif qstr.startswith('set '):
-            self.session.append(qstr[4:])
-        else:
-            raise ProgrammingError
-
-
-class DB:
-    """Wrapper class for the pg API connection class."""
-
-    def __init__(self, *args, **kw):
-        self.db = connect(*args, **kw)
-        self.dbname = self.db.db
-        self.__args = args, kw
-
-    def __getattr__(self, name):
-        if self.db:
-            return getattr(self.db, name)
-        else:
-            raise AttributeError
-
-    def close(self):
-        if self.db:
-            self.db.close()
-            self.db = None
-        else:
-            raise InternalError
-
-    def reopen(self):
-        if self.db:
-            self.close()
-        try:
-            self.db = connect(*self.__args[0], **self.__args[1])
-        except Exception:
-            self.db = None
-            raise
-
-    def query(self, qstr):
-        if not self.db:
-            raise InternalError
-        return self.db.query(qstr)
-
-    def get_tables(self):
-        if not self.db:
-            raise InternalError
-        return 'test'
 
 
 class TestSteadyPg(unittest.TestCase):
@@ -137,7 +32,7 @@ class TestSteadyPg(unittest.TestCase):
         self.assertEqual(SteadyPgConnection.version, __version__)
 
     def test1_MockedConnection(self):
-        PgConnection = DB
+        PgConnection = pg.DB
         db = PgConnection(
             'SteadyPgTestDB', user='SteadyPgTestUser')
         self.assertTrue(hasattr(db, 'db'))
@@ -181,9 +76,9 @@ class TestSteadyPg(unittest.TestCase):
         except AttributeError:
             status = False
         self.assertTrue(not status)
-        self.assertRaises(InternalError, db.close)
-        self.assertRaises(InternalError, db.query, 'select test')
-        self.assertRaises(InternalError, db.get_tables)
+        self.assertRaises(pg.InternalError, db.close)
+        self.assertRaises(pg.InternalError, db.query, 'select test')
+        self.assertRaises(pg.InternalError, db.get_tables)
 
     def test2_BrokenConnection(self):
         self.assertRaises(TypeError, SteadyPgConnection, 'wrong')
@@ -367,7 +262,7 @@ class TestSteadyPg(unittest.TestCase):
             db.begin()
             self.assertEqual(db.session, ['begin'])
             db.db.close()
-            self.assertRaises(InternalError, db.query, 'select test')
+            self.assertRaises(pg.InternalError, db.query, 'select test')
             self.assertEqual(db.num_queries, 0)
             db.query('select test')
             self.assertEqual(db.num_queries, 1)

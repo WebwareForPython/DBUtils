@@ -13,8 +13,7 @@ Copyright and credit info:
 
 import unittest
 
-# The TestSteadyPg module serves as a mock object for the pg API module:
-from DBUtils.Tests import TestSteadyPg  # noqa
+import DBUtils.Tests.mock_pg  # noqa
 
 from DBUtils.PooledPg import PooledPg, InvalidConnection
 
