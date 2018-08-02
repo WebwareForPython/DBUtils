@@ -9,6 +9,13 @@
 *.pyo
 *.swp
 
-Thumbs.db
+build
+dist
 
 .idea
+.tox
+.pytest_cache
+
+MANIFEST
+
+Thumbs.db

@@ -2,10 +2,10 @@
 
 from sys import version_info
 
-__version__ = '1.2'
+__version__ = '1.3'
 
 py_version = version_info[:2]
-if py_version < (2, 6):
+if not (2, 6) <= py_version <= (2, 7) or py_version >= (3, 4):
     raise ImportError('Python %d.%d is not supported by DBUtils.' % py_version)
 
 import warnings
@@ -32,13 +32,10 @@ DB-API 2 compliant database interfaces and the classic PyGreSQL interface.
         'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.0',
-        'Programming Language :: Python :: 3.1',
-        'Programming Language :: Python :: 3.2',
-        'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
         'Topic :: Database',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
         'Topic :: Software Development :: Libraries :: Python Modules'
