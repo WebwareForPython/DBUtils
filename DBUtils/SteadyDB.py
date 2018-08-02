@@ -548,6 +548,13 @@ class SteadyDBCursor:
             else:
                 cursor.setoutputsize(size, column)
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc_info):
+        del exc_info
+        self.close()
+
     def close(self):
         """Close the tough cursor.
 
