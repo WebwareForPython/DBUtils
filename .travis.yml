@@ -11,7 +11,7 @@ python:
   - "3.6"
 
 install:
-  - pip install -U pytest
+  - pip install pytest
   - pip install .
 
 script: pytest DBUtils/Tests/Test*.py
