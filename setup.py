@@ -1,28 +1,25 @@
 """Setup Script for DBUtils"""
 
+import warnings
+from distutils.core import setup
 from sys import version_info
-
-__version__ = '1.2'
 
 py_version = version_info[:2]
 if not (2, 6) <= py_version <= (2, 7) and not (3, 4) <= py_version < (4, 0):
     raise ImportError('Python %d.%d is not supported by DBUtils.' % py_version)
 
-import warnings
 warnings.filterwarnings('ignore', 'Unknown distribution option')
 
-from distutils.core import setup
+__version__ = '1.2'
+
+readme = open('README.md').read()
 
 setup(
     name='DBUtils',
     version=__version__,
     description='Database connections for multi-threaded environments.',
-    long_description='''\
-DBUtils is a suite of tools providing solid, persistent and pooled connections
-to a database that can be used in all kinds of multi-threaded environments
-like Webware for Python or other web application servers. The suite supports
-DB-API 2 compliant database interfaces and the classic PyGreSQL interface.
-''',
+    long_description=readme,
+    long_description_content_type='text/markdown',
     classifiers=['Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',
         'Intended Audience :: Developers',
