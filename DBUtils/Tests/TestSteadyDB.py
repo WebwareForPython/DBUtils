@@ -249,7 +249,18 @@ class TestSteadyDB(unittest.TestCase):
         self.assertEqual(
             db._con.session, ['doit', 'commit', 'dont', 'rollback'])
 
-    def test05_ConnectionCreatorFunction(self):
+    def test05_CursorContextHandler(self):
+        db = SteadyDBconnect(
+            dbapi, 0, None, None, None, True,
+            'SteadyDBTestDB', user='SteadyDBTestUser')
+        self.assertEqual(db._con.open_cursors, 0)
+        with db.cursor() as cursor:
+            self.assertEqual(db._con.open_cursors, 1)
+            cursor.execute('select test')
+            self.assertEqual(cursor.fetchone(), 'test')
+        self.assertEqual(db._con.open_cursors, 0)
+
+    def test06_ConnectionCreatorFunction(self):
         db1 = SteadyDBconnect(
             dbapi, 0, None, None, None, True,
             'SteadyDBTestDB', user='SteadyDBTestUser')
@@ -264,7 +275,7 @@ class TestSteadyDB(unittest.TestCase):
         db2.close()
         db1.close()
 
-    def test06_ConnectionMaxUsage(self):
+    def test07_ConnectionMaxUsage(self):
         db = SteadyDBconnect(dbapi, 10)
         cursor = db.cursor()
         for i in range(100):
@@ -310,7 +321,7 @@ class TestSteadyDB(unittest.TestCase):
         self.assertEqual(db._con.num_uses, 1)
         self.assertEqual(db._con.num_queries, 1)
 
-    def test07_ConnectionSetSession(self):
+    def test08_ConnectionSetSession(self):
         db = SteadyDBconnect(dbapi, 3, ('set time zone', 'set datestyle'))
         self.assertTrue(hasattr(db, '_usage'))
         self.assertEqual(db._usage, 0)
@@ -368,7 +379,7 @@ class TestSteadyDB(unittest.TestCase):
         self.assertEqual(db._con.num_queries, 1)
         self.assertEqual(db._con.session, ['time zone', 'datestyle'])
 
-    def test08_ConnectionFailures(self):
+    def test09_ConnectionFailures(self):
         db = SteadyDBconnect(dbapi)
         db.close()
         db.cursor()
@@ -383,7 +394,7 @@ class TestSteadyDB(unittest.TestCase):
         db.close()
         db.cursor()
 
-    def test09_ConnectionFailureError(self):
+    def test10_ConnectionFailureError(self):
         db = SteadyDBconnect(dbapi)
         cursor = db.cursor()
         db.close()
@@ -392,7 +403,7 @@ class TestSteadyDB(unittest.TestCase):
         db.close()
         self.assertRaises(dbapi.ProgrammingError, cursor.execute, 'error')
 
-    def test10_ConnectionSetSizes(self):
+    def test11_ConnectionSetSizes(self):
         db = SteadyDBconnect(dbapi)
         cursor = db.cursor()
         cursor.execute('get sizes')
@@ -417,7 +428,7 @@ class TestSteadyDB(unittest.TestCase):
         result = cursor.fetchone()
         self.assertEqual(result, ([6, 42, 7], {None: 7, 3: 15, 9: 42}))
 
-    def test11_ConnectionPingCheck(self):
+    def test12_ConnectionPingCheck(self):
         Connection = dbapi.Connection
         Connection.has_ping = False
         Connection.num_pings = 0
@@ -506,7 +517,7 @@ class TestSteadyDB(unittest.TestCase):
         Connection.has_ping = False
         Connection.num_pings = 0
 
-    def test12_BeginTransaction(self):
+    def test13_BeginTransaction(self):
         db = SteadyDBconnect(dbapi, database='ok')
         cursor = db.cursor()
         cursor.close()
@@ -529,7 +540,7 @@ class TestSteadyDB(unittest.TestCase):
         cursor.execute('select test12')
         self.assertEqual(cursor.fetchone(), 'test12')
 
-    def test13_WithBeginExtension(self):
+    def test14_WithBeginExtension(self):
         db = SteadyDBconnect(dbapi, database='ok')
         db._con._begin_called_with = None
 
@@ -543,7 +554,7 @@ class TestSteadyDB(unittest.TestCase):
         self.assertEqual(cursor.fetchone(), 'test13')
         self.assertEqual(db._con._begin_called_with, (42, 6, 7))
 
-    def test14_CancelTransaction(self):
+    def test15_CancelTransaction(self):
         db = SteadyDBconnect(dbapi, database='ok')
         cursor = db.cursor()
         db.begin()
@@ -553,7 +564,7 @@ class TestSteadyDB(unittest.TestCase):
         cursor.execute('select test14')
         self.assertEqual(cursor.fetchone(), 'test14')
 
-    def test15_WithCancelExtension(self):
+    def test16_WithCancelExtension(self):
         db = SteadyDBconnect(dbapi, database='ok')
         db._con._cancel_called = None
 
@@ -568,7 +579,7 @@ class TestSteadyDB(unittest.TestCase):
         db.cancel()
         self.assertEqual(db._con._cancel_called, 'yes')
 
-    def test16_ResetTransaction(self):
+    def test17_ResetTransaction(self):
         db = SteadyDBconnect(dbapi, database='ok')
         db.begin()
         self.assertTrue(not db._con.session)
@@ -580,7 +591,7 @@ class TestSteadyDB(unittest.TestCase):
         db.close()
         self.assertEqual(db._con.session, ['rollback'])
 
-    def test17_CommitError(self):
+    def test18_CommitError(self):
         db = SteadyDBconnect(dbapi, database='ok')
         db.begin()
         self.assertTrue(not db._con.session)
@@ -602,7 +613,7 @@ class TestSteadyDB(unittest.TestCase):
         self.assertEqual(db._con.session, ['commit'])
         self.assertTrue(db._con.valid)
 
-    def test18_RollbackError(self):
+    def test19_RollbackError(self):
         db = SteadyDBconnect(dbapi, database='ok')
         db.begin()
         self.assertTrue(not db._con.session)

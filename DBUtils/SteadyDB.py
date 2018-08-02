@@ -525,6 +525,12 @@ class SteadyDBCursor:
             raise TypeError("%r is not a SteadyDBConnection." % (con,))
         self._closed = False
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc_info):
+        self.close()
+
     def setinputsizes(self, sizes):
         """Store input sizes in case cursor needs to be reopened."""
         self._inputsizes = sizes
@@ -549,13 +555,6 @@ class SteadyDBCursor:
                 cursor.setoutputsize(size)
             else:
                 cursor.setoutputsize(size, column)
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, *exc_info):
-        del exc_info
-        self.close()
 
     def close(self):
         """Close the tough cursor.
