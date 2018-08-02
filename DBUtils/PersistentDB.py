@@ -153,7 +153,8 @@ class PersistentDB:
 
     version = __version__
 
-    def __init__(self, creator,
+    def __init__(
+            self, creator,
             maxusage=None, setsession=None, failures=None, ping=1,
             closeable=False, threadlocal=None, *args, **kwargs):
         """Set up the persistent DB-API 2 connection generator.

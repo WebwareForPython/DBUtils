@@ -10,7 +10,9 @@ status = 'beta'
 
 requiredPyVersion = (2, 6, 0)
 
-synopsis = """DBUtils provides database related support classes and functions to Webware. There is plenty of useful reusable code here."""
+synopsis = (
+    "DBUtils provides database related support classes and functions"
+    " to Webware. There is plenty of useful reusable code here.")
 
 WebKitConfig = {
     'examplePages': ['DBUtilsExample']

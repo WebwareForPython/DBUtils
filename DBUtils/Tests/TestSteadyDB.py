@@ -10,12 +10,17 @@ Copyright and credit info:
 
 """
 
+import unittest
 import sys
-
-__version__ = '1.2'
 
 # This module also serves as a mock object for the DB-API 2 module:
 dbapi = sys.modules[__name__]
+
+from DBUtils.SteadyDB import (
+    connect as SteadyDBconnect, SteadyDBConnection, SteadyDBCursor)  # noqa
+
+
+__version__ = '1.2'
 
 threadsafety = 2
 
@@ -158,13 +163,6 @@ class Cursor:
             self.close()
 
 
-import unittest
-
-sys.path.insert(1, '../..')
-from DBUtils.SteadyDB import connect as SteadyDBconnect
-from DBUtils.SteadyDB import SteadyDBConnection, SteadyDBCursor
-
-
 class TestSteadyDB(unittest.TestCase):
 
     def test00_CheckVersion(self):
@@ -175,8 +173,8 @@ class TestSteadyDB(unittest.TestCase):
         self.assertEqual(SteadyDBConnection.version, __version__)
 
     def test01_MockedConnection(self):
-        db = connect('SteadyDBTestDB',
-            user='SteadyDBTestUser')
+        db = connect(
+            'SteadyDBTestDB', user='SteadyDBTestUser')
         db.__class__.has_ping = False
         db.__class__.num_pings = 0
         self.assertTrue(hasattr(db, 'database'))
@@ -253,8 +251,8 @@ class TestSteadyDB(unittest.TestCase):
         for i in range(3):
             db.close()
         del db
-        self.assertRaises(OperationalError, SteadyDBconnect,
-            dbapi, database='error')
+        self.assertRaises(
+            OperationalError, SteadyDBconnect, dbapi, database='error')
         db = SteadyDBconnect(dbapi, database='ok')
         cursor = db.cursor()
         for i in range(3):
@@ -278,7 +276,8 @@ class TestSteadyDB(unittest.TestCase):
             self.assertTrue(not db._con.valid)
 
     def test04_Connection(self):
-        db = SteadyDBconnect(dbapi, 0, None, None, None, True,
+        db = SteadyDBconnect(
+            dbapi, 0, None, None, None, True,
             'SteadyDBTestDB', user='SteadyDBTestUser')
         self.assertTrue(isinstance(db, SteadyDBConnection))
         self.assertTrue(hasattr(db, '_con'))
@@ -390,13 +389,15 @@ class TestSteadyDB(unittest.TestCase):
         db.commit()
         cursor.execute('set dont')
         db.rollback()
-        self.assertEqual(db._con.session,
-            ['doit', 'commit', 'dont', 'rollback'])
+        self.assertEqual(
+            db._con.session, ['doit', 'commit', 'dont', 'rollback'])
 
     def test05_ConnectionCreatorFunction(self):
-        db1 = SteadyDBconnect(dbapi, 0, None, None, None, True,
+        db1 = SteadyDBconnect(
+            dbapi, 0, None, None, None, True,
             'SteadyDBTestDB', user='SteadyDBTestUser')
-        db2 = SteadyDBconnect(connect, 0, None, None, None, True,
+        db2 = SteadyDBconnect(
+            connect, 0, None, None, None, True,
             'SteadyDBTestDB', user='SteadyDBTestUser')
         self.assertEqual(db1.dbapi(), db2.dbapi())
         self.assertEqual(db1.threadsafety(), db2.threadsafety())
@@ -520,8 +521,8 @@ class TestSteadyDB(unittest.TestCase):
         db = SteadyDBconnect(dbapi, failures=OperationalError)
         db.close()
         self.assertRaises(InternalError, db.cursor)
-        db = SteadyDBconnect(dbapi,
-            failures=(OperationalError, InternalError))
+        db = SteadyDBconnect(
+            dbapi, failures=(OperationalError, InternalError))
         db.close()
         db.cursor()
 
@@ -673,8 +674,10 @@ class TestSteadyDB(unittest.TestCase):
     def test13_WithBeginExtension(self):
         db = SteadyDBconnect(dbapi, database='ok')
         db._con._begin_called_with = None
+
         def begin(a, b=None, c=7):
             db._con._begin_called_with = (a, b, c)
+
         db._con.begin = begin
         db.begin(42, 6)
         cursor = db.cursor()
@@ -695,8 +698,10 @@ class TestSteadyDB(unittest.TestCase):
     def test15_WithCancelExtension(self):
         db = SteadyDBconnect(dbapi, database='ok')
         db._con._cancel_called = None
+
         def cancel():
             db._con._cancel_called = 'yes'
+
         db._con.cancel = cancel
         db.begin()
         cursor = db.cursor()

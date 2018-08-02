@@ -140,8 +140,8 @@ class PooledPg:
 
     version = __version__
 
-    def __init__(self,
-            mincached=0, maxcached=0,
+    def __init__(
+            self, mincached=0, maxcached=0,
             maxconnections=0, blocking=False,
             maxusage=None, setsession=None, reset=None,
             *args, **kwargs):
@@ -200,7 +200,7 @@ class PooledPg:
     def steady_connection(self):
         """Get a steady, unpooled PostgreSQL connection."""
         return SteadyPgConnection(self._maxusage, self._setsession, True,
-            *self._args, **self._kwargs)
+                                  *self._args, **self._kwargs)
 
     def connection(self):
         """Get a steady, cached PostgreSQL connection from the pool."""

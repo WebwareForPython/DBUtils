@@ -11,12 +11,11 @@ Copyright and credit info:
 
 """
 
-import sys
 import unittest
 
 # The TestSteadyDB module serves as a mock object for the DB-API 2 module:
-sys.path.insert(1, '../..')
 from DBUtils.Tests import TestSteadyDB as dbapi
+
 from DBUtils.PersistentDB import PersistentDB, local
 
 __version__ = '1.2'
@@ -78,6 +77,7 @@ class TestPersistentDB(unittest.TestCase):
         for i in range(numThreads):
             queryQueue.append(Queue(1))
             resultQueue.append(Queue(1))
+
         def runQueries(i):
             this_db = persist.connection()
             while 1:
@@ -110,6 +110,7 @@ class TestPersistentDB(unittest.TestCase):
                 except TypeError:
                     resultQueue[i].put(r, 1)
             db.close()
+
         from threading import Thread
         threads = []
         for i in range(numThreads):
@@ -217,8 +218,10 @@ class TestPersistentDB(unittest.TestCase):
     def test7_ThreadLocal(self):
         persist = PersistentDB(dbapi)
         self.assertTrue(isinstance(persist.thread, local))
+
         class threadlocal:
             pass
+
         persist = PersistentDB(dbapi, threadlocal=threadlocal)
         self.assertTrue(isinstance(persist.thread, threadlocal))
 

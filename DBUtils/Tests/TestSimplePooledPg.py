@@ -11,13 +11,13 @@ Copyright and credit info:
 
 """
 
-import sys
 import unittest
-
-__version__ = '1.2'
+import sys
 
 # This module also serves as a mock object for the pg API module:
 sys.modules['pg'] = sys.modules[__name__]
+
+__version__ = '1.2'
 
 
 class DB:
@@ -34,15 +34,14 @@ class DB:
         self.num_queries += 1
 
 
-sys.path.insert(1, '../..')
-from DBUtils import SimplePooledPg
+from DBUtils import SimplePooledPg  # noqa
 
 
 class TestSimplePooledPg(unittest.TestCase):
 
     def my_dbpool(self, maxConnections):
-        return SimplePooledPg.PooledPg(maxConnections,
-            'SimplePooledPgTestDB', 'SimplePooledPgTestUser')
+        return SimplePooledPg.PooledPg(
+            maxConnections, 'SimplePooledPgTestDB', 'SimplePooledPgTestUser')
 
     def test0_check_version(self):
         from DBUtils import __version__ as DBUtilsVersion
@@ -110,12 +109,13 @@ class TestSimplePooledPg(unittest.TestCase):
         except ImportError:  # Python 3
             from queue import Queue, Empty
         queue = Queue(3)
+
         def connection():
             queue.put(dbpool.connection())
+
         from threading import Thread
-        thread1 = Thread(target=connection).start()
-        thread2 = Thread(target=connection).start()
-        thread3 = Thread(target=connection).start()
+        threads = [Thread(target=connection).start() for i in range(3)]
+        self.assertEqual(len(threads), 3)
         try:
             db1 = queue.get(1, 1)
             db2 = queue.get(1, 1)

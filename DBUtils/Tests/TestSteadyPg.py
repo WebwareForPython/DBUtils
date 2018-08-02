@@ -12,12 +12,15 @@ Copyright and credit info:
 
 """
 
+import unittest
 import sys
-
-__version__ = '1.2'
 
 # This module also serves as a mock object for the pg API module:
 sys.modules['pg'] = sys.modules[__name__]
+
+from DBUtils.SteadyPg import SteadyPgConnection  # noqa
+
+__version__ = '1.2'
 
 
 class Error(Exception):
@@ -124,12 +127,6 @@ class DB:
         return 'test'
 
 
-import unittest
-
-sys.path.insert(1, '../..')
-from DBUtils.SteadyPg import SteadyPgConnection
-
-
 class TestSteadyPg(unittest.TestCase):
 
     def test0_CheckVersion(self):
@@ -141,8 +138,8 @@ class TestSteadyPg(unittest.TestCase):
 
     def test1_MockedConnection(self):
         PgConnection = DB
-        db = PgConnection('SteadyPgTestDB',
-            user='SteadyPgTestUser')
+        db = PgConnection(
+            'SteadyPgTestDB', user='SteadyPgTestUser')
         self.assertTrue(hasattr(db, 'db'))
         self.assertTrue(hasattr(db.db, 'status'))
         self.assertTrue(db.db.status)
@@ -170,8 +167,8 @@ class TestSteadyPg(unittest.TestCase):
         self.assertEqual(db.user, 'SteadyPgTestUser')
         for i in range(3):
             self.assertEqual(db.num_queries, i)
-            self.assertEqual(db.query('select test%d' % i),
-                'test%d' % i)
+            self.assertEqual(
+                db.query('select test%d' % i), 'test%d' % i)
         self.assertTrue(db.db.status)
         db.reopen()
         self.assertTrue(db.db.status)
@@ -202,19 +199,19 @@ class TestSteadyPg(unittest.TestCase):
             db = SteadyPgConnection(closeable=closeable)
             self.assertTrue(db._con.db and db._con.valid)
             db.close()
-            self.assertTrue(closeable ^
-                (db._con.db is not None and db._con.valid))
+            self.assertTrue(
+                closeable ^ (db._con.db is not None and db._con.valid))
             db.close()
-            self.assertTrue(closeable ^
-                (db._con.db is not None and db._con.valid))
+            self.assertTrue(
+                closeable ^ (db._con.db is not None and db._con.valid))
             db._close()
             self.assertTrue(not db._con.db or not db._con.valid)
             db._close()
             self.assertTrue(not db._con.db or not db._con.valid)
 
     def test4_Connection(self):
-        db = SteadyPgConnection(0, None, 1,
-            'SteadyPgTestDB', user='SteadyPgTestUser')
+        db = SteadyPgConnection(
+            0, None, 1, 'SteadyPgTestDB', user='SteadyPgTestUser')
         self.assertTrue(hasattr(db, 'db'))
         self.assertTrue(hasattr(db, '_con'))
         self.assertEqual(db.db, db._con.db)
@@ -247,8 +244,8 @@ class TestSteadyPg(unittest.TestCase):
         for i in range(3):
             self.assertEqual(db._usage, i)
             self.assertEqual(db.num_queries, i)
-            self.assertEqual(db.query('select test%d' % i),
-                'test%d' % i)
+            self.assertEqual(
+                db.query('select test%d' % i), 'test%d' % i)
         self.assertTrue(db.db.status)
         self.assertEqual(db.get_tables(), 'test')
         self.assertTrue(db.db.status)

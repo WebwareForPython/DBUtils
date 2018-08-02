@@ -11,12 +11,11 @@ Copyright and credit info:
 
 """
 
-import sys
 import unittest
 
-sys.path.insert(1, '../..')
 # The TestSteadyPg module serves as a mock object for the pg API module:
-from DBUtils.Tests import TestSteadyPg
+from DBUtils.Tests import TestSteadyPg  # noqa
+
 from DBUtils.PooledPg import PooledPg, InvalidConnection
 
 __version__ = '1.2'
@@ -32,7 +31,8 @@ class TestPooledPg(unittest.TestCase):
         self.assertEqual(PooledPg.version, __version__)
 
     def test1_CreateConnection(self):
-        pool = PooledPg(1, 1, 0, False, None, None, False,
+        pool = PooledPg(
+            1, 1, 0, False, None, None, False,
             'PooledPgTestDB', user='PooledPgTestUser')
         self.assertTrue(hasattr(pool, '_cache'))
         self.assertEqual(pool._cache.qsize(), 1)
@@ -79,7 +79,8 @@ class TestPooledPg(unittest.TestCase):
         self.assertEqual(db._setsession_sql, ('set datestyle',))
 
     def test2_CloseConnection(self):
-        pool = PooledPg(0, 1, 0, False, None, None, False,
+        pool = PooledPg(
+            0, 1, 0, False, None, None, False,
             'PooledPgTestDB', user='PooledPgTestUser')
         db = pool.connection()
         self.assertTrue(hasattr(db, '_con'))
@@ -109,9 +110,7 @@ class TestPooledPg(unittest.TestCase):
         pool = PooledPg(3)
         self.assertTrue(hasattr(pool, '_cache'))
         self.assertEqual(pool._cache.qsize(), 3)
-        cache = []
-        for i in range(3):
-            cache.append(pool.connection())
+        cache = [pool.connection() for i in range(3)]
         self.assertEqual(pool._cache.qsize(), 0)
         for i in range(3):
             cache.pop().close()
@@ -125,9 +124,7 @@ class TestPooledPg(unittest.TestCase):
         pool = PooledPg(3, 4)
         self.assertTrue(hasattr(pool, '_cache'))
         self.assertEqual(pool._cache.qsize(), 3)
-        cache = []
-        for i in range(3):
-            cache.append(pool.connection())
+        cache = [pool.connection() for i in range(3)]
         self.assertEqual(pool._cache.qsize(), 0)
         for i in range(3):
             cache.pop().close()
@@ -141,9 +138,7 @@ class TestPooledPg(unittest.TestCase):
         pool = PooledPg(3, 2)
         self.assertTrue(hasattr(pool, '_cache'))
         self.assertEqual(pool._cache.qsize(), 3)
-        cache = []
-        for i in range(4):
-            cache.append(pool.connection())
+        cache = [pool.connection() for i in range(4)]
         self.assertEqual(pool._cache.qsize(), 0)
         for i in range(4):
             cache.pop().close()
@@ -151,9 +146,7 @@ class TestPooledPg(unittest.TestCase):
         pool = PooledPg(2, 5)
         self.assertTrue(hasattr(pool, '_cache'))
         self.assertEqual(pool._cache.qsize(), 2)
-        cache = []
-        for i in range(10):
-            cache.append(pool.connection())
+        cache = [pool.connection() for i in range(10)]
         self.assertEqual(pool._cache.qsize(), 0)
         for i in range(10):
             cache.pop().close()
@@ -163,9 +156,7 @@ class TestPooledPg(unittest.TestCase):
         from DBUtils.PooledPg import TooManyConnections
         pool = PooledPg(1, 2, 3)
         self.assertEqual(pool._cache.qsize(), 1)
-        cache = []
-        for i in range(3):
-            cache.append(pool.connection())
+        cache = [pool.connection() for i in range(3)]
         self.assertEqual(pool._cache.qsize(), 0)
         self.assertRaises(TooManyConnections, pool.connection)
         pool = PooledPg(0, 1, 1, False)
@@ -174,19 +165,19 @@ class TestPooledPg(unittest.TestCase):
         db = pool.connection()
         self.assertEqual(pool._cache.qsize(), 0)
         self.assertRaises(TooManyConnections, pool.connection)
+        del db
+        del cache
         pool = PooledPg(1, 2, 1)
         self.assertEqual(pool._cache.qsize(), 1)
-        cache = []
-        cache.append(pool.connection())
+        cache = [pool.connection()]
         self.assertEqual(pool._cache.qsize(), 0)
         cache.append(pool.connection())
         self.assertEqual(pool._cache.qsize(), 0)
         self.assertRaises(TooManyConnections, pool.connection)
         pool = PooledPg(3, 2, 1, False)
         self.assertEqual(pool._cache.qsize(), 3)
-        cache = []
-        for i in range(3):
-            cache.append(pool.connection())
+        cache = [pool.connection() for i in range(3)]
+        self.assertEqual(len(cache), 3)
         self.assertEqual(pool._cache.qsize(), 0)
         self.assertRaises(TooManyConnections, pool.connection)
         pool = PooledPg(1, 1, 1, True)
@@ -194,8 +185,10 @@ class TestPooledPg(unittest.TestCase):
         self.assertEqual(pool._cache.qsize(), 1)
         db = pool.connection()
         self.assertEqual(pool._cache.qsize(), 0)
+
         def connection():
             pool.connection().query('set thread')
+
         from threading import Thread
         thread = Thread(target=connection)
         thread.start()
@@ -211,6 +204,7 @@ class TestPooledPg(unittest.TestCase):
         db = pool.connection()
         self.assertEqual(pool._cache.qsize(), 0)
         self.assertEqual(session, ['thread'])
+        del db
 
     def test5_OneThreadTwoConnections(self):
         pool = PooledPg(2)
@@ -242,11 +236,13 @@ class TestPooledPg(unittest.TestCase):
         except ImportError:  # Python 3
             from queue import Queue, Empty
         queue = Queue(3)
+
         def connection():
             try:
                 queue.put(pool.connection(), 1, 1)
             except TypeError:
                 queue.put(pool.connection(), 1)
+
         from threading import Thread
         for i in range(3):
             Thread(target=connection).start()
@@ -297,8 +293,8 @@ class TestPooledPg(unittest.TestCase):
         db.close()
         self.assertTrue(pool.connection()._con is con)
         self.assertTrue(not con._transaction)
-        self.assertEqual(con.session,
-            ['rollback', 'begin', 'rollback', 'rollback'])
+        self.assertEqual(
+            con.session, ['rollback', 'begin', 'rollback', 'rollback'])
         self.assertEqual(con.num_queries, 1)
         pool = PooledPg(1, reset=2)
         db = pool.connection()

@@ -11,14 +11,13 @@ Copyright and credit info:
 
 """
 
-import sys
 import unittest
 
 # The TestSteadyDB module serves as a mock object for the DB-API 2 module:
-sys.path.insert(1, '../..')
 from DBUtils.Tests import TestSteadyDB as dbapi
-from DBUtils.PooledDB import (PooledDB, SharedDBConnection,
-    InvalidConnection, TooManyConnections)
+
+from DBUtils.PooledDB import (
+    PooledDB, SharedDBConnection, InvalidConnection, TooManyConnections)
 
 __version__ = '1.2'
 
@@ -54,8 +53,8 @@ class TestPooledDB(unittest.TestCase):
         for threadsafety in (1, 2):
             dbapi.threadsafety = threadsafety
             shareable = threadsafety > 1
-            pool = PooledDB(dbapi,
-                1, 1, 1, 0, False, None, None, True, None, None,
+            pool = PooledDB(
+                dbapi, 1, 1, 1, 0, False, None, None, True, None, None,
                 'PooledDBTestDB', user='PooledDBTestUser')
             self.assertTrue(hasattr(pool, '_idle_cache'))
             self.assertEqual(len(pool._idle_cache), 1)
@@ -116,8 +115,8 @@ class TestPooledDB(unittest.TestCase):
             self.assertEqual(db_con.open_cursors, 0)
             self.assertEqual(db_con.num_queries, 1)
             self.assertEqual(db._usage, 2)
-            self.assertEqual(db_con.session,
-                ['rollback', 'sessiontest'])
+            self.assertEqual(
+                db_con.session, ['rollback', 'sessiontest'])
             pool = PooledDB(dbapi, 1, 1, 1)
             self.assertEqual(len(pool._idle_cache), 1)
             if shareable:
@@ -173,8 +172,8 @@ class TestPooledDB(unittest.TestCase):
         for threadsafety in (1, 2):
             dbapi.threadsafety = threadsafety
             shareable = threadsafety > 1
-            pool = PooledDB(dbapi,
-                0, 1, 1, 0, False, None, None, True, None, None,
+            pool = PooledDB(
+                dbapi, 0, 1, 1, 0, False, None, None, True, None, None,
                 'PooledDBTestDB', user='PooledDBTestUser')
             self.assertTrue(hasattr(pool, '_idle_cache'))
             self.assertEqual(len(pool._idle_cache), 0)
@@ -259,8 +258,10 @@ class TestPooledDB(unittest.TestCase):
             self.assertEqual(len(pool._idle_cache), 0)
             pool = PooledDB(dbapi, 10)
             closed = ['no']
+
             def close(what=closed):
                 what[0] = 'yes'
+
             pool._idle_cache[7]._con.close = close
             self.assertEqual(closed, ['no'])
             del pool
@@ -283,10 +284,13 @@ class TestPooledDB(unittest.TestCase):
                 self.assertEqual(len(pool._shared_cache), 0)
             pool = PooledDB(dbapi, 10, 10, 5)
             closed = []
+
             def close_idle(what=closed):
                 what.append('idle')
+
             def close_shared(what=closed):
                 what.append('shared')
+
             if shareable:
                 cache = []
                 for i in range(5):
@@ -479,28 +483,34 @@ class TestPooledDB(unittest.TestCase):
             pool = PooledDB(dbapi)
             self.assertEqual(len(pool._idle_cache), 0)
             cache = [pool.connection() for i in range(10)]
+            self.assertEqual(len(cache), 10)
             self.assertEqual(len(pool._idle_cache), 0)
             pool = PooledDB(dbapi, 1, 1, 0)
             self.assertEqual(len(pool._idle_cache), 1)
             cache = [pool.connection() for i in range(10)]
+            self.assertEqual(len(cache), 10)
             self.assertEqual(len(pool._idle_cache), 0)
             pool = PooledDB(dbapi, 0, 0, 1)
             cache = [pool.connection() for i in range(10)]
+            self.assertEqual(len(cache), 10)
             self.assertEqual(len(pool._idle_cache), 0)
             if shareable:
                 self.assertEqual(len(pool._shared_cache), 1)
             pool = PooledDB(dbapi, 1, 1, 1)
             self.assertEqual(len(pool._idle_cache), 1)
             cache = [pool.connection() for i in range(10)]
+            self.assertEqual(len(cache), 10)
             self.assertEqual(len(pool._idle_cache), 0)
             if shareable:
                 self.assertEqual(len(pool._shared_cache), 1)
             pool = PooledDB(dbapi, 0, 0, 7)
             cache = [pool.connection(False) for i in range(3)]
+            self.assertEqual(len(cache), 3)
             self.assertEqual(len(pool._idle_cache), 0)
             if shareable:
                 self.assertEqual(len(pool._shared_cache), 0)
             cache = [pool.connection() for i in range(10)]
+            self.assertEqual(len(cache), 10)
             self.assertEqual(len(pool._idle_cache), 3)
             if shareable:
                 self.assertEqual(len(pool._shared_cache), 7)
@@ -814,12 +824,14 @@ class TestPooledDB(unittest.TestCase):
             db = pool.connection(False)
             self.assertEqual(pool._connections, 1)
             self.assertEqual(len(pool._idle_cache), 0)
+
             def connection():
                 db = pool.connection()
                 cursor = db.cursor()
                 cursor.execute('set thread')
                 cursor.close()
                 db.close()
+
             from threading import Thread
             thread = Thread(target=connection)
             thread.start()
@@ -841,8 +853,9 @@ class TestPooledDB(unittest.TestCase):
             db = pool.connection(False)
             self.assertEqual(pool._connections, 1)
             self.assertEqual(len(pool._idle_cache), 0)
-            self.assertEqual(session, ['rollback',
-                'rollback', 'thread', 'rollback'])
+            self.assertEqual(
+                session, ['rollback', 'rollback', 'thread', 'rollback'])
+            del db
 
     def test14_MaxUsage(self):
         for threadsafety in (1, 2):
@@ -859,7 +872,7 @@ class TestPooledDB(unittest.TestCase):
                 self.assertEqual(db._con._con.num_uses, 0)
                 self.assertEqual(db._con._con.num_queries, 0)
                 for i in range(20):
-                    cursor=db.cursor()
+                    cursor = db.cursor()
                     self.assertEqual(db._con._con.open_cursors, 1)
                     cursor.execute('select test%i' % i)
                     r = cursor.fetchone()
@@ -887,25 +900,26 @@ class TestPooledDB(unittest.TestCase):
             self.assertEqual(pool._setsession, setsession)
             db = pool.connection(False)
             self.assertEqual(db._setsession_sql, setsession)
-            self.assertEqual(db._con._con.session,
-                ['time zone', 'datestyle'])
+            self.assertEqual(
+                db._con._con.session, ['time zone', 'datestyle'])
             db.cursor().execute('select test')
             db.cursor().execute('set test1')
             self.assertEqual(db._usage, 2)
             self.assertEqual(db._con._con.num_uses, 4)
             self.assertEqual(db._con._con.num_queries, 1)
-            self.assertEqual(db._con._con.session,
-                ['time zone', 'datestyle', 'test1'])
+            self.assertEqual(
+                db._con._con.session, ['time zone', 'datestyle', 'test1'])
             db.close()
             db = pool.connection(False)
             self.assertEqual(db._setsession_sql, setsession)
-            self.assertEqual(db._con._con.session,
+            self.assertEqual(
+                db._con._con.session,
                 ['time zone', 'datestyle', 'test1', 'rollback'])
             db._con._con.close()
             db.cursor().execute('select test')
             db.cursor().execute('set test2')
-            self.assertEqual(db._con._con.session,
-                ['time zone', 'datestyle', 'test2'])
+            self.assertEqual(
+                db._con._con.session, ['time zone', 'datestyle', 'test2'])
 
     def test16_OneThreadTwoConnections(self):
         for threadsafety in (1, 2):
@@ -973,11 +987,13 @@ class TestPooledDB(unittest.TestCase):
             except ImportError:  # Python 3
                 from queue import Queue, Empty
             queue = Queue(3)
+
             def connection():
                 try:
                     queue.put(pool.connection(), 1, 1)
                 except Exception:
                     queue.put(pool.connection(), 1)
+
             from threading import Thread
             for i in range(3):
                 Thread(target=connection).start()

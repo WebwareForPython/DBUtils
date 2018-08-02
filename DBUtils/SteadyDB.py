@@ -113,7 +113,8 @@ class InvalidCursor(SteadyDBError):
     """Database cursor is invalid."""
 
 
-def connect(creator, maxusage=None, setsession=None,
+def connect(
+        creator, maxusage=None, setsession=None,
         failures=None, ping=1, closeable=True, *args, **kwargs):
     """A tough version of the connection constructor of a DB-API 2 module.
 
@@ -138,7 +139,8 @@ def connect(creator, maxusage=None, setsession=None,
         function or the connection constructor of the DB-API 2 module
 
     """
-    return SteadyDBConnection(creator, maxusage, setsession,
+    return SteadyDBConnection(
+        creator, maxusage, setsession,
         failures, ping, closeable, *args, **kwargs)
 
 
@@ -147,7 +149,8 @@ class SteadyDBConnection:
 
     version = __version__
 
-    def __init__(self, creator, maxusage=None, setsession=None,
+    def __init__(
+            self, creator, maxusage=None, setsession=None,
             failures=None, ping=1, closeable=True, *args, **kwargs):
         """Create a "tough" DB-API 2 connection."""
         # basic initialization to make finalizer work
@@ -251,16 +254,18 @@ class SteadyDBConnection:
                         pass
             if self._failures is None:
                 try:
-                    self._failures = (self._dbapi.OperationalError,
+                    self._failures = (
+                        self._dbapi.OperationalError,
                         self._dbapi.InternalError)
                 except AttributeError:
                     try:
-                        self._failures = (self._creator.OperationalError,
+                        self._failures = (
+                            self._creator.OperationalError,
                             self._creator.InternalError)
                     except AttributeError:
                         try:
-                            self._failures = (con.OperationalError,
-                                con.InternalError)
+                            self._failures = (
+                                con.OperationalError, con.InternalError)
                         except AttributeError:
                             raise AttributeError(
                                 "Could not determine failure exceptions"
@@ -277,7 +282,7 @@ class SteadyDBConnection:
                 con.close()
             except Exception:
                 pass
-            raise error  # reraise the original error again
+            raise error  # re-raise the original error again
         return con
 
     def _setsession(self, con=None):
@@ -360,7 +365,8 @@ class SteadyDBConnection:
     def dbapi(self):
         """Return the underlying DB-API 2 module of the connection."""
         if self._dbapi is None:
-            raise AttributeError("Could not determine DB-API 2 module"
+            raise AttributeError(
+                "Could not determine DB-API 2 module"
                 " (please set creator.dbapi).")
         return self._dbapi
 
@@ -368,7 +374,8 @@ class SteadyDBConnection:
         """Return the thread safety level of the connection."""
         if self._threadsafety is None:
             if self._dbapi is None:
-                raise AttributeError("Could not determine threadsafety"
+                raise AttributeError(
+                    "Could not determine threadsafety"
                     " (please set creator.dbapi or creator.threadsafety).")
             return 0
         return self._threadsafety
@@ -420,7 +427,7 @@ class SteadyDBConnection:
             else:
                 self._close()
                 self._store(con)
-            raise error  # reraise the original error
+            raise error  # re-raise the original error
 
     def rollback(self):
         """Rollback pending transaction."""
@@ -435,7 +442,7 @@ class SteadyDBConnection:
             else:
                 self._close()
                 self._store(con)
-            raise error  # reraise the original error
+            raise error  # re-raise the original error
 
     def cancel(self):
         """Cancel a long-running transaction.
@@ -482,7 +489,7 @@ class SteadyDBConnection:
                     self._close()
                     self._store(con)
                     if transaction:
-                        raise error  # reraise the original error again
+                        raise error  # re-raise the original error again
                     return cursor
                 try:
                     con.close()
@@ -490,7 +497,7 @@ class SteadyDBConnection:
                     pass
             if transaction:
                 self._transaction = False
-            raise error  # reraise the original error again
+            raise error  # re-raise the original error again
         return cursor
 
     def cursor(self, *args, **kwargs):
@@ -665,7 +672,7 @@ class SteadyDBCursor:
                         pass
                 if transaction:
                     self._transaction = False
-                raise error  # reraise the original error again
+                raise error  # re-raise the original error again
             else:
                 con._usage += 1
                 return result

@@ -12,12 +12,15 @@ Copyright and credit info:
 
 """
 
+import unittest
 import sys
-
-__version__ = '1.2'
 
 # This module also serves as a mock object for an arbitrary DB-API 2 module:
 dbModule = sys.modules[__name__]
+
+from DBUtils import SimplePooledDB  # noqa
+
+__version__ = '1.2'
 
 threadsafety = 1
 
@@ -40,12 +43,6 @@ class Connection:
         self.open_cursors += 1
 
 
-import unittest
-
-sys.path.insert(1, '../..')
-from DBUtils import SimplePooledDB
-
-
 def versionString(version):
     """Create version string."""
     ver = [str(v) for v in version]
@@ -58,7 +55,8 @@ class TestSimplePooledDB(unittest.TestCase):
     def my_dbpool(self, mythreadsafety, maxConnections):
         global threadsafety
         threadsafety = mythreadsafety
-        return SimplePooledDB.PooledDB(dbModule, maxConnections,
+        return SimplePooledDB.PooledDB(
+            dbModule, maxConnections,
             'SimplePooledDBTestDB', 'SimplePooledDBTestUser')
 
     def test0_check_version(self):
@@ -71,7 +69,8 @@ class TestSimplePooledDB(unittest.TestCase):
 
     def test1_no_threadsafety(self):
         for threadsafety in (None, -1, 0, 4):
-            self.assertRaises(SimplePooledDB.NotSupportedError,
+            self.assertRaises(
+                SimplePooledDB.NotSupportedError,
                 self.my_dbpool, threadsafety, 1)
 
     def test2_create_connection(self):
@@ -135,12 +134,13 @@ class TestSimplePooledDB(unittest.TestCase):
         except ImportError:  # Python 3
             from queue import Queue, Empty
         queue = Queue(3)
+
         def connection():
             queue.put(dbpool.connection())
+
         from threading import Thread
-        thread1 = Thread(target=connection).start()
-        thread2 = Thread(target=connection).start()
-        thread3 = Thread(target=connection).start()
+        threads = [Thread(target=connection).start() for i in range(3)]
+        self.assertEqual(len(threads), 3)
         try:
             db1 = queue.get(1, 1)
             db2 = queue.get(1, 1)

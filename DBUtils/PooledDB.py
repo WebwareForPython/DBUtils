@@ -178,8 +178,8 @@ class PooledDB:
 
     version = __version__
 
-    def __init__(self, creator,
-            mincached=0, maxcached=0,
+    def __init__(
+            self, creator, mincached=0, maxcached=0,
             maxshared=0, maxconnections=0, blocking=False,
             maxusage=None, setsession=None, reset=True,
             failures=None, ping=1,
@@ -276,10 +276,9 @@ class PooledDB:
 
     def steady_connection(self):
         """Get a steady, unpooled DB-API 2 connection."""
-        return connect(self._creator,
-            self._maxusage, self._setsession,
-            self._failures, self._ping, True,
-            *self._args, **self._kwargs)
+        return connect(
+            self._creator, self._maxusage, self._setsession,
+            self._failures, self._ping, True, *self._args, **self._kwargs)
 
     def connection(self, shareable=True):
         """Get a steady, cached DB-API 2 connection from the pool.
@@ -480,7 +479,7 @@ class SharedDBConnection:
 
     def __eq__(self, other):
         return (self.con._transaction == other.con._transaction
-            and self.shared == other.shared)
+                and self.shared == other.shared)
 
     def __ne__(self, other):
         return not self.__eq__(other)

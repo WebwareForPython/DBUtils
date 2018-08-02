@@ -11,12 +11,11 @@ Copyright and credit info:
 
 """
 
-import sys
 import unittest
 
 # The TestSteadyPg module serves as a mock object for the pg API module:
-sys.path.insert(1, '../..')
 from DBUtils.Tests import TestSteadyPg as pg
+
 from DBUtils.PersistentPg import PersistentPg
 
 __version__ = '1.2'
@@ -37,11 +36,11 @@ class TestPersistentPg(unittest.TestCase):
             db = persist.connection()
             self.assertTrue(db._con.db and db._con.valid)
             db.close()
-            self.assertTrue(closeable ^
-                (db._con.db is not None and db._con.valid))
+            self.assertTrue(
+                closeable ^ (db._con.db is not None and db._con.valid))
             db.close()
-            self.assertTrue(closeable ^
-                (db._con.db is not None and db._con.valid))
+            self.assertTrue(
+                closeable ^ (db._con.db is not None and db._con.valid))
             db._close()
             self.assertTrue(not db._con.db or not db._con.valid)
             db._close()
@@ -58,6 +57,7 @@ class TestPersistentPg(unittest.TestCase):
         for i in range(numThreads):
             queryQueue.append(Queue(1))
             resultQueue.append(Queue(1))
+
         def runQueries(i):
             this_db = persist.connection().db
             while 1:
@@ -87,6 +87,7 @@ class TestPersistentPg(unittest.TestCase):
                 except TypeError:
                     resultQueue[i].put(r, 1)
             db.close()
+
         from threading import Thread
         threads = []
         for i in range(numThreads):

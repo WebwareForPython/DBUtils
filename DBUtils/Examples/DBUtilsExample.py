@@ -21,17 +21,18 @@ class DBConfig(Configurable):
 
 
 # the database tables used in this example:
-tables = ('''seminars (
-    id varchar(4) primary key,
-    title varchar(64) unique not null,
-    cost money,
-    places_left smallint)''',
-'''attendees (
-    name varchar(64) not null,
-    seminar varchar(4),
-    paid boolean,
-    primary key(name, seminar),
-    foreign key (seminar) references seminars(id) on delete cascade)''')
+tables = (
+    '''seminars (
+        id varchar(4) primary key,
+        title varchar(64) unique not null,
+        cost money,
+        places_left smallint)''',
+    '''attendees (
+        name varchar(64) not null,
+        seminar varchar(4),
+        paid boolean,
+        primary key(name, seminar),
+        foreign key (seminar) references seminars(id) on delete cascade)''')
 
 
 class DBUtilsExample(ExamplePage):
@@ -75,16 +76,17 @@ class DBUtilsExample(ExamplePage):
     # Initialize the buttons
     _actions = []
     _buttons = []
-    for action in ('create tables',
-            'list seminars', 'list attendees',
+    for action in (
+            'create tables', 'list seminars', 'list attendees',
             'add seminar', 'add attendee'):
         value = action.capitalize()
         action = action.split()
         action[1] = action[1].capitalize()
         action = ''.join(action)
         _actions.append(action)
-        _buttons.append('<input name="_action_%s" '
-            'type="submit" value="%s">' % (action, value))
+        _buttons.append(
+            '<input name="_action_%s" type="submit" value="%s">'
+            % (action, value))
     _buttons = tuple(_buttons)
 
     def title(self):
@@ -106,8 +108,8 @@ class DBUtilsExample(ExamplePage):
         self._output.append(s)
 
     def outputMsg(self, msg, error=False):
-        self._output.append('<p style="color:%s">%s</p>'
-            % ('red' if error else 'green', msg))
+        self._output.append(
+            '<p style="color:%s">%s</p>' % ('red' if error else 'green', msg))
 
     def connection(self, shareable=True):
         if self.dbstatus:
@@ -138,8 +140,8 @@ class DBUtilsExample(ExamplePage):
         if not db:
             return
         for table in tables:
-            self._output.append('<p>Creating the following table:</p>'
-                '<pre>%s</pre>' % table)
+            self._output.append(
+                '<p>Creating the following table:</p><pre>%s</pre>' % table)
             ddl = 'create table ' + table
             try:
                 if self.dbapi_name == 'pg':
@@ -158,7 +160,7 @@ class DBUtilsExample(ExamplePage):
     def listSeminars(self):
         id = self.request().field('id', None)
         if id:
-            if type(id) != type([]):
+            if not isinstance(id, list):
                 id = [id]
             cmd = ','.join(map(self.sqlEncode, id))
             cmd = 'delete from seminars where id in (%s)' % cmd
@@ -188,8 +190,8 @@ class DBUtilsExample(ExamplePage):
         db = self.connection()
         if not db:
             return
-        query = ('select id, title, cost, places_left from seminars '
-            'order by title')
+        query = ('select id, title, cost, places_left'
+                 ' from seminars order by title')
         try:
             if self.dbapi_name == 'pg':
                 result = db.query(query).getresult()
@@ -223,10 +225,10 @@ class DBUtilsExample(ExamplePage):
     def listAttendees(self):
         id = self.request().field('id', None)
         if id:
-            if type(id) != type([]):
+            if not isinstance(id, list):
                 id = [id]
-            cmds = ['delete from attendees '
-                'where rpad(seminar,4)||name in (%s)'
+            cmds = [
+                'delete from attendees where rpad(seminar,4)||name in (%s)'
                 % ','.join(map(self.sqlEncode, id))]
             places = {}
             for i in id:
@@ -236,8 +238,9 @@ class DBUtilsExample(ExamplePage):
                 else:
                     places[i] = 1
             for i, n in places.items():
-                cmds.append("update seminars set places_left=places_left+%d "
-                "where id=%s" % (n, self.sqlEncode(i)))
+                cmds.append(
+                    'update seminars set places_left=places_left+%d'
+                    ' where id=%s' % (n, self.sqlEncode(i)))
             db = self.dedicated_connection()
             if not db:
                 return
@@ -263,10 +266,9 @@ class DBUtilsExample(ExamplePage):
         db = self.connection()
         if not db:
             return
-        query = ('select a.name, s.id, s.title, a.paid '
-            ' from attendees a,seminars s'
-            ' where s.id=a.seminar'
-            ' order by a.name, s.title')
+        query = ('select a.name, s.id, s.title, a.paid'
+                 ' from attendees a,seminars s'
+                 ' where s.id=a.seminar order by a.name, s.title')
         try:
             if self.dbapi_name == 'pg':
                 result = db.query(query).getresult()
@@ -326,7 +328,7 @@ class DBUtilsExample(ExamplePage):
         if not db:
             return
         cmd = ('insert into seminars values (%s,%s,%s,%s)'
-            % tuple(map(self.sqlEncode, values)))
+               % tuple(map(self.sqlEncode, values)))
         try:
             if self.dbapi_name == 'pg':
                 db.query('begin')
@@ -349,8 +351,8 @@ class DBUtilsExample(ExamplePage):
         db = self.connection()
         if not db:
             return
-        query = ('select id, title from seminars '
-            'where places_left is null or places_left>0 order by title')
+        query = ('select id, title from seminars'
+                 ' where places_left is null or places_left>0 order by title')
         try:
             if self.dbapi_name == 'pg':
                 result = db.query(query).getresult()
@@ -396,29 +398,29 @@ class DBUtilsExample(ExamplePage):
         try:
             if self.dbapi_name == 'pg':
                 db.query('begin')
-                cmd = ("update seminars set places_left=places_left-1 "
-                    "where id=%s" % self.sqlEncode(values[1]))
+                cmd = ('update seminars set places_left=places_left-1'
+                       ' where id=%s' % self.sqlEncode(values[1]))
                 db.query(cmd)
-                cmd = ("select places_left from seminars "
-                    "where id=%s" % self.sqlEncode(values[1]))
+                cmd = ('select places_left from seminars'
+                       ' where id=%s' % self.sqlEncode(values[1]))
                 if (db.query(cmd).getresult()[0][0] or 0) < 0:
                     raise self.dbapi.Error("No more places left.")
-                cmd = ("insert into attendees values (%s,%s,%s)"
-                    % tuple(map(self.sqlEncode, values)))
+                cmd = ('insert into attendees values (%s,%s,%s)'
+                       % tuple(map(self.sqlEncode, values)))
                 db.query(cmd)
                 db.query('end')
             else:
                 cursor = db.cursor()
-                cmd = ("update seminars set places_left=places_left-1 "
-                    "where id=%s" % self.sqlEncode(values[1]))
+                cmd = ('update seminars set places_left=places_left-1'
+                       ' where id=%s' % self.sqlEncode(values[1]))
                 cursor.execute(cmd)
-                cmd = ("select places_left from seminars "
-                    "where id=%s" % self.sqlEncode(values[1]))
+                cmd = ('select places_left from seminars'
+                       ' where id=%s' % self.sqlEncode(values[1]))
                 cursor.execute(cmd)
                 if (cursor.fetchone()[0] or 0) < 0:
                     raise self.dbapi.Error("No more places left.")
-                cmd = ("insert into attendees values (%s,%s,%s)"
-                    % tuple(map(self.sqlEncode, values)))
+                cmd = ('insert into attendees values (%s,%s,%s)'
+                       % tuple(map(self.sqlEncode, values)))
                 db.cursor().execute(cmd)
                 cursor.close()
                 db.commit()

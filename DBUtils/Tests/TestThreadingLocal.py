@@ -1,10 +1,8 @@
 """Test the ThreadingLocal module."""
 
-import sys
 import unittest
 from threading import Thread
 
-sys.path.insert(1, '../..')
 from DBUtils.PersistentDB import local
 
 __version__ = '1.2'
@@ -40,36 +38,44 @@ class TestThreadingLocal(unittest.TestCase):
         self.assertEqual(mydata.number, 42)
 
     def test3_SubClass(self):
+
         class MyLocal(local):
             number = 2
             initialized = 0
+
             def __init__(self, **kw):
                 if self.initialized:
                     raise SystemError
                 self.initialized = 1
                 self.__dict__.update(kw)
+
             def squared(self):
                 return self.number ** 2
+
         mydata = MyLocal(color='red')
         self.assertEqual(mydata.number, 2)
         self.assertEqual(mydata.color, 'red')
         del mydata.color
         self.assertEqual(mydata.squared(), 4)
+
         def f():
             items = sorted(mydata.__dict__.items())
             log.append(items)
             mydata.number = 7
             log.append(mydata.number)
+
         log = []
         thread = Thread(target=f)
         thread.start()
         thread.join()
-        self.assertEqual(log,
-            [[('color', 'red'), ('initialized', 1)], 7])
+        self.assertEqual(
+            log, [[('color', 'red'), ('initialized', 1)], 7])
         self.assertEqual(mydata.number, 2)
         self.assertTrue(not hasattr(mydata, 'color'))
+
         class MyLocal(local):
             __slots__ = 'number'
+
         mydata = MyLocal()
         mydata.number = 42
         mydata.color = 'red'

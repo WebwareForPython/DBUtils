@@ -103,7 +103,8 @@ class SteadyPgConnection:
 
     version = __version__
 
-    def __init__(self, maxusage=None, setsession=None, closeable=True,
+    def __init__(
+            self, maxusage=None, setsession=None, closeable=True,
             *args, **kwargs):
         """Create a "tough" PostgreSQL connection.
 
