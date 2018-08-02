@@ -145,12 +145,6 @@ from DBUtils.SteadyDB import connect
 
 __version__ = '1.2'
 
-try:
-    callable
-except NameError:  # Python 3.0 or 3.1
-    def callable(obj):
-        return any('__call__' in cls.__dict__ for cls in type(obj).__mro__)
-
 
 class PooledDBError(Exception):
     """General PooledDB error."""

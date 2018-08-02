@@ -231,9 +231,9 @@ class TestPooledPg(unittest.TestCase):
     def test6_ThreeThreadsTwoConnections(self):
         pool = PooledPg(2, 2, 2, True)
         try:
-            from Queue import Queue, Empty
-        except ImportError:  # Python 3
             from queue import Queue, Empty
+        except ImportError:  # Python 2
+            from Queue import Queue, Empty
         queue = Queue(3)
 
         def connection():

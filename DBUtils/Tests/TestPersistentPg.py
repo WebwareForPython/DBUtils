@@ -49,9 +49,9 @@ class TestPersistentPg(unittest.TestCase):
         numThreads = 3
         persist = PersistentPg()
         try:
-            from Queue import Queue, Empty
-        except ImportError:  # Python 3
             from queue import Queue, Empty
+        except ImportError:  # Python 2
+            from Queue import Queue, Empty
         queryQueue, resultQueue = [], []
         for i in range(numThreads):
             queryQueue.append(Queue(1))

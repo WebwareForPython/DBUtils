@@ -69,9 +69,9 @@ class TestPersistentDB(unittest.TestCase):
         numThreads = 3
         persist = PersistentDB(dbapi, closeable=True)
         try:
-            from Queue import Queue, Empty
-        except ImportError:  # Python 3
             from queue import Queue, Empty
+        except ImportError:  # Python 2
+            from Queue import Queue, Empty
         queryQueue, resultQueue = [], []
         for i in range(numThreads):
             queryQueue.append(Queue(1))

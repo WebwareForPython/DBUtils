@@ -114,9 +114,9 @@ class TestSimplePooledDB(unittest.TestCase):
     def test5_threadsafety_1(self):
         dbpool = self.my_dbpool(1, 2)
         try:
-            from Queue import Queue, Empty
-        except ImportError:  # Python 3
             from queue import Queue, Empty
+        except ImportError:  # Python 2
+            from Queue import Queue, Empty
         queue = Queue(3)
 
         def connection():

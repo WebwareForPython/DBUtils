@@ -982,9 +982,9 @@ class TestPooledDB(unittest.TestCase):
             dbapi.threadsafety = threadsafety
             pool = PooledDB(dbapi, 2, 2, 0, 2, True)
             try:
-                from Queue import Queue, Empty
-            except ImportError:  # Python 3
                 from queue import Queue, Empty
+            except ImportError:  # Python 2
+                from Queue import Queue, Empty
             queue = Queue(3)
 
             def connection():

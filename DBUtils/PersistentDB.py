@@ -121,11 +121,6 @@ from DBUtils.SteadyDB import connect
 __version__ = '1.2'
 
 try:
-    callable
-except NameError:  # Python 3.0 or 3.1
-    def callable(obj):
-        return any('__call__' in cls.__dict__ for cls in type(obj).__mro__)
-try:
     # Prefer the pure Python version of threading.local.
     # The C implementation turned out to be problematic with mod_wsgi,
     # since it does not keep the thread-local data between requests.
