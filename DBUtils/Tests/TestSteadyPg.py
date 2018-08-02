@@ -191,7 +191,6 @@ class TestSteadyPg(unittest.TestCase):
         with db:
             db.query('select test')
         self.assertEqual(db.session, ['begin', 'commit'])
-        db.session.clear
         try:
             with db:
                 db.query('error')
