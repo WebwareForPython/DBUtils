@@ -64,7 +64,7 @@ class Replacer:
         self._subs = list(args)
 
     def add(self, search, replace):
-        self._subs.append((re.compile(search,re.M), replace))
+        self._subs.append((re.compile(search, re.M), replace))
 
     def replaceInStr(self, data):
         for search, replace in self._subs:

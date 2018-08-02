@@ -4,7 +4,8 @@ Create a new DBUtils release:
 * Check the documentation. If possible, update all translations.
   (Chinese translation was too old and has been removed for the time being.)
 
-* Run all tests in DBUtils/Tests with all supported Python versions using tox.
+* Use tox to run all tests in DBUtils/Tests with all supported Python versions
+  and to run flake8 in order to check the code style and quality.
 
 * Check the examples in DBUtils/Examples with the current Webware version.
 

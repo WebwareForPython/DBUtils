@@ -20,7 +20,8 @@ setup(
     description='Database connections for multi-threaded environments.',
     long_description=readme,
     long_description_content_type='text/markdown',
-    classifiers=['Development Status :: 5 - Production/Stable',
+    classifiers=[
+        'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',

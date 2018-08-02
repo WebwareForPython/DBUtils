@@ -1,2 +1,3 @@
-exclude Release.txt setversion.py
+exclude Release.md setversion.py
+include README.md
 include DBUtils/Docs/*
