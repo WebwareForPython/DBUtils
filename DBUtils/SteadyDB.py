@@ -191,6 +191,21 @@ class SteadyDBConnection:
         self._args, self._kwargs = args, kwargs
         self._store(self._create())
 
+    def __enter__(self):
+        """Enter the runtime context for the connection object."""
+        return self
+
+    def __exit__(self, *exc_info):
+        """Exit the runtime context for the connection object.
+
+        This does not close the connection, but it ends a transaction.
+
+        """
+        if exc_info[0] is None and exc_info[1] is None and exc_info[2] is None:
+            self.commit()
+        else:
+            self.rollback()
+
     def _create(self):
         """Create a new connection using the creator function."""
         con = self._creator(*self._args, **self._kwargs)
@@ -526,9 +541,11 @@ class SteadyDBCursor:
         self._closed = False
 
     def __enter__(self):
+        """Enter the runtime context for the cursor object."""
         return self
 
     def __exit__(self, *exc_info):
+        """Exit the runtime context for the cursor object."""
         self.close()
 
     def setinputsizes(self, sizes):
