@@ -184,7 +184,26 @@ class TestSteadyPg(unittest.TestCase):
         self.assertEqual(db._usage, 1)
         self.assertEqual(db.num_queries, 0)
 
-    def test5_ConnectionMaxUsage(self):
+    def test5_ConnectionContextHandler(self):
+        db = SteadyPgConnection(
+            0, None, 1, 'SteadyPgTestDB', user='SteadyPgTestUser')
+        self.assertEqual(db.session, [])
+        with db:
+            db.query('select test')
+        self.assertEqual(db.session, ['begin', 'commit'])
+        db.session.clear
+        try:
+            with db:
+                db.query('error')
+        except pg.ProgrammingError:
+            error = True
+        else:
+            error = False
+        self.assertTrue(error)
+        self.assertEqual(
+            db._con.session, ['begin', 'commit', 'begin', 'rollback'])
+
+    def test6_ConnectionMaxUsage(self):
         db = SteadyPgConnection(10)
         for i in range(100):
             r = db.query('select test%d' % i)
@@ -228,7 +247,7 @@ class TestSteadyPg(unittest.TestCase):
         self.assertEqual(db._usage, 1)
         self.assertEqual(db.num_queries, 1)
 
-    def test6_ConnectionSetSession(self):
+    def test7_ConnectionSetSession(self):
         db = SteadyPgConnection(3, ('set time zone', 'set datestyle'))
         self.assertTrue(hasattr(db, 'num_queries'))
         self.assertEqual(db.num_queries, 0)
@@ -249,7 +268,7 @@ class TestSteadyPg(unittest.TestCase):
         self.assertEqual(db.num_queries, 0)
         self.assertEqual(db.session, ['time zone', 'datestyle', 'test'])
 
-    def test7_Begin(self):
+    def test8_Begin(self):
         for closeable in (False, True):
             db = SteadyPgConnection(closeable=closeable)
             db.begin()
@@ -269,7 +288,7 @@ class TestSteadyPg(unittest.TestCase):
             self.assertEqual(db.begin('select sql:begin'), 'sql:begin')
             self.assertEqual(db.num_queries, 2)
 
-    def test8_End(self):
+    def test9_End(self):
         for closeable in (False, True):
             db = SteadyPgConnection(closeable=closeable)
             db.begin()

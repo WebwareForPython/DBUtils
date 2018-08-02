@@ -136,6 +136,18 @@ class SteadyPgConnection:
         self._setsession()
         self._usage = 0
 
+    def __enter__(self):
+        """Enter the runtime context. This will start a transaction."""
+        self.begin()
+        return self
+
+    def __exit__(self, *exc):
+        """Exit the runtime context. This will end the transaction."""
+        if exc[0] is None and exc[1] is None and exc[2] is None:
+            self.commit()
+        else:
+            self.rollback()
+
     def _setsession(self):
         """Execute the SQL commands for session preparation."""
         if self._setsession_sql:

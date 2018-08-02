@@ -195,13 +195,13 @@ class SteadyDBConnection:
         """Enter the runtime context for the connection object."""
         return self
 
-    def __exit__(self, *exc_info):
+    def __exit__(self, *exc):
         """Exit the runtime context for the connection object.
 
         This does not close the connection, but it ends a transaction.
 
         """
-        if exc_info[0] is None and exc_info[1] is None and exc_info[2] is None:
+        if exc[0] is None and exc[1] is None and exc[2] is None:
             self.commit()
         else:
             self.rollback()
@@ -544,7 +544,7 @@ class SteadyDBCursor:
         """Enter the runtime context for the cursor object."""
         return self
 
-    def __exit__(self, *exc_info):
+    def __exit__(self, *exc):
         """Exit the runtime context for the cursor object."""
         self.close()
 
