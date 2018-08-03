@@ -539,7 +539,7 @@ Credits
 Copyright and License
 =====================
 
-Copyright © 2005-2017 by Christoph Zwerschke.
+Copyright © 2005-2018 by Christoph Zwerschke.
 All Rights Reserved.
 
 DBUtils is free and open source software,

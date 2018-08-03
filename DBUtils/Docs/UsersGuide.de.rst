@@ -582,7 +582,7 @@ Autoren
 Copyright und Lizenz
 ====================
 
-Copyright © 2005-2017 Christoph Zwerschke.
+Copyright © 2005-2018 Christoph Zwerschke.
 Alle Rechte vorbehalten.
 
 DBUtils ist freie und quelloffene Software,
