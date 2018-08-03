@@ -17,7 +17,7 @@ import DBUtils.Tests.mock_db as dbapi
 
 from DBUtils.PersistentDB import PersistentDB, local
 
-__version__ = '1.2'
+__version__ = '1.3'
 
 
 class TestPersistentDB(unittest.TestCase):

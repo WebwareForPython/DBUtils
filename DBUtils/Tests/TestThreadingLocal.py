@@ -5,7 +5,7 @@ from threading import Thread
 
 from DBUtils.PersistentDB import local
 
-__version__ = '1.2'
+__version__ = '1.3'
 
 
 class TestThreadingLocal(unittest.TestCase):

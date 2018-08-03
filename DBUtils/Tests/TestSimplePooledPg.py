@@ -17,7 +17,7 @@ import DBUtils.Tests.mock_pg  # noqa
 
 from DBUtils import SimplePooledPg
 
-__version__ = '1.2'
+__version__ = '1.3'
 
 
 class TestSimplePooledPg(unittest.TestCase):

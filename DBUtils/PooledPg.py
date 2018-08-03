@@ -115,7 +115,7 @@ except ImportError:  # Python 3
 
 from DBUtils.SteadyPg import SteadyPgConnection
 
-__version__ = '1.2'
+__version__ = '1.3'
 
 
 class PooledPgError(Exception):

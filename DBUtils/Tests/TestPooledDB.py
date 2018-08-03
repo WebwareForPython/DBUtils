@@ -18,7 +18,7 @@ import DBUtils.Tests.mock_db as dbapi
 from DBUtils.PooledDB import (
     PooledDB, SharedDBConnection, InvalidConnection, TooManyConnections)
 
-__version__ = '1.2'
+__version__ = '1.3'
 
 
 class TestPooledDB(unittest.TestCase):

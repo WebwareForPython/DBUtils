@@ -143,7 +143,7 @@ from threading import Condition
 
 from DBUtils.SteadyDB import connect
 
-__version__ = '1.2'
+__version__ = '1.3'
 
 
 class PooledDBError(Exception):

@@ -17,7 +17,7 @@ import DBUtils.Tests.mock_pg as pg
 
 from DBUtils.PersistentPg import PersistentPg
 
-__version__ = '1.2'
+__version__ = '1.3'
 
 
 class TestPersistentPg(unittest.TestCase):
