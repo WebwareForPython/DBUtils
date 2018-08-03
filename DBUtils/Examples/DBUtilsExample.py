@@ -47,7 +47,7 @@ class DBUtilsExample(ExamplePage):
     dbapi_name = config.pop('dbapi', 'pg')
     if dbapi_name == 'pg':  # use the PyGreSQL classic DB API
         dbmod_name += 'Pg'
-        if 'datanbase' in config:
+        if 'database' in config:
             config['dbname'] = config['database']
             del config['database']
         if 'password' in config:
