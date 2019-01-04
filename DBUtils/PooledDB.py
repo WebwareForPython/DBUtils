@@ -284,9 +284,6 @@ class PooledDB:
         if shareable and self._maxshared:
             self._lock.acquire()
             try:
-                while (not self._shared_cache and self._maxconnections
-                        and self._connections >= self._maxconnections):
-                    self._wait_lock()
                 if len(self._shared_cache) < self._maxshared:
                     # shared cache is not full, get a dedicated connection
                     try:  # first try to get it from the idle cache
