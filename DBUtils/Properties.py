@@ -8,7 +8,7 @@ docs = [
 
 status = 'beta'
 
-requiredPyVersion = (2, 6, 0)
+requiredPyVersion = (2, 7, 0)
 
 synopsis = (
     "DBUtils provides database related support classes and functions"

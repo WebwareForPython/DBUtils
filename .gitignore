@@ -1,6 +1,7 @@
 *~
 *.bak
 *.default
+*.egg-info
 *.log
 *.patch
 *.pid
@@ -15,6 +16,8 @@ dist
 .idea
 .tox
 .pytest_cache
+
+test.bat
 
 MANIFEST
 

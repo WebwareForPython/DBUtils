@@ -93,11 +93,6 @@ environments (for instance, mod_wsgi is known to cause problems
 since it clears the threading.local data between requests).
 
 
-Requirements:
-
-Python >= 2.6.
-
-
 Ideas for improvement:
 
 * Add a thread for monitoring, restarting (or closing) bad or expired

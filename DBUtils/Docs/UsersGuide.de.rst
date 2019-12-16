@@ -111,10 +111,12 @@ wenn Sie DBUtils in die Webware-Dokumentation integrieren wollen::
 Anforderungen
 =============
 
-DBUtils benötigt mindestens Python_ Version 2.6. Die Module in der Variante
-für klassisches PyGreSQL benötigen PyGreSQL_ Version 3.4 oder höher, während
-die Module in der allgemeinen Variante für DB-API 2 mit jedem beliebigen
-Python-Datenbankadapter-Modul zusammenarbeiten, das auf `DB-API 2`_ basiert.
+DBUtils unterstützt die Python_ Versionen 2.7 und 3.5 bis 3.8.
+
+Die Module in der Variante für klassisches PyGreSQL benötigen PyGreSQL_
+Version 4.0 oder höher, während die Module in der allgemeinen Variante
+für DB-API 2 mit jedem beliebigen Python-Datenbankadapter-Modul zusammenarbeiten,
+das auf `DB-API 2`_ basiert.
 
 
 Funktionalität
