@@ -349,7 +349,10 @@ class SteadyDBConnection:
         """
         if ping & self._ping:
             try:  # if possible, ping the connection
-                alive = self._con.ping()
+                try:  # pass a reconnect=False flag if this is supported
+                    alive = self._con.ping(False)
+                except TypeError:  # the reconnect flag is not supported
+                    alive = self._con.ping()
             except (AttributeError, IndexError, TypeError, ValueError):
                 self._ping = 0  # ping() is not available
                 alive = None
