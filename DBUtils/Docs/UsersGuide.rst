@@ -72,7 +72,7 @@ the Python Package Index at::
 
 The source code repository can be found here on GitHub::
 
-  https://github.com/Cito/DBUtils
+  https://github.com/WebwareForPython/DBUtils
 
 
 Installation
@@ -508,9 +508,9 @@ Some links to related and alternative software:
 * SQLObject_ object-relational mapper
 * SQLAlchemy_ object-relational mapper
 
-.. _DBUtils: https://github.com/Cito/DBUtils
+.. _DBUtils: https://github.com/WebwareForPython/DBUtils
 .. _Python: https://www.python.org
-.. _Webware for Python: https://cito.github.io/w4py/
+.. _Webware for Python: https://webwareforpython.github.io/w4py/
 .. _Webware for Python mailing list: https://lists.sourceforge.net/lists/listinfo/webware-discuss
 .. _DB-API 2: https://www.python.org/dev/peps/pep-0249/
 .. _The Python DB-API: http://www.linuxjournal.com/article/2605

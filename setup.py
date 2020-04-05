@@ -39,7 +39,7 @@ setup(
     ],
     author='Christoph Zwerschke',
     author_email='cito@online.de',
-    url='https://cito.github.io/DBUtils/',
+    url='https://webwareforpython.github.io/DBUtils/',
     platforms=['any'],
     license='MIT License',
     packages=['DBUtils', 'DBUtils.Examples', 'DBUtils.Tests'],

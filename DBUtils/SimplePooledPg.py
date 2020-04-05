@@ -12,7 +12,7 @@ For more information on PostgreSQL, see:
 For more information on PyGreSQL, see:
     http://www.pygresql.org
 For more information on Webware for Python, see:
-    https://cito.github.io/w4py/
+    https://webwareforpython.github.io/w4py/
 
 Measures are taken to make the pool of connections threadsafe
 regardless of the fact that the PyGreSQL pg module itself is

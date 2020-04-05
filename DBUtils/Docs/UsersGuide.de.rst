@@ -73,7 +73,7 @@ heruntergeladen werden::
 
 Das Source-Code-Repository befindet sich hier auf GitHub::
 
-  https://github.com/Cito/DBUtils
+  https://github.com/WebwareForPython/DBUtils
 
 
 Installation
@@ -552,9 +552,9 @@ Einige Links zu verwandter und alternativer Software:
 * SQLObject_ Objekt-relationaler Mapper
 * SQLAlchemy_ Objekt-relationaler Mapper
 
-.. _DBUtils: https://github.com/Cito/DBUtils
+.. _DBUtils: https://github.com/WebwareForPython/DBUtils
 .. _Python: https://www.python.org
-.. _Webware for Python: https://cito.github.io/w4py/
+.. _Webware for Python: https://webwareforpython.github.io/w4py/
 .. _Webware for Python mailing list: https://lists.sourceforge.net/lists/listinfo/webware-discuss
 .. _DB-API 2: https://www.python.org/dev/peps/pep-0249/
 .. _The Python DB-API: http://www.linuxjournal.com/article/2605

@@ -8,4 +8,4 @@ DB-API 2 compliant database interfaces and the classic PyGreSQL interface.
 
 The current version of DBUtils supports Python versions 2.7 and 3.5 - 3.8.
 
-The DBUtils home page can be found here: https://cito.github.io/DBUtils/
+The DBUtils home page can be found here: https://webwareforpython.github.io/DBUtils/

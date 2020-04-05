@@ -54,5 +54,5 @@ Create a new DBUtils release:
 
 * Don't forget to update the home page:
 
-    * https://cito.github.io/DBUtils/
-    * https://cito.github.io/w4py/
+    * https://webwareforpython.github.io/DBUtils/
+    * https://webwareforpython.github.io/w4py/

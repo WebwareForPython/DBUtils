@@ -9,7 +9,7 @@ such as the "Webware for Python" AppServer.
 For more information on the DB-API 2, see:
     https://www.python.org/dev/peps/pep-0249/
 For more information on Webware for Python, see:
-    https://cito.github.io/w4py/
+    https://webwareforpython.github.io/w4py/
 
 Measures are taken to make the pool of connections threadsafe
 regardless of whether the DB-API 2 module used is threadsafe

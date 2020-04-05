@@ -23,7 +23,7 @@ but you can also request dedicated connections in case you need them.
 For the Python DB-API 2 specification, see:
     https://www.python.org/dev/peps/pep-0249/
 For information on Webware for Python, see:
-    https://cito.github.io/w4py/
+    https://webwareforpython.github.io/w4py/
 
 
 Usage:
