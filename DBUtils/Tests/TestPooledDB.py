@@ -835,7 +835,7 @@ class TestPooledDB(unittest.TestCase):
             thread = Thread(target=connection)
             thread.start()
             thread.join(0.1)
-            self.assertTrue(thread.isAlive())
+            self.assertTrue(thread.is_alive())
             self.assertEqual(pool._connections, 1)
             self.assertEqual(len(pool._idle_cache), 0)
             if shareable:
@@ -844,7 +844,7 @@ class TestPooledDB(unittest.TestCase):
             self.assertEqual(session, ['rollback'])
             del db
             thread.join(0.1)
-            self.assertTrue(not thread.isAlive())
+            self.assertTrue(not thread.is_alive())
             self.assertEqual(pool._connections, 0)
             self.assertEqual(len(pool._idle_cache), 1)
             if shareable:

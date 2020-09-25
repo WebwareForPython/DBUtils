@@ -192,13 +192,13 @@ class TestPooledPg(unittest.TestCase):
         thread = Thread(target=connection)
         thread.start()
         thread.join(0.1)
-        self.assertTrue(thread.isAlive())
+        self.assertTrue(thread.is_alive())
         self.assertEqual(pool._cache.qsize(), 0)
         session = db._con.session
         self.assertEqual(session, [])
         del db
         thread.join(0.1)
-        self.assertTrue(not thread.isAlive())
+        self.assertTrue(not thread.is_alive())
         self.assertEqual(pool._cache.qsize(), 1)
         db = pool.connection()
         self.assertEqual(pool._cache.qsize(), 0)

@@ -127,7 +127,7 @@ class TestPersistentDB(unittest.TestCase):
             except TypeError:
                 r = resultQueue[i].get(1)
             self.assertEqual(r, '%d(0): ok - thread alive' % i)
-            self.assertTrue(threads[i].isAlive())
+            self.assertTrue(threads[i].is_alive())
         for i in range(numThreads):
             for j in range(i + 1):
                 try:
@@ -162,7 +162,7 @@ class TestPersistentDB(unittest.TestCase):
                 r = resultQueue[1].get(1)
             self.assertEqual(r, '1(%d): test%d' % (j + 1, j))
         for i in range(numThreads):
-            self.assertTrue(threads[i].isAlive())
+            self.assertTrue(threads[i].is_alive())
             try:
                 queryQueue[i].put('ping', 1, 1)
             except TypeError:
@@ -173,7 +173,7 @@ class TestPersistentDB(unittest.TestCase):
             except TypeError:
                 r = resultQueue[i].get(1)
             self.assertEqual(r, '%d(%d): ok - thread alive' % (i, i + 1))
-            self.assertTrue(threads[i].isAlive())
+            self.assertTrue(threads[i].is_alive())
         for i in range(numThreads):
             try:
                 queryQueue[i].put(None, 1, 1)
