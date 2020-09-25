@@ -68,10 +68,9 @@ class TestThreadingLocal(unittest.TestCase):
         thread = Thread(target=f)
         thread.start()
         thread.join()
-        self.assertEqual(
-            log, [[('color', 'red'), ('initialized', 1)], 7])
+        self.assertEqual(log, [[('color', 'red'), ('initialized', 1)], 7])
         self.assertEqual(mydata.number, 2)
-        self.assertTrue(not hasattr(mydata, 'color'))
+        self.assertFalse(hasattr(mydata, 'color'))
 
         class MyLocal(local):
             __slots__ = 'number'

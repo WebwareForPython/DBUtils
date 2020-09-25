@@ -41,9 +41,9 @@ class TestPersistentPg(unittest.TestCase):
             self.assertTrue(
                 closeable ^ (db._con.db is not None and db._con.valid))
             db._close()
-            self.assertTrue(not db._con.db or not db._con.valid)
+            self.assertFalse(db._con.db and db._con.valid)
             db._close()
-            self.assertTrue(not db._con.db or not db._con.valid)
+            self.assertFalse(db._con.db and db._con.valid)
 
     def test2_Threads(self):
         numThreads = 3

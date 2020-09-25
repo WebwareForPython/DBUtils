@@ -52,7 +52,7 @@ class TestSimplePooledPg(unittest.TestCase):
         db.query('select 1')
         self.assertEqual(db.num_queries, 1)
         db.close()
-        self.assertTrue(not hasattr(db, 'num_queries'))
+        self.assertFalse(hasattr(db, 'num_queries'))
         db = dbpool.connection()
         self.assertTrue(hasattr(db, 'dbname'))
         self.assertEqual(db.dbname, 'SimplePooledPgTestDB')

@@ -40,11 +40,11 @@ class TestSteadyPg(unittest.TestCase):
         self.assertTrue(db.db.status)
         self.assertTrue(hasattr(db.db, 'query'))
         self.assertTrue(hasattr(db.db, 'close'))
-        self.assertTrue(not hasattr(db.db, 'reopen'))
+        self.assertFalse(hasattr(db.db, 'reopen'))
         self.assertTrue(hasattr(db, 'reset'))
         self.assertTrue(hasattr(db.db, 'num_queries'))
         self.assertTrue(hasattr(db.db, 'session'))
-        self.assertTrue(not hasattr(db.db, 'get_tables'))
+        self.assertFalse(hasattr(db.db, 'get_tables'))
         self.assertTrue(hasattr(db.db, 'db'))
         self.assertEqual(db.db.db, 'SteadyPgTestDB')
         self.assertTrue(hasattr(db.db, 'user'))
@@ -75,7 +75,7 @@ class TestSteadyPg(unittest.TestCase):
             status = db.db.status
         except AttributeError:
             status = False
-        self.assertTrue(not status)
+        self.assertFalse(status)
         self.assertRaises(pg.InternalError, db.close)
         self.assertRaises(pg.InternalError, db.query, 'select test')
         self.assertRaises(pg.InternalError, db.get_tables)
@@ -100,9 +100,9 @@ class TestSteadyPg(unittest.TestCase):
             self.assertTrue(
                 closeable ^ (db._con.db is not None and db._con.valid))
             db._close()
-            self.assertTrue(not db._con.db or not db._con.valid)
+            self.assertFalse(db._con.db and db._con.valid)
             db._close()
-            self.assertTrue(not db._con.db or not db._con.valid)
+            self.assertFalse(db._con.db and db._con.valid)
 
     def test4_Connection(self):
         db = SteadyPgConnection(
@@ -116,7 +116,7 @@ class TestSteadyPg(unittest.TestCase):
         self.assertTrue(db.db.status)
         self.assertTrue(hasattr(db.db, 'query'))
         self.assertTrue(hasattr(db.db, 'close'))
-        self.assertTrue(not hasattr(db.db, 'reopen'))
+        self.assertFalse(hasattr(db.db, 'reopen'))
         self.assertTrue(hasattr(db.db, 'reset'))
         self.assertTrue(hasattr(db.db, 'num_queries'))
         self.assertTrue(hasattr(db.db, 'session'))
@@ -124,7 +124,7 @@ class TestSteadyPg(unittest.TestCase):
         self.assertEqual(db.db.db, 'SteadyPgTestDB')
         self.assertTrue(hasattr(db.db, 'user'))
         self.assertEqual(db.db.user, 'SteadyPgTestUser')
-        self.assertTrue(not hasattr(db.db, 'get_tables'))
+        self.assertFalse(hasattr(db.db, 'get_tables'))
         self.assertTrue(hasattr(db, 'query'))
         self.assertTrue(hasattr(db, 'close'))
         self.assertTrue(hasattr(db, 'reopen'))
@@ -161,7 +161,7 @@ class TestSteadyPg(unittest.TestCase):
             status = db.db.status
         except AttributeError:
             status = False
-        self.assertTrue(not status)
+        self.assertFalse(status)
         self.assertTrue(hasattr(db._con, 'close'))
         self.assertTrue(hasattr(db._con, 'query'))
         InternalError = sys.modules[db._con.__module__].InternalError
@@ -172,13 +172,13 @@ class TestSteadyPg(unittest.TestCase):
         self.assertEqual(db._usage, 1)
         self.assertEqual(db.num_queries, 1)
         db.db.status = False
-        self.assertTrue(not db.db.status)
+        self.assertFalse(db.db.status)
         self.assertEqual(db.query('select test'), 'test')
         self.assertTrue(db.db.status)
         self.assertEqual(db._usage, 1)
         self.assertEqual(db.num_queries, 1)
         db.db.status = False
-        self.assertTrue(not db.db.status)
+        self.assertFalse(db.db.status)
         self.assertEqual(db.get_tables(), 'test')
         self.assertTrue(db.db.status)
         self.assertEqual(db._usage, 1)

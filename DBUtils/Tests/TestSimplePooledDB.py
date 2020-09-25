@@ -77,7 +77,7 @@ class TestSimplePooledDB(unittest.TestCase):
             cursor1 = db.cursor()
             self.assertEqual(db.open_cursors, 1)
             db.close()
-            self.assertTrue(not hasattr(db, 'open_cursors'))
+            self.assertFalse(hasattr(db, 'open_cursors'))
             db = dbpool.connection()
             self.assertTrue(hasattr(db, 'database'))
             self.assertEqual(db.database, 'SimplePooledDBTestDB')
