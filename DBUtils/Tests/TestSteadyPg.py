@@ -211,13 +211,17 @@ class TestSteadyPg(unittest.TestCase):
             j = i % 10 + 1
             self.assertEqual(db._usage, j)
             self.assertEqual(db.num_queries, j)
+        db.begin()
         for i in range(100):
             r = db.get_tables()
             self.assertEqual(r, 'test')
             self.assertTrue(db.db.status)
-            j = i % 10 + 1
+            if i == 49:
+                db.commit()
+            j = i % 10 + 1 if i > 49 else i + 11
             self.assertEqual(db._usage, j)
-            self.assertEqual(db.num_queries, 0)
+            j = 0 if i > 49 else 10
+            self.assertEqual(db.num_queries, j)
         for i in range(10):
             if i == 7:
                 db.db.status = False

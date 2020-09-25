@@ -484,7 +484,7 @@ class SteadyDBConnection:
             self._ping_check(2)
         try:
             if self._maxusage:
-                if self._usage >= self._maxusage:
+                if self._usage >= self._maxusage and not self._transaction:
                     # the connection was used too often
                     raise self._failure
             cursor = self._con.cursor(*args, **kwargs)  # try to get a cursor
@@ -599,7 +599,7 @@ class SteadyDBCursor:
                 con._ping_check(4)
             try:
                 if con._maxusage:
-                    if con._usage >= con._maxusage:
+                    if con._usage >= con._maxusage and not transaction:
                         # the connection was used too often
                         raise con._failure
                 if execute:

@@ -306,13 +306,17 @@ class TestSteadyDB(unittest.TestCase):
             self.assertEqual(db._con.num_uses, j)
             self.assertEqual(db._con.num_queries, j)
         self.assertEqual(db._con.open_cursors, 1)
+        db.begin()
         for i in range(100):
             cursor.callproc('test')
             self.assertTrue(db._con.valid)
-            j = i % 10 + 1
+            if i == 49:
+                db.commit()
+            j = i % 10 + 1 if i > 49 else i + 11
             self.assertEqual(db._usage, j)
             self.assertEqual(db._con.num_uses, j)
-            self.assertEqual(db._con.num_queries, 0)
+            j = 0 if i > 49 else 10
+            self.assertEqual(db._con.num_queries, j)
         for i in range(10):
             if i == 7:
                 db._con.valid = cursor._cursor.valid = False

@@ -295,7 +295,7 @@ class SteadyPgConnection:
                     if not self._con.db.status:
                         raise AttributeError
                     if self._maxusage:  # or connection used too often
-                        if self._usage >= self._maxusage:
+                        if self._usage >= self._maxusage and not self._transaction:
                             raise AttributeError
                 except Exception:
                     self.reset()  # then reset the connection
