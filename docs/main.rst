@@ -53,12 +53,12 @@ the other one for use with the classic PyGreSQL module.
 The dependencies of the modules in the universal DB-API 2 variant
 are as indicated in the following diagram:
 
-.. image:: dbdep.gif
+.. image:: dbdep.png
 
 The dependencies of the modules in the classic PyGreSQL variant
 are similar:
 
-.. image:: pgdep.gif
+.. image:: pgdep.png
 
 
 Download
@@ -157,7 +157,7 @@ connections to a database, using any DB-API 2 database module.
 The following diagram shows the connection layers involved when you
 are using ``PersistentDB`` connections:
 
-.. image:: persist.gif
+.. image:: persist.png
 
 Whenever a thread opens a database connection for the first time, a new
 connection to the database will be opened that will be used from now on
@@ -184,7 +184,7 @@ DB-API 2 database module.
 The following diagram shows the connection layers involved when you
 are using ``PooledDB`` connections:
 
-.. image:: pool.gif
+.. image:: pool.png
 
 As the diagram indicates, ``PooledDB`` can share opened database connections
 between different threads. This will happen by default if you set up the

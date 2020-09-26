@@ -117,10 +117,10 @@ DB-API-2-Datenbankadaptern, und einer Gruppe zur Verwendung mit dem klassischen 
 </table>
 <p>Die Abhängigkeiten der Module in der Variante für beliebige DB-API-2-Adapter
 sind im folgenden Diagramm dargestellt:</p>
-<img alt="dbdep.gif" src="dbdep.gif" />
+<img alt="dbdep.png" src="dbdep.png" />
 <p>Die Abhängigkeiten der Module in der Variante für den klassischen
 PyGreSQL-Adapter sehen ähnlich aus:</p>
-<img alt="pgdep.gif" src="pgdep.gif" />
+<img alt="pgdep.png" src="pgdep.png" />
 </div>
 <div class="section" id="download">
 <h1>Download</h1>
@@ -202,7 +202,7 @@ Threads fest zugeordnet bleiben und während der Laufzeit des Threads nicht
 geschlossen werden.</p>
 <p>Das folgende Diagramm zeigt die beteiligten Verbindungsschichten, wenn Sie
 <span class="docutils literal">PersistentDB</span>-Datenbankverbindungen einsetzen:</p>
-<img alt="persist.gif" src="persist.gif" />
+<img alt="persist.png" src="persist.png" />
 <p>Immer wenn ein Thread eine Datenbankverbindung zum ersten Mal öffnet, wird
 eine neue Datenbankverbindung geöffnet, die von da an immer wieder für genau
 diesen Thread verwendet wird. Wenn der Thread die Datenbankverbindung schließt,
@@ -227,7 +227,7 @@ Datenbankverbindungen zur Verfügung, die automatisch, ohne dass die Anwendung
 dies bemerkt, wiederverwendet werden.</p>
 <p>Das folgende Diagramm zeigt die beteiligten Verbindungsschichten, wenn Sie
 <span class="docutils literal">PooledDB</span>-Datenbankverbindungen einsetzen:</p>
-<img alt="pool.gif" src="pool.gif" />
+<img alt="pool.png" src="pool.png" />
 <p>Wie im Diagramm angedeutet, kann <span class="docutils literal">PooledDB</span> geöffnete Datenbankverbindungen
 den verschiedenen Threads beliebig zuteilen. Dies geschieht standardmäßig, wenn
 Sie den Verbindungspool mit einem positiven Wert für <span class="docutils literal">maxshared</span> einrichten

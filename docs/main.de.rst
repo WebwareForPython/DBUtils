@@ -54,12 +54,12 @@ DB-API-2-Datenbankadaptern, und einer Gruppe zur Verwendung mit dem klassischen 
 Die Abhängigkeiten der Module in der Variante für beliebige DB-API-2-Adapter
 sind im folgenden Diagramm dargestellt:
 
-.. image:: dbdep.gif
+.. image:: dbdep.png
 
 Die Abhängigkeiten der Module in der Variante für den klassischen
 PyGreSQL-Adapter sehen ähnlich aus:
 
-.. image:: pgdep.gif
+.. image:: pgdep.png
 
 
 Download
@@ -166,7 +166,7 @@ geschlossen werden.
 Das folgende Diagramm zeigt die beteiligten Verbindungsschichten, wenn Sie
 ``PersistentDB``-Datenbankverbindungen einsetzen:
 
-.. image:: persist.gif
+.. image:: persist.png
 
 Immer wenn ein Thread eine Datenbankverbindung zum ersten Mal öffnet, wird
 eine neue Datenbankverbindung geöffnet, die von da an immer wieder für genau
@@ -196,7 +196,7 @@ dies bemerkt, wiederverwendet werden.
 Das folgende Diagramm zeigt die beteiligten Verbindungsschichten, wenn Sie
 ``PooledDB``-Datenbankverbindungen einsetzen:
 
-.. image:: pool.gif
+.. image:: pool.png
 
 Wie im Diagramm angedeutet, kann ``PooledDB`` geöffnete Datenbankverbindungen
 den verschiedenen Threads beliebig zuteilen. Dies geschieht standardmäßig, wenn
