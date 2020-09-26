@@ -3,9 +3,12 @@ include MANIFEST.in
 include LICENSE
 include README.md
 
-recursive-include docs *.rst make.py *.html *.css *.png
+include .bumpversion.cfg
+include tox.ini
 
+recursive-include tests *.py
+
+recursive-include docs *.rst make.py *.html *.css *.png
 prune docs/_build
-exclude release.md setversion.py
 
 global-exclude *.py[co] __pycache__
