@@ -1,11 +1,11 @@
 ﻿Benutzeranleitung für DBUtils
 +++++++++++++++++++++++++++++
 
-:Version: 1.4
+:Version: 2.0
 :Released: 09/26/20
 :Translations: English_ | German
 
-.. _English: UsersGuide.html
+.. _English: main.html
 
 .. contents:: Inhalt
 

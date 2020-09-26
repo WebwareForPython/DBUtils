@@ -1,11 +1,11 @@
 ﻿DBUtils User's Guide
 ++++++++++++++++++++
 
-:Version: 1.4
+:Version: 2.0
 :Released: 09/26/20
 :Translations: English | German_
 
-.. _German: UsersGuide.de.html
+.. _German: main.de.html
 
 .. contents:: Contents
 

@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python3.8
 
 """Build HMTL from reST files."""
 
@@ -10,7 +10,7 @@ from docutils.core import publish_file
 
 print("Creating the documentation...")
 
-for rst_file in glob(join('DBUtils', 'Docs', '*.rst')):
+for rst_file in glob('*.rst'):
     name = splitext(rst_file)[0]
     lang = splitext(name)[1]
     if lang.startswith('.'):
