@@ -43,6 +43,6 @@ setup(
     url='https://webwareforpython.github.io/DBUtils/',
     platforms=['any'],
     license='MIT License',
-    packages=['DBUtils', 'DBUtils.Examples', 'DBUtils.Tests'],
-    package_data={'DBUtils': ['Docs/*']}
+    packages=['dbutils'],
+    zip_safe=False,
 )

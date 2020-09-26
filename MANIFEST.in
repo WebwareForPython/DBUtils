@@ -1,3 +1,11 @@
-exclude Release.md setversion.py
+include MANIFEST.in
+
+include LICENSE
 include README.md
-include DBUtils/Docs/*
+
+recursive-include docs *.rst make.py *.html *.css *.png *.gif
+
+prune docs/_build
+exclude release.md setversion.py
+
+global-exclude *.py[co] __pycache__
