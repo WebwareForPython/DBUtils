@@ -1,12 +1,8 @@
-# DBUtils package
+# DBUtils main package
 
 __all__ = [
-    'SimplePooledPg', 'SteadyPg', 'PooledPg', 'PersistentPg',
-    'SimplePooledDB', 'SteadyDB', 'PooledDB', 'PersistentDB'
-]
+    '__version__',
+    'simple_pooled_pg', 'steady_pg', 'pooled_pg', 'persistent_pg',
+    'simple_pooled_db', 'steady_db', 'pooled_db', 'persistent_db']
 
-__version__ = '1.4'
-
-
-def InstallInWebKit(appServer):
-    pass
+__version__ = '2.0'

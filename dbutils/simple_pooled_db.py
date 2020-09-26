@@ -26,7 +26,7 @@ DB-API 2 module to be used, the number of connections
 to be cached in the pool and the connection parameters, e.g.
 
     import pgdb  # import used DB-API 2 module
-    from DBUtils.SimplePooledDB import PooledDB
+    from dbutils.simple_pooled_db import PooledDB
     dbpool = PooledDB(pgdb, 5, host=..., database=..., user=..., ...)
 
 you can demand database connections from that pool,
@@ -73,7 +73,7 @@ Licensed under the MIT license.
 
 """
 
-__version__ = '1.4'
+from . import __version__
 
 
 class PooledDBError(Exception):

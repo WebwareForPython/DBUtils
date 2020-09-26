@@ -15,23 +15,19 @@ Copyright and credit info:
 import unittest
 import sys
 
-import DBUtils.Tests.mock_pg as pg
+from . import mock_pg as pg
 
-from DBUtils.SteadyPg import SteadyPgConnection
-
-__version__ = '1.4'
+from dbutils.steady_pg import SteadyPgConnection
 
 
 class TestSteadyPg(unittest.TestCase):
 
-    def test0_CheckVersion(self):
-        from DBUtils import __version__ as DBUtilsVersion
-        self.assertEqual(DBUtilsVersion, __version__)
-        from DBUtils.SteadyPg import __version__ as SteadyPgVersion
-        self.assertEqual(SteadyPgVersion, __version__)
-        self.assertEqual(SteadyPgConnection.version, __version__)
+    def test_version(self):
+        from dbutils import __version__, steady_pg
+        self.assertEqual(steady_pg.__version__, __version__)
+        self.assertEqual(steady_pg.SteadyPgConnection.version, __version__)
 
-    def test1_MockedConnection(self):
+    def test_mocked_connection(self):
         PgConnection = pg.DB
         db = PgConnection(
             'SteadyPgTestDB', user='SteadyPgTestUser')
@@ -80,7 +76,7 @@ class TestSteadyPg(unittest.TestCase):
         self.assertRaises(pg.InternalError, db.query, 'select test')
         self.assertRaises(pg.InternalError, db.get_tables)
 
-    def test2_BrokenConnection(self):
+    def test_broken_connection(self):
         self.assertRaises(TypeError, SteadyPgConnection, 'wrong')
         db = SteadyPgConnection(dbname='ok')
         InternalError = sys.modules[db._con.__module__].InternalError
@@ -89,7 +85,7 @@ class TestSteadyPg(unittest.TestCase):
         del db
         self.assertRaises(InternalError, SteadyPgConnection, dbname='error')
 
-    def test3_Close(self):
+    def test_close(self):
         for closeable in (False, True):
             db = SteadyPgConnection(closeable=closeable)
             self.assertTrue(db._con.db and db._con.valid)
@@ -104,7 +100,7 @@ class TestSteadyPg(unittest.TestCase):
             db._close()
             self.assertFalse(db._con.db and db._con.valid)
 
-    def test4_Connection(self):
+    def test_connection(self):
         db = SteadyPgConnection(
             0, None, 1, 'SteadyPgTestDB', user='SteadyPgTestUser')
         self.assertTrue(hasattr(db, 'db'))
@@ -184,7 +180,7 @@ class TestSteadyPg(unittest.TestCase):
         self.assertEqual(db._usage, 1)
         self.assertEqual(db.num_queries, 0)
 
-    def test5_ConnectionContextHandler(self):
+    def test_connection_context_handler(self):
         db = SteadyPgConnection(
             0, None, 1, 'SteadyPgTestDB', user='SteadyPgTestUser')
         self.assertEqual(db.session, [])
@@ -202,7 +198,7 @@ class TestSteadyPg(unittest.TestCase):
         self.assertEqual(
             db._con.session, ['begin', 'commit', 'begin', 'rollback'])
 
-    def test6_ConnectionMaxUsage(self):
+    def test_connection_maxusage(self):
         db = SteadyPgConnection(10)
         for i in range(100):
             r = db.query('select test%d' % i)
@@ -250,7 +246,7 @@ class TestSteadyPg(unittest.TestCase):
         self.assertEqual(db._usage, 1)
         self.assertEqual(db.num_queries, 1)
 
-    def test7_ConnectionSetSession(self):
+    def test_connection_setsession(self):
         db = SteadyPgConnection(3, ('set time zone', 'set datestyle'))
         self.assertTrue(hasattr(db, 'num_queries'))
         self.assertEqual(db.num_queries, 0)
@@ -271,7 +267,7 @@ class TestSteadyPg(unittest.TestCase):
         self.assertEqual(db.num_queries, 0)
         self.assertEqual(db.session, ['time zone', 'datestyle', 'test'])
 
-    def test8_Begin(self):
+    def test_begin(self):
         for closeable in (False, True):
             db = SteadyPgConnection(closeable=closeable)
             db.begin()
@@ -291,7 +287,7 @@ class TestSteadyPg(unittest.TestCase):
             self.assertEqual(db.begin('select sql:begin'), 'sql:begin')
             self.assertEqual(db.num_queries, 2)
 
-    def test9_End(self):
+    def test_end(self):
         for closeable in (False, True):
             db = SteadyPgConnection(closeable=closeable)
             db.begin()

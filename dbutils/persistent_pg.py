@@ -54,7 +54,7 @@ by creating an instance of PersistentPg, passing the following parameters:
 For instance, if you want every connection to your local database 'mydb'
 to be reused 1000 times:
 
-    from DBUtils.PersistentPg import PersistentPg
+    from dbutils.persistent_pg import PersistentPg
     persist = PersistentPg(5, dbname='mydb')
 
 Once you have set up the generator with these parameters, you can
@@ -102,9 +102,8 @@ Licensed under the MIT license.
 
 """
 
-from DBUtils.SteadyPg import SteadyPgConnection
-
-__version__ = '1.4'
+from . import __version__
+from .steady_pg import SteadyPgConnection
 
 try:
     # Prefer the pure Python version of threading.local.

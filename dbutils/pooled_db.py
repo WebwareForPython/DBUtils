@@ -74,7 +74,7 @@ For instance, if you are using pgdb as your DB-API 2 database module and
 want a pool of at least five connections to your local database 'mydb':
 
     import pgdb  # import used DB-API 2 module
-    from DBUtils.PooledDB import PooledDB
+    from dbutils.pooled_db import PooledDB
     pool = PooledDB(pgdb, 5, database='mydb')
 
 Once you have set up the connection pool you can request
@@ -141,9 +141,8 @@ Licensed under the MIT license.
 
 from threading import Condition
 
-from DBUtils.SteadyDB import connect
-
-__version__ = '1.4'
+from . import __version__
+from .steady_db import connect
 
 
 class PooledDBError(Exception):

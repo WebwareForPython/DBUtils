@@ -3,41 +3,39 @@
 import unittest
 from threading import Thread
 
-from DBUtils.PersistentDB import local
-
-__version__ = '1.4'
+from dbutils.persistent_db import local
 
 
 class TestThreadingLocal(unittest.TestCase):
 
-    def test0_GetAttr(self):
-        mydata = local()
-        mydata.number = 42
-        self.assertEqual(mydata.number, 42)
+    def test_getattr(self):
+        my_data = local()
+        my_data.number = 42
+        self.assertEqual(my_data.number, 42)
 
-    def test1_Dict(self):
-        mydata = local()
-        mydata.number = 42
-        self.assertEqual(mydata.__dict__, {'number': 42})
-        mydata.__dict__.setdefault('widgets', [])
-        self.assertEqual(mydata.widgets, [])
+    def test_dict(self):
+        my_data = local()
+        my_data.number = 42
+        self.assertEqual(my_data.__dict__, {'number': 42})
+        my_data.__dict__.setdefault('widgets', [])
+        self.assertEqual(my_data.widgets, [])
 
-    def test2_ThreadLocal(self):
+    def test_threadlocal(self):
         def f():
-            items = sorted(mydata.__dict__.items())
+            items = sorted(my_data.__dict__.items())
             log.append(items)
-            mydata.number = 11
-            log.append(mydata.number)
-        mydata = local()
-        mydata.number = 42
+            my_data.number = 11
+            log.append(my_data.number)
+        my_data = local()
+        my_data.number = 42
         log = []
         thread = Thread(target=f)
         thread.start()
         thread.join()
         self.assertEqual(log, [[], 11])
-        self.assertEqual(mydata.number, 42)
+        self.assertEqual(my_data.number, 42)
 
-    def test3_SubClass(self):
+    def test_subclass(self):
 
         class MyLocal(local):
             number = 2
@@ -52,36 +50,36 @@ class TestThreadingLocal(unittest.TestCase):
             def squared(self):
                 return self.number ** 2
 
-        mydata = MyLocal(color='red')
-        self.assertEqual(mydata.number, 2)
-        self.assertEqual(mydata.color, 'red')
-        del mydata.color
-        self.assertEqual(mydata.squared(), 4)
+        my_data = MyLocal(color='red')
+        self.assertEqual(my_data.number, 2)
+        self.assertEqual(my_data.color, 'red')
+        del my_data.color
+        self.assertEqual(my_data.squared(), 4)
 
         def f():
-            items = sorted(mydata.__dict__.items())
+            items = sorted(my_data.__dict__.items())
             log.append(items)
-            mydata.number = 7
-            log.append(mydata.number)
+            my_data.number = 7
+            log.append(my_data.number)
 
         log = []
         thread = Thread(target=f)
         thread.start()
         thread.join()
         self.assertEqual(log, [[('color', 'red'), ('initialized', 1)], 7])
-        self.assertEqual(mydata.number, 2)
-        self.assertFalse(hasattr(mydata, 'color'))
+        self.assertEqual(my_data.number, 2)
+        self.assertFalse(hasattr(my_data, 'color'))
 
         class MyLocal(local):
             __slots__ = 'number'
 
-        mydata = MyLocal()
-        mydata.number = 42
-        mydata.color = 'red'
+        my_data = MyLocal()
+        my_data.number = 42
+        my_data.color = 'red'
         thread = Thread(target=f)
         thread.start()
         thread.join()
-        self.assertEqual(mydata.number, 7)
+        self.assertEqual(my_data.number, 7)
 
 
 if __name__ == '__main__':

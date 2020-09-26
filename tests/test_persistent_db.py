@@ -13,11 +13,9 @@ Copyright and credit info:
 
 import unittest
 
-import DBUtils.Tests.mock_db as dbapi
+from . import mock_db as dbapi
 
-from DBUtils.PersistentDB import PersistentDB, local
-
-__version__ = '1.4'
+from dbutils.persistent_db import PersistentDB, local
 
 
 class TestPersistentDB(unittest.TestCase):
@@ -25,19 +23,17 @@ class TestPersistentDB(unittest.TestCase):
     def setUp(self):
         dbapi.threadsafety = 1
 
-    def test0_CheckVersion(self):
-        from DBUtils import __version__ as DBUtilsVersion
-        self.assertEqual(DBUtilsVersion, __version__)
-        from DBUtils.PersistentDB import __version__ as PersistentDBVersion
-        self.assertEqual(PersistentDBVersion, __version__)
+    def test_version(self):
+        from dbutils import __version__, persistent_db
+        self.assertEqual(persistent_db.__version__, __version__)
         self.assertEqual(PersistentDB.version, __version__)
 
-    def test1_NoThreadsafety(self):
-        from DBUtils.PersistentDB import NotSupportedError
+    def test_no_threadsafety(self):
+        from dbutils.persistent_db import NotSupportedError
         for dbapi.threadsafety in (None, 0):
             self.assertRaises(NotSupportedError, PersistentDB, dbapi)
 
-    def test2_Close(self):
+    def test_close(self):
         for closeable in (False, True):
             persist = PersistentDB(dbapi, closeable=closeable)
             db = persist.connection()
@@ -51,7 +47,7 @@ class TestPersistentDB(unittest.TestCase):
             db._close()
             self.assertFalse(db._con.valid)
 
-    def test3_Connection(self):
+    def test_connection(self):
         persist = PersistentDB(dbapi)
         db = persist.connection()
         db_con = db._con
@@ -65,26 +61,26 @@ class TestPersistentDB(unittest.TestCase):
         db2.close()
         db.close()
 
-    def test4_Threads(self):
-        numThreads = 3
+    def test_threads(self):
+        num_threads = 3
         persist = PersistentDB(dbapi, closeable=True)
         try:
             from queue import Queue, Empty
         except ImportError:  # Python 2
             from Queue import Queue, Empty
-        queryQueue, resultQueue = [], []
-        for i in range(numThreads):
-            queryQueue.append(Queue(1))
-            resultQueue.append(Queue(1))
+        query_queue, result_queue = [], []
+        for i in range(num_threads):
+            query_queue.append(Queue(1))
+            result_queue.append(Queue(1))
 
-        def runQueries(i):
+        def run_queries(i):
             this_db = persist.connection()
             while 1:
                 try:
                     try:
-                        q = queryQueue[i].get(1, 1)
+                        q = query_queue[i].get(1, 1)
                     except TypeError:
-                        q = queryQueue[i].get(1)
+                        q = query_queue[i].get(1)
                 except Empty:
                     q = None
                 if not q:
@@ -105,82 +101,82 @@ class TestPersistentDB(unittest.TestCase):
                         cursor.close()
                 r = '%d(%d): %s' % (i, db._usage, r)
                 try:
-                    resultQueue[i].put(r, 1, 1)
+                    result_queue[i].put(r, 1, 1)
                 except TypeError:
-                    resultQueue[i].put(r, 1)
+                    result_queue[i].put(r, 1)
             db.close()
 
         from threading import Thread
         threads = []
-        for i in range(numThreads):
-            thread = Thread(target=runQueries, args=(i,))
+        for i in range(num_threads):
+            thread = Thread(target=run_queries, args=(i,))
             threads.append(thread)
             thread.start()
-        for i in range(numThreads):
+        for i in range(num_threads):
             try:
-                queryQueue[i].put('ping', 1, 1)
+                query_queue[i].put('ping', 1, 1)
             except TypeError:
-                queryQueue[i].put('ping', 1)
-        for i in range(numThreads):
+                query_queue[i].put('ping', 1)
+        for i in range(num_threads):
             try:
-                r = resultQueue[i].get(1, 1)
+                r = result_queue[i].get(1, 1)
             except TypeError:
-                r = resultQueue[i].get(1)
+                r = result_queue[i].get(1)
             self.assertEqual(r, '%d(0): ok - thread alive' % i)
             self.assertTrue(threads[i].is_alive())
-        for i in range(numThreads):
+        for i in range(num_threads):
             for j in range(i + 1):
                 try:
-                    queryQueue[i].put('select test%d' % j, 1, 1)
-                    r = resultQueue[i].get(1, 1)
+                    query_queue[i].put('select test%d' % j, 1, 1)
+                    r = result_queue[i].get(1, 1)
                 except TypeError:
-                    queryQueue[i].put('select test%d' % j, 1)
-                    r = resultQueue[i].get(1)
+                    query_queue[i].put('select test%d' % j, 1)
+                    r = result_queue[i].get(1)
                 self.assertEqual(r, '%d(%d): test%d' % (i, j + 1, j))
         try:
-            queryQueue[1].put('select test4', 1, 1)
+            query_queue[1].put('select test4', 1, 1)
         except TypeError:
-            queryQueue[1].put('select test4', 1)
+            query_queue[1].put('select test4', 1)
         try:
-            r = resultQueue[1].get(1, 1)
+            r = result_queue[1].get(1, 1)
         except TypeError:
-            r = resultQueue[1].get(1)
+            r = result_queue[1].get(1)
         self.assertEqual(r, '1(3): test4')
         try:
-            queryQueue[1].put('close', 1, 1)
-            r = resultQueue[1].get(1, 1)
+            query_queue[1].put('close', 1, 1)
+            r = result_queue[1].get(1, 1)
         except TypeError:
-            queryQueue[1].put('close', 1)
-            r = resultQueue[1].get(1)
+            query_queue[1].put('close', 1)
+            r = result_queue[1].get(1)
         self.assertEqual(r, '1(3): ok - connection closed')
         for j in range(2):
             try:
-                queryQueue[1].put('select test%d' % j, 1, 1)
-                r = resultQueue[1].get(1, 1)
+                query_queue[1].put('select test%d' % j, 1, 1)
+                r = result_queue[1].get(1, 1)
             except TypeError:
-                queryQueue[1].put('select test%d' % j, 1)
-                r = resultQueue[1].get(1)
+                query_queue[1].put('select test%d' % j, 1)
+                r = result_queue[1].get(1)
             self.assertEqual(r, '1(%d): test%d' % (j + 1, j))
-        for i in range(numThreads):
+        for i in range(num_threads):
             self.assertTrue(threads[i].is_alive())
             try:
-                queryQueue[i].put('ping', 1, 1)
+                query_queue[i].put('ping', 1, 1)
             except TypeError:
-                queryQueue[i].put('ping', 1)
-        for i in range(numThreads):
+                query_queue[i].put('ping', 1)
+        for i in range(num_threads):
             try:
-                r = resultQueue[i].get(1, 1)
+                r = result_queue[i].get(1, 1)
             except TypeError:
-                r = resultQueue[i].get(1)
+                r = result_queue[i].get(1)
             self.assertEqual(r, '%d(%d): ok - thread alive' % (i, i + 1))
             self.assertTrue(threads[i].is_alive())
-        for i in range(numThreads):
+        for i in range(num_threads):
             try:
-                queryQueue[i].put(None, 1, 1)
+                query_queue[i].put(None, 1, 1)
             except TypeError:
-                queryQueue[i].put(None, 1)
+                query_queue[i].put(None, 1)
 
-    def test5_MaxUsage(self):
+    def test_maxusage(self):
         persist = PersistentDB(dbapi, 20)
         db = persist.connection()
         self.assertEqual(db._maxusage, 20)
@@ -196,7 +192,7 @@ class TestPersistentDB(unittest.TestCase):
             self.assertEqual(db._con.num_uses, j)
             self.assertEqual(db._con.num_queries, j)
 
-    def test6_SetSession(self):
+    def test_setsession(self):
         persist = PersistentDB(dbapi, 3, ('set datestyle',))
         db = persist.connection()
         self.assertEqual(db._maxusage, 3)
@@ -214,7 +210,7 @@ class TestPersistentDB(unittest.TestCase):
             cursor.close()
         self.assertEqual(db._con.session, ['datestyle'])
 
-    def test7_ThreadLocal(self):
+    def test_threadlocal(self):
         persist = PersistentDB(dbapi)
         self.assertTrue(isinstance(persist.thread, local))
 
@@ -224,7 +220,7 @@ class TestPersistentDB(unittest.TestCase):
         persist = PersistentDB(dbapi, threadlocal=threadlocal)
         self.assertTrue(isinstance(persist.thread, threadlocal))
 
-    def test8_PingCheck(self):
+    def test_ping_check(self):
         Connection = dbapi.Connection
         Connection.has_ping = True
         Connection.num_pings = 0
@@ -276,7 +272,7 @@ class TestPersistentDB(unittest.TestCase):
         Connection.has_ping = False
         Connection.num_pings = 0
 
-    def test9_FailedTransaction(self):
+    def test_failed_transaction(self):
         persist = PersistentDB(dbapi)
         db = persist.connection()
         cursor = db.cursor()

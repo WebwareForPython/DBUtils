@@ -45,7 +45,7 @@ and you can specify whether is is allowed to close the connection
 database is lost or has been used too often, it will be automatically
 reset, without further notice.
 
-    from DBUtils.SteadyPg import SteadyPgConnection
+    from dbutils.steady_pg import SteadyPgConnection
     db = SteadyPgConnection(10000, ["set datestyle to german"],
         host=..., dbname=..., user=..., ...)
     ...
@@ -72,7 +72,7 @@ Licensed under the MIT license.
 
 from pg import DB as PgConnection
 
-__version__ = '1.4'
+from . import __version__
 
 try:
     baseint = (int, long)

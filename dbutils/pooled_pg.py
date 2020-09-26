@@ -55,7 +55,7 @@ an instance of PooledPg, passing the following parameters:
 For instance, if you want a pool of at least five connections
 to your local database 'mydb':
 
-    from DBUtils.PooledPg import PooledPg
+    from dbutils.pooled_pg import PooledPg
     pool = PooledPg(5, dbname='mydb')
 
 Once you have set up the connection pool you can request
@@ -113,9 +113,8 @@ try:
 except ImportError:  # Python 3
     from queue import Queue, Empty, Full
 
-from DBUtils.SteadyPg import SteadyPgConnection
-
-__version__ = '1.4'
+from . import __version__
+from .steady_pg import SteadyPgConnection
 
 
 class PooledPgError(Exception):

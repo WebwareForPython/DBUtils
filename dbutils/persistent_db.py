@@ -64,7 +64,7 @@ For instance, if you are using pgdb as your DB-API 2 database module and want
 every connection to your local database 'mydb' to be reused 1000 times:
 
     import pgdb  # import used DB-API 2 module
-    from DBUtils.PersistentDB import PersistentDB
+    from dbutils.persistent_db import PersistentDB
     persist = PersistentDB(pgdb, 1000, database='mydb')
 
 Once you have set up the generator with these parameters, you can
@@ -111,9 +111,8 @@ Licensed under the MIT license.
 
 """
 
-from DBUtils.SteadyDB import connect
-
-__version__ = '1.4'
+from . import __version__
+from .steady_db import connect
 
 try:
     # Prefer the pure Python version of threading.local.

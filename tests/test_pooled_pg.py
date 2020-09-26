@@ -13,23 +13,19 @@ Copyright and credit info:
 
 import unittest
 
-import DBUtils.Tests.mock_pg  # noqa
+from . import mock_pg  # noqa
 
-from DBUtils.PooledPg import PooledPg, InvalidConnection
-
-__version__ = '1.4'
+from dbutils.pooled_pg import PooledPg, InvalidConnection
 
 
 class TestPooledPg(unittest.TestCase):
 
-    def test0_CheckVersion(self):
-        from DBUtils import __version__ as DBUtilsVersion
-        self.assertEqual(DBUtilsVersion, __version__)
-        from DBUtils.PooledPg import __version__ as PooledPgVersion
-        self.assertEqual(PooledPgVersion, __version__)
+    def test_version(self):
+        from dbutils import __version__, pooled_pg
+        self.assertEqual(pooled_pg.__version__, __version__)
         self.assertEqual(PooledPg.version, __version__)
 
-    def test1_CreateConnection(self):
+    def test_create_connection(self):
         pool = PooledPg(
             1, 1, 0, False, None, None, False,
             'PooledPgTestDB', user='PooledPgTestUser')
@@ -43,7 +39,7 @@ class TestPooledPg(unittest.TestCase):
         self.assertFalse(pool._reset)
         db_con = pool._cache.get(0)
         pool._cache.put(db_con, 0)
-        from DBUtils.SteadyPg import SteadyPgConnection
+        from dbutils.steady_pg import SteadyPgConnection
         self.assertTrue(isinstance(db_con, SteadyPgConnection))
         db = pool.connection()
         self.assertEqual(pool._cache.qsize(), 0)
@@ -77,14 +73,14 @@ class TestPooledPg(unittest.TestCase):
         self.assertEqual(db._maxusage, 3)
         self.assertEqual(db._setsession_sql, ('set datestyle',))
 
-    def test2_CloseConnection(self):
+    def test_close_connection(self):
         pool = PooledPg(
             0, 1, 0, False, None, None, False,
             'PooledPgTestDB', user='PooledPgTestUser')
         db = pool.connection()
         self.assertTrue(hasattr(db, '_con'))
         db_con = db._con
-        from DBUtils.SteadyPg import SteadyPgConnection
+        from dbutils.steady_pg import SteadyPgConnection
         self.assertTrue(isinstance(db_con, SteadyPgConnection))
         self.assertTrue(hasattr(pool, '_cache'))
         self.assertEqual(pool._cache.qsize(), 0)
@@ -105,7 +101,7 @@ class TestPooledPg(unittest.TestCase):
         self.assertEqual(pool._cache.qsize(), 1)
         self.assertEqual(pool._cache.get(0), db_con)
 
-    def test3_MinMaxCached(self):
+    def test_min_max_cached(self):
         pool = PooledPg(3)
         self.assertTrue(hasattr(pool, '_cache'))
         self.assertEqual(pool._cache.qsize(), 3)
@@ -151,8 +147,8 @@ class TestPooledPg(unittest.TestCase):
             cache.pop().close()
         self.assertEqual(pool._cache.qsize(), 5)
 
-    def test4_MaxConnections(self):
-        from DBUtils.PooledPg import TooManyConnections
+    def test_max_connections(self):
+        from dbutils.pooled_pg import TooManyConnections
         pool = PooledPg(1, 2, 3)
         self.assertEqual(pool._cache.qsize(), 1)
         cache = [pool.connection() for i in range(3)]
@@ -205,7 +201,7 @@ class TestPooledPg(unittest.TestCase):
         self.assertEqual(session, ['thread'])
         del db
 
-    def test5_OneThreadTwoConnections(self):
+    def test_one_thread_two_connections(self):
         pool = PooledPg(2)
         db1 = pool.connection()
         for i in range(5):
@@ -228,7 +224,7 @@ class TestPooledPg(unittest.TestCase):
         db2.query('select test')
         self.assertEqual(db2.num_queries, 8)
 
-    def test6_ThreeThreadsTwoConnections(self):
+    def test_three_threads_two_connections(self):
         pool = PooledPg(2, 2, 2, True)
         try:
             from queue import Queue, Empty
@@ -268,7 +264,7 @@ class TestPooledPg(unittest.TestCase):
         self.assertNotEqual(db1._con, db2._con)
         self.assertEqual(db1._con, db1_con)
 
-    def test7_ResetTransaction(self):
+    def test_reset_transaction(self):
         pool = PooledPg(1)
         db = pool.connection()
         db.begin()

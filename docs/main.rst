@@ -2,7 +2,6 @@
 ++++++++++++++++++++
 
 :Version: 2.0
-:Released: 09/26/20
 :Translations: English | German_
 
 .. _German: main.de.html

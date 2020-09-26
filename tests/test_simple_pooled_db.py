@@ -14,49 +14,37 @@ Copyright and credit info:
 
 import unittest
 
-import DBUtils.Tests.mock_db as dbapi
+from . import mock_db as dbapi
 
-from DBUtils import SimplePooledDB
-
-__version__ = '1.4'
-
-
-def versionString(version):
-    """Create version string."""
-    ver = [str(v) for v in version]
-    numbers, rest = ver[:2 if ver[2] == '0' else 3], ver[3:]
-    return '.'.join(numbers) + '-'.join(rest)
+from dbutils import simple_pooled_db
 
 
 class TestSimplePooledDB(unittest.TestCase):
 
-    def my_dbpool(self, mythreadsafety, maxConnections):
+    def my_db_pool(self, mythreadsafety, maxConnections):
         threadsafety = dbapi.threadsafety
         dbapi.threadsafety = mythreadsafety
         try:
-            return SimplePooledDB.PooledDB(
+            return simple_pooled_db.PooledDB(
                 dbapi, maxConnections,
                 'SimplePooledDBTestDB', 'SimplePooledDBTestUser')
         finally:
             dbapi.threadsafety = threadsafety
 
-    def test0_check_version(self):
-        from DBUtils import __version__ as DBUtilsVersion
-        self.assertEqual(DBUtilsVersion, __version__)
-        from DBUtils.Properties import version
-        self.assertEqual(versionString(version), __version__)
-        self.assertEqual(SimplePooledDB.__version__, __version__)
-        self.assertEqual(SimplePooledDB.PooledDB.version, __version__)
+    def test_version(self):
+        from dbutils import __version__
+        self.assertEqual(simple_pooled_db.__version__, __version__)
+        self.assertEqual(simple_pooled_db.PooledDB.version, __version__)
 
-    def test1_no_threadsafety(self):
+    def test_no_threadsafety(self):
         for threadsafety in (None, -1, 0, 4):
             self.assertRaises(
-                SimplePooledDB.NotSupportedError,
-                self.my_dbpool, threadsafety, 1)
+                simple_pooled_db.NotSupportedError,
+                self.my_db_pool, threadsafety, 1)
 
-    def test2_create_connection(self):
+    def test_create_connection(self):
         for threadsafety in (1, 2, 3):
-            dbpool = self.my_dbpool(threadsafety, 1)
+            dbpool = self.my_db_pool(threadsafety, 1)
             db = dbpool.connection()
             self.assertTrue(hasattr(db, 'cursor'))
             self.assertTrue(hasattr(db, 'open_cursors'))
@@ -66,41 +54,44 @@ class TestSimplePooledDB(unittest.TestCase):
             self.assertTrue(hasattr(db, 'user'))
             self.assertEqual(db.user, 'SimplePooledDBTestUser')
             cursor = db.cursor()
+            self.assertIsNotNone(cursor)
             self.assertEqual(db.open_cursors, 1)
             del cursor
 
-    def test3_close_connection(self):
+    def test_close_connection(self):
         for threadsafety in (1, 2, 3):
-            dbpool = self.my_dbpool(threadsafety, 1)
-            db = dbpool.connection()
+            db_pool = self.my_db_pool(threadsafety, 1)
+            db = db_pool.connection()
             self.assertEqual(db.open_cursors, 0)
             cursor1 = db.cursor()
+            self.assertIsNotNone(cursor1)
             self.assertEqual(db.open_cursors, 1)
             db.close()
             self.assertFalse(hasattr(db, 'open_cursors'))
-            db = dbpool.connection()
+            db = db_pool.connection()
             self.assertTrue(hasattr(db, 'database'))
             self.assertEqual(db.database, 'SimplePooledDBTestDB')
             self.assertTrue(hasattr(db, 'user'))
             self.assertEqual(db.user, 'SimplePooledDBTestUser')
             self.assertEqual(db.open_cursors, 1)
             cursor2 = db.cursor()
+            self.assertIsNotNone(cursor2)
             self.assertEqual(db.open_cursors, 2)
             del cursor2
             del cursor1
 
-    def test4_two_connections(self):
+    def test_two_connections(self):
         for threadsafety in (1, 2, 3):
-            dbpool = self.my_dbpool(threadsafety, 2)
-            db1 = dbpool.connection()
+            db_pool = self.my_db_pool(threadsafety, 2)
+            db1 = db_pool.connection()
             cursors1 = [db1.cursor() for i in range(5)]
-            db2 = dbpool.connection()
+            db2 = db_pool.connection()
             self.assertNotEqual(db1, db2)
             cursors2 = [db2.cursor() for i in range(7)]
             self.assertEqual(db1.open_cursors, 5)
             self.assertEqual(db2.open_cursors, 7)
             db1.close()
-            db1 = dbpool.connection()
+            db1 = db_pool.connection()
             self.assertNotEqual(db1, db2)
             self.assertTrue(hasattr(db1, 'cursor'))
             for i in range(3):
@@ -111,8 +102,8 @@ class TestSimplePooledDB(unittest.TestCase):
             del cursors2
             del cursors1
 
-    def test5_threadsafety_1(self):
-        dbpool = self.my_dbpool(1, 2)
+    def test_threadsafety_1(self):
+        db_pool = self.my_db_pool(1, 2)
         try:
             from queue import Queue, Empty
         except ImportError:  # Python 2
@@ -120,7 +111,7 @@ class TestSimplePooledDB(unittest.TestCase):
         queue = Queue(3)
 
         def connection():
-            queue.put(dbpool.connection())
+            queue.put(db_pool.connection())
 
         from threading import Thread
         threads = [Thread(target=connection).start() for i in range(3)]
@@ -145,9 +136,9 @@ class TestSimplePooledDB(unittest.TestCase):
         self.assertNotEqual(db1, db3)
         self.assertNotEqual(db1._con, db3._con)
 
-    def test6_threadsafety_2(self):
+    def test_threadsafety_2(self):
         for threadsafety in (2, 3):
-            dbpool = self.my_dbpool(threadsafety, 2)
+            dbpool = self.my_db_pool(threadsafety, 2)
             db1 = dbpool.connection()
             db2 = dbpool.connection()
             cursors = [dbpool.connection().cursor() for i in range(100)]

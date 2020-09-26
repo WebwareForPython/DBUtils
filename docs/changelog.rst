@@ -18,6 +18,7 @@ Changes:
 * The top-level packages and folders have been renamed to lower-case.
   Particularly, you need to import ``dbutils`` instead of ``DBUtils`` now.
 * The Webware ``Examples`` folder has been removed.
+* The internal naming conventions have been changed to comply with PEP8.
 * This changelog file has been created from the former release notes.
 
 1.4
@@ -97,7 +98,7 @@ Improvements:
   connections are reset before being put back into the pool.
 
 Bugfixes:
---------
+---------
 
 * Fixed propagation of error messages when the connection was lost.
 * Fixed an issue with the ``setoutputsize()``  cursor method.

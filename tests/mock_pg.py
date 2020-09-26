@@ -22,10 +22,10 @@ class ProgrammingError(DatabaseError):
 
 
 def connect(*args, **kwargs):
-    return pgConnection(*args, **kwargs)
+    return PgConnection(*args, **kwargs)
 
 
-class pgConnection:
+class PgConnection:
     """The underlying pg API connection class."""
 
     def __init__(self, dbname=None, user=None):

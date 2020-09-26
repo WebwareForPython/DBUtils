@@ -13,28 +13,25 @@ Copyright and credit info:
 
 import unittest
 
-import DBUtils.Tests.mock_pg  # noqa
+from . import mock_pg  # noqa
 
-from DBUtils import SimplePooledPg
-
-__version__ = '1.4'
+from dbutils import simple_pooled_pg
 
 
 class TestSimplePooledPg(unittest.TestCase):
 
-    def my_dbpool(self, maxConnections):
-        return SimplePooledPg.PooledPg(
+    def my_db_pool(self, maxConnections):
+        return simple_pooled_pg.PooledPg(
             maxConnections, 'SimplePooledPgTestDB', 'SimplePooledPgTestUser')
 
-    def test0_check_version(self):
-        from DBUtils import __version__ as DBUtilsVersion
-        self.assertEqual(DBUtilsVersion, __version__)
-        self.assertEqual(SimplePooledPg.__version__, __version__)
-        self.assertEqual(SimplePooledPg.PooledPg.version, __version__)
+    def test_version(self):
+        from dbutils import __version__
+        self.assertEqual(simple_pooled_pg.__version__, __version__)
+        self.assertEqual(simple_pooled_pg.PooledPg.version, __version__)
 
-    def test1_create_connection(self):
-        dbpool = self.my_dbpool(1)
-        db = dbpool.connection()
+    def test_create_connection(self):
+        db_pool = self.my_db_pool(1)
+        db = db_pool.connection()
         self.assertTrue(hasattr(db, 'query'))
         self.assertTrue(hasattr(db, 'num_queries'))
         self.assertEqual(db.num_queries, 0)
@@ -45,15 +42,15 @@ class TestSimplePooledPg(unittest.TestCase):
         db.query('select 1')
         self.assertEqual(db.num_queries, 1)
 
-    def test2_close_connection(self):
-        dbpool = self.my_dbpool(1)
-        db = dbpool.connection()
+    def test_close_connection(self):
+        db_pool = self.my_db_pool(1)
+        db = db_pool.connection()
         self.assertEqual(db.num_queries, 0)
         db.query('select 1')
         self.assertEqual(db.num_queries, 1)
         db.close()
         self.assertFalse(hasattr(db, 'num_queries'))
-        db = dbpool.connection()
+        db = db_pool.connection()
         self.assertTrue(hasattr(db, 'dbname'))
         self.assertEqual(db.dbname, 'SimplePooledPgTestDB')
         self.assertTrue(hasattr(db, 'user'))
@@ -62,12 +59,12 @@ class TestSimplePooledPg(unittest.TestCase):
         db.query('select 1')
         self.assertEqual(db.num_queries, 2)
 
-    def test3_two_connections(self):
-        dbpool = self.my_dbpool(2)
-        db1 = dbpool.connection()
+    def test_two_connections(self):
+        db_pool = self.my_db_pool(2)
+        db1 = db_pool.connection()
         for i in range(5):
             db1.query('select 1')
-        db2 = dbpool.connection()
+        db2 = db_pool.connection()
         self.assertNotEqual(db1, db2)
         self.assertNotEqual(db1._con, db2._con)
         for i in range(7):
@@ -75,7 +72,7 @@ class TestSimplePooledPg(unittest.TestCase):
         self.assertEqual(db1.num_queries, 5)
         self.assertEqual(db2.num_queries, 7)
         db1.close()
-        db1 = dbpool.connection()
+        db1 = db_pool.connection()
         self.assertNotEqual(db1, db2)
         self.assertNotEqual(db1._con, db2._con)
         self.assertTrue(hasattr(db1, 'query'))
@@ -85,8 +82,8 @@ class TestSimplePooledPg(unittest.TestCase):
         db2.query('select 1')
         self.assertEqual(db2.num_queries, 8)
 
-    def test4_threads(self):
-        dbpool = self.my_dbpool(2)
+    def test_threads(self):
+        db_pool = self.my_db_pool(2)
         try:
             from queue import Queue, Empty
         except ImportError:  # Python 2
@@ -94,7 +91,7 @@ class TestSimplePooledPg(unittest.TestCase):
         queue = Queue(3)
 
         def connection():
-            queue.put(dbpool.connection())
+            queue.put(db_pool.connection())
 
         from threading import Thread
         threads = [Thread(target=connection).start() for i in range(3)]

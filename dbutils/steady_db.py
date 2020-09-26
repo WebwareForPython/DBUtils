@@ -58,7 +58,7 @@ too often, it will be transparently reset in most situations,
 without further notice.
 
     import pgdb  # import used DB-API 2 module
-    from DBUtils.SteadyDB import connect
+    from dbutils.steady_db import connect
     db = connect(pgdb, 10000, ["set datestyle to german"],
         host=..., database=..., user=..., ...)
     ...
@@ -92,7 +92,7 @@ Licensed under the MIT license.
 
 import sys
 
-__version__ = '1.4'
+from . import __version__
 
 try:
     baseint = (int, long)
