@@ -19,6 +19,7 @@ Changes:
   Particularly, you need to import ``dbutils`` instead of ``DBUtils`` now.
 * The Webware ``Examples`` folder has been removed.
 * The internal naming conventions have been changed to comply with PEP8.
+* The documentation has been adapted to reflect the changes in this version.
 * This changelog file has been created from the former release notes.
 
 1.4

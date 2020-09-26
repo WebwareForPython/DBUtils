@@ -14,10 +14,12 @@ Zusammenfassung
 
 DBUtils_ ist eine Sammlung von Python-Modulen, mit deren Hilfe man in Python_
 geschriebene Multithread-Anwendungen auf sichere und effiziente Weise an
-Datenbanken anbinden kann. DBUtils wurde mit Blick auf `Webware for Python`_
-als Anwendung und PyGreSQL_ als PostgreSQL_-Datenbankadapter entwickelt,
-kann aber für beliebige Python-Anwendungen und beliebige auf `DB-API 2`_
-beruhende Python-Datenbankadapter verwendet werden.
+Datenbanken anbinden kann.
+
+DBUtils wurde ursprünglich speziell für `Webware for Python`_ als Anwendung
+und PyGreSQL_ als PostgreSQL_-Datenbankadapter entwickelt,
+kann aber inzwischen für beliebige Python-Anwendungen und beliebige
+auf `DB-API 2`_ beruhende Python-Datenbankadapter verwendet werden.
 
 
 Module
@@ -25,41 +27,42 @@ Module
 
 DBUtils ist als Python-Package realisiert worden, das aus zwei verschiedenen
 Gruppen von Modulen besteht: Einer Gruppe zur Verwendung mit beliebigen
-DB-API-2-Datenbankadaptern, und einer Gruppe zur Verwendung mit dem klassischen PyGreSQL-Datenbankadapter-Modul.
+DB-API-2-Datenbankadaptern, und einer Gruppe zur Verwendung mit dem klassischen
+PyGreSQL-Datenbankadapter-Modul.
 
-+-------------------+----------------------------------------------+
-| Allgemeine Variante für beliebige DB-API-2-Adapter               |
-+===================+==============================================+
-| SteadyDB.py       | Gehärtete DB-API-2-Datenbankverbindungen     |
-+-------------------+----------------------------------------------+
-| PooledDB.py       | Pooling für DB-API-2-Datenbankverbindungen   |
-+-------------------+----------------------------------------------+
-| PersistentDB.py   | Persistente DB-API-2-Datenbankverbindungen   |
-+-------------------+----------------------------------------------+
-| SimplePooledDB.py | Einfaches Pooling für DB-API 2               |
-+-------------------+----------------------------------------------+
++------------------+----------------------------------------------+
+| Allgemeine Variante für beliebige DB-API-2-Adapter              |
++==================+==============================================+
+| steady_db        | Gehärtete DB-API-2-Datenbankverbindungen     |
++------------------+----------------------------------------------+
+| pooled_db        | Pooling für DB-API-2-Datenbankverbindungen   |
++------------------+----------------------------------------------+
+| persistent_db    | Persistente DB-API-2-Datenbankverbindungen   |
++------------------+----------------------------------------------+
+| simple_pooled_db | Einfaches Pooling für DB-API 2               |
++------------------+----------------------------------------------+
 
-+-------------------+----------------------------------------------+
-| Variante speziell für den klassischen PyGreSQL-Adapter           |
-+===================+==============================================+
-| SteadyPg.py       | Gehärtete klassische PyGreSQL-Verbindungen   |
-+-------------------+----------------------------------------------+
-| PooledPg.py       | Pooling für klassische PyGreSQL-Verbindungen |
-+-------------------+----------------------------------------------+
-| PersistentPg.py   | Persistente klassische PyGreSQL-Verbindungen |
-+-------------------+----------------------------------------------+
-| SimplePooledPg.py | Einfaches Pooling für klassisches PyGreSQL   |
-+-------------------+----------------------------------------------+
++------------------+----------------------------------------------+
+| Variante speziell für den klassischen PyGreSQL-Adapter          |
++==================+==============================================+
+| steady_pg        | Gehärtete klassische PyGreSQL-Verbindungen   |
++------------------+----------------------------------------------+
+| pooled_pg        | Pooling für klassische PyGreSQL-Verbindungen |
++------------------+----------------------------------------------+
+| persistent_pg    | Persistente klassische PyGreSQL-Verbindungen |
++------------------+----------------------------------------------+
+| simple_pooled_pg | Einfaches Pooling für klassisches PyGreSQL   |
++------------------+----------------------------------------------+
 
 Die Abhängigkeiten der Module in der Variante für beliebige DB-API-2-Adapter
 sind im folgenden Diagramm dargestellt:
 
-.. image:: dbdep.png
+.. image:: dependencies_db.png
 
 Die Abhängigkeiten der Module in der Variante für den klassischen
 PyGreSQL-Adapter sehen ähnlich aus:
 
-.. image:: pgdep.png
+.. image:: depdependencies_pg.png
 
 
 Download
@@ -78,39 +81,24 @@ Das Source-Code-Repository befindet sich hier auf GitHub::
 Installation
 ============
 
-Installation als eigenständiges Paket
--------------------------------------
-Wenn Sie DBUtils für andere Anwendungen als Webware for Python verwenden
-möchten, empfiehlt es sich, das Paket auf die übliche Weise zu installieren::
+Installation
+------------
+Das Paket kann auf die übliche Weise installiert werden::
 
   python setup.py install
 
-Sie können auch `pip`_ für Download und Installation verwenden::
+Noch einfacher ist, das Paket in einem Schritt mit `pip`_ automatisch
+herunterzuladen und zu installieren::
 
   pip install DBUtils
 
 .. _pip: https://pip.pypa.io/
 
-Installation als Unterpaket (Plug-In) von Webware for Python
-------------------------------------------------------------
-Wenn Sie DBUtils nur als Ergänzung für das Web-Framework Webware for Python
-verwenden wollen, sollten Sie DBUtils als Webware-Plug-In installieren::
-
-  python setup.py install --install-lib=/pfad/zu/Webware
-
-Ersetzen Sie ``/pfad/zu/Webware`` hierbei durch den Pfad zum Wurzelverzeichnis
-der Installation von Webware for Python. Sie müssen auch das Installationsskript
-von Webware for Python laufen lassen, wenn dies noch nicht geschehen ist, oder
-wenn Sie DBUtils in die Webware-Dokumentation integrieren wollen::
-
-  cd /pfad/zu/Webware
-  python install.py
-
 
 Anforderungen
 =============
 
-DBUtils unterstützt die Python_ Versionen 2.7 und 3.5 bis 3.8.
+DBUtils unterstützt die Python_ Versionen 2.7 und 3.5 bis 3.9.
 
 Die Module in der Variante für klassisches PyGreSQL benötigen PyGreSQL_
 Version 4.0 oder höher, während die Module in der allgemeinen Variante
@@ -124,26 +112,31 @@ Funktionalität
 Dieser Abschnitt verwendet nur die Bezeichnungen der DB-API-2-Variante, aber
 Entsprechendes gilt auch für die PyGreSQL-Variante.
 
+DBUtils installiert sich als Paket ``dbutils``, das alle hier beschriebenen
+Module enthält. Jedes dieser Modul enthält im Wesentlichen eine Klasse, die
+einen analogen Namen trägt und die jeweilige Funktionalität bereitstellt.
+So enthält z.B. das Modul ``dbutils.pooled_db`` die Klasse ``PooledDB``.
 
-SimplePooledDB
---------------
-``DBUtils.SimplePooledDB`` ist eine sehr elementare Referenz-Implementierung
-eines Pools von Datenbankverbindungen. Hiermit ist ein Vorratsspeicher an
-Datenbankverbindungen gemeint, aus dem sich die Python-Anwendung bedienen kann.
-Diese Implementierung ist weit weniger ausgefeilt als das eigentliche
-``PooledDB``-Modul und stellt insbesondere keine Ausfallsicherung zur Verfügung.
-``DBUtils.SimplePooledDB`` ist im Wesentlichen identisch mit dem zu Webware for
-Python gehörenden Modul ``MiscUtils.DBPool``. Es ist eher zur Verdeutlichung
-des Konzepts gedacht, als zum Einsatz im produktiven Betrieb.
+SimplePooledDB (simple_pooled_db)
+---------------------------------
+Die Klasse ``SimplePooledDB`` in ``dbutils.simple_pooled_db`` ist eine sehr
+elementare Referenz-Implementierung eines Pools von Datenbankverbindungen.
+Hiermit ist ein Vorratsspeicher an Datenbankverbindungen gemeint, aus dem sich
+die Python-Anwendung bedienen kann. Diese Implementierung ist weit weniger
+ausgefeilt als das eigentliche ``pooled_db``-Modul und stellt insbesondere
+keine Ausfallsicherung zur Verfügung. ``dbutils.simple_pooled_db`` ist im
+Wesentlichen identisch mit dem zu Webware for Python gehörenden Modul
+``MiscUtils.DBPool``. Es ist eher zur Verdeutlichung des Konzepts gedacht,
+als zum Einsatz im produktiven Betrieb.
 
-SteadyDB
---------
-``DBUtils.SteadyDB`` ist ein Modul, das "gehärtete" Datenbankverbindungen
-bereitstellt, denen gewöhnlichen Verbindungen eines DB-API-2-Datenbankadapters
-zugrunde liegen. Eine "gehärtete" Verbindung wird bei Zugriff automatisch,
-ohne dass die Anwendung dies bemerkt, wieder geöffnet, wenn sie geschlossen
-wurde, die Datenbankverbindung unterbrochen wurde, oder wenn sie öfter als
-ein optionales Limit genutzt wurde.
+SteadyDBConnection (steady_db)
+------------------------------
+Die Klasse ``SteadyDBConnection`` im Modul ``dbutils.steady_db`` stellt
+"gehärtete" Datenbankverbindungen bereit, denen gewöhnlichen Verbindungen
+eines DB-API-2-Datenbankadapters zugrunde liegen. Eine "gehärtete" Verbindung
+wird bei Zugriff automatisch, ohne dass die Anwendung dies bemerkt, wieder
+geöffnet, wenn sie geschlossen wurde, die Datenbankverbindung unterbrochen
+wurde, oder wenn sie öfter als ein optionales Limit genutzt wurde.
 
 Ein typisches Beispiel wo dies benötig wird, ist, wenn die Datenbank neu
 gestartet wurde, während Ihre Anwendung immer noch läuft und Verbindungen
@@ -151,22 +144,22 @@ zur Datenbank offen hat, oder wenn Ihre Anwendung auf eine entfernte Datenbank
 über ein Netzwerk zugreift, das durch eine Firewall geschützt ist, und die
 Firewall neu gestartet wurde und dabei ihren Verbindungsstatus verloren hat.
 
-Normalerweise benutzen Sie das ``SteadyDB``-Modul nicht direkt; es wird aber
-von den beiden nächsten Modulen benötigt, ``PersistentDB`` und ``PooledDB``.
+Normalerweise benutzen Sie das ``steady_db``-Modul nicht direkt; es wird aber
+von den beiden nächsten Modulen benötigt, ``persistent_db`` und ``pooled_db``.
 
-PersistentDB
-------------
-``DBUtils.PersistentDB`` stellt gehärtete,  thread-affine, persistente
-Datenbankverbindungen zur Verfügung, unter Benutzung eines beliebigen
-DB-API-2-Datenbankadapters. Mit "thread-affin" und "persistent" ist
-hierbei gemeint, dass die einzelnen Datenbankverbindungen den jeweiligen
-Threads fest zugeordnet bleiben und während der Laufzeit des Threads nicht
-geschlossen werden.
+PersistentDB (persistent_db)
+----------------------------
+Die Klasse ``PersistentDB`` im Modul ``dbutils.persistent_db`` stellt
+gehärtete,  thread-affine, persistente Datenbankverbindungen zur Verfügung,
+unter Benutzung eines beliebigen DB-API-2-Datenbankadapters. Mit "thread-affin"
+und "persistent" ist hierbei gemeint, dass die einzelnen Datenbankverbindungen
+den jeweiligen Threads fest zugeordnet bleiben und während der Laufzeit des
+Threads nicht geschlossen werden.
 
 Das folgende Diagramm zeigt die beteiligten Verbindungsschichten, wenn Sie
-``PersistentDB``-Datenbankverbindungen einsetzen:
+``persistent_db``-Datenbankverbindungen einsetzen:
 
-.. image:: persist.png
+.. image:: persistent.png
 
 Immer wenn ein Thread eine Datenbankverbindung zum ersten Mal öffnet, wird
 eine neue Datenbankverbindung geöffnet, die von da an immer wieder für genau
@@ -176,29 +169,29 @@ gleiche Thread wieder eine Datenbankverbindung anfordert, diese gleiche bereits
 geöffnete Datenbankverbindung wieder verwendet werden kann. Die Verbindung wird
 automatisch geschlossen, wenn der Thread beendet wird.
 
-Kurz gesagt versucht ``PersistentDB`` Datenbankverbindungen wiederzuverwerten,
+Kurz gesagt versucht ``persistent_db`` Datenbankverbindungen wiederzuverwerten,
 um die Gesamteffizienz der Datenbankzugriffe Ihrer Multithread-Anwendungen zu
 steigern, aber es wird dabei sichergestellt, dass verschiedene Threads niemals
 die gleiche Verbindung benutzen.
 
-Daher arbeitet ``PersistentDB`` sogar dann problemlos, wenn der zugrunde
+Daher arbeitet ``persistent_db`` sogar dann problemlos, wenn der zugrunde
 liegende DB-API-2-Datenbankadapter nicht thread-sicher auf der Verbindungsebene
 ist, oder wenn parallele Threads Parameter der Datenbank-Sitzung verändern
 oder Transaktionen mit mehreren SQL-Befehlen durchführen.
 
-PooledDB
---------
-``DBUtils.PooledDB`` stellt, unter Benutzung eines beliebigen
-DB-API-2-Datenbankadapters, einen Pool von gehärteten, thread-sicheren
-Datenbankverbindungen zur Verfügung, die automatisch, ohne dass die Anwendung
-dies bemerkt, wiederverwendet werden.
+PooledDB (pooled_db)
+--------------------
+Die Klasse ``PooledDB`` im Modul ``dbutils.pooled_db`` stellt, unter Benutzung
+eines beliebigen DB-API-2-Datenbankadapters, einen Pool von gehärteten,
+thread-sicheren Datenbankverbindungen zur Verfügung, die automatisch, ohne dass
+die Anwendung dies bemerkt, wiederverwendet werden.
 
 Das folgende Diagramm zeigt die beteiligten Verbindungsschichten, wenn Sie
-``PooledDB``-Datenbankverbindungen einsetzen:
+``pooled_db``-Datenbankverbindungen einsetzen:
 
-.. image:: pool.png
+.. image:: pooled.png
 
-Wie im Diagramm angedeutet, kann ``PooledDB`` geöffnete Datenbankverbindungen
+Wie im Diagramm angedeutet, kann ``pooled_db`` geöffnete Datenbankverbindungen
 den verschiedenen Threads beliebig zuteilen. Dies geschieht standardmäßig, wenn
 Sie den Verbindungspool mit einem positiven Wert für ``maxshared`` einrichten
 und der zugrunde liegende DB-API-2-Datenbankadapter auf der Verbindungsebene
@@ -215,24 +208,24 @@ Datenbankverbindungen zurückgegeben, damit sie wiederverwertet werden kann.
 
 Wenn der zugrunde liegende DB-API-Datenbankadapter nicht thread-sicher ist,
 werden Thread-Locks verwendet, um sicherzustellen, dass die
-``PooledDB``-Verbindungen dennoch thread-sicher sind. Sie brauchen sich also
+``pooled_db``-Verbindungen dennoch thread-sicher sind. Sie brauchen sich also
 hierum keine Sorgen zu machen, aber Sie sollten darauf achten, dedizierte
 Datenbankverbindungen zu verwenden, sobald Sie Parameter der Datenbanksitzung
 verändern oder Transaktionen mit mehreren SQL-Befehlen ausführen.
 
 Die Qual der Wahl
 -----------------
-Sowohl ``PersistentDB`` als auch ``PooledDB`` dienen dem gleichen Zweck,
+Sowohl ``persistent_db`` als auch ``pooled_db`` dienen dem gleichen Zweck,
 nämlich die Effizienz des Datenbankzugriffs durch Wiederverwendung von
 Datenbankverbindungen zu steigern, und dabei gleichzeitig die Stabilität
 zu gewährleisten, selbst wenn die Datenbankverbindung unterbrochen wird.
 
 Welches der beiden Module sollte also verwendet werden? Nach den obigen
-Erklärungen ist es klar, dass ``PersistentDB`` dann sinnvoller ist, wenn
+Erklärungen ist es klar, dass ``persistent_db`` dann sinnvoller ist, wenn
 Ihre Anwendung eine gleich bleibende Anzahl Threads verwendet, die häufig
 auf die Datenbank zugreifen. In diesem Fall werden Sie ungefähr die gleiche
 Anzahl geöffneter Datenbankverbindungen erhalten. Wenn jedoch Ihre Anwendung
-häufig Threads beendet und neu startet, dann ist ``PooledDB`` die bessere
+häufig Threads beendet und neu startet, dann ist ``pooled_db`` die bessere
 Lösung, die auch mehr Möglichkeiten zur Feineinstellung zur Verbesserung
 der Effizienz erlaubt, insbesondere bei Verwendung eines thread-sicheren
 DB-API-2-Datenbankadapters.
@@ -249,19 +242,19 @@ der Initialisierung auch einige Unterschiede, sowohl zwischen den "Pooled"-
 und den "Persistent"-Varianten, als auch zwischen den DB-API-2- und den
 PyGreSQL-Varianten.
 
-Wir werden hier nur auf das ``PersistentDB``-Modul und das etwas kompliziertere
-``PooledDB``-Modul eingehen. Einzelheiten zu den anderen Modulen finden Sie
+Wir werden hier nur auf das ``persistent_db``-Modul und das etwas kompliziertere
+``pooled_db``-Modul eingehen. Einzelheiten zu den anderen Modulen finden Sie
 in deren Docstrings. Unter Verwendung der Python-Interpreter-Konsole können Sie
-sich die Dokumentation des ``PooledDB``-Moduls wie folgt anzeigen lassen (dies
+sich die Dokumentation des ``pooled_db``-Moduls wie folgt anzeigen lassen (dies
 funktioniert entsprechend auch mit den anderen Modulen)::
 
-  help(PooledDB)
+  help(pooled_db)
 
-PersistentDB
-------------
-Wenn Sie das ``PersistentDB``-Modul einsetzen möchten, müssen Sie zuerst einen
+PersistentDB (persistent_db)
+----------------------------
+Wenn Sie das ``persistent_db``-Modul einsetzen möchten, müssen Sie zuerst einen
 Generator für die von Ihnen gewünschte Art von Datenbankverbindungen einrichten,
-indem Sie eine Instanz der Klasse ``PersistentDB`` erzeugen, wobei Sie folgende
+indem Sie eine Instanz der Klasse ``persistent_db`` erzeugen, wobei Sie folgende
 Parameter angeben müssen:
 
 * ``creator``: entweder eine Funktion, die neue DB-API-2-Verbindungen
@@ -304,7 +297,7 @@ möchten, dass jede Verbindung Ihrer lokalen Datenbank ``meinedb`` 1000 mal
 wiederverwendet werden soll, sieht die Initialisierung so aus::
 
   import pgdb  # importiere das verwendete DB-API-2-Modul
-  from DBUtils.PersistentDB import PersistentDB
+  from dbutils.persistent_db import PersistentDB
   persist = PersistentDB(pgdb, 1000, database='meinedb')
 
 Nachdem Sie den Generator mit diesen Parametern eingerichtet haben, können
@@ -314,7 +307,7 @@ Sie derartige Datenbankverbindungen von da an wie folgt anfordern::
 
 Sie können diese Verbindungen verwenden, als wären sie gewöhnliche
 DB-API-2-Datenbankverbindungen. Genauer genommen erhalten Sie die
-"gehärtete" ``SteadyDB``-Version der zugrunde liegenden DB-API-2-Verbindung.
+"gehärtete" ``steady_db``-Version der zugrunde liegenden DB-API-2-Verbindung.
 
 Wenn Sie eine solche persistente Verbindung mit ``db.close()`` schließen,
 wird dies stillschweigend ignoriert, denn sie würde beim nächsten Zugriff
@@ -335,11 +328,11 @@ einigen Umgebungen nicht funktionieren (es ist zum Beispiel bekannt, dass
 ``mod_wsgi`` hier Probleme bereitet, da es Daten, die mit ``threading.local``
 gespeichert wurden, zwischen Requests löscht).
 
-PooledDB
---------
-Wenn Sie das ``PooledDB``-Modul einsetzen möchten, müssen Sie zuerst einen
+PooledDB (pooled_db)
+--------------------
+Wenn Sie das ``pooled_db``-Modul einsetzen möchten, müssen Sie zuerst einen
 Pool für die von Ihnen gewünschte Art von Datenbankverbindungen einrichten,
-indem Sie eine Instanz der Klasse ``PooledDB`` erzeugen, wobei Sie folgende
+indem Sie eine Instanz der Klasse ``pooled_db`` erzeugen, wobei Sie folgende
 Parameter angeben müssen:
 
 * ``creator``: entweder eine Funktion, die neue DB-API-2-Verbindungen
@@ -406,7 +399,7 @@ und einen Pool von mindestens fünf Datenbankverbindungen zu Ihrer Datenbank
 ``meinedb`` verwenden möchten, dann sieht die Initialisierung so aus::
 
   import pgdb  # importiere das verwendete DB-API-2-Modul
-  from DBUtils.PooledDB import PooledDB
+  from dbutils.pooled_db import PooledDB
   pool = PooledDB(pgdb, 5, database='meinedb')
 
 Nachdem Sie den Pool für Datenbankverbindungen so eingerichtet haben, können
@@ -416,7 +409,7 @@ Sie Verbindungen daraus wie folgt anfordern::
 
 Sie können diese Verbindungen verwenden, als wären sie gewöhnliche
 DB-API-2-Datenbankverbindungen. Genauer genommen erhalten Sie die
-"gehärtete" ``SteadyDB``-Version der zugrunde liegenden DB-API-2-Verbindung.
+"gehärtete" ``steady_db``-Version der zugrunde liegenden DB-API-2-Verbindung.
 
 Bitte beachten Sie, dass die Verbindung von anderen Threads mitgenutzt werden
 kann, wenn Sie den Parameter ``maxshared`` auf einen Wert größer als Null
@@ -457,32 +450,6 @@ transparente Neueröffnen von Verbindungen bis zum Ende der Transaktion
 ausgesetzt wird, und dass die Verbindung zurückgerollt wird, bevor sie
 wieder an den Verbindungspool zurückgegeben wird.
 
-Benutzung in Webware for Python
--------------------------------
-Wenn Sie DBUtils verwenden, um von Servlets des Web-Frameworks `Webware
-for Python`_ auf eine Datenbank zuzugreifen, dann müssen Sie sicherstellen,
-dass die Generatoren zur Erzeugung von Datenbankverbindungen nur einmal
-eingerichtet werden, wenn die Anwendung startet, und nicht jedes Mal, wenn
-eine Servlet-Instanz erzeugt wird. Den hierfür nötigen Code können Sie
-bei der Basis-Servlet-Klasse einfügen, dort wo das Modul oder die Klasse
-initialisiert wird, oder Sie können die Funktion ``contextInitialize()``
-im ``__init__.py``-Skript Ihres Anwendungskontextes verwenden.
-
-Das zusammen mit DButils ausgelieferte Verzeichnis ``Examples`` enthält
-einen Beispielkontext für Webware for Python, der eine kleine Demo-Datenbank
-verwendet, um Teilnehmer an einer Seminarreihe zu verwalten (die Idee für
-dieses Beispiel wurde dem Artikel "`The Python DB-API`_" von Andrew Kuchling
-entnommen).
-
-Der Beispielkontext kann konfiguriert werden, indem entweder eine Konfig-Datei
-``Configs/Database.config`` angelegt wird, oder indem die Standard-Parameter
-direkt im Beispielservlet ``Examples/DBUtilsExample.py`` geändert werden.
-Auf diese Weise können Sie einen passenden Datenbanknutzer und sein Passwort
-festlegen, sowie den zugrunde liegenden Datenbankadapter auswählen (das
-klassische PyGreSQL-Modul oder irgendein DB-API-2-Modul). Wenn der Parameter
-``maxcached`` vorhanden ist, verwendet das Beispielservlet die
-``Pooled``-Variante, andernfalls die ``Persistent``-Variante.
-
 
 Anmerkungen
 ===========
@@ -495,7 +462,7 @@ ausgelagert, in der Code von DBUtils verwendet wird.
 Wenn Sie eine Lösung verwenden wie den Apache-Webserver mit mod_python_
 oder mod_wsgi_, dann sollten Sie bedenken, dass Ihr Python-Code normalerweise
 im Kontext der Kindprozesse des Webservers läuft. Wenn Sie also das
-``PooledDB``-Modul einsetzen, und mehrere dieser Kindprozesse laufen, dann
+``pooled_db``-Modul einsetzen, und mehrere dieser Kindprozesse laufen, dann
 werden Sie ebensoviele Pools mit Datenbankverbindungen erhalten. Wenn diese
 Prozesse viele Threads laufen lassen,  dann mag dies eine sinnvoller Ansatz
 sein, wenn aber diese Prozesse nicht mehr als einen Worker-Thread starten,
@@ -511,7 +478,7 @@ Einige Ideen für zukünftige Verbesserungen:
 
 * Alternativ zur Obergrenze in der Anzahl der Nutzung einer Datenbankverbindung
   könnte eine maximale Lebensdauer für die Verbindung implementiert werden.
-* Es könnten Module ``MonitorDB`` und ``MonitorPg`` hinzugefügt werden, die
+* Es könnten Module ``monitor_db`` und ``monitor_pg`` hinzugefügt werden, die
   in einem separaten Thread ständig den "idle pool" und eventuell auch den
   "shared pool" bzw. die persistenten Verbindungen überwachen. Wenn eine
   unterbrochene Datenbankverbindung entdeckt wird, wird diese automatisch durch
@@ -529,12 +496,12 @@ Einige Ideen für zukünftige Verbesserungen:
 
 Fehlermeldungen und Feedback
 ============================
-Bitte Senden Sie Fehlermeldungen, Patches und Feedback direkt an den
-Autor (unter Verwendung der unten angegebenen E-Mail-Adresse).
+Fehlermeldungen, Patches und Feedback können Sie als Issues_ oder
+`Pull Requests`_ auf der `GitHub-Projektseite`_ von DBUtils übermitteln.
 
-Probleme, die Webware betreffen, können auch in der `Webware for Python
-mailing list`_ diskutiert werden.
-
+.. _GitHub-Projektseite: https://github.com/WebwareForPython/DBUtils
+.. _Issues: https://github.com/WebwareForPython/DBUtils/issues
+.. _Pull Requests: https://github.com/WebwareForPython/DBUtils/pulls
 
 Links
 =====
@@ -554,24 +521,23 @@ Einige Links zu verwandter und alternativer Software:
 .. _DBUtils: https://github.com/WebwareForPython/DBUtils
 .. _Python: https://www.python.org
 .. _Webware for Python: https://webwareforpython.github.io/w4py/
-.. _Webware for Python mailing list: https://lists.sourceforge.net/lists/listinfo/webware-discuss
 .. _DB-API 2: https://www.python.org/dev/peps/pep-0249/
 .. _The Python DB-API: http://www.linuxjournal.com/article/2605
 .. _PostgresQL: https://www.postgresql.org/
-.. _PyGreSQL: http://www.pygresql.org/
-.. _SQLObject: http://www.sqlobject.org/
-.. _SQLAlchemy: http://www.sqlalchemy.org
-.. _Apache: http://httpd.apache.org/
+.. _PyGreSQL: https://www.pygresql.org/
+.. _SQLObject: http://sqlobject.org/
+.. _SQLAlchemy: https://www.sqlalchemy.org
+.. _Apache: https://httpd.apache.org/
 .. _mod_python: http://modpython.org/
 .. _mod_wsgi: https://github.com/GrahamDumpleton/mod_wsgi
-.. _pgpool: http://www.pgpool.net/
+.. _pgpool: https://www.pgpool.net/
 .. _pgbouncer: https://pgbouncer.github.io/
 
 
 Autoren
 =======
 
-:Autor: Christoph Zwerschke <cito@online.de>
+:Autor: `Christoph Zwerschke`_
 
 :Beiträge: DBUtils benutzt Code, Anmerkungen und Vorschläge von
   Ian Bicking, Chuck Esterbrook (Webware for Python), Dan Green (DBTools),
@@ -579,11 +545,12 @@ Autoren
   Warren Smith (DbConnectionPool), Ezio Vernacotola, Jehiah Czebotar,
   Matthew Harriger, Gregory Piñero und Josef van Eenbergen.
 
+.. _Christoph Zwerschke: https://github.com/Cito
 
 Copyright und Lizenz
 ====================
 
-Copyright © 2005-2018 Christoph Zwerschke.
+Copyright © 2005-2020 Christoph Zwerschke.
 Alle Rechte vorbehalten.
 
 DBUtils ist freie und quelloffene Software,
