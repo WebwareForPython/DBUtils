@@ -6,7 +6,7 @@
 
 /* First import default style for pages created with Docutils: */
 
-@import url(DocUtils.css);
+@import url(docutils.css);
 
 /* Customization for Webware goes here: */
 
