@@ -26,7 +26,7 @@ for rst_file in glob('*.rst'):
                 writer_name='html5', source=source, destination=destination,
                 enable_exit_status=True,
                 settings_overrides=dict(
-                    stylesheet_path='Doc.css',
+                    stylesheet_path='doc.css',
                     embed_stylesheet=False,
                     toc_backlinks=False,
                     language_code=lang,
