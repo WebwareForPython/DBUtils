@@ -73,7 +73,7 @@ Licensed under the MIT license.
 
 """
 
-__version__ = '1.3'
+__version__ = '1.4'
 
 
 class PooledDBError(Exception):

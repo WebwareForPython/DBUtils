@@ -72,7 +72,7 @@ Licensed under the MIT license.
 
 from pg import DB as PgConnection
 
-__version__ = '1.3'
+__version__ = '1.4'
 
 try:
     baseint = (int, long)

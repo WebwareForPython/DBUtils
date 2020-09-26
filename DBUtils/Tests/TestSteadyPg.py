@@ -19,7 +19,7 @@ import DBUtils.Tests.mock_pg as pg
 
 from DBUtils.SteadyPg import SteadyPgConnection
 
-__version__ = '1.3'
+__version__ = '1.4'
 
 
 class TestSteadyPg(unittest.TestCase):

@@ -18,7 +18,7 @@ import DBUtils.Tests.mock_db as dbapi
 
 from DBUtils import SimplePooledDB
 
-__version__ = '1.3'
+__version__ = '1.4'
 
 
 def versionString(version):

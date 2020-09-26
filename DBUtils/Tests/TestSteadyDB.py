@@ -17,7 +17,7 @@ import DBUtils.Tests.mock_db as dbapi
 from DBUtils.SteadyDB import (
     connect as SteadyDBconnect, SteadyDBConnection, SteadyDBCursor)
 
-__version__ = '1.3'
+__version__ = '1.4'
 
 
 class TestSteadyDB(unittest.TestCase):

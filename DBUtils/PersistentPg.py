@@ -104,7 +104,7 @@ Licensed under the MIT license.
 
 from DBUtils.SteadyPg import SteadyPgConnection
 
-__version__ = '1.3'
+__version__ = '1.4'
 
 try:
     # Prefer the pure Python version of threading.local.

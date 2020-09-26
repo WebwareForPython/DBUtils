@@ -5,7 +5,7 @@ __all__ = [
     'SimplePooledDB', 'SteadyDB', 'PooledDB', 'PersistentDB'
 ]
 
-__version__ = '1.3'
+__version__ = '1.4'
 
 
 def InstallInWebKit(appServer):

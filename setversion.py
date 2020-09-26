@@ -21,9 +21,9 @@ from glob import glob
 
 # Update this to change the current version and release date:
 # version = ('X', 'Y', 0)
-version = (1, 3, 0)
+version = (1, 4, 0)
 # releaseDate = '@@/@@/@@'
-releaseDate = '08/03/18'
+releaseDate = '09/26/20'
 
 # Verbose output (output unchanged files also):
 verbose = False

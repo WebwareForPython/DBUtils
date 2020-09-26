@@ -17,7 +17,7 @@ import DBUtils.Tests.mock_pg  # noqa
 
 from DBUtils.PooledPg import PooledPg, InvalidConnection
 
-__version__ = '1.3'
+__version__ = '1.4'
 
 
 class TestPooledPg(unittest.TestCase):

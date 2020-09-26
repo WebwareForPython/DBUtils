@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python3
 
 """Build HMTL from reST files."""
 
@@ -22,8 +22,8 @@ for rst_file in glob(join('DBUtils', 'Docs', '*.rst')):
     html_file = name + '.html'
     print(name, lang)
 
-    with open(rst_file) as source:
-        with open(html_file, 'w') as destination:
+    with open(rst_file, encoding='utf-8-sig') as source:
+        with open(html_file, 'w', encoding='utf-8') as destination:
             publish_file(writer_name='html5',
                 source=source, destination=destination,
                 settings_overrides = dict(
