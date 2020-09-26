@@ -2,8 +2,6 @@
 
 """Build HMTL from reST files."""
 
-from __future__ import print_function
-
 from glob import glob
 from os.path import splitext
 from docutils.core import publish_file
@@ -24,12 +22,14 @@ for rst_file in glob('*.rst'):
 
     with open(rst_file, encoding='utf-8-sig') as source:
         with open(html_file, 'w', encoding='utf-8') as destination:
-            publish_file(writer_name='html5',
-                         source=source, destination=destination,
-                         settings_overrides=dict(
-                            stylesheet_path='Doc.css',
-                            embed_stylesheet=False,
-                            toc_backlinks=False,
-                            language_code=lang))
+            output = publish_file(
+                writer_name='html5', source=source, destination=destination,
+                enable_exit_status=True,
+                settings_overrides=dict(
+                    stylesheet_path='Doc.css',
+                    embed_stylesheet=False,
+                    toc_backlinks=False,
+                    language_code=lang,
+                    exit_status_level=2))
 
 print("Done.")
