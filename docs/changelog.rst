@@ -1,8 +1,6 @@
 ﻿Changelog for DBUtils
 +++++++++++++++++++++
 
-.. contents:: Contents
-
 2.0
 ===
 
@@ -11,26 +9,24 @@ DBUtils 2.0 was released on September 26, 2020.
 It is intended to be used with Python versions 2.7 and 3.5 to 3.9.
 
 Changes:
---------
 
 * DBUtils does not act as a Webware plugin anymore, it is now just an ordinary
   Python package (of course it could be used as such also before).
-* The top-level packages and folders have been renamed to lower-case.
-  Particularly, you need to import ``dbutils`` instead of ``DBUtils`` now.
 * The Webware ``Examples`` folder has been removed.
-* The internal naming conventions have been changed to comply with PEP8.
+* Folders, packages and modules have been renamed to lower-case.
+  Particularly, you need to import ``dbutils`` instead of ``DBUtils`` now.
+* The internal naming conventions have also been changed to comply with PEP8.
 * The documentation has been adapted to reflect the changes in this version.
-* This changelog file has been created from the former release notes.
+* This changelog has been compiled from the former release notes.
 
 1.4
 ===
 
-DBUtils 1.4 was released on August 26, 2020.
+DBUtils 1.4 was released on September 26, 2020.
 
 It is intended to be used with Python versions 2.7 and 3.5 to 3.9.
 
 Improvements:
--------------
 
 * The ``SteadyDB`` and ``SteadyPg`` classes only reconnect after the
   ``maxusage`` limit has been reached when the connection is not currently
@@ -44,7 +40,6 @@ DBUtils 1.3 was released on March 3, 2018.
 It is intended to be used with Python versions 2.6, 2.7 and 3.4 to 3.7.
 
 Improvements:
--------------
 
 * This version now supports context handlers for connections and cursors.
 
@@ -63,13 +58,11 @@ DBUtils 1.1.1 was released on February 4, 2017.
 It is intended to be used with Python versions 2.3 to 2.7.
 
 Improvements:
--------------
 
 * Reopen ``SteadyDB`` connections when commit or rollback fails
   (suggested by Ben Hoyt).
 
 Bugfixes:
----------
 
 * Fixed a problem when running under Jython (reported by Vitaly Kruglikov).
 
@@ -79,7 +72,6 @@ Bugfixes:
 DBUtils 1.1 was released on August 14, 2011.
 
 Improvements:
--------------
 
 * The transparent reopening of connections is actually an undesired behavior
   if it happens during database transactions. In these cases, the transaction
@@ -99,7 +91,6 @@ Improvements:
   connections are reset before being put back into the pool.
 
 Bugfixes:
----------
 
 * Fixed propagation of error messages when the connection was lost.
 * Fixed an issue with the ``setoutputsize()``  cursor method.
@@ -114,7 +105,6 @@ DBUtils 1.0 was released on November 29, 2008.
 It is intended to be used with Python versions 2.2 to 2.6.
 
 Changes:
---------
 
 * Added a ``failures`` parameter for configuring the exception classes for
   which the failover mechanisms is applied (as suggested by Matthew Harriger).
@@ -133,8 +123,7 @@ Changes:
   A new parameter ``threadlocal`` allows you to pass an arbitrary class
   such as ``threading.local`` if you know it works in your environment.
 
-Bugfixes and Improvements:
---------------------------
+Bugfixes and improvements:
 
 * In some cases, when instance initialization failed or referenced objects
   were already destroyed, finalizers could throw exceptions or create infinite
@@ -161,7 +150,6 @@ for database connections instead of DB-API 2 modules.
 DBUtils 0.9.3 was released on May 21, 2007.
 
 Changes:
---------
 
 * Support custom creator functions for database connections.
   These can now be used as the first parameter instead of an DB-API module
@@ -182,7 +170,6 @@ DBUtils 0.9.2 was released on September 22, 2006.
 It is intended to be used with Python versions 2.2 to 2.5.
 
 Changes:
---------
 
 * Renamed ``SolidDB`` to ``SteadyDB`` to avoid confusion with the "solidDB"
   storage engine. Accordingly, renamed ``SolidPg`` to ``SteadyPg``.
@@ -195,7 +182,7 @@ DBUtils 0.9.1 was released on May 8, 2006.
 It is intended to be used with Python versions 2.2 to 2.4.
 
 Changes:
---------
+
 * Added ``_closeable`` attribute and made persistent connections not closeable
   by default. This allows ``PersistentDB``  to be used in the same way as you
   would use ``PooledDB``.

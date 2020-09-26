@@ -1,7 +1,10 @@
 """Setup Script for DBUtils"""
 
 import warnings
-from distutils.core import setup
+try:
+    from setuptools import setup
+except ImportError:
+    from distutils.core import setup
 from sys import version_info
 
 py_version = version_info[:2]
@@ -41,8 +44,13 @@ setup(
     author='Christoph Zwerschke',
     author_email='cito@online.de',
     url='https://webwareforpython.github.io/DBUtils/',
+    download_url="https://pypi.org/project/DBUtils/",
+    project_urls={
+        "Documentation": "https://webwareforpython.github.io/DBUtils/main.html",
+        "Changelog": "https://webwareforpython.github.io/DBUtils/changelog.html",
+        "Issue Tracker": "https://github.com/WebwareForPython/DBUtils/issues",
+        "Source Code": "https://github.com/WebwareForPython/DBUtils"},
     platforms=['any'],
     license='MIT License',
-    packages=['dbutils'],
-    zip_safe=False,
+    packages=['dbutils']
 )

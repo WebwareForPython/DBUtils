@@ -10,132 +10,65 @@
 <div class="document" id="changelog-for-dbutils">
 <h1 class="title">Changelog for DBUtils</h1>
 
-<div class="contents topic" id="contents">
-<p class="topic-title">Contents</p>
-<ul class="simple">
-<li><p><a class="reference internal" href="#id1" id="id21">2.0</a></p>
-<ul>
-<li><p><a class="reference internal" href="#changes" id="id22">Changes:</a></p></li>
-</ul>
-</li>
-<li><p><a class="reference internal" href="#id2" id="id23">1.4</a></p>
-<ul>
-<li><p><a class="reference internal" href="#improvements" id="id24">Improvements:</a></p></li>
-</ul>
-</li>
-<li><p><a class="reference internal" href="#id3" id="id25">1.3</a></p>
-<ul>
-<li><p><a class="reference internal" href="#id4" id="id26">Improvements:</a></p></li>
-</ul>
-</li>
-<li><p><a class="reference internal" href="#id5" id="id27">1.2</a></p></li>
-<li><p><a class="reference internal" href="#id6" id="id28">1.1.1</a></p>
-<ul>
-<li><p><a class="reference internal" href="#id7" id="id29">Improvements:</a></p></li>
-<li><p><a class="reference internal" href="#bugfixes" id="id30">Bugfixes:</a></p></li>
-</ul>
-</li>
-<li><p><a class="reference internal" href="#id8" id="id31">1.1</a></p>
-<ul>
-<li><p><a class="reference internal" href="#id9" id="id32">Improvements:</a></p></li>
-<li><p><a class="reference internal" href="#id10" id="id33">Bugfixes:</a></p></li>
-</ul>
-</li>
-<li><p><a class="reference internal" href="#id11" id="id34">1.0</a></p>
-<ul>
-<li><p><a class="reference internal" href="#id12" id="id35">Changes:</a></p></li>
-<li><p><a class="reference internal" href="#bugfixes-and-improvements" id="id36">Bugfixes and Improvements:</a></p></li>
-</ul>
-</li>
-<li><p><a class="reference internal" href="#id13" id="id37">0.9.4</a></p></li>
-<li><p><a class="reference internal" href="#id14" id="id38">0.9.3</a></p>
-<ul>
-<li><p><a class="reference internal" href="#id15" id="id39">Changes:</a></p></li>
-</ul>
-</li>
-<li><p><a class="reference internal" href="#id16" id="id40">0.9.2</a></p>
-<ul>
-<li><p><a class="reference internal" href="#id17" id="id41">Changes:</a></p></li>
-</ul>
-</li>
-<li><p><a class="reference internal" href="#id18" id="id42">0.9.1</a></p>
-<ul>
-<li><p><a class="reference internal" href="#id19" id="id43">Changes:</a></p></li>
-</ul>
-</li>
-<li><p><a class="reference internal" href="#id20" id="id44">0.8.1 - 2005-09-13</a></p></li>
-</ul>
-</div>
 <div class="section" id="id1">
 <h1>2.0</h1>
 <p>DBUtils 2.0 was released on September 26, 2020.</p>
 <p>It is intended to be used with Python versions 2.7 and 3.5 to 3.9.</p>
-<div class="section" id="changes">
-<h2>Changes:</h2>
+<p>Changes:</p>
 <ul class="simple">
 <li><p>DBUtils does not act as a Webware plugin anymore, it is now just an ordinary
 Python package (of course it could be used as such also before).</p></li>
-<li><p>The top-level packages and folders have been renamed to lower-case.
-Particularly, you need to import <span class="docutils literal">dbutils</span> instead of <span class="docutils literal">DBUtils</span> now.</p></li>
 <li><p>The Webware <span class="docutils literal">Examples</span> folder has been removed.</p></li>
-<li><p>The internal naming conventions have been changed to comply with PEP8.</p></li>
+<li><p>Folders, packages and modules have been renamed to lower-case.
+Particularly, you need to import <span class="docutils literal">dbutils</span> instead of <span class="docutils literal">DBUtils</span> now.</p></li>
+<li><p>The internal naming conventions have also been changed to comply with PEP8.</p></li>
 <li><p>The documentation has been adapted to reflect the changes in this version.</p></li>
-<li><p>This changelog file has been created from the former release notes.</p></li>
+<li><p>This changelog has been compiled from the former release notes.</p></li>
 </ul>
-</div>
 </div>
 <div class="section" id="id2">
 <h1>1.4</h1>
-<p>DBUtils 1.4 was released on August 26, 2020.</p>
+<p>DBUtils 1.4 was released on September 26, 2020.</p>
 <p>It is intended to be used with Python versions 2.7 and 3.5 to 3.9.</p>
-<div class="section" id="improvements">
-<h2>Improvements:</h2>
+<p>Improvements:</p>
 <ul class="simple">
 <li><p>The <span class="docutils literal">SteadyDB</span> and <span class="docutils literal">SteadyPg</span> classes only reconnect after the
 <span class="docutils literal">maxusage</span> limit has been reached when the connection is not currently
 inside a transaction.</p></li>
 </ul>
 </div>
-</div>
 <div class="section" id="id3">
 <h1>1.3</h1>
 <p>DBUtils 1.3 was released on March 3, 2018.</p>
 <p>It is intended to be used with Python versions 2.6, 2.7 and 3.4 to 3.7.</p>
-<div class="section" id="id4">
-<h2>Improvements:</h2>
+<p>Improvements:</p>
 <ul class="simple">
 <li><p>This version now supports context handlers for connections and cursors.</p></li>
 </ul>
 </div>
-</div>
-<div class="section" id="id5">
+<div class="section" id="id4">
 <h1>1.2</h1>
 <p>DBUtils 1.2 was released on February 5, 2017.</p>
 <p>It is intended to be used with Python versions 2.6, 2.7 and 3.0 to 3.6.</p>
 </div>
-<div class="section" id="id6">
+<div class="section" id="id5">
 <h1>1.1.1</h1>
 <p>DBUtils 1.1.1 was released on February 4, 2017.</p>
 <p>It is intended to be used with Python versions 2.3 to 2.7.</p>
-<div class="section" id="id7">
-<h2>Improvements:</h2>
+<p>Improvements:</p>
 <ul class="simple">
 <li><p>Reopen <span class="docutils literal">SteadyDB</span> connections when commit or rollback fails
 (suggested by Ben Hoyt).</p></li>
 </ul>
-</div>
-<div class="section" id="bugfixes">
-<h2>Bugfixes:</h2>
+<p>Bugfixes:</p>
 <ul class="simple">
 <li><p>Fixed a problem when running under Jython (reported by Vitaly Kruglikov).</p></li>
 </ul>
 </div>
-</div>
-<div class="section" id="id8">
+<div class="section" id="id6">
 <h1>1.1</h1>
 <p>DBUtils 1.1 was released on August 14, 2011.</p>
-<div class="section" id="id9">
-<h2>Improvements:</h2>
+<p>Improvements:</p>
 <ul class="simple">
 <li><p>The transparent reopening of connections is actually an undesired behavior
 if it happens during database transactions. In these cases, the transaction
@@ -154,22 +87,18 @@ are executed via the new <span class="docutils literal">ping</span> parameter.</
 <li><p><span class="docutils literal">PooledDB</span> has got another new parameter <span class="docutils literal">reset</span> for controlling how
 connections are reset before being put back into the pool.</p></li>
 </ul>
-</div>
-<div class="section" id="id10">
-<h2>Bugfixes:</h2>
+<p>Bugfixes:</p>
 <ul class="simple">
 <li><p>Fixed propagation of error messages when the connection was lost.</p></li>
 <li><p>Fixed an issue with the <span class="docutils literal">setoutputsize()</span>  cursor method.</p></li>
 <li><p>Fixed some minor issues with the <span class="docutils literal">DBUtilsExample</span> for Webware.</p></li>
 </ul>
 </div>
-</div>
-<div class="section" id="id11">
+<div class="section" id="id7">
 <h1>1.0</h1>
 <p>DBUtils 1.0 was released on November 29, 2008.</p>
 <p>It is intended to be used with Python versions 2.2 to 2.6.</p>
-<div class="section" id="id12">
-<h2>Changes:</h2>
+<p>Changes:</p>
 <ul class="simple">
 <li><p>Added a <span class="docutils literal">failures</span> parameter for configuring the exception classes for
 which the failover mechanisms is applied (as suggested by Matthew Harriger).</p></li>
@@ -188,9 +117,7 @@ even when a faster <span class="docutils literal">threading.local</span> impleme
 A new parameter <span class="docutils literal">threadlocal</span> allows you to pass an arbitrary class
 such as <span class="docutils literal">threading.local</span> if you know it works in your environment.</p></li>
 </ul>
-</div>
-<div class="section" id="bugfixes-and-improvements">
-<h2>Bugfixes and Improvements:</h2>
+<p>Bugfixes and improvements:</p>
 <ul class="simple">
 <li><p>In some cases, when instance initialization failed or referenced objects
 were already destroyed, finalizers could throw exceptions or create infinite
@@ -200,8 +127,7 @@ connection creator function is specified. This had not worked before with
 the MySQLdb module (problem reported by Gregory Pinero).</p></li>
 </ul>
 </div>
-</div>
-<div class="section" id="id13">
+<div class="section" id="id8">
 <h1>0.9.4</h1>
 <p>DBUtils 0.9.4 was released on July 7, 2007.</p>
 <p>This release fixes a problem in the destructor code and has been supplemented
@@ -210,11 +136,10 @@ with a German User's Guide.</p>
 in the last release, since you can now pass custom creator functions
 for database connections instead of DB-API 2 modules.</p>
 </div>
-<div class="section" id="id14">
+<div class="section" id="id9">
 <h1>0.9.3</h1>
 <p>DBUtils 0.9.3 was released on May 21, 2007.</p>
-<div class="section" id="id15">
-<h2>Changes:</h2>
+<p>Changes:</p>
 <ul class="simple">
 <li><p>Support custom creator functions for database connections.
 These can now be used as the first parameter instead of an DB-API module
@@ -226,25 +151,21 @@ These can now be used as the first parameter instead of an DB-API module
 Added Chinese translation of the User's Guide, kindly contributed by gashero.</p></li>
 </ul>
 </div>
-</div>
-<div class="section" id="id16">
+<div class="section" id="id10">
 <h1>0.9.2</h1>
 <p>DBUtils 0.9.2 was released on September 22, 2006.</p>
 <p>It is intended to be used with Python versions 2.2 to 2.5.</p>
-<div class="section" id="id17">
-<h2>Changes:</h2>
+<p>Changes:</p>
 <ul class="simple">
 <li><p>Renamed <span class="docutils literal">SolidDB</span> to <span class="docutils literal">SteadyDB</span> to avoid confusion with the &quot;solidDB&quot;
 storage engine. Accordingly, renamed <span class="docutils literal">SolidPg</span> to <span class="docutils literal">SteadyPg</span>.</p></li>
 </ul>
 </div>
-</div>
-<div class="section" id="id18">
+<div class="section" id="id11">
 <h1>0.9.1</h1>
 <p>DBUtils 0.9.1 was released on May 8, 2006.</p>
 <p>It is intended to be used with Python versions 2.2 to 2.4.</p>
-<div class="section" id="id19">
-<h2>Changes:</h2>
+<p>Changes:</p>
 <ul class="simple">
 <li><p>Added <span class="docutils literal">_closeable</span> attribute and made persistent connections not closeable
 by default. This allows <span class="docutils literal">PersistentDB</span>  to be used in the same way as you
@@ -254,8 +175,7 @@ to specify cursor classes. (Suggested by Michael Palmer.)</p></li>
 <li><p>Improved the documentation and added a User's Guide.</p></li>
 </ul>
 </div>
-</div>
-<div class="section" id="id20">
+<div class="section" id="id12">
 <h1>0.8.1 - 2005-09-13</h1>
 <p>DBUtils 0.8.1 was released on September 13, 2005.</p>
 <p>It is intended to be used with Python versions 2.0 to 2.4.</p>
