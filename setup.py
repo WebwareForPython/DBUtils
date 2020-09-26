@@ -46,10 +46,14 @@ setup(
     url='https://webwareforpython.github.io/DBUtils/',
     download_url="https://pypi.org/project/DBUtils/",
     project_urls={
-        "Documentation": "https://webwareforpython.github.io/DBUtils/main.html",
-        "Changelog": "https://webwareforpython.github.io/DBUtils/changelog.html",
-        "Issue Tracker": "https://github.com/WebwareForPython/DBUtils/issues",
-        "Source Code": "https://github.com/WebwareForPython/DBUtils"},
+        'Documentation':
+            'https://webwareforpython.github.io/DBUtils/main.html',
+        'Changelog':
+            'https://webwareforpython.github.io/DBUtils/changelog.html',
+        'Issue Tracker':
+            'https://github.com/WebwareForPython/DBUtils/issues',
+        'Source Code':
+            'https://github.com/WebwareForPython/DBUtils'},
     platforms=['any'],
     license='MIT License',
     packages=['dbutils']
