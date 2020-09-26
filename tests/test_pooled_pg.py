@@ -8,7 +8,6 @@ We also assume that the underlying SteadyPg connections are tested.
 Copyright and credit info:
 
 * This test was contributed by Christoph Zwerschke
-
 """
 
 import unittest

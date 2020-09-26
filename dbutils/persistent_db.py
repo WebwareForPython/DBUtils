@@ -108,7 +108,6 @@ Copyright, credits and license:
   by Geoffrey Talvola in July 2005
 
 Licensed under the MIT license.
-
 """
 
 from . import __version__
@@ -137,7 +136,6 @@ class PersistentDB:
 
     After you have created the connection pool, you can use
     connection() to get thread-affine, steady DB-API 2 connections.
-
     """
 
     version = __version__
@@ -169,7 +167,6 @@ class PersistentDB:
             (threading.local is faster, but cannot be used in all cases)
         args, kwargs: the parameters that shall be passed to the creator
             function or the connection constructor of the DB-API 2 module
-
         """
         try:
             threadsafety = creator.threadsafety
@@ -205,7 +202,6 @@ class PersistentDB:
         The shareable parameter exists only for compatibility with the
         PooledDB connection method.  In reality, persistent connections
         are of course never shared with other threads.
-
         """
         try:
             con = self.thread.connection

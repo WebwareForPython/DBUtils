@@ -9,7 +9,6 @@ mock the basic connection functionality of an arbitrary module.
 Copyright and credit info:
 
 * This test was contributed by Christoph Zwerschke
-
 """
 
 import unittest

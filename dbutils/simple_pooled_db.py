@@ -70,7 +70,6 @@ Copyright, credits and license:
   by Christoph Zwerschke in September 2005
 
 Licensed under the MIT license.
-
 """
 
 from . import __version__
@@ -89,7 +88,6 @@ class PooledDBConnection:
 
     You don't normally deal with this class directly,
     but use PooledDB to get new connections.
-
     """
 
     def __init__(self, pool, con):
@@ -117,7 +115,6 @@ class PooledDB:
 
     After you have created the connection pool,
     you can get connections using getConnection().
-
     """
 
     version = __version__
@@ -129,7 +126,6 @@ class PooledDB:
         maxconnections: the number of connections cached in the pool
         args, kwargs: the parameters that shall be used to establish
             the database connections using connect()
-
         """
         try:
             threadsafety = dbapi.threadsafety
@@ -190,7 +186,6 @@ class PooledDB:
         back into the queue after they have been used.
         This is done automatically when the connection is closed
         and should never be called explicitly outside of this module.
-
         """
         self._unthreadsafe_add_connection(con)
 
@@ -222,6 +217,5 @@ class PooledDB:
 
         In this case, the connections always stay in the pool,
         so there is no need to do anything here.
-
         """
         pass

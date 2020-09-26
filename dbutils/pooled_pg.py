@@ -105,7 +105,6 @@ Copyright, credits and license:
   by Dan Green in December 2000
 
 Licensed under the MIT license.
-
 """
 
 try:
@@ -134,7 +133,6 @@ class PooledPg:
 
     After you have created the connection pool, you can use
     connection() to get pooled, steady PostgreSQL connections.
-
     """
 
     version = __version__
@@ -166,7 +164,6 @@ class PooledPg:
             1 to always issue a rollback, 2 for a complete reset)
         args, kwargs: the parameters that shall be used to establish
             the PostgreSQL connections using class PyGreSQL pg.DB()
-
         """
         self._args, self._kwargs = args, kwargs
         self._maxusage = maxusage
@@ -261,7 +258,6 @@ class PooledPgConnection:
 
         pool: the corresponding PooledPg instance
         con: the underlying SteadyPg connection
-
         """
         self._pool = pool
         self._con = con

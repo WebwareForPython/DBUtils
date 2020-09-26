@@ -99,7 +99,6 @@ Copyright, credits and license:
   by Geoffrey Talvola in July 2005
 
 Licensed under the MIT license.
-
 """
 
 from . import __version__
@@ -120,7 +119,6 @@ class PersistentPg:
 
     After you have created the connection pool, you can use
     connection() to get thread-affine, steady PostgreSQL connections.
-
     """
 
     version = __version__
@@ -143,7 +141,6 @@ class PersistentPg:
             (threading.local is faster, but cannot be used in all cases)
         args, kwargs: the parameters that shall be used to establish
             the PostgreSQL connections using class PyGreSQL pg.DB()
-
         """
         self._maxusage = maxusage
         self._setsession = setsession

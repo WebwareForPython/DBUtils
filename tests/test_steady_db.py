@@ -7,7 +7,6 @@ mock the basic DB-API 2 connection functionality.
 Copyright and credit info:
 
 * This test was contributed by Christoph Zwerschke
-
 """
 
 import unittest

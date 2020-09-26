@@ -87,7 +87,6 @@ Copyright, credits and license:
   suggested by Ezio Vernacotola in December 2006
 
 Licensed under the MIT license.
-
 """
 
 import sys
@@ -132,7 +131,6 @@ def connect(
         be silently ignored, but by default the connection can be closed
     args, kwargs: the parameters that shall be passed to the creator
         function or the connection constructor of the DB-API 2 module
-
     """
     return SteadyDBConnection(
         creator, maxusage, setsession,
@@ -199,7 +197,6 @@ class SteadyDBConnection:
         """Exit the runtime context for the connection object.
 
         This does not close the connection, but it ends a transaction.
-
         """
         if exc[0] is None and exc[1] is None and exc[2] is None:
             self.commit()
@@ -317,7 +314,6 @@ class SteadyDBConnection:
 
         You can always close a tough connection with this method
         and it will not complain if you close it more than once.
-
         """
         if not self._closed:
             try:
@@ -331,7 +327,6 @@ class SteadyDBConnection:
         """Reset a tough connection.
 
         Rollback if forced or the connection was in a transaction.
-
         """
         if not self._closed and (force or self._transaction):
             try:
@@ -345,7 +340,6 @@ class SteadyDBConnection:
         If the the underlying connection is not active and the ping
         parameter is set accordingly, the connection will be recreated
         unless the connection is currently inside a transaction.
-
         """
         if ping & self._ping:
             try:  # if possible, ping the connection
@@ -402,7 +396,6 @@ class SteadyDBConnection:
         You can disallow closing connections by setting
         the closeable parameter to something false.  In this case,
         closing tough connections will be silently ignored.
-
         """
         if self._closeable:
             self._close()
@@ -417,7 +410,6 @@ class SteadyDBConnection:
 
         If the underlying driver supports this method, it will be called
         with the given parameters (e.g. for distributed transactions).
-
         """
         self._transaction = True
         try:
@@ -461,7 +453,6 @@ class SteadyDBConnection:
         """Cancel a long-running transaction.
 
         If the underlying driver supports this method, it will be called.
-
         """
         self._transaction = False
         try:
@@ -580,7 +571,6 @@ class SteadyDBCursor:
         """Close the tough cursor.
 
         It will not complain if you close it more than once.
-
         """
         if not self._closed:
             try:

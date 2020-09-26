@@ -9,7 +9,6 @@ connections correctly and set the status flag accordingly.
 Copyright and credit info:
 
 * This test was contributed by Christoph Zwerschke
-
 """
 
 import unittest

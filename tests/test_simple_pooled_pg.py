@@ -8,7 +8,6 @@ whether SimplePooledPg actually will help in improving performance or not.
 Copyright and credit info:
 
 * This test was contributed by Christoph Zwerschke
-
 """
 
 import unittest

@@ -67,7 +67,6 @@ Copyright, credits and license:
   by Christoph Zwerschke in September 2005
 
 Licensed under the MIT license.
-
 """
 
 from pg import DB as PgConnection
@@ -98,7 +97,6 @@ class SteadyPgConnection:
     If you want the connection to be persistent in a threaded environment,
     then you should not deal with this class directly, but use either the
     PooledPg module or the PersistentPg module to get the connections.
-
     """
 
     version = __version__
@@ -117,7 +115,6 @@ class SteadyPgConnection:
             be silently ignored, but by default the connection can be closed
         args, kwargs: the parameters that shall be used to establish
             the PostgreSQL connections with PyGreSQL using pg.DB()
-
         """
         # basic initialization to make finalizer work
         self._con = None
@@ -159,7 +156,6 @@ class SteadyPgConnection:
 
         You can always close a tough connection with this method
         and it will not complain if you close it more than once.
-
         """
         if not self._closed:
             try:
@@ -178,7 +174,6 @@ class SteadyPgConnection:
         You can disallow closing connections by setting
         the closeable parameter to something false.  In this case,
         closing tough connections will be silently ignored.
-
         """
         if self._closeable:
             self._close()
@@ -189,7 +184,6 @@ class SteadyPgConnection:
         """Reopen the tough connection.
 
         It will not complain if the connection cannot be reopened.
-
         """
         try:
             self._con.reopen()
@@ -211,7 +205,6 @@ class SteadyPgConnection:
 
         If a reset is not possible, tries to reopen the connection.
         It will not complain if the connection is already closed.
-
         """
         try:
             self._con.reset()
@@ -286,7 +279,6 @@ class SteadyPgConnection:
         The tough version checks whether the connection is bad (lost)
         and automatically and transparently tries to reset the connection
         if this is the case (for instance, the database has been restarted).
-
         """
         def tough_method(*args, **kwargs):
             transaction = self._transaction
@@ -318,7 +310,6 @@ class SteadyPgConnection:
         """Inherit the members of the standard connection class.
 
         Some methods are made "tougher" than in the standard version.
-
         """
         if self._con:
             attr = getattr(self._con, name)

@@ -65,7 +65,6 @@ Copyright, credits and license:
   by Dan Green in December 2000
 
 Licensed under the MIT license.
-
 """
 
 from pg import DB as PgConnection
@@ -78,7 +77,6 @@ class PooledPgConnection:
 
     You don't normally deal with this class directly,
     but use PooledPg to get new connections.
-
     """
 
     def __init__(self, pool, con):
@@ -106,7 +104,6 @@ class PooledPg:
 
     After you have created the connection pool,
     you can get connections using getConnection().
-
     """
 
     version = __version__
@@ -117,7 +114,6 @@ class PooledPg:
         maxconnections: the number of connections cached in the pool
         args, kwargs: the parameters that shall be used to establish
             the PostgreSQL connections using pg.connect()
-
         """
         # Since there is no connection level safety, we
         # build the pool using the synchronized queue class

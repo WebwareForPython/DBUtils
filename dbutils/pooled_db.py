@@ -136,7 +136,6 @@ Copyright, credits and license:
   by Dan Green in December 2000
 
 Licensed under the MIT license.
-
 """
 
 from threading import Condition
@@ -166,7 +165,6 @@ class PooledDB:
 
     After you have created the connection pool, you can use
     connection() to get pooled, steady DB-API 2 connections.
-
     """
 
     version = __version__
@@ -212,7 +210,6 @@ class PooledDB:
             7 = always, and all other bit combinations of these values)
         args, kwargs: the parameters that shall be passed to the creator
             function or the connection constructor of the DB-API 2 module
-
         """
         try:
             threadsafety = creator.threadsafety
@@ -278,7 +275,6 @@ class PooledDB:
 
         If shareable is set and the underlying DB-API 2 allows it,
         then the connection may be shared with other threads.
-
         """
         if shareable and self._maxshared:
             self._lock.acquire()
@@ -413,7 +409,6 @@ class PooledDedicatedDBConnection:
 
         pool: the corresponding PooledDB instance
         con: the underlying SteadyDB connection
-
         """
         # basic initialization to make finalizer work
         self._con = None
@@ -453,7 +448,6 @@ class SharedDBConnection:
         """Create a shared connection.
 
         con: the underlying SteadyDB connection
-
         """
         self.con = con
         self.shared = 1
@@ -500,7 +494,6 @@ class PooledSharedDBConnection:
 
         pool: the corresponding PooledDB instance
         con: the underlying SharedDBConnection
-
         """
         # basic initialization to make finalizer work
         self._con = None
