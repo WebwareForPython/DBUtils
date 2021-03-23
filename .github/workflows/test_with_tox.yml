@@ -16,3 +16,5 @@ jobs:
           python-version: ${{ matrix.python }}
       - run: pip install tox
       - run: tox -e py
+      - if: matrix.python == 3.9
+        run: TOXENV=flake8,manifest,docs tox
