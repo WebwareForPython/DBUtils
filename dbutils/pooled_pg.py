@@ -244,7 +244,7 @@ class PooledPg:
         """Delete the pool."""
         try:
             self.close()
-        except Exception:
+        except:  # builtin Exceptions might not exist any more
             pass
 
 
@@ -291,5 +291,5 @@ class PooledPgConnection:
         """Delete the pooled connection."""
         try:
             self.close()
-        except Exception:
+        except:  # builtin Exceptions might not exist any more
             pass

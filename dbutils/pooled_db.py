@@ -389,7 +389,7 @@ class PooledDB:
         """Delete the pool."""
         try:
             self.close()
-        except Exception:
+        except:  # builtin Exceptions might not exist any more
             pass
 
     def _wait_lock(self):
@@ -437,7 +437,7 @@ class PooledDedicatedDBConnection:
         """Delete the pooled connection."""
         try:
             self.close()
-        except Exception:
+        except:  # builtin Exceptions might not exist any more
             pass
 
 
@@ -524,5 +524,5 @@ class PooledSharedDBConnection:
         """Delete the pooled connection."""
         try:
             self.close()
-        except Exception:
+        except:  # builtin Exceptions might not exist any more
             pass
