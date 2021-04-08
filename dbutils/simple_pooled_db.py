@@ -47,7 +47,7 @@ already, but only a certain number and the rest on demand.
 * Connections should have some sort of maximum usage limit
 after which they should be automatically closed and reopened.
 * Prefer or enforce thread-affinity for the connections,
-allowing for both sharable and non-sharable connections.
+allowing for both shareable and non-shareable connections.
 
 Please note that these and other ideas have been already
 implemented in in PooledDB, a more sophisticated version
