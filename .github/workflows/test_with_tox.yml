@@ -1,4 +1,4 @@
-name: Python package
+name: Test DBUtils using tox
 
 on: [push, pull_request]
 
