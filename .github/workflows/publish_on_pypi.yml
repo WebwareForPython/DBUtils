@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python: [2.7, 3.9]
+        python: [3.9, 2.7]
 
     steps:
     - uses: actions/checkout@v2
@@ -20,13 +20,16 @@ jobs:
       with:
         python-version: ${{ matrix.python }}
 
-    - name: Build wheel and source tarball
+    - name: Build source tarball
+      if: matrix.python == 3.9
+      run: python setup.py sdist
+
+    - name: Build wheel
       run: |
         pip install wheel
-        python setup.py sdist bdist_wheel
+        python setup.py bdist_wheel
 
-    - name: Publish a Python distribution to PyPI
-      if: matrix.python == 3.9
+    - name: Publish distribution to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
         user: __token__
