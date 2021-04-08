@@ -2,16 +2,17 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" lang="de">
 <head>
 <meta charset="utf-8"/>
-<meta name="generator" content="Docutils 0.16: http://docutils.sourceforge.net/" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
 <title>Benutzeranleitung für DBUtils</title>
 <link rel="stylesheet" href="doc.css" type="text/css" />
 </head>
-<body>
-<div class="document" id="benutzeranleitung-fur-dbutils">
+<body class="with-toc">
+<main id="benutzeranleitung-fur-dbutils">
 <h1 class="title">Benutzeranleitung für DBUtils</h1>
 <dl class="docinfo simple">
 <dt class="version">Version</dt>
-<dd class="version">2.0</dd>
+<dd class="version">2.0.1</dd>
 <dt class="translations">Translations</dt>
 <dd class="translations"><p><a class="reference external" href="main.html">English</a> | German</p>
 </dd>
@@ -51,8 +52,8 @@
 <li><p><a class="reference internal" href="#copyright-und-lizenz" id="id25">Copyright und Lizenz</a></p></li>
 </ul>
 </div>
-<div class="section" id="zusammenfassung">
-<h1>Zusammenfassung</h1>
+<section id="zusammenfassung">
+<h2>Zusammenfassung</h2>
 <p><a class="reference external" href="https://github.com/WebwareForPython/DBUtils">DBUtils</a> ist eine Sammlung von Python-Modulen, mit deren Hilfe man in <a class="reference external" href="https://www.python.org">Python</a>
 geschriebene Multithread-Anwendungen auf sichere und effiziente Weise an
 Datenbanken anbinden kann.</p>
@@ -60,9 +61,9 @@ Datenbanken anbinden kann.</p>
 und <a class="reference external" href="https://www.pygresql.org/">PyGreSQL</a> als <a class="reference external" href="https://www.postgresql.org/">PostgreSQL</a>-Datenbankadapter entwickelt,
 kann aber inzwischen für beliebige Python-Anwendungen und beliebige
 auf <a class="reference external" href="https://www.python.org/dev/peps/pep-0249/">DB-API 2</a> beruhende Python-Datenbankadapter verwendet werden.</p>
-</div>
-<div class="section" id="module">
-<h1>Module</h1>
+</section>
+<section id="module">
+<h2>Module</h2>
 <p>DBUtils ist als Python-Package realisiert worden, das aus zwei verschiedenen
 Gruppen von Modulen besteht: Einer Gruppe zur Verwendung mit beliebigen
 DB-API-2-Datenbankadaptern, und einer Gruppe zur Verwendung mit dem klassischen
@@ -121,44 +122,44 @@ sind im folgenden Diagramm dargestellt:</p>
 <p>Die Abhängigkeiten der Module in der Variante für den klassischen
 PyGreSQL-Adapter sehen ähnlich aus:</p>
 <img alt="depdependencies_pg.png" src="depdependencies_pg.png" />
-</div>
-<div class="section" id="download">
-<h1>Download</h1>
+</section>
+<section id="download">
+<h2>Download</h2>
 <p>Die aktuelle Version von DBUtils kann vom Python Package Index
 heruntergeladen werden:</p>
 <pre class="literal-block">https://pypi.python.org/pypi/DBUtils</pre>
 <p>Das Source-Code-Repository befindet sich hier auf GitHub:</p>
 <pre class="literal-block">https://github.com/WebwareForPython/DBUtils</pre>
-</div>
-<div class="section" id="installation">
-<h1>Installation</h1>
-<div class="section" id="id1">
+</section>
+<section id="installation">
 <h2>Installation</h2>
+<section id="id1">
+<h3>Installation</h3>
 <p>Das Paket kann auf die übliche Weise installiert werden:</p>
 <pre class="literal-block">python setup.py install</pre>
 <p>Noch einfacher ist, das Paket in einem Schritt mit <a class="reference external" href="https://pip.pypa.io/">pip</a> automatisch
 herunterzuladen und zu installieren:</p>
 <pre class="literal-block">pip install DBUtils</pre>
-</div>
-</div>
-<div class="section" id="anforderungen">
-<h1>Anforderungen</h1>
+</section>
+</section>
+<section id="anforderungen">
+<h2>Anforderungen</h2>
 <p>DBUtils unterstützt die <a class="reference external" href="https://www.python.org">Python</a> Versionen 2.7 und 3.5 bis 3.9.</p>
 <p>Die Module in der Variante für klassisches PyGreSQL benötigen <a class="reference external" href="https://www.pygresql.org/">PyGreSQL</a>
 Version 4.0 oder höher, während die Module in der allgemeinen Variante
 für DB-API 2 mit jedem beliebigen Python-Datenbankadapter-Modul zusammenarbeiten,
 das auf <a class="reference external" href="https://www.python.org/dev/peps/pep-0249/">DB-API 2</a> basiert.</p>
-</div>
-<div class="section" id="funktionalitat">
-<h1>Funktionalität</h1>
+</section>
+<section id="funktionalitat">
+<h2>Funktionalität</h2>
 <p>Dieser Abschnitt verwendet nur die Bezeichnungen der DB-API-2-Variante, aber
 Entsprechendes gilt auch für die PyGreSQL-Variante.</p>
 <p>DBUtils installiert sich als Paket <span class="docutils literal">dbutils</span>, das alle hier beschriebenen
 Module enthält. Jedes dieser Modul enthält im Wesentlichen eine Klasse, die
 einen analogen Namen trägt und die jeweilige Funktionalität bereitstellt.
 So enthält z.B. das Modul <span class="docutils literal">dbutils.pooled_db</span> die Klasse <span class="docutils literal">PooledDB</span>.</p>
-<div class="section" id="simplepooleddb-simple-pooled-db">
-<h2>SimplePooledDB (simple_pooled_db)</h2>
+<section id="simplepooleddb-simple-pooled-db">
+<h3>SimplePooledDB (simple_pooled_db)</h3>
 <p>Die Klasse <span class="docutils literal">SimplePooledDB</span> in <span class="docutils literal">dbutils.simple_pooled_db</span> ist eine sehr
 elementare Referenz-Implementierung eines Pools von Datenbankverbindungen.
 Hiermit ist ein Vorratsspeicher an Datenbankverbindungen gemeint, aus dem sich
@@ -168,9 +169,9 @@ keine Ausfallsicherung zur Verfügung. <span class="docutils literal">dbutils.si
 Wesentlichen identisch mit dem zu Webware for Python gehörenden Modul
 <span class="docutils literal">MiscUtils.DBPool</span>. Es ist eher zur Verdeutlichung des Konzepts gedacht,
 als zum Einsatz im produktiven Betrieb.</p>
-</div>
-<div class="section" id="steadydbconnection-steady-db">
-<h2>SteadyDBConnection (steady_db)</h2>
+</section>
+<section id="steadydbconnection-steady-db">
+<h3>SteadyDBConnection (steady_db)</h3>
 <p>Die Klasse <span class="docutils literal">SteadyDBConnection</span> im Modul <span class="docutils literal">dbutils.steady_db</span> stellt
 &quot;gehärtete&quot; Datenbankverbindungen bereit, denen gewöhnlichen Verbindungen
 eines DB-API-2-Datenbankadapters zugrunde liegen. Eine &quot;gehärtete&quot; Verbindung
@@ -184,9 +185,9 @@ zur Datenbank offen hat, oder wenn Ihre Anwendung auf eine entfernte Datenbank
 Firewall neu gestartet wurde und dabei ihren Verbindungsstatus verloren hat.</p>
 <p>Normalerweise benutzen Sie das <span class="docutils literal">steady_db</span>-Modul nicht direkt; es wird aber
 von den beiden nächsten Modulen benötigt, <span class="docutils literal">persistent_db</span> und <span class="docutils literal">pooled_db</span>.</p>
-</div>
-<div class="section" id="persistentdb-persistent-db">
-<h2>PersistentDB (persistent_db)</h2>
+</section>
+<section id="persistentdb-persistent-db">
+<h3>PersistentDB (persistent_db)</h3>
 <p>Die Klasse <span class="docutils literal">PersistentDB</span> im Modul <span class="docutils literal">dbutils.persistent_db</span> stellt
 gehärtete,  thread-affine, persistente Datenbankverbindungen zur Verfügung,
 unter Benutzung eines beliebigen DB-API-2-Datenbankadapters. Mit &quot;thread-affin&quot;
@@ -211,9 +212,9 @@ die gleiche Verbindung benutzen.</p>
 liegende DB-API-2-Datenbankadapter nicht thread-sicher auf der Verbindungsebene
 ist, oder wenn parallele Threads Parameter der Datenbank-Sitzung verändern
 oder Transaktionen mit mehreren SQL-Befehlen durchführen.</p>
-</div>
-<div class="section" id="pooleddb-pooled-db">
-<h2>PooledDB (pooled_db)</h2>
+</section>
+<section id="pooleddb-pooled-db">
+<h3>PooledDB (pooled_db)</h3>
 <p>Die Klasse <span class="docutils literal">PooledDB</span> im Modul <span class="docutils literal">dbutils.pooled_db</span> stellt, unter Benutzung
 eines beliebigen DB-API-2-Datenbankadapters, einen Pool von gehärteten,
 thread-sicheren Datenbankverbindungen zur Verfügung, die automatisch, ohne dass
@@ -241,9 +242,9 @@ werden Thread-Locks verwendet, um sicherzustellen, dass die
 hierum keine Sorgen zu machen, aber Sie sollten darauf achten, dedizierte
 Datenbankverbindungen zu verwenden, sobald Sie Parameter der Datenbanksitzung
 verändern oder Transaktionen mit mehreren SQL-Befehlen ausführen.</p>
-</div>
-<div class="section" id="die-qual-der-wahl">
-<h2>Die Qual der Wahl</h2>
+</section>
+<section id="die-qual-der-wahl">
+<h3>Die Qual der Wahl</h3>
 <p>Sowohl <span class="docutils literal">persistent_db</span> als auch <span class="docutils literal">pooled_db</span> dienen dem gleichen Zweck,
 nämlich die Effizienz des Datenbankzugriffs durch Wiederverwendung von
 Datenbankverbindungen zu steigern, und dabei gleichzeitig die Stabilität
@@ -259,10 +260,10 @@ der Effizienz erlaubt, insbesondere bei Verwendung eines thread-sicheren
 DB-API-2-Datenbankadapters.</p>
 <p>Da die Schnittstellen beider Module sehr ähnlich sind, können Sie recht einfach
 von einem Modul zum anderen wechseln und austesten, welches geeigneter ist.</p>
-</div>
-</div>
-<div class="section" id="benutzung">
-<h1>Benutzung</h1>
+</section>
+</section>
+<section id="benutzung">
+<h2>Benutzung</h2>
 <p>Die Benutzung aller Module ist zwar recht ähnlich, aber es gibt vor allem bei
 der Initialisierung auch einige Unterschiede, sowohl zwischen den &quot;Pooled&quot;-
 und den &quot;Persistent&quot;-Varianten, als auch zwischen den DB-API-2- und den
@@ -273,8 +274,8 @@ in deren Docstrings. Unter Verwendung der Python-Interpreter-Konsole können Sie
 sich die Dokumentation des <span class="docutils literal">pooled_db</span>-Moduls wie folgt anzeigen lassen (dies
 funktioniert entsprechend auch mit den anderen Modulen):</p>
 <pre class="literal-block">help(pooled_db)</pre>
-<div class="section" id="id2">
-<h2>PersistentDB (persistent_db)</h2>
+<section id="id2">
+<h3>PersistentDB (persistent_db)</h3>
 <p>Wenn Sie das <span class="docutils literal">persistent_db</span>-Modul einsetzen möchten, müssen Sie zuerst einen
 Generator für die von Ihnen gewünschte Art von Datenbankverbindungen einrichten,
 indem Sie eine Instanz der Klasse <span class="docutils literal">persistent_db</span> erzeugen, wobei Sie folgende
@@ -336,9 +337,9 @@ Parameter <span class="docutils literal">threadlocal</span> auf <span class="doc
 einigen Umgebungen nicht funktionieren (es ist zum Beispiel bekannt, dass
 <span class="docutils literal">mod_wsgi</span> hier Probleme bereitet, da es Daten, die mit <span class="docutils literal">threading.local</span>
 gespeichert wurden, zwischen Requests löscht).</p>
-</div>
-<div class="section" id="id3">
-<h2>PooledDB (pooled_db)</h2>
+</section>
+<section id="id3">
+<h3>PooledDB (pooled_db)</h3>
 <p>Wenn Sie das <span class="docutils literal">pooled_db</span>-Modul einsetzen möchten, müssen Sie zuerst einen
 Pool für die von Ihnen gewünschte Art von Datenbankverbindungen einrichten,
 indem Sie eine Instanz der Klasse <span class="docutils literal">pooled_db</span> erzeugen, wobei Sie folgende
@@ -433,10 +434,10 @@ dass die Verbindung nicht mehr mit anderen Threads geteilt wird, dass das
 transparente Neueröffnen von Verbindungen bis zum Ende der Transaktion
 ausgesetzt wird, und dass die Verbindung zurückgerollt wird, bevor sie
 wieder an den Verbindungspool zurückgegeben wird.</p>
-</div>
-</div>
-<div class="section" id="anmerkungen">
-<h1>Anmerkungen</h1>
+</section>
+</section>
+<section id="anmerkungen">
+<h2>Anmerkungen</h2>
 <p>Wenn Sie einen der bekannten &quot;Object-Relational Mapper&quot; <a class="reference external" href="http://sqlobject.org/">SQLObject</a> oder
 <a class="reference external" href="https://www.sqlalchemy.org">SQLAlchemy</a> verwenden, dann benötigen Sie DBUtils nicht, denn diese haben
 ihre eigenen Mechanismen zum Pooling von Datenbankverbindungen eingebaut.
@@ -453,9 +454,9 @@ wie im Fall des Multi-Processing Moduls &quot;prefork&quot; für den Apache-Webs
 dann sollten Sie auf eine Middleware für das Connection-Pooling zurückgreifen,
 die Multi-Processing unterstützt, wie zum Beispiel <a class="reference external" href="https://www.pgpool.net/">pgpool</a> oder <a class="reference external" href="https://pgbouncer.github.io/">pgbouncer</a>
 für die PostgreSQL-Datenbank.</p>
-</div>
-<div class="section" id="zukunft">
-<h1>Zukunft</h1>
+</section>
+<section id="zukunft">
+<h2>Zukunft</h2>
 <p>Einige Ideen für zukünftige Verbesserungen:</p>
 <ul class="simple">
 <li><p>Alternativ zur Obergrenze in der Anzahl der Nutzung einer Datenbankverbindung
@@ -475,14 +476,14 @@ täglich den Verbindungspool erneuert, kurz bevor die Benutzer erscheinen.</p></
 <li><p>Optional sollten Benutzung, schlechte Verbindungen und Überschreitung von
 Obergrenzen in Logs gespeichert werden können.</p></li>
 </ul>
-</div>
-<div class="section" id="fehlermeldungen-und-feedback">
-<h1>Fehlermeldungen und Feedback</h1>
+</section>
+<section id="fehlermeldungen-und-feedback">
+<h2>Fehlermeldungen und Feedback</h2>
 <p>Fehlermeldungen, Patches und Feedback können Sie als <a class="reference external" href="https://github.com/WebwareForPython/DBUtils/issues">Issues</a> oder
 <a class="reference external" href="https://github.com/WebwareForPython/DBUtils/pulls">Pull Requests</a> auf der <a class="reference external" href="https://github.com/WebwareForPython/DBUtils">GitHub-Projektseite</a> von DBUtils übermitteln.</p>
-</div>
-<div class="section" id="links">
-<h1>Links</h1>
+</section>
+<section id="links">
+<h2>Links</h2>
 <p>Einige Links zu verwandter und alternativer Software:</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://github.com/WebwareForPython/DBUtils">DBUtils</a></p></li>
@@ -496,9 +497,9 @@ Obergrenzen in Logs gespeichert werden können.</p></li>
 <li><p><a class="reference external" href="http://sqlobject.org/">SQLObject</a> Objekt-relationaler Mapper</p></li>
 <li><p><a class="reference external" href="https://www.sqlalchemy.org">SQLAlchemy</a> Objekt-relationaler Mapper</p></li>
 </ul>
-</div>
-<div class="section" id="autoren">
-<h1>Autoren</h1>
+</section>
+<section id="autoren">
+<h2>Autoren</h2>
 <dl class="field-list simple">
 <dt>Autor</dt>
 <dd><p><a class="reference external" href="https://github.com/Cito">Christoph Zwerschke</a></p>
@@ -511,14 +512,14 @@ Warren Smith (DbConnectionPool), Ezio Vernacotola, Jehiah Czebotar,
 Matthew Harriger, Gregory Piñero und Josef van Eenbergen.</p>
 </dd>
 </dl>
-</div>
-<div class="section" id="copyright-und-lizenz">
-<h1>Copyright und Lizenz</h1>
-<p>Copyright © 2005-2020 Christoph Zwerschke.
+</section>
+<section id="copyright-und-lizenz">
+<h2>Copyright und Lizenz</h2>
+<p>Copyright © 2005-2021 Christoph Zwerschke.
 Alle Rechte vorbehalten.</p>
 <p>DBUtils ist freie und quelloffene Software,
 lizenziert unter der <a class="reference external" href="https://opensource.org/licenses/MIT">MIT-Lizenz</a>.</p>
-</div>
-</div>
+</section>
+</main>
 </body>
 </html>
