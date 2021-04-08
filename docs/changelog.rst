@@ -1,6 +1,15 @@
 ﻿Changelog for DBUtils
 +++++++++++++++++++++
 
+2.0.1
+=====
+
+DBUtils 2.0.1 was released on April 8, 2021.
+
+Changes:
+
+* Avoid "name Exception is not defined" when exiting
+
 2.0
 ===
 

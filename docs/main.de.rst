@@ -1,7 +1,7 @@
 ﻿Benutzeranleitung für DBUtils
 +++++++++++++++++++++++++++++
 
-:Version: 2.0
+:Version: 2.0.1
 :Translations: English_ | German
 
 .. _English: main.html
@@ -550,7 +550,7 @@ Autoren
 Copyright und Lizenz
 ====================
 
-Copyright © 2005-2020 Christoph Zwerschke.
+Copyright © 2005-2021 Christoph Zwerschke.
 Alle Rechte vorbehalten.
 
 DBUtils ist freie und quelloffene Software,
