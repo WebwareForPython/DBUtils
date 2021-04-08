@@ -1,0 +1,33 @@
+name: Publish DBUtils on PyPI
+
+on:
+  push:
+    tags:
+      - 'Release-*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: [2.7, 3.9]
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Python ${{ matrix.python }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python }}
+
+    - name: Build wheel and source tarball
+      run: |
+        pip install wheel
+        python setup.py sdist bdist_wheel
+
+    - name: Publish a Python distribution to PyPI
+      if: matrix.python == 3.9
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        user: __token__
+        password: ${{ secrets.PYPI_TOKEN }}
