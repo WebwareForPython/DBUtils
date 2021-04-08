@@ -237,12 +237,12 @@ class TestSteadyDB(unittest.TestCase):
         self.assertTrue(cursor.valid)
         self.assertEqual(db._usage, 1)
         self.assertEqual(db._con.num_uses, 1)
-        cursor.execute('set doit')
+        cursor.execute('set this')
         db.commit()
-        cursor.execute('set dont')
+        cursor.execute('set that')
         db.rollback()
         self.assertEqual(
-            db._con.session, ['doit', 'commit', 'dont', 'rollback'])
+            db._con.session, ['this', 'commit', 'that', 'rollback'])
 
     def test_connection_context_handler(self):
         db = SteadyDBconnect(
