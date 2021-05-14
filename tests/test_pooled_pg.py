@@ -14,7 +14,7 @@ import unittest
 
 from . import mock_pg  # noqa
 
-from dbutils.pooled_pg import PooledPg, InvalidConnection
+from dbutils.pooled_pg import PooledPg, InvalidConnection, TooManyConnections
 
 
 class TestPooledPg(unittest.TestCase):
@@ -303,6 +303,19 @@ class TestPooledPg(unittest.TestCase):
         self.assertFalse(con._transaction)
         self.assertEqual(con.session, [])
         self.assertEqual(con.num_queries, 0)
+
+    def test_context_manager(self):
+        pool = PooledPg(1, 1, 1)
+        with pool.connection() as db:
+            db_con = db._con._con
+            db.query('select test')
+            self.assertEqual(db_con.num_queries, 1)
+            self.assertRaises(TooManyConnections, pool.connection)
+        with pool.connection() as db:
+            db_con = db._con._con
+            db.query('select test')
+            self.assertEqual(db_con.num_queries, 2)
+            self.assertRaises(TooManyConnections, pool.connection)
 
 
 if __name__ == '__main__':

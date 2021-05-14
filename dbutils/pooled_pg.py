@@ -83,6 +83,11 @@ connection object stays alive as long as you are using it, like that:
     res = db.query(...).getresult()
     db.close()  # or del db
 
+You can also a context manager for simpler code:
+
+    with pool.connection() as db:
+        res = db.query(...).getresult()
+
 Note that you need to explicitly start transactions by calling the
 begin() method.  This ensures that the transparent reopening will be
 suspended until the end of the transaction, and that the connection will
@@ -293,3 +298,11 @@ class PooledPgConnection:
             self.close()
         except:  # builtin Exceptions might not exist any more
             pass
+
+    def __enter__(self):
+        """Enter a runtime context for the connection."""
+        return self
+
+    def __exit__(self, *exc):
+        """Exit a runtime context for the connection."""
+        self.close()

@@ -286,6 +286,14 @@ class TestPersistentDB(unittest.TestCase):
         db._con.close()
         cursor.execute('select test')
 
+    def test_context_manager(self):
+        persist = PersistentDB(dbapi)
+        with persist.connection() as db:
+            with db.cursor() as cursor:
+                cursor.execute('select test')
+                r = cursor.fetchone()
+            self.assertEqual(r, 'test')
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -443,6 +443,14 @@ sie gebraucht werden, etwa so::
   cur.close()  # oder del cur
   db.close()  # oder del db
 
+Sie können dies auch durch Verwendung von Kontext-Managern vereinfachen::
+
+  with pool.connection() as db:
+      with db.cursor as cur:
+          cur.execute(...)
+          res = cur.fetchone()
+
+
 Bitte beachten Sie, dass Transaktionen explizit durch Aufruf der Methode
 ``begin()`` eingeleiten werden müssen. Hierdurch wird sichergestellt,
 dass die Verbindung nicht mehr mit anderen Threads geteilt wird, dass das

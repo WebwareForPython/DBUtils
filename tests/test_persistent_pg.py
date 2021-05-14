@@ -189,6 +189,12 @@ class TestPersistentPg(unittest.TestCase):
         db._con.close()
         self.assertEqual(db.query('select test'), 'test')
 
+    def test_context_manager(self):
+        persist = PersistentPg()
+        with persist.connection() as db:
+            db.query('select test')
+            self.assertEqual(db.num_queries, 1)
+
 
 if __name__ == '__main__':
     unittest.main()

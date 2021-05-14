@@ -1181,6 +1181,33 @@ class TestPooledDB(unittest.TestCase):
         self.assertFalse(con._transaction)
         self.assertEqual(con._con.session, ['rollback'])
 
+    def test_context_manager(self):
+        pool = PooledDB(dbapi, 1, 1, 1)
+        con = pool._idle_cache[0]._con
+        with pool.connection() as db:
+            self.assertTrue(hasattr(db, '_shared_con'))
+            self.assertFalse(pool._idle_cache)
+            self.assertTrue(con.valid)
+            with db.cursor() as cursor:
+                self.assertEqual(con.open_cursors, 1)
+                cursor.execute('select test')
+                r = cursor.fetchone()
+            self.assertEqual(con.open_cursors, 0)
+            self.assertEqual(r, 'test')
+            self.assertEqual(con.num_queries, 1)
+        self.assertTrue(pool._idle_cache)
+        with pool.dedicated_connection() as db:
+            self.assertFalse(hasattr(db, '_shared_con'))
+            self.assertFalse(pool._idle_cache)
+            with db.cursor() as cursor:
+                self.assertEqual(con.open_cursors, 1)
+                cursor.execute('select test')
+                r = cursor.fetchone()
+            self.assertEqual(con.open_cursors, 0)
+            self.assertEqual(r, 'test')
+            self.assertEqual(con.num_queries, 2)
+        self.assertTrue(pool._idle_cache)
+
 
 class TestSharedDBConnection(unittest.TestCase):
 

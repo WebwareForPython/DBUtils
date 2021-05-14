@@ -405,6 +405,13 @@ object stays alive as long as you are using it, like that::
   cur.close()  # or del cur
   db.close()  # or del db
 
+You can also use context managers for simpler code::
+
+  with pool.connection() as db:
+      with db.cursor as cur:
+          cur.execute(...)
+          res = cur.fetchone()
+
 Note that you need to explicitly start transactions by calling the
 ``begin()`` method. This ensures that the connection will not be shared
 with other threads, that the transparent reopening will be suspended
