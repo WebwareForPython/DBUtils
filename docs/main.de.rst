@@ -317,7 +317,7 @@ endet. Sie können dieses Verhalten ändern, indem Sie den Parameter namens
 ``closeable`` setzen.
 
 Bitte beachten Sie, dass Transaktionen explizit durch Aufruf der Methode
-``begin()`` eingeleiten werden müssen. Hierdurch wird sichergestellt, dass
+``begin()`` eingeleitet werden müssen. Hierdurch wird sichergestellt, dass
 das transparente Neueröffnen von Verbindungen bis zum Ende der Transaktion
 ausgesetzt wird, und dass die Verbindung zurückgerollt wird, before sie vom
 gleichen Thread erneut benutzt wird.
@@ -452,7 +452,7 @@ Sie können dies auch durch Verwendung von Kontext-Managern vereinfachen::
 
 
 Bitte beachten Sie, dass Transaktionen explizit durch Aufruf der Methode
-``begin()`` eingeleiten werden müssen. Hierdurch wird sichergestellt,
+``begin()`` eingeleitet werden müssen. Hierdurch wird sichergestellt,
 dass die Verbindung nicht mehr mit anderen Threads geteilt wird, dass das
 transparente Neueröffnen von Verbindungen bis zum Ende der Transaktion
 ausgesetzt wird, und dass die Verbindung zurückgerollt wird, bevor sie
@@ -471,7 +471,7 @@ Wenn Sie eine Lösung verwenden wie den Apache-Webserver mit mod_python_
 oder mod_wsgi_, dann sollten Sie bedenken, dass Ihr Python-Code normalerweise
 im Kontext der Kindprozesse des Webservers läuft. Wenn Sie also das
 ``pooled_db``-Modul einsetzen, und mehrere dieser Kindprozesse laufen, dann
-werden Sie ebensoviele Pools mit Datenbankverbindungen erhalten. Wenn diese
+werden Sie ebenso viele Pools mit Datenbankverbindungen erhalten. Wenn diese
 Prozesse viele Threads laufen lassen,  dann mag dies eine sinnvoller Ansatz
 sein, wenn aber diese Prozesse nicht mehr als einen Worker-Thread starten,
 wie im Fall des Multi-Processing Moduls "prefork" für den Apache-Webserver,

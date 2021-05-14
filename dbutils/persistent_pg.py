@@ -70,7 +70,7 @@ Closing a persistent connection with db.close() will be silently
 ignored since it would be reopened at the next usage anyway and
 contrary to the intent of having persistent connections.  Instead,
 the connection will be automatically closed when the thread dies.
-You can change this behavior be setting the closeable parameter.
+You can change this behavior by setting the closeable parameter.
 
 Note that you need to explicitly start transactions by calling the
 begin() method.  This ensures that the transparent reopening will be
