@@ -13,7 +13,7 @@ if py_version != (2, 7) and not (3, 5) <= py_version < (4, 0):
 
 warnings.filterwarnings('ignore', 'Unknown distribution option')
 
-__version__ = '2.0.1'
+__version__ = '2.0.2'
 
 readme = open('README.md').read()
 

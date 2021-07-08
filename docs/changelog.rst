@@ -4,7 +4,7 @@
 2.0.2
 =====
 
-DBUtils 2.0.2 was released on ...
+DBUtils 2.0.2 was released on June 8, 2021.
 
 Changes:
 
