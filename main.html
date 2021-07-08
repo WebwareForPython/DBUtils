@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+<meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 <title>DBUtils User's Guide</title>
 <link rel="stylesheet" href="doc.css" type="text/css" />
 </head>
@@ -12,7 +12,7 @@
 <h1 class="title">DBUtils User's Guide</h1>
 <dl class="docinfo simple">
 <dt class="version">Version</dt>
-<dd class="version">2.0.1</dd>
+<dd class="version">2.0.2</dd>
 <dt class="translations">Translations</dt>
 <dd class="translations"><p>English | <a class="reference external" href="main.de.html">German</a></p>
 </dd>
@@ -303,7 +303,7 @@ the underlying DB-API 2 connection.</p>
 ignored since it would be reopened at the next usage anyway and
 contrary to the intent of having persistent connections. Instead,
 the connection will be automatically closed when the thread dies.
-You can change this behavior be setting the <span class="docutils literal">closeable</span> parameter.</p>
+You can change this behavior by setting the <span class="docutils literal">closeable</span> parameter.</p>
 <p>Note that you need to explicitly start transactions by calling the
 <span class="docutils literal">begin()</span> method. This ensures that the transparent reopening will be
 suspended until the end of the transaction, and that the connection
@@ -390,6 +390,11 @@ cur.execute(...)
 res = cur.fetchone()
 cur.close()  # or del cur
 db.close()  # or del db</pre>
+<p>You can also use context managers for simpler code:</p>
+<pre class="literal-block">with pool.connection() as db:
+    with db.cursor as cur:
+        cur.execute(...)
+        res = cur.fetchone()</pre>
 <p>Note that you need to explicitly start transactions by calling the
 <span class="docutils literal">begin()</span> method. This ensures that the connection will not be shared
 with other threads, that the transparent reopening will be suspended

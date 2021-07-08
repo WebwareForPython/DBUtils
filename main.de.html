@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+<meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 <title>Benutzeranleitung für DBUtils</title>
 <link rel="stylesheet" href="doc.css" type="text/css" />
 </head>
@@ -12,7 +12,7 @@
 <h1 class="title">Benutzeranleitung für DBUtils</h1>
 <dl class="docinfo simple">
 <dt class="version">Version</dt>
-<dd class="version">2.0.1</dd>
+<dd class="version">2.0.2</dd>
 <dt class="translations">Translations</dt>
 <dd class="translations"><p><a class="reference external" href="main.html">English</a> | German</p>
 </dd>
@@ -328,7 +328,7 @@ Stattdessen wird die Verbindung automatisch dann geschlossen, wenn der Thread
 endet. Sie können dieses Verhalten ändern, indem Sie den Parameter namens
 <span class="docutils literal">closeable</span> setzen.</p>
 <p>Bitte beachten Sie, dass Transaktionen explizit durch Aufruf der Methode
-<span class="docutils literal">begin()</span> eingeleiten werden müssen. Hierdurch wird sichergestellt, dass
+<span class="docutils literal">begin()</span> eingeleitet werden müssen. Hierdurch wird sichergestellt, dass
 das transparente Neueröffnen von Verbindungen bis zum Ende der Transaktion
 ausgesetzt wird, und dass die Verbindung zurückgerollt wird, before sie vom
 gleichen Thread erneut benutzt wird.</p>
@@ -428,8 +428,13 @@ cur.execute(...)
 res = cur.fetchone()
 cur.close()  # oder del cur
 db.close()  # oder del db</pre>
+<p>Sie können dies auch durch Verwendung von Kontext-Managern vereinfachen:</p>
+<pre class="literal-block">with pool.connection() as db:
+    with db.cursor as cur:
+        cur.execute(...)
+        res = cur.fetchone()</pre>
 <p>Bitte beachten Sie, dass Transaktionen explizit durch Aufruf der Methode
-<span class="docutils literal">begin()</span> eingeleiten werden müssen. Hierdurch wird sichergestellt,
+<span class="docutils literal">begin()</span> eingeleitet werden müssen. Hierdurch wird sichergestellt,
 dass die Verbindung nicht mehr mit anderen Threads geteilt wird, dass das
 transparente Neueröffnen von Verbindungen bis zum Ende der Transaktion
 ausgesetzt wird, und dass die Verbindung zurückgerollt wird, bevor sie
@@ -447,7 +452,7 @@ ausgelagert, in der Code von DBUtils verwendet wird.</p>
 oder <a class="reference external" href="https://github.com/GrahamDumpleton/mod_wsgi">mod_wsgi</a>, dann sollten Sie bedenken, dass Ihr Python-Code normalerweise
 im Kontext der Kindprozesse des Webservers läuft. Wenn Sie also das
 <span class="docutils literal">pooled_db</span>-Modul einsetzen, und mehrere dieser Kindprozesse laufen, dann
-werden Sie ebensoviele Pools mit Datenbankverbindungen erhalten. Wenn diese
+werden Sie ebenso viele Pools mit Datenbankverbindungen erhalten. Wenn diese
 Prozesse viele Threads laufen lassen,  dann mag dies eine sinnvoller Ansatz
 sein, wenn aber diese Prozesse nicht mehr als einen Worker-Thread starten,
 wie im Fall des Multi-Processing Moduls &quot;prefork&quot; für den Apache-Webserver,
