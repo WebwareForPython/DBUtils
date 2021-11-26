@@ -10,7 +10,6 @@ Changes:
 
 * Support Python version 3.10.
 
-
 2.0.2
 =====
 
@@ -19,7 +18,6 @@ DBUtils 2.0.2 was released on June 8, 2021.
 Changes:
 
 * Allow using context managers for pooled connections.
-
 
 2.0.1
 =====
