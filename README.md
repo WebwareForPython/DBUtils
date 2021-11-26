@@ -7,7 +7,7 @@ to a database that can be used in all kinds of multi-threaded environments.
 The suite supports DB-API 2 compliant database interfaces
 and the classic PyGreSQL interface.
 
-The current version 2.0.2 of DBUtils supports Python versions 2.7 and 3.5 to 3.9.
+The current version 2.0.3 of DBUtils supports Python versions 2.7 and 3.5 to 3.10.
 
 **Please have a look at the [changelog](https://webwareforpython.github.io/DBUtils/changelog.html), because there are some breaking changes in version 2.0.**
 

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+<meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 <title>DBUtils User's Guide</title>
 <link rel="stylesheet" href="doc.css" type="text/css" />
 </head>
@@ -11,47 +11,47 @@
 <main id="dbutils-user-s-guide">
 <h1 class="title">DBUtils User's Guide</h1>
 <dl class="docinfo simple">
-<dt class="version">Version</dt>
+<dt class="version">Version<span class="colon">:</span></dt>
 <dd class="version">2.0.2</dd>
-<dt class="translations">Translations</dt>
+<dt class="translations">Translations<span class="colon">:</span></dt>
 <dd class="translations"><p>English | <a class="reference external" href="main.de.html">German</a></p>
 </dd>
 </dl>
-<div class="contents topic" id="contents">
+<nav class="contents" id="contents" role="doc-toc">
 <p class="topic-title">Contents</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="#synopsis" id="id5">Synopsis</a></p></li>
-<li><p><a class="reference internal" href="#modules" id="id6">Modules</a></p></li>
-<li><p><a class="reference internal" href="#download" id="id7">Download</a></p></li>
-<li><p><a class="reference internal" href="#installation" id="id8">Installation</a></p>
+<li><p><a class="reference internal" href="#synopsis" id="toc-entry-1">Synopsis</a></p></li>
+<li><p><a class="reference internal" href="#modules" id="toc-entry-2">Modules</a></p></li>
+<li><p><a class="reference internal" href="#download" id="toc-entry-3">Download</a></p></li>
+<li><p><a class="reference internal" href="#installation" id="toc-entry-4">Installation</a></p>
 <ul>
-<li><p><a class="reference internal" href="#id1" id="id9">Installation</a></p></li>
+<li><p><a class="reference internal" href="#installation-1" id="toc-entry-5">Installation</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#requirements" id="id10">Requirements</a></p></li>
-<li><p><a class="reference internal" href="#functionality" id="id11">Functionality</a></p>
+<li><p><a class="reference internal" href="#requirements" id="toc-entry-6">Requirements</a></p></li>
+<li><p><a class="reference internal" href="#functionality" id="toc-entry-7">Functionality</a></p>
 <ul>
-<li><p><a class="reference internal" href="#simplepooleddb-simple-pooled-db" id="id12">SimplePooledDB (simple_pooled_db)</a></p></li>
-<li><p><a class="reference internal" href="#steadydbconnection-steady-db" id="id13">SteadyDBConnection (steady_db)</a></p></li>
-<li><p><a class="reference internal" href="#persistentdb-persistent-db" id="id14">PersistentDB (persistent_db)</a></p></li>
-<li><p><a class="reference internal" href="#pooleddb-pooled-db" id="id15">PooledDB (pooled_db)</a></p></li>
-<li><p><a class="reference internal" href="#which-one-to-use" id="id16">Which one to use?</a></p></li>
+<li><p><a class="reference internal" href="#simplepooleddb-simple-pooled-db" id="toc-entry-8">SimplePooledDB (simple_pooled_db)</a></p></li>
+<li><p><a class="reference internal" href="#steadydbconnection-steady-db" id="toc-entry-9">SteadyDBConnection (steady_db)</a></p></li>
+<li><p><a class="reference internal" href="#persistentdb-persistent-db" id="toc-entry-10">PersistentDB (persistent_db)</a></p></li>
+<li><p><a class="reference internal" href="#pooleddb-pooled-db" id="toc-entry-11">PooledDB (pooled_db)</a></p></li>
+<li><p><a class="reference internal" href="#which-one-to-use" id="toc-entry-12">Which one to use?</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#usage" id="id17">Usage</a></p>
+<li><p><a class="reference internal" href="#usage" id="toc-entry-13">Usage</a></p>
 <ul>
-<li><p><a class="reference internal" href="#id2" id="id18">PersistentDB (persistent_db)</a></p></li>
-<li><p><a class="reference internal" href="#id3" id="id19">PooledDB (pooled_db)</a></p></li>
+<li><p><a class="reference internal" href="#persistentdb-persistent-db-1" id="toc-entry-14">PersistentDB (persistent_db)</a></p></li>
+<li><p><a class="reference internal" href="#pooleddb-pooled-db-1" id="toc-entry-15">PooledDB (pooled_db)</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#notes" id="id20">Notes</a></p></li>
-<li><p><a class="reference internal" href="#future" id="id21">Future</a></p></li>
-<li><p><a class="reference internal" href="#bug-reports-and-feedback" id="id22">Bug reports and feedback</a></p></li>
-<li><p><a class="reference internal" href="#links" id="id23">Links</a></p></li>
-<li><p><a class="reference internal" href="#credits" id="id24">Credits</a></p></li>
-<li><p><a class="reference internal" href="#copyright-and-license" id="id25">Copyright and License</a></p></li>
+<li><p><a class="reference internal" href="#notes" id="toc-entry-16">Notes</a></p></li>
+<li><p><a class="reference internal" href="#future" id="toc-entry-17">Future</a></p></li>
+<li><p><a class="reference internal" href="#bug-reports-and-feedback" id="toc-entry-18">Bug reports and feedback</a></p></li>
+<li><p><a class="reference internal" href="#links" id="toc-entry-19">Links</a></p></li>
+<li><p><a class="reference internal" href="#credits" id="toc-entry-20">Credits</a></p></li>
+<li><p><a class="reference internal" href="#copyright-and-license" id="toc-entry-21">Copyright and License</a></p></li>
 </ul>
-</div>
+</nav>
 <section id="synopsis">
 <h2>Synopsis</h2>
 <p><a class="reference external" href="https://github.com/WebwareForPython/DBUtils">DBUtils</a> is a suite of Python modules allowing to connect in a safe and
@@ -67,10 +67,6 @@ conformant database adapter.</p>
 two subsets of modules, one for use with arbitrary DB-API 2 modules,
 the other one for use with the classic PyGreSQL module.</p>
 <table>
-<colgroup>
-<col style="width: 30%" />
-<col style="width: 70%" />
-</colgroup>
 <thead>
 <tr><th class="head" colspan="2"><p>Universal DB-API 2 variant</p></th>
 </tr>
@@ -91,10 +87,6 @@ the other one for use with the classic PyGreSQL module.</p>
 </tbody>
 </table>
 <table>
-<colgroup>
-<col style="width: 30%" />
-<col style="width: 70%" />
-</colgroup>
 <thead>
 <tr><th class="head" colspan="2"><p>Classic PyGreSQL variant</p></th>
 </tr>
@@ -131,7 +123,7 @@ the Python Package Index at:</p>
 </section>
 <section id="installation">
 <h2>Installation</h2>
-<section id="id1">
+<section id="installation-1">
 <h3>Installation</h3>
 <p>The package can be installed in the usual way:</p>
 <pre class="literal-block">python setup.py install</pre>
@@ -141,7 +133,7 @@ the Python Package Index at:</p>
 </section>
 <section id="requirements">
 <h2>Requirements</h2>
-<p>DBUtils supports <a class="reference external" href="https://www.python.org">Python</a> version 2.7 and Python versions 3.5 to 3.9.</p>
+<p>DBUtils supports <a class="reference external" href="https://www.python.org">Python</a> version 2.7 and Python versions 3.5 to 3.10.</p>
 <p>The modules in the classic PyGreSQL variant need <a class="reference external" href="https://www.pygresql.org/">PyGreSQL</a> version 4.0
 or above, while the modules in the universal DB-API 2 variant run with
 any Python <a class="reference external" href="https://www.python.org/dev/peps/pep-0249/">DB-API 2</a> compliant database interface module.</p>
@@ -255,7 +247,7 @@ at their module docstrings. Using the Python interpreter console, you can
 display the documentation of the <span class="docutils literal">pooled_db</span> module as follows (this
 works analogously for the other modules):</p>
 <pre class="literal-block">help(pooled_db)</pre>
-<section id="id2">
+<section id="persistentdb-persistent-db-1">
 <h3>PersistentDB (persistent_db)</h3>
 <p>In order to make use of the <span class="docutils literal">persistent_db</span> module, you first need to set
 up a generator for your kind of database connections by creating an instance
@@ -313,7 +305,7 @@ connections may become a bit faster, but this may not work in all
 environments (for instance, <span class="docutils literal">mod_wsgi</span> is known to cause problems
 since it clears the <span class="docutils literal">threading.local</span> data between requests).</p>
 </section>
-<section id="id3">
+<section id="pooleddb-pooled-db-1">
 <h3>PooledDB (pooled_db)</h3>
 <p>In order to make use of the <span class="docutils literal">pooled_db</span> module, you first need to set up the
 database connection pool by creating an instance of <span class="docutils literal">pooled_db</span>, passing the
@@ -465,10 +457,10 @@ the connection pool every day shortly before the users arrive.</p></li>
 <section id="credits">
 <h2>Credits</h2>
 <dl class="field-list simple">
-<dt>Author</dt>
+<dt>Author<span class="colon">:</span></dt>
 <dd><p><a class="reference external" href="https://github.com/Cito">Christoph Zwerschke</a></p>
 </dd>
-<dt>Contributions</dt>
+<dt>Contributions<span class="colon">:</span></dt>
 <dd><p>DBUtils uses code, input and suggestions made by
 Ian Bicking, Chuck Esterbrook (Webware for Python), Dan Green (DBTools),
 Jay Love, Michael Palmer, Tom Schwaller, Geoffrey Talvola,
