@@ -1,7 +1,7 @@
 ﻿Benutzeranleitung für DBUtils
 +++++++++++++++++++++++++++++
 
-:Version: 2.0.2
+:Version: 3.0.0
 :Translations: English_ | German
 
 .. _English: main.html
@@ -98,7 +98,7 @@ herunterzuladen und zu installieren::
 Anforderungen
 =============
 
-DBUtils unterstützt die Python_ Versionen 2.7 und 3.5 bis 3.10.
+DBUtils unterstützt die Python_ Versionen 3.6 bis 3.10.
 
 Die Module in der Variante für klassisches PyGreSQL benötigen PyGreSQL_
 Version 4.0 oder höher, während die Module in der allgemeinen Variante

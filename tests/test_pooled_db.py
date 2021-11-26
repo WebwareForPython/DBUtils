@@ -868,9 +868,9 @@ class TestPooledDB(unittest.TestCase):
                 for i in range(20):
                     cursor = db.cursor()
                     self.assertEqual(db._con._con.open_cursors, 1)
-                    cursor.execute('select test%i' % i)
+                    cursor.execute(f'select test{i}')
                     r = cursor.fetchone()
-                    self.assertEqual(r, 'test%i' % i)
+                    self.assertEqual(r, f'test{i}')
                     cursor.close()
                     self.assertEqual(db._con._con.open_cursors, 0)
                     if maxusage:
@@ -976,10 +976,7 @@ class TestPooledDB(unittest.TestCase):
         for threadsafety in (1, 2):
             dbapi.threadsafety = threadsafety
             pool = PooledDB(dbapi, 2, 2, 0, 2, True)
-            try:
-                from queue import Queue, Empty
-            except ImportError:  # Python 2
-                from Queue import Queue, Empty
+            from queue import Queue, Empty
             queue = Queue(3)
 
             def connection():

@@ -83,10 +83,7 @@ class TestSimplePooledPg(unittest.TestCase):
 
     def test_threads(self):
         db_pool = self.my_db_pool(2)
-        try:
-            from queue import Queue, Empty
-        except ImportError:  # Python 2
-            from Queue import Queue, Empty
+        from queue import Queue, Empty
         queue = Queue(3)
 
         def connection():

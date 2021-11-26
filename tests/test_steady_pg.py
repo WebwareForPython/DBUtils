@@ -58,7 +58,7 @@ class TestSteadyPg(unittest.TestCase):
         for i in range(3):
             self.assertEqual(db.num_queries, i)
             self.assertEqual(
-                db.query('select test%d' % i), 'test%d' % i)
+                db.query(f'select test{i}'), f'test{i}')
         self.assertTrue(db.db.status)
         db.reopen()
         self.assertTrue(db.db.status)
@@ -135,7 +135,7 @@ class TestSteadyPg(unittest.TestCase):
             self.assertEqual(db._usage, i)
             self.assertEqual(db.num_queries, i)
             self.assertEqual(
-                db.query('select test%d' % i), 'test%d' % i)
+                db.query(f'select test{i}'), f'test{i}')
         self.assertTrue(db.db.status)
         self.assertEqual(db.get_tables(), 'test')
         self.assertTrue(db.db.status)
@@ -200,8 +200,8 @@ class TestSteadyPg(unittest.TestCase):
     def test_connection_maxusage(self):
         db = SteadyPgConnection(10)
         for i in range(100):
-            r = db.query('select test%d' % i)
-            self.assertEqual(r, 'test%d' % i)
+            r = db.query(f'select test{i}')
+            self.assertEqual(r, f'test{i}')
             self.assertTrue(db.db.status)
             j = i % 10 + 1
             self.assertEqual(db._usage, j)
@@ -220,8 +220,8 @@ class TestSteadyPg(unittest.TestCase):
         for i in range(10):
             if i == 7:
                 db.db.status = False
-            r = db.query('select test%d' % i)
-            self.assertEqual(r, 'test%d' % i)
+            r = db.query(f'select test{i}')
+            self.assertEqual(r, f'test{i}')
             j = i % 7 + 1
             self.assertEqual(db._usage, j)
             self.assertEqual(db.num_queries, j)

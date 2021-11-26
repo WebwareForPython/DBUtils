@@ -64,8 +64,8 @@ class TestSteadyDB(unittest.TestCase):
         for i in range(3):
             self.assertEqual(db.num_uses, i)
             self.assertEqual(db.num_queries, i)
-            cursor.execute('select test%d' % i)
-            self.assertEqual(cursor.fetchone(), 'test%d' % i)
+            cursor.execute(f'select test{i}')
+            self.assertEqual(cursor.fetchone(), f'test{i}')
         self.assertTrue(cursor.valid)
         self.assertEqual(db.open_cursors, 1)
         for i in range(4):
@@ -173,8 +173,8 @@ class TestSteadyDB(unittest.TestCase):
             self.assertEqual(db._usage, i)
             self.assertEqual(db._con.num_uses, i)
             self.assertEqual(db._con.num_queries, i)
-            cursor.execute('select test%d' % i)
-            self.assertEqual(cursor.fetchone(), 'test%d' % i)
+            cursor.execute(f'select test{i}')
+            self.assertEqual(cursor.fetchone(), f'test{i}')
         self.assertTrue(cursor.valid)
         self.assertEqual(db._con.open_cursors, 1)
         for i in range(4):
@@ -292,9 +292,9 @@ class TestSteadyDB(unittest.TestCase):
         db = SteadyDBconnect(dbapi, 10)
         cursor = db.cursor()
         for i in range(100):
-            cursor.execute('select test%d' % i)
+            cursor.execute(f'select test{i}')
             r = cursor.fetchone()
-            self.assertEqual(r, 'test%d' % i)
+            self.assertEqual(r, f'test{i}')
             self.assertTrue(db._con.valid)
             j = i % 10 + 1
             self.assertEqual(db._usage, j)
@@ -315,9 +315,9 @@ class TestSteadyDB(unittest.TestCase):
         for i in range(10):
             if i == 7:
                 db._con.valid = cursor._cursor.valid = False
-            cursor.execute('select test%d' % i)
+            cursor.execute(f'select test{i}')
             r = cursor.fetchone()
-            self.assertEqual(r, 'test%d' % i)
+            self.assertEqual(r, f'test{i}')
             j = i % 7 + 1
             self.assertEqual(db._usage, j)
             self.assertEqual(db._con.num_uses, j)

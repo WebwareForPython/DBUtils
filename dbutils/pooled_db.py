@@ -422,8 +422,7 @@ class PooledDedicatedDBConnection:
         """Proxy all members of the class."""
         if self._con:
             return getattr(self._con, name)
-        else:
-            raise InvalidConnection
+        raise InvalidConnection
 
     def __del__(self):
         """Delete the pooled connection."""
@@ -455,14 +454,12 @@ class SharedDBConnection:
     def __lt__(self, other):
         if self.con._transaction == other.con._transaction:
             return self.shared < other.shared
-        else:
-            return not self.con._transaction
+        return not self.con._transaction
 
     def __le__(self, other):
         if self.con._transaction == other.con._transaction:
             return self.shared <= other.shared
-        else:
-            return not self.con._transaction
+        return not self.con._transaction
 
     def __eq__(self, other):
         return (self.con._transaction == other.con._transaction
@@ -517,8 +514,7 @@ class PooledSharedDBConnection:
         """Proxy all members of the class."""
         if self._con:
             return getattr(self._con, name)
-        else:
-            raise InvalidConnection
+        raise InvalidConnection
 
     def __del__(self):
         """Delete the pooled connection."""

@@ -1,6 +1,17 @@
 ﻿Changelog for DBUtils
 +++++++++++++++++++++
 
+3.0.0
+=====
+
+DBUtils 2.0.3 was released on November 26, 2021.
+
+It is intended to be used with Python versions 3.6 to 3.10.
+
+Changes:
+
+* Cease support for Python 2 and 3.5, minor optimizations.
+
 2.0.3
 =====
 
@@ -10,7 +21,6 @@ Changes:
 
 * Support Python version 3.10.
 
-
 2.0.2
 =====
 
@@ -19,7 +29,6 @@ DBUtils 2.0.2 was released on June 8, 2021.
 Changes:
 
 * Allow using context managers for pooled connections.
-
 
 2.0.1
 =====

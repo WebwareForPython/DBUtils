@@ -73,11 +73,6 @@ from pg import DB as PgConnection
 
 from . import __version__
 
-try:
-    baseint = (int, long)
-except NameError:  # Python 3
-    baseint = int
-
 
 class SteadyPgError(Exception):
     """General SteadyPg error."""
@@ -122,7 +117,7 @@ class SteadyPgConnection:
         # proper initialization of the connection
         if maxusage is None:
             maxusage = 0
-        if not isinstance(maxusage, baseint):
+        if not isinstance(maxusage, int):
             raise TypeError("'maxusage' must be an integer value.")
         self._maxusage = maxusage
         self._setsession_sql = setsession
@@ -229,10 +224,7 @@ class SteadyPgConnection:
             return self._con.query(sql or 'begin')
         else:
             # use existing method if available
-            if sql:
-                return begin(sql=sql)
-            else:
-                return begin()
+            return begin(sql=sql) if sql else begin()
 
     def end(self, sql=None):
         """Commit the current transaction."""
@@ -242,10 +234,7 @@ class SteadyPgConnection:
         except AttributeError:
             return self._con.query(sql or 'end')
         else:
-            if sql:
-                return end(sql=sql)
-            else:
-                return end()
+            return end(sql=sql) if sql else end()
 
     def commit(self, sql=None):
         """Commit the current transaction."""
@@ -255,10 +244,7 @@ class SteadyPgConnection:
         except AttributeError:
             return self._con.query(sql or 'commit')
         else:
-            if sql:
-                return commit(sql=sql)
-            else:
-                return commit()
+            return commit(sql=sql) if sql else commit()
 
     def rollback(self, sql=None):
         """Rollback the current transaction."""
@@ -268,10 +254,7 @@ class SteadyPgConnection:
         except AttributeError:
             return self._con.query(sql or 'rollback')
         else:
-            if sql:
-                return rollback(sql=sql)
-            else:
-                return rollback()
+            return rollback(sql=sql) if sql else rollback()
 
     def _get_tough_method(self, method):
         """Return a "tough" version of a connection class method.
@@ -297,11 +280,10 @@ class SteadyPgConnection:
                 if transaction:  # inside a transaction
                     self._transaction = False
                     raise  # propagate the error
-                elif self._con.db.status:  # if it was not a connection problem
+                if self._con.db.status:  # if it was not a connection problem
                     raise  # then propagate the error
-                else:  # otherwise
-                    self.reset()  # reset the connection
-                    result = method(*args, **kwargs)  # and try one more time
+                self.reset()  # reset the connection
+                result = method(*args, **kwargs)  # and try one more time
             self._usage += 1
             return result
         return tough_method
@@ -317,8 +299,7 @@ class SteadyPgConnection:
                     or name.startswith('get_')):
                 attr = self._get_tough_method(attr)
             return attr
-        else:
-            raise InvalidConnection
+        raise InvalidConnection
 
     def __del__(self):
         """Delete the steady connection."""

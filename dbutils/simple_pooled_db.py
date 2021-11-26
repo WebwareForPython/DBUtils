@@ -134,14 +134,11 @@ class PooledDB:
         if threadsafety == 0:
             raise NotSupportedError(
                 "Database module does not support any level of threading.")
-        elif threadsafety == 1:
+        if threadsafety == 1:
             # If there is no connection level safety, build
             # the pool using the synchronized queue class
             # that implements all the required locking semantics.
-            try:
-                from Queue import Queue
-            except ImportError:  # Python 3
-                from queue import Queue
+            from queue import Queue
             self._queue = Queue(maxconnections)  # create the queue
             self.connection = self._unthreadsafe_get_connection
             self.addConnection = self._unthreadsafe_add_connection
@@ -197,12 +194,12 @@ class PooledDB:
     def _threadsafe_get_connection(self):
         """Get a connection from the pool."""
         with self._lock:
-            next = self._nextConnection
-            con = PooledDBConnection(self, self._connections[next])
-            next += 1
-            if next >= len(self._connections):
-                next = 0
-            self._nextConnection = next
+            next_con = self._nextConnection
+            con = PooledDBConnection(self, self._connections[next_con])
+            next_con += 1
+            if next_con >= len(self._connections):
+                next_con = 0
+            self._nextConnection = next_con
             return con
 
     def _threadsafe_add_connection(self, con):

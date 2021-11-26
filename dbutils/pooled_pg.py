@@ -112,10 +112,7 @@ Copyright, credits and license:
 Licensed under the MIT license.
 """
 
-try:
-    from Queue import Queue, Empty, Full
-except ImportError:  # Python 3
-    from queue import Queue, Empty, Full
+from queue import Queue, Empty, Full
 
 from . import __version__
 from .steady_pg import SteadyPgConnection
@@ -289,8 +286,7 @@ class PooledPgConnection:
         """Proxy all members of the class."""
         if self._con:
             return getattr(self._con, name)
-        else:
-            raise InvalidConnection
+        raise InvalidConnection
 
     def __del__(self):
         """Delete the pooled connection."""

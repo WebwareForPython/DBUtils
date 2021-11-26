@@ -93,11 +93,6 @@ import sys
 
 from . import __version__
 
-try:
-    baseint = (int, long)
-except NameError:  # Python 3
-    baseint = int
-
 
 class SteadyDBError(Exception):
     """General SteadyDB error."""
@@ -173,10 +168,10 @@ class SteadyDBConnection:
             except AttributeError:
                 self._threadsafety = None
         if not callable(self._creator):
-            raise TypeError("%r is not a connection provider." % (creator,))
+            raise TypeError(f"{creator!r} is not a connection provider.")
         if maxusage is None:
             maxusage = 0
-        if not isinstance(maxusage, baseint):
+        if not isinstance(maxusage, int):
             raise TypeError("'maxusage' must be an integer value.")
         self._maxusage = maxusage
         self._setsession_sql = setsession
@@ -531,7 +526,7 @@ class SteadyDBCursor:
         try:
             self._cursor = con._cursor(*args, **kwargs)
         except AttributeError:
-            raise TypeError("%r is not a SteadyDBConnection." % (con,))
+            raise TypeError(f"{con!r} is not a SteadyDBConnection.")
         self._closed = False
 
     def __enter__(self):
@@ -688,10 +683,8 @@ class SteadyDBCursor:
             if name.startswith(('execute', 'call')):
                 # make execution methods "tough"
                 return self._get_tough_method(name)
-            else:
-                return getattr(self._cursor, name)
-        else:
-            raise InvalidCursor
+            return getattr(self._cursor, name)
+        raise InvalidCursor
 
     def __del__(self):
         """Delete the steady cursor."""

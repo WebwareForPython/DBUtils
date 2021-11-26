@@ -8,12 +8,13 @@ except ImportError:
 from sys import version_info
 
 py_version = version_info[:2]
-if py_version != (2, 7) and not (3, 5) <= py_version < (4, 0):
-    raise ImportError('Python %d.%d is not supported by DBUtils.' % py_version)
+if not (3, 6) <= py_version < (4, 0):
+    raise ImportError(
+        'Python {}.{} is not supported by DBUtils.'.format(*py_version))
 
 warnings.filterwarnings('ignore', 'Unknown distribution option')
 
-__version__ = '2.0.3'
+__version__ = '3.0.0'
 
 readme = open('README.md').read()
 
@@ -27,20 +28,18 @@ setup(
         'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',
         'Intended Audience :: Developers',
+        'Topic :: Database',
+        'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
+        'Topic :: Software Development :: Libraries :: Python Modules',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
-        'Topic :: Database',
-        'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
-        'Topic :: Software Development :: Libraries :: Python Modules'
+        'Operating System :: OS Independent',
     ],
     author='Christoph Zwerschke',
     author_email='cito@online.de',

@@ -118,10 +118,7 @@ class PooledPg:
         # Since there is no connection level safety, we
         # build the pool using the synchronized queue class
         # that implements all the required locking semantics.
-        try:
-            from Queue import Queue
-        except ImportError:  # Python 3
-            from queue import Queue
+        from queue import Queue
         self._queue = Queue(maxconnections)
         # Establish all database connections (it would be better to
         # only establish a part of them now, and the rest on demand).
