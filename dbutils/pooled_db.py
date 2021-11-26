@@ -375,7 +375,7 @@ class PooledDB:
                     except Exception:
                         pass
                     self._connections -= 1
-            self._lock.notifyAll()
+            self._lock.notify_all()
 
     def __del__(self):
         """Delete the pool."""
