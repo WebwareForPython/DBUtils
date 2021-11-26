@@ -1,6 +1,16 @@
 ﻿Changelog for DBUtils
 +++++++++++++++++++++
 
+2.0.3
+=====
+
+DBUtils 2.0.3 was released on November 26, 2021.
+
+Changes:
+
+* Support Python version 3.10.
+
+
 2.0.2
 =====
 
