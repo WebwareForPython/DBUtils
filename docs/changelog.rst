@@ -4,7 +4,7 @@
 3.0.0
 =====
 
-DBUtils 2.0.3 was released on November 26, 2021.
+DBUtils 3.0.0 was released on November 26, 2021.
 
 It is intended to be used with Python versions 3.6 to 3.10.
 
