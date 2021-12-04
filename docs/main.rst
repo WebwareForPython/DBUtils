@@ -408,7 +408,7 @@ object stays alive as long as you are using it, like that::
 You can also use context managers for simpler code::
 
   with pool.connection() as db:
-      with db.cursor as cur:
+      with db.cursor() as cur:
           cur.execute(...)
           res = cur.fetchone()
 

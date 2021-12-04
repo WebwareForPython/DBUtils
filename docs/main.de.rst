@@ -446,7 +446,7 @@ sie gebraucht werden, etwa so::
 Sie können dies auch durch Verwendung von Kontext-Managern vereinfachen::
 
   with pool.connection() as db:
-      with db.cursor as cur:
+      with db.cursor() as cur:
           cur.execute(...)
           res = cur.fetchone()
 

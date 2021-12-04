@@ -422,7 +422,7 @@ cur.close()  # oder del cur
 db.close()  # oder del db</pre>
 <p>Sie können dies auch durch Verwendung von Kontext-Managern vereinfachen:</p>
 <pre class="literal-block">with pool.connection() as db:
-    with db.cursor as cur:
+    with db.cursor() as cur:
         cur.execute(...)
         res = cur.fetchone()</pre>
 <p>Bitte beachten Sie, dass Transaktionen explizit durch Aufruf der Methode
