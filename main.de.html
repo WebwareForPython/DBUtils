@@ -12,7 +12,7 @@
 <h1 class="title">Benutzeranleitung für DBUtils</h1>
 <dl class="docinfo simple">
 <dt class="version">Version<span class="colon">:</span></dt>
-<dd class="version">3.0.0</dd>
+<dd class="version">3.0.1</dd>
 <dt class="translations">Translations<span class="colon">:</span></dt>
 <dd class="translations"><p><a class="reference external" href="main.html">English</a> | German</p>
 </dd>
@@ -282,9 +282,10 @@ bedeutet unbegrenzte Wiederverwendung)</p>
 </li>
 <li><p><span class="docutils literal">setsession</span>: eine optionale Liste von SQL-Befehlen zur Initialisierung
 der Datenbanksitzung, z.B. <span class="docutils literal">[&quot;set datestyle to german&quot;, <span class="pre">...]</span></span></p></li>
-<li><p><span class="docutils literal">failures</span>: eine optionale Exception-Klasse oder ein Tupel von Exceptions
+<li><p><span class="docutils literal">failures</span>: eine optionale Exception-Klasse oder ein Tupel von Exceptions,
 bei denen die Ausfallsicherung zum Tragen kommen soll, falls die Vorgabe
-(OperationalError, InternalError) nicht geeignet sein sollte</p></li>
+(OperationalError, InterfaceError, InternalError) für das verwendete
+Datenbankadapter-Modul nicht geeignet sein sollte</p></li>
 <li><p><span class="docutils literal">ping</span>: mit diesem Parameter kann eingestellt werden, wann Verbindungen
 mit der <span class="docutils literal">ping()</span>-Methode geprüft werden, falls eine solche vorhanden ist
 (<span class="docutils literal">0</span> = <span class="docutils literal">None</span> = nie, <span class="docutils literal">1</span> = Standardwert = immer wenn neu angefragt,
@@ -371,9 +372,10 @@ der Datenbanksitzung, z.B. <span class="docutils literal">[&quot;set datestyle t
 in den Verbindungspool zurückgegeben werden (<span class="docutils literal">False</span> oder <span class="docutils literal">None</span>
 um mit <span class="docutils literal">begin()</span> gestartete Transaktionen zurückzurollen, der Standardwert
 <span class="docutils literal">True</span> rollt sicherheitshalber mögliche Transaktionen immer zurück)</p></li>
-<li><p><span class="docutils literal">failures</span>: eine optionale Exception-Klasse oder ein Tupel von Exceptions
+<li><p><span class="docutils literal">failures</span>: eine optionale Exception-Klasse oder ein Tupel von Exceptions,
 bei denen die Ausfallsicherung zum Tragen kommen soll, falls die Vorgabe
-(OperationalError, InternalError) nicht geeignet sein sollte</p></li>
+(OperationalError, InterfaceError, InternalError) für das verwendete
+Datenbankadapter-Modul nicht geeignet sein sollte</p></li>
 <li><p><span class="docutils literal">ping</span>: mit diesem Parameter kann eingestellt werden, wann Verbindungen
 mit der <span class="docutils literal">ping()</span>-Methode geprüft werden, falls eine solche vorhanden ist
 (<span class="docutils literal">0</span> = <span class="docutils literal">None</span> = nie, <span class="docutils literal">1</span> = Standardwert = immer wenn neu angefragt,
