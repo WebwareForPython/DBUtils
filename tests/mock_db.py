@@ -15,6 +15,10 @@ class OperationalError(DatabaseError):
     pass
 
 
+class InterfaceError(DatabaseError):
+    pass
+
+
 class InternalError(DatabaseError):
     pass
 

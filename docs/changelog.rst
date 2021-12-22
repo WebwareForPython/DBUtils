@@ -1,6 +1,16 @@
 ﻿Changelog for DBUtils
 +++++++++++++++++++++
 
+
+3.0.1
+=====
+
+DBUtils 3.0.1 was released on December 22, 2021.
+
+It includes ``InterfaceError`` to the default list of exceptions
+for which the connection failover mechanism is applied.
+You can override this with the ``failures`` parameter.
+
 3.0.0
 =====
 

@@ -57,7 +57,8 @@ an instance of PooledDB, passing the following parameters:
         the default value True always issues a rollback for safety's sake)
     failures: an optional exception class or a tuple of exception classes
         for which the connection failover mechanism shall be applied,
-        if the default (OperationalError, InternalError) is not adequate
+        if the default (OperationalError, InterfaceError, InternalError)
+        is not adequate for the used database module
     ping: an optional flag controlling when connections are checked
         with the ping() method if such a method is available
         (0 = None = never, 1 = default = whenever fetched from the pool,
@@ -210,7 +211,8 @@ class PooledDB:
             True to always issue a rollback for safety's sake)
         failures: an optional exception class or a tuple of exception classes
             for which the connection failover mechanism shall be applied,
-            if the default (OperationalError, InternalError) is not adequate
+            if the default (OperationalError, InterfaceError, InternalError)
+            is not adequate for the used database module
         ping: determines when the connection should be checked with ping()
             (0 = None = never, 1 = default = whenever fetched from the pool,
             2 = when a cursor is created, 4 = when a query is executed,

@@ -269,9 +269,10 @@ Parameter angeben müssen:
 * ``setsession``: eine optionale Liste von SQL-Befehlen zur Initialisierung
   der Datenbanksitzung, z.B. ``["set datestyle to german", ...]``
 
-* ``failures``: eine optionale Exception-Klasse oder ein Tupel von Exceptions
+* ``failures``: eine optionale Exception-Klasse oder ein Tupel von Exceptions,
   bei denen die Ausfallsicherung zum Tragen kommen soll, falls die Vorgabe
-  (OperationalError, InternalError) nicht geeignet sein sollte
+  (OperationalError, InterfaceError, InternalError) für das verwendete
+  Datenbankadapter-Modul nicht geeignet sein sollte
 
 * ``ping``: mit diesem Parameter kann eingestellt werden, wann Verbindungen
   mit der ``ping()``-Methode geprüft werden, falls eine solche vorhanden ist
@@ -378,9 +379,10 @@ Parameter angeben müssen:
   um mit ``begin()`` gestartete Transaktionen zurückzurollen, der Standardwert
   ``True`` rollt sicherheitshalber mögliche Transaktionen immer zurück)
 
-* ``failures``: eine optionale Exception-Klasse oder ein Tupel von Exceptions
+* ``failures``: eine optionale Exception-Klasse oder ein Tupel von Exceptions,
   bei denen die Ausfallsicherung zum Tragen kommen soll, falls die Vorgabe
-  (OperationalError, InternalError) nicht geeignet sein sollte
+  (OperationalError, InterfaceError, InternalError) für das verwendete
+  Datenbankadapter-Modul nicht geeignet sein sollte
 
 * ``ping``: mit diesem Parameter kann eingestellt werden, wann Verbindungen
   mit der ``ping()``-Methode geprüft werden, falls eine solche vorhanden ist

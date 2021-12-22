@@ -406,8 +406,12 @@ class TestSteadyDB(unittest.TestCase):
         db = SteadyDBconnect(dbapi, failures=dbapi.OperationalError)
         db.close()
         self.assertRaises(dbapi.InternalError, db.cursor)
-        db = SteadyDBconnect(
-            dbapi, failures=(dbapi.OperationalError, dbapi.InternalError))
+        db = SteadyDBconnect(dbapi, failures=(
+            dbapi.OperationalError, dbapi.InterfaceError))
+        db.close()
+        self.assertRaises(dbapi.InternalError, db.cursor)
+        db = SteadyDBconnect(dbapi, failures=(
+            dbapi.OperationalError, dbapi.InterfaceError, dbapi.InternalError))
         db.close()
         db.cursor()
 

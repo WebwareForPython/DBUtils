@@ -117,7 +117,8 @@ def connect(
         the session, e.g. ["set datestyle to german", "set time zone mez"]
     failures: an optional exception class or a tuple of exception classes
         for which the failover mechanism shall be applied, if the default
-        (OperationalError, InternalError) is not adequate
+        (OperationalError, InternalError, Interface) is not adequate
+        for the used database module
     ping: determines when the connection should be checked with ping()
         (0 = None = never, 1 = default = when _ping_check() is called,
         2 = whenever a cursor is created, 4 = when a query is executed,
@@ -258,16 +259,20 @@ class SteadyDBConnection:
                 try:
                     self._failures = (
                         self._dbapi.OperationalError,
+                        self._dbapi.InterfaceError,
                         self._dbapi.InternalError)
                 except AttributeError:
                     try:
                         self._failures = (
                             self._creator.OperationalError,
+                            self._creator.InterfaceError,
                             self._creator.InternalError)
                     except AttributeError:
                         try:
                             self._failures = (
-                                con.OperationalError, con.InternalError)
+                                con.OperationalError,
+                                con.InterfaceError,
+                                con.InternalError)
                         except AttributeError:
                             raise AttributeError(
                                 "Could not determine failure exceptions"

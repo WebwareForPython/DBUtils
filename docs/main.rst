@@ -250,7 +250,8 @@ of ``persistent_db``, passing the following parameters:
 
 * ``failures``: an optional exception class or a tuple of exception classes
   for which the connection failover mechanism shall be applied,
-  if the default (OperationalError, InternalError) is not adequate
+  if the default (OperationalError, InterfaceError, InternalError)
+  is not adequate for the used database module
 
 * ``ping``: an optional flag controlling when connections are checked
   with the ``ping()`` method if such a method is available
@@ -347,7 +348,8 @@ following parameters:
 
 * ``failures``: an optional exception class or a tuple of exception classes
   for which the connection failover mechanism shall be applied,
-  if the default (OperationalError, InternalError) is not adequate
+  if the default (OperationalError, InterfaceError, InternalError)
+  is not adequate for the used database module
 
 * ``ping``: an optional flag controlling when connections are checked
   with the ``ping()`` method if such a method is available

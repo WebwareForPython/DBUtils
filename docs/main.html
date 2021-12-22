@@ -263,7 +263,8 @@ connection objects or a DB-API 2 compliant database module</p></li>
 prepare the session, e.g. <span class="docutils literal">[&quot;set datestyle to german&quot;, <span class="pre">...]</span></span></p></li>
 <li><p><span class="docutils literal">failures</span>: an optional exception class or a tuple of exception classes
 for which the connection failover mechanism shall be applied,
-if the default (OperationalError, InternalError) is not adequate</p></li>
+if the default (OperationalError, InterfaceError, InternalError)
+is not adequate for the used database module</p></li>
 <li><p><span class="docutils literal">ping</span>: an optional flag controlling when connections are checked
 with the <span class="docutils literal">ping()</span> method if such a method is available
 (<span class="docutils literal">0</span> = <span class="docutils literal">None</span> = never, <span class="docutils literal">1</span> = default = whenever it is requested,
@@ -340,7 +341,8 @@ prepare the session, e.g. <span class="docutils literal">[&quot;set datestyle to
 the default value <span class="docutils literal">True</span> always issues a rollback for safety's sake)</p></li>
 <li><p><span class="docutils literal">failures</span>: an optional exception class or a tuple of exception classes
 for which the connection failover mechanism shall be applied,
-if the default (OperationalError, InternalError) is not adequate</p></li>
+if the default (OperationalError, InterfaceError, InternalError)
+is not adequate for the used database module</p></li>
 <li><p><span class="docutils literal">ping</span>: an optional flag controlling when connections are checked
 with the <span class="docutils literal">ping()</span> method if such a method is available
 (<span class="docutils literal">0</span> = <span class="docutils literal">None</span> = never, <span class="docutils literal">1</span> = default = whenever fetched from the pool,
