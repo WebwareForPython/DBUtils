@@ -1,7 +1,7 @@
 ﻿Benutzeranleitung für DBUtils
 +++++++++++++++++++++++++++++
 
-:Version: 3.0.0
+:Version: 3.0.1
 :Translations: English_ | German
 
 .. _English: main.html

@@ -1,7 +1,7 @@
 ﻿DBUtils User's Guide
 ++++++++++++++++++++
 
-:Version: 3.0.0
+:Version: 3.0.1
 :Translations: English | German_
 
 .. _German: main.de.html
