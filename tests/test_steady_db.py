@@ -273,6 +273,36 @@ class TestSteadyDB(unittest.TestCase):
             self.assertEqual(cursor.fetchone(), 'test')
         self.assertEqual(db._con.open_cursors, 0)
 
+    def test_cursor_as_iterator_provided(self):
+        db = SteadyDBconnect(
+            dbapi, 0, None, None, None, True,
+            'SteadyDBTestDB', user='SteadyDBTestUser')
+        self.assertEqual(db._con.open_cursors, 0)
+        cursor = db.cursor()
+        self.assertEqual(db._con.open_cursors, 1)
+        cursor.execute('select test')
+        _cursor = cursor._cursor
+        try:
+            assert not hasattr(_cursor, 'iter')
+            _cursor.__iter__ = lambda: ['test-iter']
+            assert list(iter(cursor)) == ['test']
+        finally:
+            del _cursor.__iter__
+        cursor.close()
+        self.assertEqual(db._con.open_cursors, 0)
+
+    def test_cursor_as_iterator_created(self):
+        db = SteadyDBconnect(
+            dbapi, 0, None, None, None, True,
+            'SteadyDBTestDB', user='SteadyDBTestUser')
+        self.assertEqual(db._con.open_cursors, 0)
+        cursor = db.cursor()
+        self.assertEqual(db._con.open_cursors, 1)
+        cursor.execute('select test')
+        assert list(iter(cursor)) == ['test']
+        cursor.close()
+        self.assertEqual(db._con.open_cursors, 0)
+
     def test_connection_creator_function(self):
         db1 = SteadyDBconnect(
             dbapi, 0, None, None, None, True,

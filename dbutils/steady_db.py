@@ -542,6 +542,14 @@ class SteadyDBCursor:
         """Exit the runtime context for the cursor object."""
         self.close()
 
+    def __iter__(self):
+        """Make cursor compatible to the iteration protocol."""
+        cursor = self._cursor
+        try:  # use iterator provided by original cursor
+            return iter(cursor)
+        except TypeError:  # create iterator if not provided
+            return iter(cursor.fetchone, None)
+
     def setinputsizes(self, sizes):
         """Store input sizes in case cursor needs to be reopened."""
         self._inputsizes = sizes
