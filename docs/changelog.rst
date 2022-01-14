@@ -1,6 +1,12 @@
 ﻿Changelog for DBUtils
 +++++++++++++++++++++
 
+3.0.2
+=====
+
+DBUtils 3.0.2 was released on January 14, 2022.
+
+The the optional iterator protocol on cursors is now supported.
 
 3.0.1
 =====
