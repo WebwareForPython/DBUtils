@@ -148,7 +148,11 @@ class SteadyDBConnection:
         # proper initialization of the connection
         try:
             self._creator = creator.connect
-            self._dbapi = creator
+            try:
+                if creator.dbapi.connect:
+                    self._dbapi = creator.dbapi
+            except AttributeError:
+                self._dbapi = creator
         except AttributeError:
             # try finding the DB-API 2 module via the connection creator
             self._creator = creator
