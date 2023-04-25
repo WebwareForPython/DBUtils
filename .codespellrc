@@ -1,3 +1,3 @@
 [codespell]
-skip = .tox,.venv,*.de.html,*.de.rst
+skip = .git,.tox,.venv,*.de.html,*.de.rst,build,dist,local
 quiet-level = 2

@@ -1,6 +1,6 @@
 #!/usr/bin/python3.9
 
-"""Build HMTL from reST files."""
+"""Build HTML from reST files."""
 
 from glob import glob
 from os.path import splitext
