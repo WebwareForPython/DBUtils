@@ -174,12 +174,15 @@ class PersistentDB:
             threadsafety = creator.threadsafety
         except AttributeError:
             try:
-                if not callable(creator.connect):
-                    raise AttributeError
+                threadsafety = creator.dbapi.threadsafety
             except AttributeError:
-                threadsafety = 1
-            else:
-                threadsafety = 0
+                try:
+                    if not callable(creator.connect):
+                        raise AttributeError
+                except AttributeError:
+                    threadsafety = 1
+                else:
+                    threadsafety = 0
         if not threadsafety:
             raise NotSupportedError("Database module is not thread-safe.")
         self._creator = creator
