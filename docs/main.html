@@ -337,7 +337,7 @@ the connection is automatically reset (closed and reopened).</p>
 <li><p><span class="docutils literal">setsession</span>: an optional list of SQL commands that may serve to
 prepare the session, e.g. <span class="docutils literal">[&quot;set datestyle to german&quot;, <span class="pre">...]</span></span></p></li>
 <li><p><span class="docutils literal">reset</span>: how connections should be reset when returned to the pool
-(<span class="docutils literal">False</span> or <span class="docutils literal">None</span> to rollback transcations started with <span class="docutils literal">begin()</span>,
+(<span class="docutils literal">False</span> or <span class="docutils literal">None</span> to rollback transactions started with <span class="docutils literal">begin()</span>,
 the default value <span class="docutils literal">True</span> always issues a rollback for safety's sake)</p></li>
 <li><p><span class="docutils literal">failures</span>: an optional exception class or a tuple of exception classes
 for which the connection failover mechanism shall be applied,

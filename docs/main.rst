@@ -343,7 +343,7 @@ following parameters:
   prepare the session, e.g. ``["set datestyle to german", ...]``
 
 * ``reset``: how connections should be reset when returned to the pool
-  (``False`` or ``None`` to rollback transcations started with ``begin()``,
+  (``False`` or ``None`` to rollback transactions started with ``begin()``,
   the default value ``True`` always issues a rollback for safety's sake)
 
 * ``failures``: an optional exception class or a tuple of exception classes

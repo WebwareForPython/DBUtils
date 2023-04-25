@@ -183,7 +183,7 @@ class SteadyPgConnection:
         try:
             self._con.reopen()
         except Exception:
-            if self._transcation:
+            if self._transaction:
                 self._transaction = False
                 try:
                     self._con.query('rollback')

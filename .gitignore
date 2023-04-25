@@ -12,6 +12,7 @@
 
 build
 dist
+local
 
 .idea
 .tox

@@ -53,7 +53,7 @@ an instance of PooledDB, passing the following parameters:
     setsession: an optional list of SQL commands that may serve to
         prepare the session, e.g. ["set datestyle to german", ...]
     reset: how connections should be reset when returned to the pool
-        (False or None to rollback transcations started with begin(),
+        (False or None to rollback transactions started with begin(),
         the default value True always issues a rollback for safety's sake)
     failures: an optional exception class or a tuple of exception classes
         for which the connection failover mechanism shall be applied,
@@ -207,7 +207,7 @@ class PooledDB:
         setsession: optional list of SQL commands that may serve to prepare
             the session, e.g. ["set datestyle to ...", "set time zone ..."]
         reset: how connections should be reset when returned to the pool
-            (False or None to rollback transcations started with begin(),
+            (False or None to rollback transactions started with begin(),
             True to always issue a rollback for safety's sake)
         failures: an optional exception class or a tuple of exception classes
             for which the connection failover mechanism shall be applied,

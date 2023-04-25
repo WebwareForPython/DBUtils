@@ -162,7 +162,7 @@ class PooledPg:
         setsession: optional list of SQL commands that may serve to prepare
             the session, e.g. ["set datestyle to ...", "set time zone ..."]
         reset: how connections should be reset when returned to the pool
-            (0 or None to rollback transcations started with begin(),
+            (0 or None to rollback transactions started with begin(),
             1 to always issue a rollback, 2 for a complete reset)
         args, kwargs: the parameters that shall be used to establish
             the PostgreSQL connections using class PyGreSQL pg.DB()
