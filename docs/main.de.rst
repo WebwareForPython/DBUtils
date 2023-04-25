@@ -98,7 +98,7 @@ herunterzuladen und zu installieren::
 Anforderungen
 =============
 
-DBUtils unterstützt die Python_ Versionen 3.6 bis 3.10.
+DBUtils unterstützt die Python_ Versionen 3.6 bis 3.11.
 
 Die Module in der Variante für klassisches PyGreSQL benötigen PyGreSQL_
 Version 4.0 oder höher, während die Module in der allgemeinen Variante

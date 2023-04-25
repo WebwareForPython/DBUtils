@@ -10,18 +10,18 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python: ['3.9']
+        python: ['3.10']
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Set up Python ${{ matrix.python }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python }}
 
     - name: Build source tarball
-      if: matrix.python == 3.9
+      if: matrix.python == 3.10
       run: python setup.py sdist
 
     - name: Build wheel
