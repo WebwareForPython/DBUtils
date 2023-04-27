@@ -1,7 +1,7 @@
 ﻿DBUtils User's Guide
 ++++++++++++++++++++
 
-:Version: 3.0.2
+:Version: 3.0.3
 :Translations: English | German_
 
 .. _German: main.de.html
@@ -543,7 +543,7 @@ Credits
 Copyright and License
 =====================
 
-Copyright © 2005-2022 by Christoph Zwerschke.
+Copyright © 2005-2023 by Christoph Zwerschke.
 All Rights Reserved.
 
 DBUtils is free and open source software,

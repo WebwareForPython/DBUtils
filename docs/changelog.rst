@@ -1,12 +1,23 @@
 ﻿Changelog for DBUtils
 +++++++++++++++++++++
 
+3.0.3
+=====
+
+DBUtils 3.0.3 was released on April 27, 2023.
+
+Changes:
+
+* Support Python version 3.11.
+* Improve determination of DB API module if creator is specified.
+* Minor fixes and section an advanced usage in docs.
+
 3.0.2
 =====
 
 DBUtils 3.0.2 was released on January 14, 2022.
 
-The the optional iterator protocol on cursors is now supported.
+The optional iterator protocol on cursors is now supported.
 
 3.0.1
 =====
