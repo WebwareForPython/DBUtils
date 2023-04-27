@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-<meta charset="utf-8"/>
+<meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+<meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 <title>DBUtils User's Guide</title>
 <link rel="stylesheet" href="doc.css" type="text/css" />
 </head>
@@ -12,7 +12,7 @@
 <h1 class="title">DBUtils User's Guide</h1>
 <dl class="docinfo simple">
 <dt class="version">Version<span class="colon">:</span></dt>
-<dd class="version">3.0.2</dd>
+<dd class="version">3.0.3</dd>
 <dt class="translations">Translations<span class="colon">:</span></dt>
 <dd class="translations"><p>English | <a class="reference external" href="main.de.html">German</a></p>
 </dd>
@@ -44,12 +44,13 @@
 <li><p><a class="reference internal" href="#pooleddb-pooled-db-1" id="toc-entry-15">PooledDB (pooled_db)</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#notes" id="toc-entry-16">Notes</a></p></li>
-<li><p><a class="reference internal" href="#future" id="toc-entry-17">Future</a></p></li>
-<li><p><a class="reference internal" href="#bug-reports-and-feedback" id="toc-entry-18">Bug reports and feedback</a></p></li>
-<li><p><a class="reference internal" href="#links" id="toc-entry-19">Links</a></p></li>
-<li><p><a class="reference internal" href="#credits" id="toc-entry-20">Credits</a></p></li>
-<li><p><a class="reference internal" href="#copyright-and-license" id="toc-entry-21">Copyright and License</a></p></li>
+<li><p><a class="reference internal" href="#advanced-usage" id="toc-entry-16">Advanced Usage</a></p></li>
+<li><p><a class="reference internal" href="#notes" id="toc-entry-17">Notes</a></p></li>
+<li><p><a class="reference internal" href="#future" id="toc-entry-18">Future</a></p></li>
+<li><p><a class="reference internal" href="#bug-reports-and-feedback" id="toc-entry-19">Bug reports and feedback</a></p></li>
+<li><p><a class="reference internal" href="#links" id="toc-entry-20">Links</a></p></li>
+<li><p><a class="reference internal" href="#credits" id="toc-entry-21">Credits</a></p></li>
+<li><p><a class="reference internal" href="#copyright-and-license" id="toc-entry-22">Copyright and License</a></p></li>
 </ul>
 </nav>
 <section id="synopsis">
@@ -133,7 +134,7 @@ the Python Package Index at:</p>
 </section>
 <section id="requirements">
 <h2>Requirements</h2>
-<p>DBUtils supports <a class="reference external" href="https://www.python.org">Python</a> versions 3.6 to 3.10.</p>
+<p>DBUtils supports <a class="reference external" href="https://www.python.org">Python</a> versions 3.6 to 3.11.</p>
 <p>The modules in the classic PyGreSQL variant need <a class="reference external" href="https://www.pygresql.org/">PyGreSQL</a> version 4.0
 or above, while the modules in the universal DB-API 2 variant run with
 any Python <a class="reference external" href="https://www.python.org/dev/peps/pep-0249/">DB-API 2</a> compliant database interface module.</p>
@@ -337,7 +338,7 @@ the connection is automatically reset (closed and reopened).</p>
 <li><p><span class="docutils literal">setsession</span>: an optional list of SQL commands that may serve to
 prepare the session, e.g. <span class="docutils literal">[&quot;set datestyle to german&quot;, <span class="pre">...]</span></span></p></li>
 <li><p><span class="docutils literal">reset</span>: how connections should be reset when returned to the pool
-(<span class="docutils literal">False</span> or <span class="docutils literal">None</span> to rollback transcations started with <span class="docutils literal">begin()</span>,
+(<span class="docutils literal">False</span> or <span class="docutils literal">None</span> to rollback transactions started with <span class="docutils literal">begin()</span>,
 the default value <span class="docutils literal">True</span> always issues a rollback for safety's sake)</p></li>
 <li><p><span class="docutils literal">failures</span>: an optional exception class or a tuple of exception classes
 for which the connection failover mechanism shall be applied,
@@ -395,6 +396,26 @@ with other threads, that the transparent reopening will be suspended
 until the end of the transaction, and that the connection will be rolled
 back before being given back to the connection pool.</p>
 </section>
+</section>
+<section id="advanced-usage">
+<h2>Advanced Usage</h2>
+<p>Sometimes you may want to prepare connections before they are used by
+DBUtils, in ways that are not possible by just using the right parameters.
+For instance, <span class="docutils literal">pyodbc</span> may require to configure connections by calling
+the <span class="docutils literal">setencoding()</span> method of the connection. You can do this by passing
+a modified <span class="docutils literal">connect()</span> function to <span class="docutils literal">PersistentDB</span> or <span class="docutils literal">PooledDB</span> as
+<span class="docutils literal">creator</span> (the first argument), like this:</p>
+<pre class="literal-block">from pyodbc import connect
+from dbutils.pooled_db import PooledDB
+
+def creator():
+    con = connect(...)
+    con.setdecoding(...)
+    return con
+
+creator.dbapi = pyodbc
+
+db_pool = PooledDB(creator, mincached=5)</pre>
 </section>
 <section id="notes">
 <h2>Notes</h2>
@@ -473,7 +494,7 @@ Matthew Harriger, Gregory Piñero and Josef van Eenbergen.</p>
 </section>
 <section id="copyright-and-license">
 <h2>Copyright and License</h2>
-<p>Copyright © 2005-2022 by Christoph Zwerschke.
+<p>Copyright © 2005-2023 by Christoph Zwerschke.
 All Rights Reserved.</p>
 <p>DBUtils is free and open source software,
 licensed under the <a class="reference external" href="https://opensource.org/licenses/MIT">MIT license</a>.</p>

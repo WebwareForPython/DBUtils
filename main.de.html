@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" lang="de">
 <head>
-<meta charset="utf-8"/>
+<meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+<meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 <title>Benutzeranleitung für DBUtils</title>
 <link rel="stylesheet" href="doc.css" type="text/css" />
 </head>
@@ -12,7 +12,7 @@
 <h1 class="title">Benutzeranleitung für DBUtils</h1>
 <dl class="docinfo simple">
 <dt class="version">Version<span class="colon">:</span></dt>
-<dd class="version">3.0.2</dd>
+<dd class="version">3.0.3</dd>
 <dt class="translations">Translations<span class="colon">:</span></dt>
 <dd class="translations"><p><a class="reference external" href="main.html">English</a> | German</p>
 </dd>
@@ -44,12 +44,13 @@
 <li><p><a class="reference internal" href="#pooleddb-pooled-db-1" id="toc-entry-15">PooledDB (pooled_db)</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#anmerkungen" id="toc-entry-16">Anmerkungen</a></p></li>
-<li><p><a class="reference internal" href="#zukunft" id="toc-entry-17">Zukunft</a></p></li>
-<li><p><a class="reference internal" href="#fehlermeldungen-und-feedback" id="toc-entry-18">Fehlermeldungen und Feedback</a></p></li>
-<li><p><a class="reference internal" href="#links" id="toc-entry-19">Links</a></p></li>
-<li><p><a class="reference internal" href="#autoren" id="toc-entry-20">Autoren</a></p></li>
-<li><p><a class="reference internal" href="#copyright-und-lizenz" id="toc-entry-21">Copyright und Lizenz</a></p></li>
+<li><p><a class="reference internal" href="#besonderheiten-bei-der-benutzung" id="toc-entry-16">Besonderheiten bei der Benutzung</a></p></li>
+<li><p><a class="reference internal" href="#anmerkungen" id="toc-entry-17">Anmerkungen</a></p></li>
+<li><p><a class="reference internal" href="#zukunft" id="toc-entry-18">Zukunft</a></p></li>
+<li><p><a class="reference internal" href="#fehlermeldungen-und-feedback" id="toc-entry-19">Fehlermeldungen und Feedback</a></p></li>
+<li><p><a class="reference internal" href="#links" id="toc-entry-20">Links</a></p></li>
+<li><p><a class="reference internal" href="#autoren" id="toc-entry-21">Autoren</a></p></li>
+<li><p><a class="reference internal" href="#copyright-und-lizenz" id="toc-entry-22">Copyright und Lizenz</a></p></li>
 </ul>
 </nav>
 <section id="zusammenfassung">
@@ -136,7 +137,7 @@ herunterzuladen und zu installieren:</p>
 </section>
 <section id="anforderungen">
 <h2>Anforderungen</h2>
-<p>DBUtils unterstützt die <a class="reference external" href="https://www.python.org">Python</a> Versionen 3.6 bis 3.10.</p>
+<p>DBUtils unterstützt die <a class="reference external" href="https://www.python.org">Python</a> Versionen 3.6 bis 3.11.</p>
 <p>Die Module in der Variante für klassisches PyGreSQL benötigen <a class="reference external" href="https://www.pygresql.org/">PyGreSQL</a>
 Version 4.0 oder höher, während die Module in der allgemeinen Variante
 für DB-API 2 mit jedem beliebigen Python-Datenbankadapter-Modul zusammenarbeiten,
@@ -435,6 +436,27 @@ ausgesetzt wird, und dass die Verbindung zurückgerollt wird, bevor sie
 wieder an den Verbindungspool zurückgegeben wird.</p>
 </section>
 </section>
+<section id="besonderheiten-bei-der-benutzung">
+<h2>Besonderheiten bei der Benutzung</h2>
+<p>Manchmal möchte man Datenbankverbindung besonders vorbereiten, bevor sie
+von DBUtils verwendet werden, und dies ist nicht immer durch Verwendung
+der passenden Parameter möglich. Zum Beispiel kann es <span class="docutils literal">pyodb</span> erfordern,
+dass man die Methode <span class="docutils literal">setencoding()</span> der Datenbankverbindung aufruft.
+Sie können dies erreichen, indem Sie eine modifizierte Version der
+Funktion <span class="docutils literal">connect()</span> verwenden und diese als <span class="docutils literal">creator</span> (dem ersten
+Argument) an <span class="docutils literal">PersistentDB</span> oder <span class="docutils literal">PooledDB</span> übergeben, etwa so:</p>
+<pre class="literal-block">from pyodbc import connect
+from dbutils.pooled_db import PooledDB
+
+def creator():
+    con = connect(...)
+    con.setdecoding(...)
+    return con
+
+creator.dbapi = pyodbc
+
+db_pool = PooledDB(creator, mincached=5)</pre>
+</section>
 <section id="anmerkungen">
 <h2>Anmerkungen</h2>
 <p>Wenn Sie einen der bekannten &quot;Object-Relational Mapper&quot; <a class="reference external" href="http://sqlobject.org/">SQLObject</a> oder
@@ -514,7 +536,7 @@ Matthew Harriger, Gregory Piñero und Josef van Eenbergen.</p>
 </section>
 <section id="copyright-und-lizenz">
 <h2>Copyright und Lizenz</h2>
-<p>Copyright © 2005-2021 Christoph Zwerschke.
+<p>Copyright © 2005-2023 Christoph Zwerschke.
 Alle Rechte vorbehalten.</p>
 <p>DBUtils ist freie und quelloffene Software,
 lizenziert unter der <a class="reference external" href="https://opensource.org/licenses/MIT">MIT-Lizenz</a>.</p>
