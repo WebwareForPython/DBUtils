@@ -1,6 +1,9 @@
+#!/usr/bin/env python3
+
 """Setup Script for DBUtils"""
 
 import warnings
+
 try:
     from setuptools import setup
 except ImportError:

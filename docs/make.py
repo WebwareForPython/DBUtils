@@ -4,6 +4,7 @@
 
 from glob import glob
 from os.path import splitext
+
 from docutils.core import publish_file
 
 print("Creating the documentation...")
@@ -25,11 +26,11 @@ for rst_file in glob('*.rst'):
             output = publish_file(
                 writer_name='html5', source=source, destination=destination,
                 enable_exit_status=True,
-                settings_overrides=dict(
-                    stylesheet_path='doc.css',
-                    embed_stylesheet=False,
-                    toc_backlinks=False,
-                    language_code=lang,
-                    exit_status_level=2))
+                settings_overrides={
+                    "stylesheet_path": 'doc.css',
+                    "embed_stylesheet": False,
+                    "toc_backlinks": False,
+                    "language_code": lang,
+                    "exit_status_level": 2})
 
 print("Done.")

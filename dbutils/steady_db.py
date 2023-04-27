@@ -372,6 +372,7 @@ class SteadyDBConnection:
                     self._store(con)
                     alive = True
             return alive
+        return None
 
     def dbapi(self):
         """Return the underlying DB-API 2 module of the connection."""

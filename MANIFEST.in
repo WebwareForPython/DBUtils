@@ -5,7 +5,7 @@ include README.md
 
 include .bumpversion.cfg
 include .codespellrc
-include .flake8
+include pyproject.toml
 include tox.ini
 
 recursive-include tests *.py

@@ -112,7 +112,7 @@ Copyright, credits and license:
 Licensed under the MIT license.
 """
 
-from queue import Queue, Empty, Full
+from queue import Empty, Full, Queue
 
 from . import __version__
 from .steady_pg import SteadyPgConnection
