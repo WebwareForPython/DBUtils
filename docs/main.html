@@ -44,12 +44,13 @@
 <li><p><a class="reference internal" href="#pooleddb-pooled-db-1" id="toc-entry-15">PooledDB (pooled_db)</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#notes" id="toc-entry-16">Notes</a></p></li>
-<li><p><a class="reference internal" href="#future" id="toc-entry-17">Future</a></p></li>
-<li><p><a class="reference internal" href="#bug-reports-and-feedback" id="toc-entry-18">Bug reports and feedback</a></p></li>
-<li><p><a class="reference internal" href="#links" id="toc-entry-19">Links</a></p></li>
-<li><p><a class="reference internal" href="#credits" id="toc-entry-20">Credits</a></p></li>
-<li><p><a class="reference internal" href="#copyright-and-license" id="toc-entry-21">Copyright and License</a></p></li>
+<li><p><a class="reference internal" href="#advanced-usage" id="toc-entry-16">Advanced Usage</a></p></li>
+<li><p><a class="reference internal" href="#notes" id="toc-entry-17">Notes</a></p></li>
+<li><p><a class="reference internal" href="#future" id="toc-entry-18">Future</a></p></li>
+<li><p><a class="reference internal" href="#bug-reports-and-feedback" id="toc-entry-19">Bug reports and feedback</a></p></li>
+<li><p><a class="reference internal" href="#links" id="toc-entry-20">Links</a></p></li>
+<li><p><a class="reference internal" href="#credits" id="toc-entry-21">Credits</a></p></li>
+<li><p><a class="reference internal" href="#copyright-and-license" id="toc-entry-22">Copyright and License</a></p></li>
 </ul>
 </nav>
 <section id="synopsis">
@@ -395,6 +396,26 @@ with other threads, that the transparent reopening will be suspended
 until the end of the transaction, and that the connection will be rolled
 back before being given back to the connection pool.</p>
 </section>
+</section>
+<section id="advanced-usage">
+<h2>Advanced Usage</h2>
+<p>Sometimes you may want to prepare connections before they are used by
+DBUtils, in ways that are not possible by just using the right parameters.
+For instance, <span class="docutils literal">pyodbc</span> may require to configure connections by calling
+the <span class="docutils literal">setencoding()</span> method of the connection. You can do this by passing
+a modified <span class="docutils literal">connect()</span> function to <span class="docutils literal">PersistentDB</span> or <span class="docutils literal">PooledDB</span> as
+<span class="docutils literal">creator</span> (the first argument), like this:</p>
+<pre class="literal-block">from pyodbc import connect
+from dbutils.pooled_db import PooledDB
+
+def creator():
+    con = connect(...)
+    con.setdecoding(...)
+    return con
+
+creator.dbapi = pyodbc
+
+db_pool = PooledDB(creator, mincached=5)</pre>
 </section>
 <section id="notes">
 <h2>Notes</h2>

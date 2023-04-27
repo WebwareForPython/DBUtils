@@ -421,6 +421,28 @@ until the end of the transaction, and that the connection will be rolled
 back before being given back to the connection pool.
 
 
+Advanced Usage
+==============
+Sometimes you may want to prepare connections before they are used by
+DBUtils, in ways that are not possible by just using the right parameters.
+For instance, ``pyodbc`` may require to configure connections by calling
+the ``setencoding()`` method of the connection. You can do this by passing
+a modified ``connect()`` function to ``PersistentDB`` or ``PooledDB`` as
+``creator`` (the first argument), like this::
+
+    from pyodbc import connect
+    from dbutils.pooled_db import PooledDB
+
+    def creator():
+        con = connect(...)
+        con.setdecoding(...)
+        return con
+
+    creator.dbapi = pyodbc
+
+    db_pool = PooledDB(creator, mincached=5)
+
+
 Notes
 =====
 If you are using one of the popular object-relational mappers SQLObject_

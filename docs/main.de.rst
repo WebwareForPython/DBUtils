@@ -461,6 +461,29 @@ ausgesetzt wird, und dass die Verbindung zurückgerollt wird, bevor sie
 wieder an den Verbindungspool zurückgegeben wird.
 
 
+Besonderheiten bei der Benutzung
+================================
+Manchmal möchte man Datenbankverbindung besonders vorbereiten, bevor sie
+von DBUtils verwendet werden, und dies ist nicht immer durch Verwendung
+der passenden Parameter möglich. Zum Beispiel kann es ``pyodb`` erfordern,
+dass man die Methode ``setencoding()`` der Datenbankverbindung aufruft.
+Sie können dies erreichen, indem Sie eine modifizierte Version der
+Funktion ``connect()`` verwenden und diese als ``creator`` (dem ersten
+Argument) an ``PersistentDB`` oder ``PooledDB`` übergeben, etwa so::
+
+    from pyodbc import connect
+    from dbutils.pooled_db import PooledDB
+
+    def creator():
+        con = connect(...)
+        con.setdecoding(...)
+        return con
+
+    creator.dbapi = pyodbc
+
+    db_pool = PooledDB(creator, mincached=5)
+
+
 Anmerkungen
 ===========
 Wenn Sie einen der bekannten "Object-Relational Mapper" SQLObject_ oder

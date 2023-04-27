@@ -44,12 +44,13 @@
 <li><p><a class="reference internal" href="#pooleddb-pooled-db-1" id="toc-entry-15">PooledDB (pooled_db)</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#anmerkungen" id="toc-entry-16">Anmerkungen</a></p></li>
-<li><p><a class="reference internal" href="#zukunft" id="toc-entry-17">Zukunft</a></p></li>
-<li><p><a class="reference internal" href="#fehlermeldungen-und-feedback" id="toc-entry-18">Fehlermeldungen und Feedback</a></p></li>
-<li><p><a class="reference internal" href="#links" id="toc-entry-19">Links</a></p></li>
-<li><p><a class="reference internal" href="#autoren" id="toc-entry-20">Autoren</a></p></li>
-<li><p><a class="reference internal" href="#copyright-und-lizenz" id="toc-entry-21">Copyright und Lizenz</a></p></li>
+<li><p><a class="reference internal" href="#besonderheiten-bei-der-benutzung" id="toc-entry-16">Besonderheiten bei der Benutzung</a></p></li>
+<li><p><a class="reference internal" href="#anmerkungen" id="toc-entry-17">Anmerkungen</a></p></li>
+<li><p><a class="reference internal" href="#zukunft" id="toc-entry-18">Zukunft</a></p></li>
+<li><p><a class="reference internal" href="#fehlermeldungen-und-feedback" id="toc-entry-19">Fehlermeldungen und Feedback</a></p></li>
+<li><p><a class="reference internal" href="#links" id="toc-entry-20">Links</a></p></li>
+<li><p><a class="reference internal" href="#autoren" id="toc-entry-21">Autoren</a></p></li>
+<li><p><a class="reference internal" href="#copyright-und-lizenz" id="toc-entry-22">Copyright und Lizenz</a></p></li>
 </ul>
 </nav>
 <section id="zusammenfassung">
@@ -434,6 +435,27 @@ transparente Neueröffnen von Verbindungen bis zum Ende der Transaktion
 ausgesetzt wird, und dass die Verbindung zurückgerollt wird, bevor sie
 wieder an den Verbindungspool zurückgegeben wird.</p>
 </section>
+</section>
+<section id="besonderheiten-bei-der-benutzung">
+<h2>Besonderheiten bei der Benutzung</h2>
+<p>Manchmal möchte man Datenbankverbindung besonders vorbereiten, bevor sie
+von DBUtils verwendet werden, und dies ist nicht immer durch Verwendung
+der passenden Parameter möglich. Zum Beispiel kann es <span class="docutils literal">pyodb</span> erfordern,
+dass man die Methode <span class="docutils literal">setencoding()</span> der Datenbankverbindung aufruft.
+Sie können dies erreichen, indem Sie eine modifizierte Version der
+Funktion <span class="docutils literal">connect()</span> verwenden und diese als <span class="docutils literal">creator</span> (dem ersten
+Argument) an <span class="docutils literal">PersistentDB</span> oder <span class="docutils literal">PooledDB</span> übergeben, etwa so:</p>
+<pre class="literal-block">from pyodbc import connect
+from dbutils.pooled_db import PooledDB
+
+def creator():
+    con = connect(...)
+    con.setdecoding(...)
+    return con
+
+creator.dbapi = pyodbc
+
+db_pool = PooledDB(creator, mincached=5)</pre>
 </section>
 <section id="anmerkungen">
 <h2>Anmerkungen</h2>
