@@ -1,49 +1,48 @@
 [tool.ruff]
 select = [
-  "A",    # flake8-builtins
-  "ARG",  # flake8-unused-arguments
-  "B",    # flake8-bugbear
-  "C4",   # flake8-comprehensions
-  "C90",  # McCabe cyclomatic complexity
-  "DTZ",  # flake8-datetimez
-  "E",    # pycodestyle
-  "EXE",  # flake8-executable
-  "F",    # Pyflakes
-  "G",    # flake8-logging-format
-  "I",    # isort
-  "ICN",  # flake8-import-conventions
-  "INP",  # flake8-no-pep420
-  "INT",  # flake8-gettext
-  "ISC",  # flake8-implicit-str-concat
-  "N",    # pep8-naming
-  "PGH",  # pygrep-hooks
-  "PIE",  # flake8-pie
-  "PL",   # Pylint
-  "PT",   # flake8-pytest-style
-  "PTH",  # flake8-use-pathlib
-  "PYI",  # flake8-pyi
-  "RET",  # flake8-return
-  "RSE",  # flake8-raise
-  "RUF",  # Ruff-specific rules
-  "S",    # flake8-bandit
-  "T10",  # flake8-debugger
-  "TCH",  # flake8-type-checking
-  "TID",  # flake8-tidy-imports
-  "UP",   # pyupgrade
-  "W",    # pycodestyle
-  "YTT",  # flake8-2020
+  "A",      # flake8-builtins
+  "ARG",    # flake8-unused-arguments
+  "B",      # flake8-bugbear
+  "C4",     # flake8-comprehensions
+  "C90",    # McCabe cyclomatic complexity
+  "DTZ",    # flake8-datetimez
+  "E",      # pycodestyle
+  "EXE",    # flake8-executable
+  "F",      # Pyflakes
+  "G",      # flake8-logging-format
+  "I",      # isort
+  "ICN",    # flake8-import-conventions
+  "INP",    # flake8-no-pep420
+  "INT",    # flake8-gettext
+  "ISC",    # flake8-implicit-str-concat
+  "N",      # pep8-naming
+  "PGH",    # pygrep-hooks
+  "PIE",    # flake8-pie
+  "PL",     # Pylint
+  "PT",     # flake8-pytest-style
+  "PTH",    # flake8-use-pathlib
+  "PYI",    # flake8-pyi
+  "RET",    # flake8-return
+  "RSE",    # flake8-raise
+  "RUF",    # Ruff-specific rules
+  "S",      # flake8-bandit
+  "T10",    # flake8-debugger
+  "TCH",    # flake8-type-checking
+  "TID",    # flake8-tidy-imports
+  "UP",     # pyupgrade
+  "W",      # pycodestyle
+  "YTT",    # flake8-2020
   # "ANN",  # flake8-annotations
   # "BLE",  # flake8-blind-except
   # "COM",  # flake8-commas
   # "D",    # pydocstyle
-  # "DJ",  # flake8-django
+  # "DJ",   # flake8-django
   # "EM",   # flake8-errmsg
   # "ERA",  # eradicate
   # "FBT",  # flake8-boolean-trap
   # "NPY",  # NumPy-specific rules
-  # "PD",  # pandas-vet
-  # "PLR091",  # Pylint Refactor just for max-args, max-branches, etc.
-  # "Q",  # flake8-quotes
+  # "PD",   # pandas-vet
+  # "Q",    # flake8-quotes
   # "SIM",  # flake8-simplify
   # "SLF",  # flake8-self
   # "T20",  # flake8-print
