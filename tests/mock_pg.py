@@ -61,14 +61,13 @@ class PgConnection:
         if qstr in ('begin', 'end', 'commit', 'rollback'):
             self.session.append(qstr)
             return None
-        elif qstr.startswith('select '):
+        if qstr.startswith('select '):
             self.num_queries += 1
             return qstr[7:]
-        elif qstr.startswith('set '):
+        if qstr.startswith('set '):
             self.session.append(qstr[4:])
             return None
-        else:
-            raise ProgrammingError
+        raise ProgrammingError
 
 
 class DB:
@@ -80,17 +79,15 @@ class DB:
         self.__args = args, kw
 
     def __getattr__(self, name):
-        if self.db:
-            return getattr(self.db, name)
-        else:
+        if not self.db:
             raise AttributeError
+        return getattr(self.db, name)
 
     def close(self):
-        if self.db:
-            self.db.close()
-            self.db = None
-        else:
+        if not self.db:
             raise InternalError
+        self.db.close()
+        self.db = None
 
     def reopen(self):
         if self.db:
