@@ -201,7 +201,7 @@ class PersistentDB:
             self._failures, self._ping, self._closeable,
             *self._args, **self._kwargs)
 
-    def connection(self, shareable=False):
+    def connection(self, shareable=False):  # noqa: ARG002
         """Get a steady, persistent DB-API 2 connection.
 
         The shareable parameter exists only for compatibility with the
