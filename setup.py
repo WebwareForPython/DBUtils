@@ -2,20 +2,10 @@
 
 """Setup Script for DBUtils"""
 
-import warnings
-
 try:
     from setuptools import setup
 except ImportError:
     from distutils.core import setup
-from sys import version_info
-
-py_version = version_info[:2]
-if not (3, 6) <= py_version < (4, 0):
-    raise ImportError(
-        'Python {}.{} is not supported by DBUtils.'.format(*py_version))
-
-warnings.filterwarnings('ignore', 'Unknown distribution option')
 
 __version__ = '3.1.0b1'
 
@@ -60,6 +50,7 @@ setup(
     platforms=['any'],
     license='MIT License',
     packages=['dbutils'],
+    python_requires='>3.7',
     extras_require={
         "pg": ["PyGreSQL>=5"]
     },
