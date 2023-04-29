@@ -284,7 +284,7 @@ class SteadyDBConnection:
                         except AttributeError as error:
                             raise AttributeError(
                                 "Could not determine failure exceptions"
-                                " (please set failures or creator.dbapi)."
+                                " (please set failures or creator.dbapi).",
                             ) from error
             if isinstance(self._failures, tuple):
                 self._failure = self._failures[0]

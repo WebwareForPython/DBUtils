@@ -70,7 +70,7 @@ def test_create_connection():
     assert db.user is None
     assert hasattr(db, 'num_queries')
     assert db.num_queries == 0
-    pool = PooledPg(0, 0, 0, False, 3, ('set datestyle',),)
+    pool = PooledPg(0, 0, 0, False, 3, ('set datestyle',))
     assert pool._maxusage == 3
     assert pool._setsession == ('set datestyle',)
     db = pool.connection()

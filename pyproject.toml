@@ -64,6 +64,7 @@ select = [
   "B",      # flake8-bugbear
   "C4",     # flake8-comprehensions
   "C90",    # McCabe cyclomatic complexity
+  "COM",    # flake8-commas
   "DTZ",    # flake8-datetimez
   "E",      # pycodestyle
   "EXE",    # flake8-executable
@@ -93,7 +94,6 @@ select = [
   "YTT",    # flake8-2020
   # "ANN",  # flake8-annotations
   # "BLE",  # flake8-blind-except
-  # "COM",  # flake8-commas
   # "D",    # pydocstyle
   # "DJ",   # flake8-django
   # "EM",   # flake8-errmsg
