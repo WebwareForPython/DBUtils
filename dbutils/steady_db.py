@@ -277,10 +277,11 @@ class SteadyDBConnection:
                                 con.OperationalError,
                                 con.InterfaceError,
                                 con.InternalError)
-                        except AttributeError:
+                        except AttributeError as error:
                             raise AttributeError(
                                 "Could not determine failure exceptions"
-                                " (please set failures or creator.dbapi).")
+                                " (please set failures or creator.dbapi)."
+                            ) from error
             if isinstance(self._failures, tuple):
                 self._failure = self._failures[0]
             else:
@@ -535,8 +536,8 @@ class SteadyDBCursor:
         self._clearsizes()
         try:
             self._cursor = con._cursor(*args, **kwargs)
-        except AttributeError:
-            raise TypeError(f"{con!r} is not a SteadyDBConnection.")
+        except AttributeError as error:
+            raise TypeError(f"{con!r} is not a SteadyDBConnection.") from error
         self._closed = False
 
     def __enter__(self):

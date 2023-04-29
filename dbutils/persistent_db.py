@@ -210,10 +210,11 @@ class PersistentDB:
         """
         try:
             con = self.thread.connection
-        except AttributeError:
+        except AttributeError as error:
             con = self.steady_connection()
             if not con.threadsafety():
-                raise NotSupportedError("Database module is not thread-safe.")
+                raise NotSupportedError(
+                    "Database module is not thread-safe.") from error
             self.thread.connection = con
         con._ping_check()
         return con
