@@ -66,12 +66,12 @@ def test_close_connection():
 def test_two_connections():
     db_pool = my_db_pool(2)
     db1 = db_pool.connection()
-    for i in range(5):
+    for _i in range(5):
         db1.query('select 1')
     db2 = db_pool.connection()
     assert db1 != db2
     assert db1._con != db2._con
-    for i in range(7):
+    for _i in range(7):
         db2.query('select 1')
     assert db1.num_queries == 5
     assert db2.num_queries == 7
@@ -80,7 +80,7 @@ def test_two_connections():
     assert db1 != db2
     assert db1._con != db2._con
     assert hasattr(db1, 'query')
-    for i in range(3):
+    for _i in range(3):
         db1.query('select 1')
     assert db1.num_queries == 8
     db2.query('select 1')

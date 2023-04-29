@@ -82,7 +82,7 @@ def test_broken_connection():
         SteadyPgConnection('wrong')
     db = SteadyPgConnection(dbname='ok')
     internal_error_cls = sys.modules[db._con.__module__].InternalError
-    for i in range(3):
+    for _i in range(3):
         db.close()
     del db
     with pytest.raises(internal_error_cls):
@@ -259,7 +259,7 @@ def test_connection_setsession():
     assert db.num_queries == 0
     assert hasattr(db, 'session')
     assert tuple(db.session) == ('time zone', 'datestyle')
-    for i in range(11):
+    for _i in range(11):
         db.query('select test')
     assert db.num_queries == 2
     assert db.session == ['time zone', 'datestyle']

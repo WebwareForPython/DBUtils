@@ -67,7 +67,7 @@ def test_threads(dbapi):  # noqa: F811
     num_threads = 3
     persist = PersistentDB(dbapi, closeable=True)
     query_queue, result_queue = [], []
-    for i in range(num_threads):
+    for _i in range(num_threads):
         query_queue.append(Queue(1))
         result_queue.append(Queue(1))
 
@@ -164,7 +164,7 @@ def test_setsession(dbapi):  # noqa: F811
     cursor.execute('set test')
     cursor.fetchone()
     cursor.close()
-    for i in range(3):
+    for _i in range(3):
         assert db._con.session == ['datestyle', 'test']
         cursor = db.cursor()
         cursor.execute('select test')

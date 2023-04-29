@@ -111,13 +111,13 @@ def test_min_max_cached():
     assert pool._cache.qsize() == 3
     cache = [pool.connection() for _i in range(3)]
     assert pool._cache.qsize() == 0
-    for i in range(3):
+    for _i in range(3):
         cache.pop().close()
     assert pool._cache.qsize() == 3
-    for i in range(6):
+    for _i in range(6):
         cache.append(pool.connection())
     assert pool._cache.qsize() == 0
-    for i in range(6):
+    for _i in range(6):
         cache.pop().close()
     assert pool._cache.qsize() == 6
     pool = PooledPg(3, 4)
@@ -125,13 +125,13 @@ def test_min_max_cached():
     assert pool._cache.qsize() == 3
     cache = [pool.connection() for _i in range(3)]
     assert pool._cache.qsize() == 0
-    for i in range(3):
+    for _i in range(3):
         cache.pop().close()
     assert pool._cache.qsize() == 3
-    for i in range(6):
+    for _i in range(6):
         cache.append(pool.connection())
     assert pool._cache.qsize() == 0
-    for i in range(6):
+    for _i in range(6):
         cache.pop().close()
     assert pool._cache.qsize() == 4
     pool = PooledPg(3, 2)
@@ -139,7 +139,7 @@ def test_min_max_cached():
     assert pool._cache.qsize() == 3
     cache = [pool.connection() for _i in range(4)]
     assert pool._cache.qsize() == 0
-    for i in range(4):
+    for _i in range(4):
         cache.pop().close()
     assert pool._cache.qsize() == 3
     pool = PooledPg(2, 5)
@@ -147,7 +147,7 @@ def test_min_max_cached():
     assert pool._cache.qsize() == 2
     cache = [pool.connection() for _i in range(10)]
     assert pool._cache.qsize() == 0
-    for i in range(10):
+    for _i in range(10):
         cache.pop().close()
     assert pool._cache.qsize() == 5
 
@@ -215,12 +215,12 @@ def test_max_connections():
 def test_one_thread_two_connections():
     pool = PooledPg(2)
     db1 = pool.connection()
-    for i in range(5):
+    for _i in range(5):
         db1.query('select test')
     db2 = pool.connection()
     assert db1 != db2
     assert db1._con != db2._con
-    for i in range(7):
+    for _i in range(7):
         db2.query('select test')
     assert db1.num_queries == 5
     assert db2.num_queries == 7
@@ -229,7 +229,7 @@ def test_one_thread_two_connections():
     assert db1 != db2
     assert db1._con != db2._con
     assert hasattr(db1, 'query')
-    for i in range(3):
+    for _i in range(3):
         db1.query('select test')
     assert db1.num_queries == 8
     db2.query('select test')
@@ -243,7 +243,7 @@ def test_three_threads_two_connections():
     def connection():
         queue.put(pool.connection(), timeout=1)
 
-    for i in range(3):
+    for _i in range(3):
         Thread(target=connection).start()
     db1 = queue.get(timeout=1)
     db2 = queue.get(timeout=1)

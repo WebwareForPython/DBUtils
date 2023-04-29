@@ -99,7 +99,7 @@ def test_two_connections(threadsafety):
     db1 = db_pool.connection()
     assert db1 != db2
     assert hasattr(db1, 'cursor')
-    for i in range(3):
+    for _i in range(3):
         cursors1.append(db1.cursor())
     assert db1.open_cursors == 8
     cursors2.append(db2.cursor())

@@ -41,7 +41,7 @@ def test_mocked_connection():
     assert hasattr(db, 'valid')
     assert db.valid
     assert db.open_cursors == 0
-    for i in range(3):
+    for _i in range(3):
         cursor = db.cursor()
         assert db.open_cursors == 1
         cursor.close()
@@ -67,7 +67,7 @@ def test_mocked_connection():
         assert cursor.fetchone() == f'test{i}'
     assert cursor.valid
     assert db.open_cursors == 1
-    for i in range(4):
+    for _i in range(4):
         cursor.callproc('test')
     cursor.close()
     assert not cursor.valid
@@ -108,17 +108,17 @@ def test_broken_connection():
     with pytest.raises(TypeError):
         SteadyDBCursor(None)
     db = steady_db_connect(dbapi, database='ok')
-    for i in range(3):
+    for _i in range(3):
         db.close()
     del db
     with pytest.raises(dbapi.OperationalError):
         steady_db_connect(dbapi, database='error')
     db = steady_db_connect(dbapi, database='ok')
     cursor = db.cursor()
-    for i in range(3):
+    for _i in range(3):
         cursor.close()
     cursor = db.cursor('ok')
-    for i in range(3):
+    for _i in range(3):
         cursor.close()
     with pytest.raises(dbapi.OperationalError):
         db.cursor('error')
@@ -161,7 +161,7 @@ def test_connection():  # noqa: PLR0915
     assert hasattr(db, 'cursor')
     assert hasattr(db, 'close')
     assert db._con.open_cursors == 0
-    for i in range(3):
+    for _i in range(3):
         cursor = db.cursor()
         assert db._con.open_cursors == 1
         cursor.close()
@@ -188,7 +188,7 @@ def test_connection():  # noqa: PLR0915
         assert cursor.fetchone() == f'test{i}'
     assert cursor.valid
     assert db._con.open_cursors == 1
-    for i in range(4):
+    for _i in range(4):
         cursor.callproc('test')
     cursor.close()
     assert not cursor.valid
@@ -400,7 +400,7 @@ def test_connection_setsession():
     assert db._con.num_queries == 0
     assert hasattr(db._con, 'session')
     assert tuple(db._con.session) == ('time zone', 'datestyle')
-    for i in range(11):
+    for _i in range(11):
         db.cursor().execute('select test')
     assert db._con.open_cursors == 0
     assert db._usage == 2

@@ -275,7 +275,7 @@ def test_close_all(dbapi, threadsafety):  # noqa: F811
     if shareable:
         assert len(pool._shared_cache) == 0
     cache = []
-    for i in range(5):
+    for _i in range(5):
         cache.append(pool.connection())
     assert len(pool._idle_cache) == 5
     if shareable:
@@ -297,7 +297,7 @@ def test_close_all(dbapi, threadsafety):  # noqa: F811
 
     if shareable:
         cache = []
-        for i in range(5):
+        for _i in range(5):
             cache.append(pool.connection())
         pool._shared_cache[3].con.close = close_shared
     else:
@@ -407,63 +407,64 @@ def test_min_max_cached(dbapi, threadsafety):  # noqa: F811
     shareable = threadsafety > 1
     pool = PooledDB(dbapi, 3)
     assert len(pool._idle_cache) == 3
-    cache = [pool.connection() for i in range(3)]
+    cache = [pool.connection() for _i in range(3)]
     assert len(pool._idle_cache) == 0
     assert cache
     del cache
     assert len(pool._idle_cache) == 3
-    cache = [pool.connection() for i in range(6)]
+    cache = [pool.connection() for _i in range(6)]
     assert len(pool._idle_cache) == 0
     assert cache
     del cache
     assert len(pool._idle_cache) == 6
     pool = PooledDB(dbapi, 0, 3)
     assert len(pool._idle_cache) == 0
-    cache = [pool.connection() for i in range(3)]
+    cache = [pool.connection() for _i in range(3)]
     assert len(pool._idle_cache) == 0
     assert cache
     del cache
     assert len(pool._idle_cache) == 3
-    cache = [pool.connection() for i in range(6)]
+    cache = [pool.connection() for _i in range(6)]
     assert len(pool._idle_cache) == 0
     assert cache
     del cache
     assert len(pool._idle_cache) == 3
     pool = PooledDB(dbapi, 3, 3)
     assert len(pool._idle_cache) == 3
-    cache = [pool.connection() for i in range(3)]
+    cache = [pool.connection() for _i in range(3)]
     assert len(pool._idle_cache) == 0
     assert cache
     del cache
     assert len(pool._idle_cache) == 3
-    cache = [pool.connection() for i in range(6)]
+    cache = [pool.connection() for _i in range(6)]
     assert len(pool._idle_cache) == 0
     assert cache
     del cache
     assert len(pool._idle_cache) == 3
     pool = PooledDB(dbapi, 3, 2)
     assert len(pool._idle_cache) == 3
-    cache = [pool.connection() for i in range(4)]
+    cache = [pool.connection() for _i in range(4)]
     assert len(pool._idle_cache) == 0
     assert cache
     del cache
     assert len(pool._idle_cache) == 3
     pool = PooledDB(dbapi, 2, 5)
     assert len(pool._idle_cache) == 2
-    cache = [pool.connection() for i in range(10)]
+    cache = [pool.connection() for _i in range(10)]
     assert len(pool._idle_cache) == 0
     assert cache
     del cache
     assert len(pool._idle_cache) == 5
     pool = PooledDB(dbapi, 1, 2, 3)
     assert len(pool._idle_cache) == 1
-    cache = [pool.connection(False) for i in range(4)]
+    cache = [pool.connection(False) for _i in range(4)]
     assert len(pool._idle_cache) == 0
     if shareable:
         assert len(pool._shared_cache) == 0
+    assert cache
     del cache
     assert len(pool._idle_cache) == 2
-    cache = [pool.connection() for i in range(10)]
+    cache = [pool.connection() for _i in range(10)]
     assert len(pool._idle_cache) == 0
     if shareable:
         assert len(pool._shared_cache) == 3
@@ -474,14 +475,14 @@ def test_min_max_cached(dbapi, threadsafety):  # noqa: F811
         assert len(pool._shared_cache) == 0
     pool = PooledDB(dbapi, 1, 3, 2)
     assert len(pool._idle_cache) == 1
-    cache = [pool.connection(False) for i in range(4)]
+    cache = [pool.connection(False) for _i in range(4)]
     assert len(pool._idle_cache) == 0
     if shareable:
         assert len(pool._shared_cache) == 0
     assert cache
     del cache
     assert len(pool._idle_cache) == 3
-    cache = [pool.connection() for i in range(10)]
+    cache = [pool.connection() for _i in range(10)]
     if shareable:
         assert len(pool._idle_cache) == 1
         assert len(pool._shared_cache) == 2
@@ -500,34 +501,34 @@ def test_max_shared(dbapi, threadsafety):  # noqa: F811
     shareable = threadsafety > 1
     pool = PooledDB(dbapi)
     assert len(pool._idle_cache) == 0
-    cache = [pool.connection() for i in range(10)]
+    cache = [pool.connection() for _i in range(10)]
     assert len(cache) == 10
     assert len(pool._idle_cache) == 0
     pool = PooledDB(dbapi, 1, 1, 0)
     assert len(pool._idle_cache) == 1
-    cache = [pool.connection() for i in range(10)]
+    cache = [pool.connection() for _i in range(10)]
     assert len(cache) == 10
     assert len(pool._idle_cache) == 0
     pool = PooledDB(dbapi, 0, 0, 1)
-    cache = [pool.connection() for i in range(10)]
+    cache = [pool.connection() for _i in range(10)]
     assert len(cache) == 10
     assert len(pool._idle_cache) == 0
     if shareable:
         assert len(pool._shared_cache) == 1
     pool = PooledDB(dbapi, 1, 1, 1)
     assert len(pool._idle_cache) == 1
-    cache = [pool.connection() for i in range(10)]
+    cache = [pool.connection() for _i in range(10)]
     assert len(cache) == 10
     assert len(pool._idle_cache) == 0
     if shareable:
         assert len(pool._shared_cache) == 1
     pool = PooledDB(dbapi, 0, 0, 7)
-    cache = [pool.connection(False) for i in range(3)]
+    cache = [pool.connection(False) for _i in range(3)]
     assert len(cache) == 3
     assert len(pool._idle_cache) == 0
     if shareable:
         assert len(pool._shared_cache) == 0
-    cache = [pool.connection() for i in range(10)]
+    cache = [pool.connection() for _i in range(10)]
     assert len(cache) == 10
     assert len(pool._idle_cache) == 3
     if shareable:
@@ -537,7 +538,7 @@ def test_max_shared(dbapi, threadsafety):  # noqa: F811
 def test_sort_shared(dbapi):  # noqa: F811
     pool = PooledDB(dbapi, 0, 4, 4)
     cache = []
-    for i in range(6):
+    for _i in range(6):
         db = pool.connection()
         db.cursor().execute('select test')
         cache.append(db)
@@ -559,7 +560,7 @@ def test_equally_shared(dbapi, threadsafety):  # noqa: F811
     shareable = threadsafety > 1
     pool = PooledDB(dbapi, 5, 5, 5)
     assert len(pool._idle_cache) == 5
-    for i in range(15):
+    for _i in range(15):
         db = pool.connection(False)
         db.cursor().execute('select test')
         db.close()
@@ -569,7 +570,7 @@ def test_equally_shared(dbapi, threadsafety):  # noqa: F811
         assert con._usage == 3
         assert con._con.num_queries == 3
     cache = []
-    for i in range(35):
+    for _i in range(35):
         db = pool.connection()
         db.cursor().execute('select test')
         cache.append(db)
@@ -595,7 +596,7 @@ def test_many_shared(dbapi, threadsafety):  # noqa: F811
     shareable = threadsafety > 1
     pool = PooledDB(dbapi, 0, 0, 5)
     cache = []
-    for i in range(35):
+    for _i in range(35):
         db = pool.connection()
         db.cursor().execute('select test1')
         db.cursor().execute('select test2')
@@ -622,7 +623,7 @@ def test_many_shared(dbapi, threadsafety):  # noqa: F811
         for db in cache:
             if db:
                 db.cursor().callproc('test4')
-        for i in range(6):
+        for _i in range(6):
             db = pool.connection()
             db.cursor().callproc('test4')
             cache.append(db)
@@ -685,7 +686,7 @@ def test_maxconnections(dbapi, threadsafety):  # noqa: F811, PLR0915
     assert pool._connections == 0
     assert len(pool._idle_cache) == 1
     cache = []
-    for i in range(3):
+    for _i in range(3):
         cache.append(pool.connection(False))
     assert pool._connections == 3
     assert len(pool._idle_cache) == 0
@@ -700,7 +701,7 @@ def test_maxconnections(dbapi, threadsafety):  # noqa: F811, PLR0915
     assert len(pool._idle_cache) == 2
     if shareable:
         assert len(pool._shared_cache) == 0
-    for i in range(3):
+    for _i in range(3):
         cache.append(pool.connection())
     assert len(pool._idle_cache) == 0
     if shareable:
@@ -794,7 +795,7 @@ def test_maxconnections(dbapi, threadsafety):  # noqa: F811, PLR0915
     assert pool._connections == 0
     assert len(pool._idle_cache) == 4
     cache = []
-    for i in range(4):
+    for _i in range(4):
         cache.append(pool.connection(False))
     assert pool._connections == 4
     assert len(pool._idle_cache) == 0
@@ -806,7 +807,7 @@ def test_maxconnections(dbapi, threadsafety):  # noqa: F811, PLR0915
     assert pool._maxconnections == 4
     assert pool._connections == 0
     assert len(pool._idle_cache) == 1
-    for i in range(4):
+    for _i in range(4):
         cache.append(pool.connection())
     assert len(pool._idle_cache) == 0
     if shareable:
@@ -826,7 +827,7 @@ def test_maxconnections(dbapi, threadsafety):  # noqa: F811, PLR0915
     assert pool._maxconnections == 3
     assert pool._connections == 0
     cache = []
-    for i in range(3):
+    for _i in range(3):
         cache.append(pool.connection(False))
     assert pool._connections == 3
     with pytest.raises(TooManyConnections):
@@ -835,11 +836,11 @@ def test_maxconnections(dbapi, threadsafety):  # noqa: F811, PLR0915
         pool.connection(True)
     cache = []
     assert pool._connections == 0
-    for i in range(3):
+    for _i in range(3):
         cache.append(pool.connection())
     assert pool._connections == 3
     if shareable:
-        for i in range(3):
+        for _i in range(3):
             cache.append(pool.connection())
         assert pool._connections == 3
     else:
@@ -851,7 +852,7 @@ def test_maxconnections(dbapi, threadsafety):  # noqa: F811, PLR0915
     assert pool._maxconnections == 0
     assert pool._connections == 0
     cache = []
-    for i in range(10):
+    for _i in range(10):
         cache.append(pool.connection(False))
         cache.append(pool.connection())
     if shareable:
@@ -967,12 +968,12 @@ def test_one_thread_two_connections(dbapi, threadsafety):  # noqa: F811
     shareable = threadsafety > 1
     pool = PooledDB(dbapi, 2)
     db1 = pool.connection()
-    for i in range(5):
+    for _i in range(5):
         db1.cursor().execute('select test')
     db2 = pool.connection()
     assert db1 != db2
     assert db1._con != db2._con
-    for i in range(7):
+    for _i in range(7):
         db2.cursor().execute('select test')
     assert db1._con._con.num_queries == 5
     assert db2._con._con.num_queries == 7
@@ -980,19 +981,19 @@ def test_one_thread_two_connections(dbapi, threadsafety):  # noqa: F811
     db1 = pool.connection()
     assert db1 != db2
     assert db1._con != db2._con
-    for i in range(3):
+    for _i in range(3):
         db1.cursor().execute('select test')
     assert db1._con._con.num_queries == 8
     db2.cursor().execute('select test')
     assert db2._con._con.num_queries == 8
     pool = PooledDB(dbapi, 0, 0, 2)
     db1 = pool.connection()
-    for i in range(5):
+    for _i in range(5):
         db1.cursor().execute('select test')
     db2 = pool.connection()
     assert db1 != db2
     assert db1._con != db2._con
-    for i in range(7):
+    for _i in range(7):
         db2.cursor().execute('select test')
     assert db1._con._con.num_queries == 5
     assert db2._con._con.num_queries == 7
@@ -1000,7 +1001,7 @@ def test_one_thread_two_connections(dbapi, threadsafety):  # noqa: F811
     db1 = pool.connection()
     assert db1 != db2
     assert db1._con != db2._con
-    for i in range(3):
+    for _i in range(3):
         db1.cursor().execute('select test')
     assert db1._con._con.num_queries == 8
     db2.cursor().execute('select test')
@@ -1028,7 +1029,7 @@ def test_three_threads_two_connections(dbapi, threadsafety):  # noqa: F811
     def connection():
         queue.put(pool.connection(), timeout=1)
 
-    for i in range(3):
+    for _i in range(3):
         Thread(target=connection).start()
     db1 = queue.get(timeout=1)
     db2 = queue.get(timeout=1)

@@ -159,7 +159,7 @@ class PooledDB:
                 "Database module threading support cannot be determined.")
         # Establish all database connections (it would be better to
         # only establish a part of them now, and the rest on demand).
-        for i in range(maxconnections):
+        for _i in range(maxconnections):
             self.addConnection(dbapi.connect(*args, **kwargs))
 
     # The following functions are used with DB-API 2 modules

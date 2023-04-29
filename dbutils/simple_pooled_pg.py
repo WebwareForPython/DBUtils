@@ -122,7 +122,7 @@ class PooledPg:
         self._queue = Queue(maxconnections)
         # Establish all database connections (it would be better to
         # only establish a part of them now, and the rest on demand).
-        for i in range(maxconnections):
+        for _i in range(maxconnections):
             self.cache(PgConnection(*args, **kwargs))
 
     def cache(self, con):

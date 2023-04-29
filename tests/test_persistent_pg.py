@@ -45,7 +45,7 @@ def test_threads():
     num_threads = 3
     persist = PersistentPg()
     query_queue, result_queue = [], []
-    for i in range(num_threads):
+    for _i in range(num_threads):
         query_queue.append(Queue(1))
         result_queue.append(Queue(1))
 
@@ -132,7 +132,7 @@ def test_setsession():
     assert db._setsession_sql == ('set datestyle',)
     assert db.db.session == ['datestyle']
     db.query('set test')
-    for i in range(3):
+    for _i in range(3):
         assert db.db.session == ['datestyle', 'test']
         db.query('select test')
     assert db.db.session == ['datestyle']
