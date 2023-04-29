@@ -90,6 +90,7 @@ select = [
   "S",      # flake8-bandit
   "SIM",    # flake8-simplify
   "T10",    # flake8-debugger
+  "T20",    # flake8-print
   "TCH",    # flake8-type-checking
   "TID",    # flake8-tidy-imports
   "UP",     # pyupgrade
@@ -101,7 +102,6 @@ select = [
   # "FBT",  # flake8-boolean-trap
   # "Q",    # flake8-quotes
   # "SLF",  # flake8-self
-  # "T20",  # flake8-print
   # "TRY",  # tryceratops
 ]
 # Note: use `ruff rule ...` to see explanations of rules
@@ -123,6 +123,7 @@ max-statements = 95
 [tool.ruff.per-file-ignores]
 "docs/*" = [
   "INP001",  # allow stand-alone scripts
+  "T201",  # allow print statements
 ]
 "tests/*" = [
   "D",  # no docstrings necessary here
