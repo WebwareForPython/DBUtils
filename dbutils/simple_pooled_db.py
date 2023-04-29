@@ -91,6 +91,7 @@ class PooledDBConnection:
     """
 
     def __init__(self, pool, con):
+        """Initialize pooled connection."""
         self._con = con
         self._pool = pool
 
@@ -103,10 +104,12 @@ class PooledDBConnection:
             self._con = None
 
     def __getattr__(self, name):
-        # All other members are the same.
+        """Get the attribute with the given name."""
+        # All other attributes are the same.
         return getattr(self._con, name)
 
     def __del__(self):
+        """Delete the pooled connection."""
         self.close()
 
 

@@ -146,6 +146,7 @@ Copyright, credits and license:
 Licensed under the MIT license.
 """
 
+from functools import total_ordering
 from threading import Condition
 
 from . import __version__
@@ -450,6 +451,7 @@ class PooledDedicatedDBConnection:
         self.close()
 
 
+@total_ordering
 class SharedDBConnection:
     """Auxiliary class for shared connections."""
 
@@ -462,27 +464,15 @@ class SharedDBConnection:
         self.shared = 1
 
     def __lt__(self, other):
+        """Check whether this connection should come before the other one."""
         if self.con._transaction == other.con._transaction:
             return self.shared < other.shared
         return not self.con._transaction
 
-    def __le__(self, other):
-        if self.con._transaction == other.con._transaction:
-            return self.shared <= other.shared
-        return not self.con._transaction
-
     def __eq__(self, other):
+        """Check whether this connection is the same as the other one."""
         return (self.con._transaction == other.con._transaction
                 and self.shared == other.shared)
-
-    def __ne__(self, other):
-        return not self.__eq__(other)
-
-    def __gt__(self, other):
-        return other.__lt__(self)
-
-    def __ge__(self, other):
-        return other.__le__(self)
 
     def share(self):
         """Increase the share of this connection."""

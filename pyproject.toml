@@ -65,6 +65,7 @@ select = [
   "C4",     # flake8-comprehensions
   "C90",    # McCabe cyclomatic complexity
   "COM",    # flake8-commas
+  "D",      # pydocstyle
   "DTZ",    # flake8-datetimez
   "E",      # pycodestyle
   "EXE",    # flake8-executable
@@ -94,8 +95,6 @@ select = [
   "YTT",    # flake8-2020
   # "ANN",  # flake8-annotations
   # "BLE",  # flake8-blind-except
-  # "D",    # pydocstyle
-  # "DJ",   # flake8-django
   # "EM",   # flake8-errmsg
   # "ERA",  # eradicate
   # "FBT",  # flake8-boolean-trap
@@ -109,6 +108,8 @@ select = [
 ]
 # Note: use `ruff rule ...` to see explanations of rules
 ignore = [
+  "D203",  # no blank linke before class docstring
+  "D213",  # multi-line docstrings should not start at second line
   "S110",  # allow silently catching errors
 ]
 line-length = 79
@@ -127,6 +128,7 @@ max-statements = 100
   "INP001",  # allow stand-alone scripts
 ]
 "tests/*" = [
+  "D",  # no docstrings necessary here
   "PLR2004",  # allow magic values
   "S101",  # allow assert statements
 ]

@@ -109,7 +109,9 @@ InvalidCursor = InvalidCursorError
 def connect(
         creator, maxusage=None, setsession=None,
         failures=None, ping=1, closeable=True, *args, **kwargs):
-    """A tough version of the connection constructor of a DB-API 2 module.
+    """Create a "tough" connection.
+
+    A hardened version of the connection function of a DB-API 2 module.
 
     creator: either an arbitrary function returning new DB-API 2 compliant
         connection objects or a DB-API 2 compliant database module
@@ -138,7 +140,7 @@ def connect(
 
 
 class SteadyDBConnection:
-    """A "tough" version of DB-API 2 connections."""
+    """A hardened version of DB-API 2 connections."""
 
     version = __version__
 
@@ -477,7 +479,10 @@ class SteadyDBConnection:
         return self._con.ping(*args, **kwargs)
 
     def _cursor(self, *args, **kwargs):
-        """A "tough" version of the method cursor()."""
+        """Create a "tough" cursor.
+
+        This is a hardened version of the method cursor().
+        """
         # The args and kwargs are not part of the standard,
         # but some database modules seem to use these.
         transaction = self._transaction
@@ -527,7 +532,7 @@ class SteadyDBConnection:
 
 
 class SteadyDBCursor:
-    """A "tough" version of DB-API 2 cursors."""
+    """A hardened version of DB-API 2 cursors."""
 
     def __init__(self, con, *args, **kwargs):
         """Create a "tough" DB-API 2 cursor."""

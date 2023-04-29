@@ -1,4 +1,4 @@
-# DBUtils main package
+"""The DBUtils main package."""
 
 __all__ = [
     '__version__',

@@ -105,6 +105,8 @@ class SteadyPgConnection:
             *args, **kwargs):
         """Create a "tough" PostgreSQL connection.
 
+        A hardened version of the DB wrapper class of PyGreSQL.
+
         maxusage: maximum usage limit for the underlying PyGreSQL connection
             (number of uses, 0 or None means unlimited usage)
             When this limit is reached, the connection is automatically reset.
