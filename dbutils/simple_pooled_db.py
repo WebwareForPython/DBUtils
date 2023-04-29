@@ -97,7 +97,7 @@ class PooledDBConnection:
     def close(self):
         """Close the pooled connection."""
         # Instead of actually closing the connection,
-        # return it to the pool so it can be reused.
+        # return it to the pool so that it can be reused.
         if self._con is not None:
             self._pool.returnConnection(self._con)
             self._con = None

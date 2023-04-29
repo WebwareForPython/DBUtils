@@ -189,7 +189,7 @@ Besides the pool of shared connections, you can also set up a pool of
 at least ``mincached`` and at the most ``maxcached`` idle connections that
 will be used whenever a thread is requesting a dedicated database connection
 or the pool of shared connections is not yet full. When a thread closes a
-connection that is not shared any more, it is returned back to the pool of
+connection that is not shared anymore, it is returned back to the pool of
 idle connections so that it can be recycled again.
 
 If the underlying DB-API module is not thread-safe, thread locks will be
@@ -389,7 +389,7 @@ Instead of this, you can also get a dedicated connection as follows::
 
   db = pool.dedicated_connection()
 
-If you don't need it any more, you should immediately return it to the
+If you don't need it anymore, you should immediately return it to the
 pool with ``db.close()``. You can get another connection in the same way.
 
 *Warning:* In a threaded environment, never do the following::

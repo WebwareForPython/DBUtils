@@ -97,7 +97,7 @@ You can also use this to get a dedicated connection:
 
     db = pool.dedicated_connection()
 
-If you don't need it any more, you should immediately return it to the
+If you don't need it anymore, you should immediately return it to the
 pool with db.close().  You can get another connection in the same way.
 
 Warning: In a threaded environment, never do the following:
@@ -386,7 +386,7 @@ class PooledDB:
         """Delete the pool."""
         try:
             self.close()
-        except:  # builtin Exceptions might not exist any more
+        except:  # builtin Exceptions might not exist anymore
             pass
 
     def _wait_lock(self):
@@ -433,7 +433,7 @@ class PooledDedicatedDBConnection:
         """Delete the pooled connection."""
         try:
             self.close()
-        except:  # builtin Exceptions might not exist any more
+        except:  # builtin Exceptions might not exist anymore
             pass
 
     def __enter__(self):
@@ -525,7 +525,7 @@ class PooledSharedDBConnection:
         """Delete the pooled connection."""
         try:
             self.close()
-        except:  # builtin Exceptions might not exist any more
+        except:  # builtin Exceptions might not exist anymore
             pass
 
     def __enter__(self):

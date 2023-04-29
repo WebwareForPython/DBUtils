@@ -305,5 +305,5 @@ class SteadyPgConnection:
         """Delete the steady connection."""
         try:
             self._close()  # make sure the connection is closed
-        except:  # builtin Exceptions might not exist any more
+        except:  # builtin Exceptions might not exist anymore
             pass

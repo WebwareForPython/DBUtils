@@ -68,7 +68,7 @@ classic PyGreSQL API connections.  Actually what you get is a
 proxy class for the hardened SteadyPg version of the connection.
 
 The connection will not be shared with other threads.  If you don't need
-it any more, you should immediately return it to the pool with db.close().
+it anymore, you should immediately return it to the pool with db.close().
 You can get another connection in the same way or with db.reopen().
 
 Warning: In a threaded environment, never do the following:
@@ -246,7 +246,7 @@ class PooledPg:
         """Delete the pool."""
         try:
             self.close()
-        except:  # builtin Exceptions might not exist any more
+        except:  # builtin Exceptions might not exist anymore
             pass
 
 
@@ -267,7 +267,7 @@ class PooledPgConnection:
     def close(self):
         """Close the pooled connection."""
         # Instead of actually closing the connection,
-        # return it to the pool so it can be reused.
+        # return it to the pool so that it can be reused.
         if self._con:
             self._pool.cache(self._con)
             self._con = None
@@ -292,7 +292,7 @@ class PooledPgConnection:
         """Delete the pooled connection."""
         try:
             self.close()
-        except:  # builtin Exceptions might not exist any more
+        except:  # builtin Exceptions might not exist anymore
             pass
 
     def __enter__(self):
