@@ -206,7 +206,7 @@ class PooledPg:
             if not self._connections.acquire(self._blocking):
                 raise TooManyConnections
         try:
-            con = self._cache.get(0)
+            con = self._cache.get_nowait()
         except Empty:
             con = self.steady_connection()
         return PooledPgConnection(self, con)
@@ -222,7 +222,7 @@ class PooledPg:
                         con.rollback()  # rollback a possible transaction
                     except Exception:
                         pass
-            self._cache.put(con, 0)  # and then put it back into the cache
+            self._cache.put_nowait(con)  # and then put it back into the cache
         except Full:
             con.close()
         if self._connections:
@@ -232,7 +232,7 @@ class PooledPg:
         """Close all connections in the pool."""
         while 1:
             try:
-                con = self._cache.get(0)
+                con = self._cache.get_nowait()
                 try:
                     con.close()
                 except Exception:
