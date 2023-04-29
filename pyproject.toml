@@ -48,6 +48,7 @@ select = [
   # "T20",  # flake8-print
   # "TRY",  # tryceratops
 ]
+# When removing rules from the `ignore` list, do `ruff rule ARG002` to see the docs
 ignore = [
   "ARG002",
   "B007",
