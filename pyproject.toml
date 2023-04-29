@@ -32,7 +32,10 @@ classifiers = [
 pg = [
   "PyGreSQL>=5",
 ]
-testing = [
+docs = [
+  "docutils",
+]
+tests = [
   "pytest>=7",
   "ruff",
 ]
