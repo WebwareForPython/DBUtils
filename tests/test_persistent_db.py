@@ -76,10 +76,7 @@ def test_threads(dbapi):  # noqa: F811
         db = None
         while True:
             try:
-                try:
-                    q = query_queue[i].get(1, 1)
-                except TypeError:
-                    q = query_queue[i].get(1)
+                q = query_queue[i].get(timeout=1)
             except Empty:
                 q = None
             if not q:
@@ -99,10 +96,7 @@ def test_threads(dbapi):  # noqa: F811
                     r = cursor.fetchone()
                     cursor.close()
             r = f'{i}({db._usage}): {r}'
-            try:
-                result_queue[i].put(r, 1, 1)
-            except TypeError:
-                result_queue[i].put(r, 1)
+            result_queue[i].put(r, timeout=1)
         if db:
             db.close()
 
@@ -112,68 +106,35 @@ def test_threads(dbapi):  # noqa: F811
         threads.append(thread)
         thread.start()
     for i in range(num_threads):
-        try:
-            query_queue[i].put('ping', 1, 1)
-        except TypeError:
-            query_queue[i].put('ping', 1)
+        query_queue[i].put('ping', timeout=1)
     for i in range(num_threads):
-        try:
-            r = result_queue[i].get(1, 1)
-        except TypeError:
-            r = result_queue[i].get(1)
+        r = result_queue[i].get(timeout=1)
         assert r == f'{i}(0): ok - thread alive'
         assert threads[i].is_alive()
     for i in range(num_threads):
         for j in range(i + 1):
-            try:
-                query_queue[i].put(f'select test{j}', 1, 1)
-                r = result_queue[i].get(1, 1)
-            except TypeError:
-                query_queue[i].put(f'select test{j}', 1)
-                r = result_queue[i].get(1)
+            query_queue[i].put(f'select test{j}', timeout=1)
+            r = result_queue[i].get(timeout=1)
             assert r == f'{i}({j + 1}): test{j}'
-    try:
-        query_queue[1].put('select test4', 1, 1)
-    except TypeError:
-        query_queue[1].put('select test4', 1)
-    try:
-        r = result_queue[1].get(1, 1)
-    except TypeError:
-        r = result_queue[1].get(1)
+    query_queue[1].put('select test4', timeout=1)
+    r = result_queue[1].get(timeout=1)
     assert r == '1(3): test4'
-    try:
-        query_queue[1].put('close', 1, 1)
-        r = result_queue[1].get(1, 1)
-    except TypeError:
-        query_queue[1].put('close', 1)
-        r = result_queue[1].get(1)
+    query_queue[1].put('close', timeout=1)
+    r = result_queue[1].get(timeout=1)
     assert r == '1(3): ok - connection closed'
     for j in range(2):
-        try:
-            query_queue[1].put(f'select test{j}', 1, 1)
-            r = result_queue[1].get(1, 1)
-        except TypeError:
-            query_queue[1].put(f'select test{j}', 1)
-            r = result_queue[1].get(1)
+        query_queue[1].put(f'select test{j}', timeout=1)
+        r = result_queue[1].get(timeout=1)
         assert r == f'1({j + 1}): test{j}'
     for i in range(num_threads):
         assert threads[i].is_alive()
-        try:
-            query_queue[i].put('ping', 1, 1)
-        except TypeError:
-            query_queue[i].put('ping', 1)
+        query_queue[i].put('ping', timeout=1)
     for i in range(num_threads):
-        try:
-            r = result_queue[i].get(1, 1)
-        except TypeError:
-            r = result_queue[i].get(1)
+        r = result_queue[i].get(timeout=1)
         assert r == f'{i}({i + 1}): ok - thread alive'
         assert threads[i].is_alive()
     for i in range(num_threads):
-        try:
-            query_queue[i].put(None, 1, 1)
-        except TypeError:
-            query_queue[i].put(None, 1)
+        query_queue[i].put(None, timeout=1)
 
 
 def test_maxusage(dbapi):  # noqa: F811

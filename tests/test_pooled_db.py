@@ -1022,34 +1022,20 @@ def test_three_threads_two_connections(dbapi, threadsafety):  # noqa: F811
     queue = Queue(3)
 
     def connection():
-        try:
-            queue.put(pool.connection(), 1, 1)
-        except Exception:
-            queue.put(pool.connection(), 1)
+        queue.put(pool.connection(), timeout=1)
 
     for i in range(3):
         Thread(target=connection).start()
-    try:
-        db1 = queue.get(1, 1)
-        db2 = queue.get(1, 1)
-    except TypeError:
-        db1 = queue.get(1)
-        db2 = queue.get(1)
+    db1 = queue.get(timeout=1)
+    db2 = queue.get(timeout=1)
     assert db1 != db2
     db1_con = db1._con
     db2_con = db2._con
     assert db1_con != db2_con
-    try:
-        with pytest.raises(Empty):
-            queue.get(1, 0.1)
-    except TypeError:
-        with pytest.raises(Empty):
-            queue.get(0)
+    with pytest.raises(Empty):
+        queue.get(timeout=0.1)
     del db1
-    try:
-        db1 = queue.get(1, 1)
-    except TypeError:
-        db1 = queue.get(1)
+    db1 = queue.get(timeout=1)
     assert db1 != db2
     assert db1._con != db2._con
     assert db1._con == db1_con
@@ -1061,17 +1047,10 @@ def test_three_threads_two_connections(dbapi, threadsafety):  # noqa: F811
     db2_con = db2._con
     assert db1_con != db2_con
     Thread(target=connection).start()
-    try:
-        with pytest.raises(Empty):
-            queue.get(1, 0.1)
-    except TypeError:
-        with pytest.raises(Empty):
-            queue.get(0)
+    with pytest.raises(Empty):
+        queue.get(timeout=0.1)
     del db1
-    try:
-        db1 = queue.get(1, 1)
-    except TypeError:
-        db1 = queue.get(1)
+    db1 = queue.get(timeout=1)
     assert db1 != db2
     assert db1._con != db2._con
     assert db1._con == db1_con

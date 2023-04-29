@@ -111,7 +111,7 @@ def test_broken_connection():
     for i in range(3):
         db.close()
     del db
-    with pytest.raises(dbapi.OperationalError):#
+    with pytest.raises(dbapi.OperationalError):
         SteadyDBconnect(dbapi, database='error')
     db = SteadyDBconnect(dbapi, database='ok')
     cursor = db.cursor()
@@ -724,4 +724,3 @@ def test_rollback_error():
     db.rollback()
     assert db._con.session == ['rollback']
     assert db._con.valid
-

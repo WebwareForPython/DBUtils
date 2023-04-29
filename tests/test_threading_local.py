@@ -80,4 +80,3 @@ def test_subclass():
     thread.start()
     thread.join()
     assert my_data.number == 7
-

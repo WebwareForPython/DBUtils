@@ -12,6 +12,7 @@ Copyright and credit info:
 """
 
 from queue import Queue, Empty
+from threading import Thread
 
 import pytest
 
@@ -20,15 +21,16 @@ from . import mock_db as dbapi
 from dbutils import simple_pooled_db
 
 
-def my_db_pool(mythreadsafety, max_connections):
-    threadsafety = dbapi.threadsafety
-    dbapi.threadsafety = mythreadsafety
+def my_db_pool(threadsafety, max_connections):
+    """Get simple PooledDB connection."""
+    dbapi_threadsafety = dbapi.threadsafety
+    dbapi.threadsafety = threadsafety
     try:
         return simple_pooled_db.PooledDB(
             dbapi, max_connections,
             'SimplePooledDBTestDB', 'SimplePooledDBTestUser')
     finally:
-        dbapi.threadsafety = threadsafety
+        dbapi.threadsafety = dbapi_threadsafety
 
 
 def test_version():
@@ -87,10 +89,10 @@ def test_close_connection(threadsafety):
 def test_two_connections(threadsafety):
     db_pool = my_db_pool(threadsafety, 2)
     db1 = db_pool.connection()
-    cursors1 = [db1.cursor() for i in range(5)]
+    cursors1 = [db1.cursor() for _i_ in range(5)]
     db2 = db_pool.connection()
     assert db1 != db2
-    cursors2 = [db2.cursor() for i in range(7)]
+    cursors2 = [db2.cursor() for _i in range(7)]
     assert db1.open_cursors == 5
     assert db2.open_cursors == 7
     db1.close()
@@ -113,28 +115,16 @@ def test_threadsafety_1():
     def connection():
         queue.put(db_pool.connection())
 
-    from threading import Thread
-    threads = [Thread(target=connection).start() for i in range(3)]
+    threads = [Thread(target=connection).start() for _i in range(3)]
     assert len(threads) == 3
-    try:
-        db1 = queue.get(1, 1)
-        db2 = queue.get(1, 1)
-    except TypeError:
-        db1 = queue.get(1)
-        db2 = queue.get(1)
+    db1 = queue.get(timeout=1)
+    db2 = queue.get(timeout=1)
     assert db1 != db2
     assert db1._con != db2._con
-    try:
-        with pytest.raises(Empty):
-            queue.get(1, 0.1)
-    except TypeError:
-        with pytest.raises(Empty):
-            queue.get(0)
+    with pytest.raises(Empty):
+        queue.get(timeout=0.1)
     db2.close()
-    try:
-        db3 = queue.get(1, 1)
-    except TypeError:
-        db3 = queue.get(1)
+    db3 = queue.get(timeout=1)
     assert db1 != db3
     assert db1._con != db3._con
 

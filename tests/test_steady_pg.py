@@ -24,6 +24,7 @@ def test_version():
     assert steady_pg.__version__ == __version__
     assert steady_pg.SteadyPgConnection.version == __version__
 
+
 def test_mocked_connection():
     db_cls = pg.DB
     db = db_cls(

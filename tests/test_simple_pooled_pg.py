@@ -20,6 +20,7 @@ from dbutils import simple_pooled_pg
 
 
 def my_db_pool(max_connections):
+    """Get simple PooledPg connection."""
     return simple_pooled_pg.PooledPg(
         max_connections, 'SimplePooledPgTestDB', 'SimplePooledPgTestUser')
 
@@ -95,24 +96,13 @@ def test_threads():
 
     threads = [Thread(target=connection).start() for _i in range(3)]
     assert len(threads) == 3
-    try:
-        db1 = queue.get(1, 1)
-        db2 = queue.get(1, 1)
-    except TypeError:
-        db1 = queue.get(1)
-        db2 = queue.get(1)
+    db1 = queue.get(timeout=1)
+    db2 = queue.get(timeout=1)
     assert db1 != db2
     assert db1._con != db2._con
-    try:
-        with pytest.raises(Empty):
-            queue.get(1, 0.1)
-    except TypeError:
-        with pytest.raises(Empty):
-            queue.get(0)
+    with pytest.raises(Empty):
+        queue.get(timeout=0.1)
     db2.close()
-    try:
-        db3 = queue.get(1, 1)
-    except TypeError:
-        db3 = queue.get(1)
+    db3 = queue.get(timeout=1)
     assert db1 != db3
     assert db1._con != db3._con

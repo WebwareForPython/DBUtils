@@ -101,13 +101,15 @@ def test_close_connection():
     db = pool.connection()
     assert pool._cache.qsize() == 1
     assert pool._cache.get(0) == db_con
+    assert db
+    del db
 
 
 def test_min_max_cached():
     pool = PooledPg(3)
     assert hasattr(pool, '_cache')
     assert pool._cache.qsize() == 3
-    cache = [pool.connection() for i in range(3)]
+    cache = [pool.connection() for _i in range(3)]
     assert pool._cache.qsize() == 0
     for i in range(3):
         cache.pop().close()
@@ -121,7 +123,7 @@ def test_min_max_cached():
     pool = PooledPg(3, 4)
     assert hasattr(pool, '_cache')
     assert pool._cache.qsize() == 3
-    cache = [pool.connection() for i in range(3)]
+    cache = [pool.connection() for _i in range(3)]
     assert pool._cache.qsize() == 0
     for i in range(3):
         cache.pop().close()
@@ -135,7 +137,7 @@ def test_min_max_cached():
     pool = PooledPg(3, 2)
     assert hasattr(pool, '_cache')
     assert pool._cache.qsize() == 3
-    cache = [pool.connection() for i in range(4)]
+    cache = [pool.connection() for _i in range(4)]
     assert pool._cache.qsize() == 0
     for i in range(4):
         cache.pop().close()
@@ -143,7 +145,7 @@ def test_min_max_cached():
     pool = PooledPg(2, 5)
     assert hasattr(pool, '_cache')
     assert pool._cache.qsize() == 2
-    cache = [pool.connection() for i in range(10)]
+    cache = [pool.connection() for _i in range(10)]
     assert pool._cache.qsize() == 0
     for i in range(10):
         cache.pop().close()
@@ -153,7 +155,7 @@ def test_min_max_cached():
 def test_max_connections():
     pool = PooledPg(1, 2, 3)
     assert pool._cache.qsize() == 1
-    cache = [pool.connection() for i in range(3)]
+    cache = [pool.connection() for _i in range(3)]
     assert pool._cache.qsize() == 0
     with pytest.raises(TooManyConnections):
         pool.connection()
@@ -164,7 +166,9 @@ def test_max_connections():
     assert pool._cache.qsize() == 0
     with pytest.raises(TooManyConnections):
         pool.connection()
+    assert db
     del db
+    assert cache
     del cache
     pool = PooledPg(1, 2, 1)
     assert pool._cache.qsize() == 1
@@ -176,7 +180,7 @@ def test_max_connections():
         pool.connection()
     pool = PooledPg(3, 2, 1, False)
     assert pool._cache.qsize() == 3
-    cache = [pool.connection() for i in range(3)]
+    cache = [pool.connection() for _i in range(3)]
     assert len(cache) == 3
     assert pool._cache.qsize() == 0
     with pytest.raises(TooManyConnections):
@@ -204,6 +208,7 @@ def test_max_connections():
     db = pool.connection()
     assert pool._cache.qsize() == 0
     assert session == ['thread']
+    assert db
     del db
 
 
@@ -236,34 +241,20 @@ def test_three_threads_two_connections():
     queue = Queue(3)
 
     def connection():
-        try:
-            queue.put(pool.connection(), 1, 1)
-        except TypeError:
-            queue.put(pool.connection(), 1)
+        queue.put(pool.connection(), timeout=1)
 
     for i in range(3):
         Thread(target=connection).start()
-    try:
-        db1 = queue.get(1, 1)
-        db2 = queue.get(1, 1)
-    except TypeError:
-        db1 = queue.get(1)
-        db2 = queue.get(1)
+    db1 = queue.get(timeout=1)
+    db2 = queue.get(timeout=1)
     db1_con = db1._con
     db2_con = db2._con
     assert db1 != db2
     assert db1_con != db2_con
-    try:
-        with pytest.raises(Empty):
-            queue.get(1, 0.1)
-    except TypeError:
-        with pytest.raises(Empty):
-            queue.get(0)
+    with pytest.raises(Empty):
+        queue.get(timeout=0.1)
     del db1
-    try:
-        db1 = queue.get(1, 1)
-    except TypeError:
-        db1 = queue.get(1)
+    db1 = queue.get(timeout=1)
     assert db1 != db2
     assert db1._con != db2._con
     assert db1._con == db1_con
