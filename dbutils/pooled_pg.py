@@ -126,12 +126,17 @@ class PooledPgError(Exception):
     """General PooledPg error."""
 
 
-class InvalidConnection(PooledPgError):
+class InvalidConnectionError(PooledPgError):
     """Database connection is invalid."""
 
 
-class TooManyConnections(PooledPgError):
+class TooManyConnectionsError(PooledPgError):
     """Too many database connections were opened."""
+
+
+# deprecated alias names for error classes
+InvalidConnection = InvalidConnectionError
+TooManyConnections = TooManyConnectionsError
 
 
 class PooledPg:
@@ -208,7 +213,7 @@ class PooledPg:
         """Get a steady, cached PostgreSQL connection from the pool."""
         if self._connections:
             if not self._connections.acquire(self._blocking):
-                raise TooManyConnections
+                raise TooManyConnectionsError
         try:
             con = self._cache.get_nowait()
         except Empty:
@@ -290,7 +295,7 @@ class PooledPgConnection:
         """Proxy all members of the class."""
         if self._con:
             return getattr(self._con, name)
-        raise InvalidConnection
+        raise InvalidConnectionError
 
     def __del__(self):
         """Delete the pooled connection."""

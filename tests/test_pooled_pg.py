@@ -16,7 +16,11 @@ from threading import Thread
 import pg  # noqa: F401
 import pytest
 
-from dbutils.pooled_pg import InvalidConnection, PooledPg, TooManyConnections
+from dbutils.pooled_pg import (
+    InvalidConnectionError,
+    PooledPg,
+    TooManyConnectionsError,
+)
 from dbutils.steady_pg import SteadyPgConnection
 
 
@@ -88,7 +92,7 @@ def test_close_connection():
     db.query('select test')
     assert db.num_queries == 1
     db.close()
-    with pytest.raises(InvalidConnection):
+    with pytest.raises(InvalidConnectionError):
         assert db.num_queries
     db = pool.connection()
     assert hasattr(db, 'dbname')
@@ -157,14 +161,14 @@ def test_max_connections():
     assert pool._cache.qsize() == 1
     cache = [pool.connection() for _i in range(3)]
     assert pool._cache.qsize() == 0
-    with pytest.raises(TooManyConnections):
+    with pytest.raises(TooManyConnectionsError):
         pool.connection()
     pool = PooledPg(0, 1, 1, False)
     assert pool._blocking == 0
     assert pool._cache.qsize() == 0
     db = pool.connection()
     assert pool._cache.qsize() == 0
-    with pytest.raises(TooManyConnections):
+    with pytest.raises(TooManyConnectionsError):
         pool.connection()
     assert db
     del db
@@ -176,14 +180,14 @@ def test_max_connections():
     assert pool._cache.qsize() == 0
     cache.append(pool.connection())
     assert pool._cache.qsize() == 0
-    with pytest.raises(TooManyConnections):
+    with pytest.raises(TooManyConnectionsError):
         pool.connection()
     pool = PooledPg(3, 2, 1, False)
     assert pool._cache.qsize() == 3
     cache = [pool.connection() for _i in range(3)]
     assert len(cache) == 3
     assert pool._cache.qsize() == 0
-    with pytest.raises(TooManyConnections):
+    with pytest.raises(TooManyConnectionsError):
         pool.connection()
     pool = PooledPg(1, 1, 1, True)
     assert pool._blocking == 1
@@ -307,11 +311,11 @@ def test_context_manager():
         db_con = db._con._con
         db.query('select test')
         assert db_con.num_queries == 1
-        with pytest.raises(TooManyConnections):
+        with pytest.raises(TooManyConnectionsError):
             pool.connection()
     with pool.connection() as db:
         db_con = db._con._con
         db.query('select test')
         assert db_con.num_queries == 2
-        with pytest.raises(TooManyConnections):
+        with pytest.raises(TooManyConnectionsError):
             pool.connection()

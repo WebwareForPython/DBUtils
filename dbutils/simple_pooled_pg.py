@@ -67,7 +67,7 @@ Copyright, credits and license:
 Licensed under the MIT license.
 """
 
-from pg import DB as PgConnection
+from pg import DB as PgConnection  # noqa: N811
 
 from . import __version__
 

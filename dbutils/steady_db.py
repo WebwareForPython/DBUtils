@@ -98,8 +98,12 @@ class SteadyDBError(Exception):
     """General SteadyDB error."""
 
 
-class InvalidCursor(SteadyDBError):
+class InvalidCursorError(SteadyDBError):
     """Database cursor is invalid."""
+
+
+# deprecated alias names for error classes
+InvalidCursor = InvalidCursorError
 
 
 def connect(
@@ -703,7 +707,7 @@ class SteadyDBCursor:
                 # make execution methods "tough"
                 return self._get_tough_method(name)
             return getattr(self._cursor, name)
-        raise InvalidCursor
+        raise InvalidCursorError
 
     def __del__(self):
         """Delete the steady cursor."""

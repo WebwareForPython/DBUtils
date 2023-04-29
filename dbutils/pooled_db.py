@@ -156,7 +156,7 @@ class PooledDBError(Exception):
     """General PooledDB error."""
 
 
-class InvalidConnection(PooledDBError):
+class InvalidConnectionError(PooledDBError):
     """Database connection is invalid."""
 
 
@@ -164,8 +164,13 @@ class NotSupportedError(PooledDBError):
     """DB-API module not supported by PooledDB."""
 
 
-class TooManyConnections(PooledDBError):
+class TooManyConnectionsError(PooledDBError):
     """Too many database connections were opened."""
+
+
+# deprecated alias names for error classes
+InvalidConnection = InvalidConnectionError
+TooManyConnections = TooManyConnectionsError
 
 
 class PooledDB:
@@ -392,7 +397,7 @@ class PooledDB:
     def _wait_lock(self):
         """Wait until notified or report an error."""
         if not self._blocking:
-            raise TooManyConnections
+            raise TooManyConnectionsError
         self._lock.wait()
 
 
@@ -427,7 +432,7 @@ class PooledDedicatedDBConnection:
         """Proxy all members of the class."""
         if self._con:
             return getattr(self._con, name)
-        raise InvalidConnection
+        raise InvalidConnectionError
 
     def __del__(self):
         """Delete the pooled connection."""
@@ -519,7 +524,7 @@ class PooledSharedDBConnection:
         """Proxy all members of the class."""
         if self._con:
             return getattr(self._con, name)
-        raise InvalidConnection
+        raise InvalidConnectionError
 
     def __del__(self):
         """Delete the pooled connection."""

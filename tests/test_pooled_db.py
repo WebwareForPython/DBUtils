@@ -16,11 +16,11 @@ from threading import Thread
 import pytest
 
 from dbutils.pooled_db import (
-    InvalidConnection,
+    InvalidConnectionError,
     NotSupportedError,
     PooledDB,
     SharedDBConnection,
-    TooManyConnections,
+    TooManyConnectionsError,
 )
 from dbutils.steady_db import SteadyDBConnection
 
@@ -207,7 +207,7 @@ def test_close_connection(dbapi, threadsafety):  # noqa: F811
     if shareable:
         assert db._shared_con is None
         assert shared_con.shared == 0
-    with pytest.raises(InvalidConnection):
+    with pytest.raises(InvalidConnectionError):
         assert db._usage
     assert not hasattr(db_con, '_num_queries')
     assert len(pool._idle_cache) == 1
@@ -692,9 +692,9 @@ def test_maxconnections(dbapi, threadsafety):  # noqa: F811, PLR0915
     assert len(pool._idle_cache) == 0
     if shareable:
         assert len(pool._shared_cache) == 0
-    with pytest.raises(TooManyConnections):
+    with pytest.raises(TooManyConnectionsError):
         pool.connection(False)
-    with pytest.raises(TooManyConnections):
+    with pytest.raises(TooManyConnectionsError):
         pool.connection()
     cache = []
     assert pool._connections == 0
@@ -712,13 +712,13 @@ def test_maxconnections(dbapi, threadsafety):  # noqa: F811, PLR0915
         assert len(pool._shared_cache) == 2
     else:
         assert pool._connections == 3
-    with pytest.raises(TooManyConnections):
+    with pytest.raises(TooManyConnectionsError):
         pool.connection(False)
     if shareable:
         cache.append(pool.connection(True))
         assert pool._connections == 3
     else:
-        with pytest.raises(TooManyConnections):
+        with pytest.raises(TooManyConnectionsError):
             pool.connection()
     del cache
     assert pool._connections == 0
@@ -732,9 +732,9 @@ def test_maxconnections(dbapi, threadsafety):  # noqa: F811, PLR0915
     assert len(pool._idle_cache) == 0
     if shareable:
         assert len(pool._shared_cache) == 0
-    with pytest.raises(TooManyConnections):
+    with pytest.raises(TooManyConnectionsError):
         pool.connection(False)
-    with pytest.raises(TooManyConnections):
+    with pytest.raises(TooManyConnectionsError):
         pool.connection()
     assert db
     del db
@@ -750,9 +750,9 @@ def test_maxconnections(dbapi, threadsafety):  # noqa: F811, PLR0915
         assert len(pool._shared_cache) == 1
         assert pool._shared_cache[0].shared == 2
     else:
-        with pytest.raises(TooManyConnections):
+        with pytest.raises(TooManyConnectionsError):
             pool.connection()
-    with pytest.raises(TooManyConnections):
+    with pytest.raises(TooManyConnectionsError):
         pool.connection(False)
     if shareable:
         cache.append(pool.connection(True))
@@ -760,7 +760,7 @@ def test_maxconnections(dbapi, threadsafety):  # noqa: F811, PLR0915
         assert len(pool._shared_cache) == 1
         assert pool._shared_cache[0].shared == 3
     else:
-        with pytest.raises(TooManyConnections):
+        with pytest.raises(TooManyConnectionsError):
             pool.connection(True)
     del cache
     assert pool._connections == 0
@@ -786,9 +786,9 @@ def test_maxconnections(dbapi, threadsafety):  # noqa: F811, PLR0915
     assert len(pool._idle_cache) == 0
     if shareable:
         assert len(pool._shared_cache) == 0
-    with pytest.raises(TooManyConnections):
+    with pytest.raises(TooManyConnectionsError):
         pool.connection(False)
-    with pytest.raises(TooManyConnections):
+    with pytest.raises(TooManyConnectionsError):
         pool.connection()
     pool = PooledDB(dbapi, 4, 3, 2, 1, False)
     assert pool._maxconnections == 4
@@ -799,9 +799,9 @@ def test_maxconnections(dbapi, threadsafety):  # noqa: F811, PLR0915
         cache.append(pool.connection(False))
     assert pool._connections == 4
     assert len(pool._idle_cache) == 0
-    with pytest.raises(TooManyConnections):
+    with pytest.raises(TooManyConnectionsError):
         pool.connection(False)
-    with pytest.raises(TooManyConnections):
+    with pytest.raises(TooManyConnectionsError):
         pool.connection()
     pool = PooledDB(dbapi, 1, 2, 3, 4, False)
     assert pool._maxconnections == 4
@@ -819,9 +819,9 @@ def test_maxconnections(dbapi, threadsafety):  # noqa: F811, PLR0915
         assert pool._connections == 4
     else:
         assert pool._connections == 4
-        with pytest.raises(TooManyConnections):
+        with pytest.raises(TooManyConnectionsError):
             pool.connection()
-    with pytest.raises(TooManyConnections):
+    with pytest.raises(TooManyConnectionsError):
         pool.connection(False)
     pool = PooledDB(dbapi, 0, 0, 3, 3, False)
     assert pool._maxconnections == 3
@@ -830,9 +830,9 @@ def test_maxconnections(dbapi, threadsafety):  # noqa: F811, PLR0915
     for _i in range(3):
         cache.append(pool.connection(False))
     assert pool._connections == 3
-    with pytest.raises(TooManyConnections):
+    with pytest.raises(TooManyConnectionsError):
         pool.connection(False)
-    with pytest.raises(TooManyConnections):
+    with pytest.raises(TooManyConnectionsError):
         pool.connection(True)
     cache = []
     assert pool._connections == 0
@@ -844,9 +844,9 @@ def test_maxconnections(dbapi, threadsafety):  # noqa: F811, PLR0915
             cache.append(pool.connection())
         assert pool._connections == 3
     else:
-        with pytest.raises(TooManyConnections):
+        with pytest.raises(TooManyConnectionsError):
             pool.connection()
-    with pytest.raises(TooManyConnections):
+    with pytest.raises(TooManyConnectionsError):
         pool.connection(False)
     pool = PooledDB(dbapi, 0, 0, 3)
     assert pool._maxconnections == 0
@@ -1165,7 +1165,7 @@ def test_shared_in_transaction(dbapi):  # noqa: F811
     db = pool.connection()
     db.begin()
     pool.connection(False)
-    with pytest.raises(TooManyConnections):
+    with pytest.raises(TooManyConnectionsError):
         pool.connection()
     pool = PooledDB(dbapi, 0, 2, 2)
     db1 = pool.connection()
@@ -1183,7 +1183,7 @@ def test_shared_in_transaction(dbapi):  # noqa: F811
     db.close()
     db2.begin()
     pool.connection(False)
-    with pytest.raises(TooManyConnections):
+    with pytest.raises(TooManyConnectionsError):
         pool.connection()
     db1.rollback()
     db = pool.connection()

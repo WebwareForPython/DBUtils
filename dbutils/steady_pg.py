@@ -69,7 +69,7 @@ Copyright, credits and license:
 Licensed under the MIT license.
 """
 
-from pg import DB as PgConnection
+from pg import DB as PgConnection  # noqa: N811
 
 from . import __version__
 
@@ -78,8 +78,12 @@ class SteadyPgError(Exception):
     """General SteadyPg error."""
 
 
-class InvalidConnection(SteadyPgError):
+class InvalidConnectionError(SteadyPgError):
     """Database connection is invalid."""
+
+
+# deprecated alias names for error classes
+InvalidConnection = InvalidConnectionError
 
 
 class SteadyPgConnection:
@@ -299,7 +303,7 @@ class SteadyPgConnection:
                     or name.startswith('get_')):
                 attr = self._get_tough_method(attr)
             return attr
-        raise InvalidConnection
+        raise InvalidConnectionError
 
     def __del__(self):
         """Delete the steady connection."""

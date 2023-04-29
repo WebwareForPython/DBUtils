@@ -106,8 +106,6 @@ select = [
 ]
 # You can use `ruff rule ...` to see what these ignored rules check
 ignore = [
-  "N811",
-  "N818",
   "PIE790",
   "PLR5501",
   "PTH122",
