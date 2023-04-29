@@ -22,16 +22,16 @@ for rst_file in glob('*.rst'):
     html_path = Path(name + '.html')
     print(name, lang)
 
-    with rst_path.open(encoding='utf-8-sig') as source:
-        with html_path.open('w', encoding='utf-8') as destination:
-            output = publish_file(
-                writer_name='html5', source=source, destination=destination,
-                enable_exit_status=True,
-                settings_overrides={
-                    "stylesheet_path": 'doc.css',
-                    "embed_stylesheet": False,
-                    "toc_backlinks": False,
-                    "language_code": lang,
-                    "exit_status_level": 2})
+    with rst_path.open(encoding='utf-8-sig') as source, \
+            html_path.open('w', encoding='utf-8') as destination:
+        output = publish_file(
+            writer_name='html5', source=source, destination=destination,
+            enable_exit_status=True,
+            settings_overrides={
+                "stylesheet_path": 'doc.css',
+                "embed_stylesheet": False,
+                "toc_backlinks": False,
+                "language_code": lang,
+                "exit_status_level": 2})
 
 print("Done.")

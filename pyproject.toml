@@ -88,6 +88,7 @@ select = [
   "RSE",    # flake8-raise
   "RUF",    # Ruff-specific rules
   "S",      # flake8-bandit
+  "SIM",    # flake8-simplify
   "T10",    # flake8-debugger
   "TCH",    # flake8-type-checking
   "TID",    # flake8-tidy-imports
@@ -99,7 +100,6 @@ select = [
   # "EM",   # flake8-errmsg
   # "FBT",  # flake8-boolean-trap
   # "Q",    # flake8-quotes
-  # "SIM",  # flake8-simplify
   # "SLF",  # flake8-self
   # "T20",  # flake8-print
   # "TRY",  # tryceratops
@@ -108,18 +108,17 @@ select = [
 ignore = [
   "D203",  # no blank line before class docstring
   "D213",  # multi-line docstrings should not start at second line
-  "S110",  # allow silently catching errors
 ]
 line-length = 79
 target-version = "py37"
 
 [tool.ruff.mccabe]
-max-complexity = 32
+max-complexity = 30
 
 [tool.ruff.pylint]
-max-args = 15
-max-branches = 50
-max-statements = 100
+max-args = 12
+max-branches = 35
+max-statements = 95
 
 [tool.ruff.per-file-ignores]
 "docs/*" = [

@@ -922,10 +922,7 @@ def test_maxusage(dbapi, threadsafety, maxusage):  # noqa: F811
         assert r == f'test{i}'
         cursor.close()
         assert db._con._con.open_cursors == 0
-        if maxusage:
-            j = i % maxusage + 1
-        else:
-            j = i + 1
+        j = i % maxusage + 1 if maxusage else i + 1
         assert db._usage == j
         assert db._con._con.num_uses == j
         assert db._con._con.num_queries == j
@@ -1269,18 +1266,18 @@ def test_shared_db_connection_compare(dbapi):  # noqa: F811
     assert con1 == con2
     assert con1 <= con2
     assert con1 >= con2
-    assert not con1 != con2
+    assert not con1 != con2  # noqa: SIM202
     assert not con1 < con2
     assert not con1 > con2
     con2.share()
-    assert not con1 == con2
+    assert not con1 == con2  # noqa: SIM201
     assert con1 <= con2
     assert not con1 >= con2
     assert con1 != con2
     assert con1 < con2
     assert not con1 > con2
     con1.con._transaction = True
-    assert not con1 == con2
+    assert not con1 == con2  # noqa: SIM201
     assert not con1 <= con2
     assert con1 >= con2
     assert con1 != con2

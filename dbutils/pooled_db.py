@@ -146,6 +146,7 @@ Copyright, credits and license:
 Licensed under the MIT license.
 """
 
+from contextlib import suppress
 from functools import total_ordering
 from threading import Condition
 
@@ -349,11 +350,10 @@ class PooledDB:
         with self._lock:
             con.unshare()
             shared = con.shared
-            if not shared:  # connection is idle,
-                try:  # so try to remove it
-                    self._shared_cache.remove(con)  # from shared cache
-                except ValueError:
-                    pass  # pool has already been closed
+            if not shared:  # connection is idle
+                # try to remove it from shared cache
+                with suppress(ValueError):  # if pool has already been closed
+                    self._shared_cache.remove(con)
         if not shared:  # connection has become idle,
             self.cache(con.con)  # so add it to the idle cache
 
@@ -374,25 +374,22 @@ class PooledDB:
         with self._lock:
             while self._idle_cache:  # close all idle connections
                 con = self._idle_cache.pop(0)
-                try:
+                with suppress(Exception):
                     con.close()
-                except Exception:
-                    pass
             if self._maxshared:  # close all shared connections
                 while self._shared_cache:
                     con = self._shared_cache.pop(0).con
-                    try:
+                    with suppress(Exception):
                         con.close()
-                    except Exception:
-                        pass
                     self._connections -= 1
             self._lock.notify_all()
 
     def __del__(self):
         """Delete the pool."""
-        try:
+        # builtins (including Exceptions) might not exist anymore
+        try:  # noqa: SIM105
             self.close()
-        except:  # noqa: E722 - builtin Exceptions might not exist anymore
+        except:  # noqa: E722, S110
             pass
 
     def _wait_lock(self):
@@ -437,9 +434,10 @@ class PooledDedicatedDBConnection:
 
     def __del__(self):
         """Delete the pooled connection."""
-        try:
+        # builtins (including Exceptions) might not exist anymore
+        try:  # noqa: SIM105
             self.close()
-        except:  # noqa: E722 - builtin Exceptions might not exist anymore
+        except:  # noqa: E722, S110
             pass
 
     def __enter__(self):
@@ -518,9 +516,10 @@ class PooledSharedDBConnection:
 
     def __del__(self):
         """Delete the pooled connection."""
-        try:
+        # builtins (including Exceptions) might not exist anymore
+        try:  # noqa: SIM105
             self.close()
-        except:  # noqa: E722 - builtin Exceptions might not exist anymore
+        except:  # noqa: E722, S110
             pass
 
     def __enter__(self):

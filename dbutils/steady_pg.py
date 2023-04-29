@@ -69,6 +69,8 @@ Copyright, credits and license:
 Licensed under the MIT license.
 """
 
+from contextlib import suppress
+
 from pg import DB as PgConnection  # noqa: N811
 
 from . import __version__
@@ -155,21 +157,19 @@ class SteadyPgConnection:
     def _close(self):
         """Close the tough connection.
 
-        You can always close a tough connection with this method
+        You can always close a tough connection with this method,
         and it will not complain if you close it more than once.
         """
         if not self._closed:
-            try:
+            with suppress(Exception):
                 self._con.close()
-            except Exception:
-                pass
             self._transaction = False
             self._closed = True
 
     def close(self):
         """Close the tough connection.
 
-        You are allowed to close a tough connection by default
+        You are allowed to close a tough connection by default,
         and it will not complain if you close it more than once.
 
         You can disallow closing connections by setting
@@ -191,10 +191,8 @@ class SteadyPgConnection:
         except Exception:
             if self._transaction:
                 self._transaction = False
-                try:
+                with suppress(Exception):
                     self._con.query('rollback')
-                except Exception:
-                    pass
         else:
             self._transaction = False
             self._closed = False
@@ -216,10 +214,8 @@ class SteadyPgConnection:
             try:
                 self.reopen()
             except Exception:
-                try:
+                with suppress(Exception):
                     self.rollback()
-                except Exception:
-                    pass
 
     def begin(self, sql=None):
         """Begin a transaction."""
@@ -309,7 +305,8 @@ class SteadyPgConnection:
 
     def __del__(self):
         """Delete the steady connection."""
-        try:
+        # builtins (including Exceptions) might not exist anymore
+        try:  # noqa: SIM105
             self._close()  # make sure the connection is closed
-        except:  # noqa: E722 - builtin Exceptions might not exist anymore
+        except:  # noqa: E722, S110
             pass

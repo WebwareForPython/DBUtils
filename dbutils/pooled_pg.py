@@ -112,6 +112,7 @@ Copyright, credits and license:
 Licensed under the MIT license.
 """
 
+from contextlib import suppress
 from queue import Empty, Full, Queue
 
 from . import __version__
@@ -186,9 +187,8 @@ class PooledPg:
             maxcached = 0
         if maxconnections is None:
             maxconnections = 0
-        if maxcached:
-            if maxcached < mincached:
-                maxcached = mincached
+        if maxcached and maxcached < mincached:
+            maxcached = mincached
         if maxconnections:
             if maxconnections < maxcached:
                 maxconnections = maxcached
@@ -211,9 +211,8 @@ class PooledPg:
 
     def connection(self):
         """Get a steady, cached PostgreSQL connection from the pool."""
-        if self._connections:
-            if not self._connections.acquire(self._blocking):
-                raise TooManyConnectionsError
+        if self._connections and not self._connections.acquire(self._blocking):
+            raise TooManyConnectionsError
         try:
             con = self._cache.get_nowait()
         except Empty:
@@ -226,10 +225,8 @@ class PooledPg:
             if self._reset == RESET_COMPLETELY:
                 con.reset()  # reset the connection completely
             elif self._reset == RESET_ALWAYS_ROLLBACK or con._transaction:
-                try:
+                with suppress(Exception):
                     con.rollback()  # rollback a possible transaction
-                except Exception:
-                    pass
             self._cache.put_nowait(con)  # and then put it back into the cache
         except Full:
             con.close()
@@ -241,10 +238,8 @@ class PooledPg:
         while 1:
             try:
                 con = self._cache.get_nowait()
-                try:
+                with suppress(Exception):
                     con.close()
-                except Exception:
-                    pass
                 if self._connections:
                     self._connections.release()
             except Empty:
@@ -252,9 +247,10 @@ class PooledPg:
 
     def __del__(self):
         """Delete the pool."""
-        try:
+        # builtins (including Exceptions) might not exist anymore
+        try:  # noqa: SIM105
             self.close()
-        except:  # noqa: E722 - builtin Exceptions might not exist anymore
+        except:  # noqa: E722, S110
             pass
 
 
@@ -298,9 +294,10 @@ class PooledPgConnection:
 
     def __del__(self):
         """Delete the pooled connection."""
-        try:
+        # builtins (including Exceptions) might not exist anymore
+        try:  # noqa: SIM105
             self.close()
-        except:  # noqa: E722 - builtin Exceptions might not exist anymore
+        except:  # noqa: E722, S110
             pass
 
     def __enter__(self):

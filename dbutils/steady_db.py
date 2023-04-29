@@ -90,6 +90,7 @@ Licensed under the MIT license.
 """
 
 import sys
+from contextlib import suppress
 
 from . import __version__
 
@@ -232,10 +233,7 @@ class SteadyDBConnection:
                     else:
                         break
                     i = mod.rfind('.')
-                    if i < 0:
-                        mod = None
-                    else:
-                        mod = mod[:i]
+                    mod = None if i < 0 else mod[:i]
                 else:
                     try:
                         mod = con.OperationalError.__module__
@@ -251,20 +249,15 @@ class SteadyDBConnection:
                         else:
                             break
                         i = mod.rfind('.')
-                        if i < 0:
-                            mod = None
-                        else:
-                            mod = mod[:i]
+                        mod = None if i < 0 else mod[:i]
                     else:
                         self._dbapi = None
             if self._threadsafety is None:
                 try:
                     self._threadsafety = self._dbapi.threadsafety
                 except AttributeError:
-                    try:
+                    with suppress(AttributeError):
                         self._threadsafety = con.threadsafety
-                    except AttributeError:
-                        pass
             if self._failures is None:
                 try:
                     self._failures = (
@@ -296,10 +289,8 @@ class SteadyDBConnection:
         except Exception as error:
             # the database module could not be determined
             # or the session could not be prepared
-            try:  # close the connection first
-                con.close()
-            except Exception:
-                pass
+            with suppress(Exception):
+                con.close()  # close the connection first
             raise error  # re-raise the original error again
         return con
 
@@ -323,14 +314,12 @@ class SteadyDBConnection:
     def _close(self):
         """Close the tough connection.
 
-        You can always close a tough connection with this method
+        You can always close a tough connection with this method,
         and it will not complain if you close it more than once.
         """
         if not self._closed:
-            try:
+            with suppress(Exception):
                 self._con.close()
-            except Exception:
-                pass
             self._transaction = False
             self._closed = True
 
@@ -340,15 +329,13 @@ class SteadyDBConnection:
         Rollback if forced or the connection was in a transaction.
         """
         if not self._closed and (force or self._transaction):
-            try:
+            with suppress(Exception):
                 self.rollback()
-            except Exception:
-                pass
 
     def _ping_check(self, ping=1, reconnect=True):
         """Check whether the connection is still alive using ping().
 
-        If the the underlying connection is not active and the ping
+        If the underlying connection is not active and the ping
         parameter is set accordingly, the connection will be recreated
         unless the connection is currently inside a transaction.
         """
@@ -372,7 +359,7 @@ class SteadyDBConnection:
             if reconnect and not self._transaction:
                 try:  # try to reopen the connection
                     con = self._create()
-                except Exception:
+                except Exception:  # noqa: S110
                     pass
                 else:
                     self._close()
@@ -402,7 +389,7 @@ class SteadyDBConnection:
     def close(self):
         """Close the tough connection.
 
-        You are allowed to close a tough connection by default
+        You are allowed to close a tough connection by default,
         and it will not complain if you close it more than once.
 
         You can disallow closing connections by setting
@@ -439,7 +426,7 @@ class SteadyDBConnection:
         except self._failures as error:  # cannot commit
             try:  # try to reopen the connection
                 con = self._create()
-            except Exception:
+            except Exception:  # noqa: S110
                 pass
             else:
                 self._close()
@@ -454,7 +441,7 @@ class SteadyDBConnection:
         except self._failures as error:  # cannot rollback
             try:  # try to reopen the connection
                 con = self._create()
-            except Exception:
+            except Exception:  # noqa: S110
                 pass
             else:
                 self._close()
@@ -497,12 +484,12 @@ class SteadyDBConnection:
         except self._failures as error:  # error in getting cursor
             try:  # try to reopen the connection
                 con = self._create()
-            except Exception:
+            except Exception:  # noqa: S110
                 pass
             else:
                 try:  # and try one more time to get a cursor
                     cursor = con.cursor(*args, **kwargs)
-                except Exception:
+                except Exception:  # noqa: S110
                     pass
                 else:
                     self._close()
@@ -510,10 +497,8 @@ class SteadyDBConnection:
                     if transaction:
                         raise error  # re-raise the original error again
                     return cursor
-                try:
+                with suppress(Exception):
                     con.close()
-                except Exception:
-                    pass
             if transaction:
                 self._transaction = False
             raise error  # re-raise the original error again
@@ -525,9 +510,10 @@ class SteadyDBConnection:
 
     def __del__(self):
         """Delete the steady connection."""
-        try:
+        # builtins (including Exceptions) might not exist anymore
+        try:  # noqa: SIM105
             self._close()  # make sure the connection is closed
-        except:  # noqa: E722 - builtin Exceptions might not exist anymore
+        except:  # noqa: E722, S110
             pass
 
 
@@ -596,10 +582,8 @@ class SteadyDBCursor:
         It will not complain if you close it more than once.
         """
         if not self._closed:
-            try:
+            with suppress(Exception):
                 self._cursor.close()
-            except Exception:
-                pass
             self._closed = True
 
     def _get_tough_method(self, name):
@@ -626,7 +610,7 @@ class SteadyDBCursor:
                     try:
                         cursor2 = con._cursor(
                             *self._args, **self._kwargs)  # open new cursor
-                    except Exception:
+                    except Exception:  # noqa: S110
                         pass
                     else:
                         try:  # and try one more time to execute
@@ -636,26 +620,24 @@ class SteadyDBCursor:
                             result = method(*args, **kwargs)
                             if execute:
                                 self._clearsizes()
-                        except Exception:
+                        except Exception:  # noqa: S110
                             pass
                         else:
                             self.close()
                             self._cursor = cursor2
                             con._usage += 1
                             return result
-                        try:
+                        with suppress(Exception):
                             cursor2.close()
-                        except Exception:
-                            pass
                 try:  # try to reopen the connection
                     con2 = con._create()
-                except Exception:
+                except Exception:  # noqa: S110
                     pass
                 else:
                     try:
                         cursor2 = con2.cursor(
                             *self._args, **self._kwargs)  # open new cursor
-                    except Exception:
+                    except Exception:  # noqa: S110
                         pass
                     else:
                         if transaction:
@@ -689,14 +671,10 @@ class SteadyDBCursor:
                             if error2:
                                 raise error2  # raise the other error
                             return result
-                        try:
+                        with suppress(Exception):
                             cursor2.close()
-                        except Exception:
-                            pass
-                    try:
+                    with suppress(Exception):
                         con2.close()
-                    except Exception:
-                        pass
                 if transaction:
                     self._transaction = False
                 raise error  # re-raise the original error again
@@ -716,7 +694,8 @@ class SteadyDBCursor:
 
     def __del__(self):
         """Delete the steady cursor."""
-        try:
+        # builtins (including Exceptions) might not exist anymore
+        try:  # noqa: SIM105
             self.close()  # make sure the cursor is closed
-        except:  # noqa: E722 - builtin Exceptions might not exist anymore
+        except:  # noqa: E722, S110
             pass
