@@ -84,17 +84,16 @@ def test_threads(dbapi):  # noqa: F811
             db = persist.connection()
             if db != this_db:
                 res = 'error - not persistent'
+            elif q == 'ping':
+                res = 'ok - thread alive'
+            elif q == 'close':
+                db.close()
+                res = 'ok - connection closed'
             else:
-                if q == 'ping':
-                    res = 'ok - thread alive'
-                elif q == 'close':
-                    db.close()
-                    res = 'ok - connection closed'
-                else:
-                    cursor = db.cursor()
-                    cursor.execute(q)
-                    res = cursor.fetchone()
-                    cursor.close()
+                cursor = db.cursor()
+                cursor.execute(q)
+                res = cursor.fetchone()
+                cursor.close()
             res = f'{idx}({db._usage}): {res}'
             result_queue[idx].put(res, timeout=1)
         if db:

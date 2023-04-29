@@ -62,14 +62,13 @@ def test_threads():
             db = persist.connection()
             if db.db != this_db:
                 res = 'error - not persistent'
+            elif q == 'ping':
+                res = 'ok - thread alive'
+            elif q == 'close':
+                db.db.close()
+                res = 'ok - connection closed'
             else:
-                if q == 'ping':
-                    res = 'ok - thread alive'
-                elif q == 'close':
-                    db.db.close()
-                    res = 'ok - connection closed'
-                else:
-                    res = db.query(q)
+                res = db.query(q)
             res = f'{idx}({db._usage}): {res}'
             result_queue[idx].put(res, timeout=1)
         if db:

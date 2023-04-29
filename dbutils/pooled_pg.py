@@ -225,12 +225,11 @@ class PooledPg:
         try:
             if self._reset == RESET_COMPLETELY:
                 con.reset()  # reset the connection completely
-            else:
-                if self._reset == RESET_ALWAYS_ROLLBACK or con._transaction:
-                    try:
-                        con.rollback()  # rollback a possible transaction
-                    except Exception:
-                        pass
+            elif self._reset == RESET_ALWAYS_ROLLBACK or con._transaction:
+                try:
+                    con.rollback()  # rollback a possible transaction
+                except Exception:
+                    pass
             self._cache.put_nowait(con)  # and then put it back into the cache
         except Full:
             con.close()

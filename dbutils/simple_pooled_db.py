@@ -212,4 +212,4 @@ class PooledDB:
         In this case, the connections always stay in the pool,
         so there is no need to do anything here.
         """
-        pass
+        # we don't need to do anything here
