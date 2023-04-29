@@ -117,6 +117,10 @@ from queue import Empty, Full, Queue
 from . import __version__
 from .steady_pg import SteadyPgConnection
 
+# constants for "reset" parameter
+RESET_ALWAYS_ROLLBACK = 1
+RESET_COMPLETELY = 2
+
 
 class PooledPgError(Exception):
     """General PooledPg error."""
@@ -214,10 +218,10 @@ class PooledPg:
     def cache(self, con):
         """Put a connection back into the pool cache."""
         try:
-            if self._reset == 2:
+            if self._reset == RESET_COMPLETELY:
                 con.reset()  # reset the connection completely
             else:
-                if self._reset or con._transaction:
+                if self._reset == RESET_ALWAYS_ROLLBACK or con._transaction:
                     try:
                         con.rollback()  # rollback a possible transaction
                     except Exception:
