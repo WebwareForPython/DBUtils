@@ -12,7 +12,7 @@ Copyright and credit info:
 import pytest
 
 from dbutils.steady_db import SteadyDBConnection, SteadyDBCursor
-from dbutils.steady_db import connect as SteadyDBconnect
+from dbutils.steady_db import connect as steady_db_connect
 
 from . import mock_db as dbapi
 
@@ -107,13 +107,13 @@ def test_broken_connection():
         SteadyDBConnection(None)
     with pytest.raises(TypeError):
         SteadyDBCursor(None)
-    db = SteadyDBconnect(dbapi, database='ok')
+    db = steady_db_connect(dbapi, database='ok')
     for i in range(3):
         db.close()
     del db
     with pytest.raises(dbapi.OperationalError):
-        SteadyDBconnect(dbapi, database='error')
-    db = SteadyDBconnect(dbapi, database='ok')
+        steady_db_connect(dbapi, database='error')
+    db = steady_db_connect(dbapi, database='ok')
     cursor = db.cursor()
     for i in range(3):
         cursor.close()
@@ -126,7 +126,7 @@ def test_broken_connection():
 
 @pytest.mark.parametrize("closeable", [False, True])
 def test_close(closeable):
-    db = SteadyDBconnect(dbapi, closeable=closeable)
+    db = steady_db_connect(dbapi, closeable=closeable)
     assert db._con.valid
     db.close()
     assert closeable ^ db._con.valid
@@ -138,8 +138,8 @@ def test_close(closeable):
     assert not db._con.valid
 
 
-def test_connection():
-    db = SteadyDBconnect(
+def test_connection():  # noqa: PLR0915
+    db = steady_db_connect(
         dbapi, 0, None, None, None, True,
         'SteadyDBTestDB', user='SteadyDBTestUser')
     assert isinstance(db, SteadyDBConnection)
@@ -259,7 +259,7 @@ def test_connection():
 
 
 def test_connection_context_handler():
-    db = SteadyDBconnect(
+    db = steady_db_connect(
         dbapi, 0, None, None, None, True,
         'SteadyDBTestDB', user='SteadyDBTestUser')
     assert db._con.session == []
@@ -278,7 +278,7 @@ def test_connection_context_handler():
 
 
 def test_cursor_context_handler():
-    db = SteadyDBconnect(
+    db = steady_db_connect(
         dbapi, 0, None, None, None, True,
         'SteadyDBTestDB', user='SteadyDBTestUser')
     assert db._con.open_cursors == 0
@@ -290,7 +290,7 @@ def test_cursor_context_handler():
 
 
 def test_cursor_as_iterator_provided():
-    db = SteadyDBconnect(
+    db = steady_db_connect(
         dbapi, 0, None, None, None, True,
         'SteadyDBTestDB', user='SteadyDBTestUser')
     assert db._con.open_cursors == 0
@@ -309,7 +309,7 @@ def test_cursor_as_iterator_provided():
 
 
 def test_cursor_as_iterator_created():
-    db = SteadyDBconnect(
+    db = steady_db_connect(
         dbapi, 0, None, None, None, True,
         'SteadyDBTestDB', user='SteadyDBTestUser')
     assert db._con.open_cursors == 0
@@ -322,10 +322,10 @@ def test_cursor_as_iterator_created():
 
 
 def test_connection_creator_function():
-    db1 = SteadyDBconnect(
+    db1 = steady_db_connect(
         dbapi, 0, None, None, None, True,
         'SteadyDBTestDB', user='SteadyDBTestUser')
-    db2 = SteadyDBconnect(
+    db2 = steady_db_connect(
         dbapi.connect, 0, None, None, None, True,
         'SteadyDBTestDB', user='SteadyDBTestUser')
     assert db1.dbapi() == db2.dbapi()
@@ -338,7 +338,7 @@ def test_connection_creator_function():
 
 
 def test_connection_maxusage():
-    db = SteadyDBconnect(dbapi, 10)
+    db = steady_db_connect(dbapi, 10)
     cursor = db.cursor()
     for i in range(100):
         cursor.execute(f'select test{i}')
@@ -389,7 +389,7 @@ def test_connection_maxusage():
 
 
 def test_connection_setsession():
-    db = SteadyDBconnect(dbapi, 3, ('set time zone', 'set datestyle'))
+    db = steady_db_connect(dbapi, 3, ('set time zone', 'set datestyle'))
     assert hasattr(db, '_usage')
     assert db._usage == 0
     assert hasattr(db._con, 'open_cursors')
@@ -448,29 +448,29 @@ def test_connection_setsession():
 
 
 def test_connection_failures():
-    db = SteadyDBconnect(dbapi)
+    db = steady_db_connect(dbapi)
     db.close()
     db.cursor()
-    db = SteadyDBconnect(dbapi, failures=dbapi.InternalError)
+    db = steady_db_connect(dbapi, failures=dbapi.InternalError)
     db.close()
     db.cursor()
-    db = SteadyDBconnect(dbapi, failures=dbapi.OperationalError)
+    db = steady_db_connect(dbapi, failures=dbapi.OperationalError)
     db.close()
     with pytest.raises(dbapi.InternalError):
         db.cursor()
-    db = SteadyDBconnect(dbapi, failures=(
+    db = steady_db_connect(dbapi, failures=(
         dbapi.OperationalError, dbapi.InterfaceError))
     db.close()
     with pytest.raises(dbapi.InternalError):
         db.cursor()
-    db = SteadyDBconnect(dbapi, failures=(
+    db = steady_db_connect(dbapi, failures=(
         dbapi.OperationalError, dbapi.InterfaceError, dbapi.InternalError))
     db.close()
     db.cursor()
 
 
 def test_connection_failure_error():
-    db = SteadyDBconnect(dbapi)
+    db = steady_db_connect(dbapi)
     cursor = db.cursor()
     db.close()
     cursor.execute('select test')
@@ -481,7 +481,7 @@ def test_connection_failure_error():
 
 
 def test_connection_set_sizes():
-    db = SteadyDBconnect(dbapi)
+    db = steady_db_connect(dbapi)
     cursor = db.cursor()
     cursor.execute('get sizes')
     result = cursor.fetchone()
@@ -510,7 +510,7 @@ def test_connection_ping_check():
     con_cls = dbapi.Connection
     con_cls.has_ping = False
     con_cls.num_pings = 0
-    db = SteadyDBconnect(dbapi)
+    db = steady_db_connect(dbapi)
     db.cursor().execute('select test')
     assert con_cls.num_pings == 0
     db.close()
@@ -518,7 +518,7 @@ def test_connection_ping_check():
     assert con_cls.num_pings == 0
     assert db._ping_check() is None
     assert con_cls.num_pings == 1
-    db = SteadyDBconnect(dbapi, ping=7)
+    db = steady_db_connect(dbapi, ping=7)
     db.cursor().execute('select test')
     assert con_cls.num_pings == 2
     db.close()
@@ -527,7 +527,7 @@ def test_connection_ping_check():
     assert db._ping_check() is None
     assert con_cls.num_pings == 2
     con_cls.has_ping = True
-    db = SteadyDBconnect(dbapi)
+    db = steady_db_connect(dbapi)
     db.cursor().execute('select test')
     assert con_cls.num_pings == 2
     db.close()
@@ -535,7 +535,7 @@ def test_connection_ping_check():
     assert con_cls.num_pings == 2
     assert db._ping_check()
     assert con_cls.num_pings == 3
-    db = SteadyDBconnect(dbapi, ping=1)
+    db = steady_db_connect(dbapi, ping=1)
     db.cursor().execute('select test')
     assert con_cls.num_pings == 3
     db.close()
@@ -546,13 +546,13 @@ def test_connection_ping_check():
     db.close()
     assert db._ping_check()
     assert con_cls.num_pings == 5
-    db = SteadyDBconnect(dbapi, ping=7)
+    db = steady_db_connect(dbapi, ping=7)
     db.cursor().execute('select test')
     assert con_cls.num_pings == 7
     db.close()
     db.cursor().execute('select test')
     assert con_cls.num_pings == 9
-    db = SteadyDBconnect(dbapi, ping=3)
+    db = steady_db_connect(dbapi, ping=3)
     assert con_cls.num_pings == 9
     db.cursor()
     assert con_cls.num_pings == 10
@@ -561,7 +561,7 @@ def test_connection_ping_check():
     assert con_cls.num_pings == 11
     cursor.execute('select test')
     assert con_cls.num_pings == 11
-    db = SteadyDBconnect(dbapi, ping=5)
+    db = steady_db_connect(dbapi, ping=5)
     assert con_cls.num_pings == 11
     db.cursor()
     assert con_cls.num_pings == 11
@@ -575,7 +575,7 @@ def test_connection_ping_check():
     assert con_cls.num_pings == 12
     cursor.execute('select test')
     assert con_cls.num_pings == 13
-    db = SteadyDBconnect(dbapi, ping=7)
+    db = steady_db_connect(dbapi, ping=7)
     assert con_cls.num_pings == 13
     db.cursor()
     assert con_cls.num_pings == 14
@@ -597,7 +597,7 @@ def test_connection_ping_check():
 
 
 def test_begin_transaction():
-    db = SteadyDBconnect(dbapi, database='ok')
+    db = steady_db_connect(dbapi, database='ok')
     cursor = db.cursor()
     cursor.close()
     cursor.execute('select test12')
@@ -624,7 +624,7 @@ def test_begin_transaction():
 
 
 def test_with_begin_extension():
-    db = SteadyDBconnect(dbapi, database='ok')
+    db = steady_db_connect(dbapi, database='ok')
     db._con._begin_called_with = None
 
     def begin(a, b=None, c=7):
@@ -639,7 +639,7 @@ def test_with_begin_extension():
 
 
 def test_cancel_transaction():
-    db = SteadyDBconnect(dbapi, database='ok')
+    db = steady_db_connect(dbapi, database='ok')
     cursor = db.cursor()
     db.begin()
     cursor.execute('select test14')
@@ -650,7 +650,7 @@ def test_cancel_transaction():
 
 
 def test_with_cancel_extension():
-    db = SteadyDBconnect(dbapi, database='ok')
+    db = steady_db_connect(dbapi, database='ok')
     db._con._cancel_called = None
 
     def cancel():
@@ -666,12 +666,12 @@ def test_with_cancel_extension():
 
 
 def test_reset_transaction():
-    db = SteadyDBconnect(dbapi, database='ok')
+    db = steady_db_connect(dbapi, database='ok')
     db.begin()
     assert not db._con.session
     db.close()
     assert not db._con.session
-    db = SteadyDBconnect(dbapi, database='ok', closeable=False)
+    db = steady_db_connect(dbapi, database='ok', closeable=False)
     db.begin()
     assert not db._con.session
     db.close()
@@ -679,7 +679,7 @@ def test_reset_transaction():
 
 
 def test_commit_error():
-    db = SteadyDBconnect(dbapi, database='ok')
+    db = steady_db_connect(dbapi, database='ok')
     db.begin()
     assert not db._con.session
     assert db._con.valid
@@ -703,7 +703,7 @@ def test_commit_error():
 
 
 def test_rollback_error():
-    db = SteadyDBconnect(dbapi, database='ok')
+    db = steady_db_connect(dbapi, database='ok')
     db.begin()
     assert not db._con.session
     assert db._con.valid

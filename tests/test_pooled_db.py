@@ -54,7 +54,7 @@ def test_threadsafety(dbapi, threadsafety):  # noqa: F811
 
 
 @pytest.mark.parametrize("threadsafety", [1, 2])
-def test_create_connection(dbapi, threadsafety):  # noqa: F811
+def test_create_connection(dbapi, threadsafety):  # noqa: F811, PLR0915
     dbapi.threadsafety = threadsafety
     shareable = threadsafety > 1
     pool = PooledDB(
@@ -675,7 +675,7 @@ def test_rollback(dbapi, threadsafety):  # noqa: F811
 
 
 @pytest.mark.parametrize("threadsafety", [1, 2])
-def test_maxconnections(dbapi, threadsafety):  # noqa: F811
+def test_maxconnections(dbapi, threadsafety):  # noqa: F811, PLR0915
     dbapi.threadsafety = threadsafety
     shareable = threadsafety > 1
     pool = PooledDB(dbapi, 1, 2, 2, 3)

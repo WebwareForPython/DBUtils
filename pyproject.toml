@@ -75,6 +75,9 @@ max-branches = 41
 max-statements = 95
 
 [tool.ruff.per-file-ignores]
-# You can use `ruff rule ...` to see what these ignored rules check
-"docs/make.py" = ["INP001"]
-"tests/*" = ["N8", "PGH004", "PLR0915", "PT009", "S101"]
+"docs/*" = [
+  "INP001"  # allow stand-alone scripts
+]
+"tests/*" = [
+  "S101"  # allow assert statements
+]
