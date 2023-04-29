@@ -518,7 +518,7 @@ class SteadyDBConnection:
         """Delete the steady connection."""
         try:
             self._close()  # make sure the connection is closed
-        except:  # builtin Exceptions might not exist anymore
+        except:  # noqa: E722 - builtin Exceptions might not exist anymore
             pass
 
 
@@ -709,5 +709,5 @@ class SteadyDBCursor:
         """Delete the steady cursor."""
         try:
             self.close()  # make sure the cursor is closed
-        except:  # builtin Exceptions might not exist anymore
+        except:  # noqa: E722 - builtin Exceptions might not exist anymore
             pass

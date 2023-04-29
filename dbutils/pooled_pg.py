@@ -250,7 +250,7 @@ class PooledPg:
         """Delete the pool."""
         try:
             self.close()
-        except:  # builtin Exceptions might not exist anymore
+        except:  # noqa: E722 - builtin Exceptions might not exist anymore
             pass
 
 
@@ -296,7 +296,7 @@ class PooledPgConnection:
         """Delete the pooled connection."""
         try:
             self.close()
-        except:  # builtin Exceptions might not exist anymore
+        except:  # noqa: E722 - builtin Exceptions might not exist anymore
             pass
 
     def __enter__(self):
