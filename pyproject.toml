@@ -107,9 +107,9 @@ select = [
   # "T20",  # flake8-print
   # "TRY",  # tryceratops
 ]
-# You can use `ruff rule ...` to see what these ignored rules check
+# Note: use `ruff rule ...` to see explanations of rules
 ignore = [
-  "S110",
+  "S110",  # allow silently catching errors
 ]
 line-length = 79
 target-version = "py37"
