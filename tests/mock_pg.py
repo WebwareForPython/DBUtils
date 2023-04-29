@@ -59,11 +59,13 @@ class PgConnection:
             raise InternalError
         if qstr in ('begin', 'end', 'commit', 'rollback'):
             self.session.append(qstr)
+            return None
         elif qstr.startswith('select '):
             self.num_queries += 1
             return qstr[7:]
         elif qstr.startswith('set '):
             self.session.append(qstr[4:])
+            return None
         else:
             raise ProgrammingError
 
