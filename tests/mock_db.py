@@ -1,6 +1,21 @@
 """This module serves as a mock object for the DB-API 2 module"""
 
+import sys
+
+import pytest
+
+__all__ = ['dbapi']
+
+
 threadsafety = 2
+
+
+@pytest.fixture()
+def dbapi():
+    """Get mock DB API 2 module."""
+    mock_db = sys.modules[__name__]
+    mock_db.threadsafety = 2
+    return mock_db
 
 
 class Error(Exception):

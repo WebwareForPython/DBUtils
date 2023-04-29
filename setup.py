@@ -61,6 +61,7 @@ setup(
     license='MIT License',
     packages=['dbutils'],
     extras_require={
-        "pg": ["PyGreSQL >= 5"]
-    }
+        "pg": ["PyGreSQL>=5"]
+    },
+    tests_require=["pytest>=7", "ruff"]
 )
