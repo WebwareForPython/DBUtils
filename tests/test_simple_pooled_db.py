@@ -11,14 +11,14 @@ Copyright and credit info:
 * This test was contributed by Christoph Zwerschke
 """
 
-from queue import Queue, Empty
+from queue import Empty, Queue
 from threading import Thread
 
 import pytest
 
-from . import mock_db as dbapi
-
 from dbutils import simple_pooled_db
+
+from . import mock_db as dbapi
 
 
 def my_db_pool(threadsafety, max_connections):

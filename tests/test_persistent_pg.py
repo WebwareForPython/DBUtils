@@ -10,7 +10,7 @@ Copyright and credit info:
 * This test was contributed by Christoph Zwerschke
 """
 
-from queue import Queue, Empty
+from queue import Empty, Queue
 from threading import Thread
 
 import pg

@@ -11,10 +11,10 @@ Copyright and credit info:
 
 import pytest
 
-from . import mock_db as dbapi
+from dbutils.steady_db import SteadyDBConnection, SteadyDBCursor
+from dbutils.steady_db import connect as SteadyDBconnect
 
-from dbutils.steady_db import (
-    connect as SteadyDBconnect, SteadyDBConnection, SteadyDBCursor)
+from . import mock_db as dbapi
 
 
 def test_version():

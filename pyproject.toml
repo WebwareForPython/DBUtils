@@ -48,7 +48,7 @@ select = [
   # "T20",  # flake8-print
   # "TRY",  # tryceratops
 ]
-# When removing rules from the `ignore` list, do `ruff rule ARG002` to see the docs
+# You can use `ruff rule ...` to see what these ignored rules check
 ignore = [
   "ARG002",
   "B007",
@@ -75,5 +75,6 @@ max-branches = 41
 max-statements = 95
 
 [tool.ruff.per-file-ignores]
+# You can use `ruff rule ...` to see what these ignored rules check
 "docs/make.py" = ["INP001"]
-"tests/*" = ["B023", "I001", "N8", "PGH004", "PLR0915", "PT009", "S101"]
+"tests/*" = ["N8", "PGH004", "PLR0915", "PT009", "S101"]

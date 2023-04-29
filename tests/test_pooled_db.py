@@ -10,17 +10,21 @@ Copyright and credit info:
 * This test was contributed by Christoph Zwerschke
 """
 
-from queue import Queue, Empty
+from queue import Empty, Queue
 from threading import Thread
 
 import pytest
 
-from .mock_db import dbapi  # noqa: F401
-
 from dbutils.pooled_db import (
-    NotSupportedError, PooledDB, SharedDBConnection,
-    InvalidConnection, TooManyConnections)
+    InvalidConnection,
+    NotSupportedError,
+    PooledDB,
+    SharedDBConnection,
+    TooManyConnections,
+)
 from dbutils.steady_db import SteadyDBConnection
+
+from .mock_db import dbapi  # noqa: F401
 
 
 def test_version():
