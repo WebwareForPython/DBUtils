@@ -68,6 +68,7 @@ select = [
   "D",      # pydocstyle
   "DTZ",    # flake8-datetimez
   "E",      # pycodestyle
+  "ERA",    # eradicate
   "EXE",    # flake8-executable
   "F",      # Pyflakes
   "G",      # flake8-logging-format
@@ -96,10 +97,7 @@ select = [
   # "ANN",  # flake8-annotations
   # "BLE",  # flake8-blind-except
   # "EM",   # flake8-errmsg
-  # "ERA",  # eradicate
   # "FBT",  # flake8-boolean-trap
-  # "NPY",  # NumPy-specific rules
-  # "PD",   # pandas-vet
   # "Q",    # flake8-quotes
   # "SIM",  # flake8-simplify
   # "SLF",  # flake8-self
@@ -108,7 +106,7 @@ select = [
 ]
 # Note: use `ruff rule ...` to see explanations of rules
 ignore = [
-  "D203",  # no blank linke before class docstring
+  "D203",  # no blank line before class docstring
   "D213",  # multi-line docstrings should not start at second line
   "S110",  # allow silently catching errors
 ]
