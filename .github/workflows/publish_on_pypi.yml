@@ -6,28 +6,22 @@ on:
       - 'Release-*'
 
 jobs:
-  build:
+  publish:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python: ['3.10']
 
     steps:
     - uses: actions/checkout@v3
 
-    - name: Set up Python ${{ matrix.python }}
+    - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: ${{ matrix.python }}
+        python-version: "3.10"
 
-    - name: Build source tarball
-      if: matrix.python == 3.10
-      run: python setup.py sdist
+    - name: Install build tool
+      run: python -m pip install build --user
 
-    - name: Build wheel
-      run: |
-        pip install wheel
-        python setup.py bdist_wheel
+    - name: Build source tarball and wheel
+      run: python -m build
 
     - name: Publish distribution to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
