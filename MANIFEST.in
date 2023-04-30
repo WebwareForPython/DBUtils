@@ -4,7 +4,6 @@ include LICENSE
 include README.md
 
 include .bumpversion.cfg
-include .codespellrc
 include pyproject.toml
 include tox.ini
 

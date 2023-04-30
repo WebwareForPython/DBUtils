@@ -130,3 +130,7 @@ max-statements = 95
   "PLR2004",  # allow magic values
   "S101",  # allow assert statements
 ]
+
+[tool.codespell]
+skip = '.git,.tox,.venv,*.de.html,*.de.rst,build,dist,local'
+quiet-level = 2
