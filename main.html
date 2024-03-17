@@ -2,8 +2,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta charset="utf-8" />
+<meta name="generator" content="Docutils 0.20.1: https://docutils.sourceforge.io/" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 <title>DBUtils User's Guide</title>
 <link rel="stylesheet" href="doc.css" type="text/css" />
 </head>
@@ -12,7 +12,7 @@
 <h1 class="title">DBUtils User's Guide</h1>
 <dl class="docinfo simple">
 <dt class="version">Version<span class="colon">:</span></dt>
-<dd class="version">3.0.3</dd>
+<dd class="version">3.1.0</dd>
 <dt class="translations">Translations<span class="colon">:</span></dt>
 <dd class="translations"><p>English | <a class="reference external" href="main.de.html">German</a></p>
 </dd>
@@ -134,7 +134,7 @@ the Python Package Index at:</p>
 </section>
 <section id="requirements">
 <h2>Requirements</h2>
-<p>DBUtils supports <a class="reference external" href="https://www.python.org">Python</a> versions 3.6 to 3.11.</p>
+<p>DBUtils supports <a class="reference external" href="https://www.python.org">Python</a> versions 3.7 to 3.12.</p>
 <p>The modules in the classic PyGreSQL variant need <a class="reference external" href="https://www.pygresql.org/">PyGreSQL</a> version 4.0
 or above, while the modules in the universal DB-API 2 variant run with
 any Python <a class="reference external" href="https://www.python.org/dev/peps/pep-0249/">DB-API 2</a> compliant database interface module.</p>
@@ -213,7 +213,7 @@ Besides the pool of shared connections, you can also set up a pool of
 at least <span class="docutils literal">mincached</span> and at the most <span class="docutils literal">maxcached</span> idle connections that
 will be used whenever a thread is requesting a dedicated database connection
 or the pool of shared connections is not yet full. When a thread closes a
-connection that is not shared any more, it is returned back to the pool of
+connection that is not shared anymore, it is returned back to the pool of
 idle connections so that it can be recycled again.</p>
 <p>If the underlying DB-API module is not thread-safe, thread locks will be
 used to ensure that the <span class="docutils literal">pooled_db</span> connections are thread-safe. So you
@@ -372,7 +372,7 @@ this. If you want to have a dedicated connection, use:</p>
 <pre class="literal-block">db = pool.connection(shareable=False)</pre>
 <p>Instead of this, you can also get a dedicated connection as follows:</p>
 <pre class="literal-block">db = pool.dedicated_connection()</pre>
-<p>If you don't need it any more, you should immediately return it to the
+<p>If you don't need it anymore, you should immediately return it to the
 pool with <span class="docutils literal">db.close()</span>. You can get another connection in the same way.</p>
 <p><em>Warning:</em> In a threaded environment, never do the following:</p>
 <pre class="literal-block">pool.connection().cursor().execute(...)</pre>
@@ -494,7 +494,7 @@ Matthew Harriger, Gregory Piñero and Josef van Eenbergen.</p>
 </section>
 <section id="copyright-and-license">
 <h2>Copyright and License</h2>
-<p>Copyright © 2005-2023 by Christoph Zwerschke.
+<p>Copyright © 2005-2024 by Christoph Zwerschke.
 All Rights Reserved.</p>
 <p>DBUtils is free and open source software,
 licensed under the <a class="reference external" href="https://opensource.org/licenses/MIT">MIT license</a>.</p>
