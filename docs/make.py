@@ -1,15 +1,14 @@
-#!/usr/bin/python3.10
+#!/usr/bin/python3.11
 
 """Build HTML from reST files."""
 
-from glob import glob
 from pathlib import Path
 
 from docutils.core import publish_file
 
 print("Creating the documentation...")
 
-for rst_file in glob('*.rst'):
+for rst_file in Path().glob('*.rst'):
     rst_path = Path(rst_file)
     name = Path(rst_file).stem
     lang = Path(name).suffix

@@ -71,7 +71,7 @@ def test_subclass():
     assert not hasattr(my_data, 'color')
 
     class MyLocal(local):
-        __slots__ = 'number'
+        __slots__ = ('number',)
 
     my_data = MyLocal()
     my_data.number = 42

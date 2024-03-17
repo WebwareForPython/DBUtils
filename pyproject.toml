@@ -1,12 +1,12 @@
 [build-system]
 build-backend = "setuptools.build_meta"
 requires = [
-  "setuptools>=61.2",
+  "setuptools>=69",
 ]
 
 [project]
 name = "DBUtils"
-version = "3.1.0b1"
+version = "3.1.0"
 description = "Database connections for multi-threaded environments."
 license = {text = "MIT License"}
 authors = [{name = "Christoph Zwerschke", email = "cito@online.de"}]
@@ -24,6 +24,7 @@ classifiers = [
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
   "Topic :: Database",
   "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
   "Topic :: Software Development :: Libraries :: Python Modules",
@@ -58,19 +59,27 @@ platforms = ["any"]
 include-package-data = false
 
 [tool.ruff]
+line-length = 79
+target-version = "py37"
+
+[tool.ruff.lint]
 select = [
   "A",      # flake8-builtins
+  # "ANN",  # flake8-annotations
   "ARG",    # flake8-unused-arguments
   "B",      # flake8-bugbear
+  # "BLE",  # flake8-blind-except
   "C4",     # flake8-comprehensions
   "C90",    # McCabe cyclomatic complexity
   "COM",    # flake8-commas
   "D",      # pydocstyle
   "DTZ",    # flake8-datetimez
   "E",      # pycodestyle
+  # "EM",   # flake8-errmsg
   "ERA",    # eradicate
   "EXE",    # flake8-executable
   "F",      # Pyflakes
+  # "FBT",  # flake8-boolean-trap
   "G",      # flake8-logging-format
   "I",      # isort
   "ICN",    # flake8-import-conventions
@@ -84,43 +93,40 @@ select = [
   "PT",     # flake8-pytest-style
   "PTH",    # flake8-use-pathlib
   "PYI",    # flake8-pyi
+  # "Q",    # flake8-quotes
   "RET",    # flake8-return
   "RSE",    # flake8-raise
   "RUF",    # Ruff-specific rules
   "S",      # flake8-bandit
+  # "SLF",  # flake8-self
   "SIM",    # flake8-simplify
   "T10",    # flake8-debugger
   "T20",    # flake8-print
   "TCH",    # flake8-type-checking
   "TID",    # flake8-tidy-imports
+  # "TRY",  # tryceratops
   "UP",     # pyupgrade
   "W",      # pycodestyle
   "YTT",    # flake8-2020
-  # "ANN",  # flake8-annotations
-  # "BLE",  # flake8-blind-except
-  # "EM",   # flake8-errmsg
-  # "FBT",  # flake8-boolean-trap
-  # "Q",    # flake8-quotes
-  # "SLF",  # flake8-self
-  # "TRY",  # tryceratops
 ]
 # Note: use `ruff rule ...` to see explanations of rules
 ignore = [
   "D203",  # no blank line before class docstring
   "D213",  # multi-line docstrings should not start at second line
 ]
-line-length = 79
-target-version = "py37"
 
-[tool.ruff.mccabe]
+[tool.ruff.lint.mccabe]
 max-complexity = 30
 
-[tool.ruff.pylint]
+[tool.ruff.lint.flake8-quotes]
+inline-quotes = "double"
+
+[tool.ruff.lint.pylint]
 max-args = 12
 max-branches = 35
 max-statements = 95
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "docs/*" = [
   "INP001",  # allow stand-alone scripts
   "T201",  # allow print statements
