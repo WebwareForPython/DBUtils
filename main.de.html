@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" lang="de">
 <head>
 <meta charset="utf-8" />
-<meta name="generator" content="Docutils 0.20.1: https://docutils.sourceforge.io/" />
+<meta name="generator" content="Docutils 0.21.2: https://docutils.sourceforge.io/" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Benutzeranleitung für DBUtils</title>
 <link rel="stylesheet" href="doc.css" type="text/css" />
@@ -321,11 +321,14 @@ sowieso wieder geöffnet, und das wäre nicht im Sinne persistenter Verbindungen
 Stattdessen wird die Verbindung automatisch dann geschlossen, wenn der Thread
 endet. Sie können dieses Verhalten ändern, indem Sie den Parameter namens
 <span class="docutils literal">closeable</span> setzen.</p>
+<aside class="admonition warning">
+<p class="admonition-title">Warnung</p>
 <p>Bitte beachten Sie, dass Transaktionen explizit durch Aufruf der Methode
 <span class="docutils literal">begin()</span> eingeleitet werden müssen. Hierdurch wird sichergestellt, dass
 das transparente Neueröffnen von Verbindungen bis zum Ende der Transaktion
 ausgesetzt wird, und dass die Verbindung zurückgerollt wird, before sie vom
 gleichen Thread erneut benutzt wird.</p>
+</aside>
 <p>Das Holen einer Verbindung kann etwas beschleunigt werden, indem man den
 Parameter <span class="docutils literal">threadlocal</span> auf <span class="docutils literal">threading.local</span> setzt; dies könnte aber in
 einigen Umgebungen nicht funktionieren (es ist zum Beispiel bekannt, dass
@@ -428,12 +431,15 @@ db.close()  # oder del db</pre>
     with db.cursor() as cur:
         cur.execute(...)
         res = cur.fetchone()</pre>
+<aside class="admonition warning">
+<p class="admonition-title">Warnung</p>
 <p>Bitte beachten Sie, dass Transaktionen explizit durch Aufruf der Methode
 <span class="docutils literal">begin()</span> eingeleitet werden müssen. Hierdurch wird sichergestellt,
 dass die Verbindung nicht mehr mit anderen Threads geteilt wird, dass das
 transparente Neueröffnen von Verbindungen bis zum Ende der Transaktion
 ausgesetzt wird, und dass die Verbindung zurückgerollt wird, bevor sie
 wieder an den Verbindungspool zurückgegeben wird.</p>
+</aside>
 </section>
 </section>
 <section id="besonderheiten-bei-der-benutzung">
