@@ -10,7 +10,7 @@ __all__ = ['dbapi']
 threadsafety = 2
 
 
-@pytest.fixture()
+@pytest.fixture
 def dbapi():
     """Get mock DB API 2 module."""
     mock_db = sys.modules[__name__]

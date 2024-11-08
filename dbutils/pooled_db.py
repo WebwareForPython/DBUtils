@@ -257,8 +257,7 @@ class PooledDB:
         if maxconnections is None:
             maxconnections = 0
         if maxcached:
-            if maxcached < mincached:
-                maxcached = mincached
+            maxcached = max(maxcached, mincached)
             self._maxcached = maxcached
         else:
             self._maxcached = 0
@@ -268,10 +267,8 @@ class PooledDB:
         else:
             self._maxshared = 0
         if maxconnections:
-            if maxconnections < maxcached:
-                maxconnections = maxcached
-            if maxconnections < maxshared:
-                maxconnections = maxshared
+            maxconnections = max(maxconnections, maxcached)
+            maxconnections = max(maxconnections, maxshared)
             self._maxconnections = maxconnections
         else:
             self._maxconnections = 0

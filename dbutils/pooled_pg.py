@@ -190,8 +190,7 @@ class PooledPg:
         if maxcached and maxcached < mincached:
             maxcached = mincached
         if maxconnections:
-            if maxconnections < maxcached:
-                maxconnections = maxcached
+            maxconnections = max(maxconnections, maxcached)
             # Create semaphore for number of allowed connections generally:
             from threading import Semaphore
             self._connections = Semaphore(maxconnections)
