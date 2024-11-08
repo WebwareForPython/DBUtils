@@ -317,11 +317,12 @@ Stattdessen wird die Verbindung automatisch dann geschlossen, wenn der Thread
 endet. Sie können dieses Verhalten ändern, indem Sie den Parameter namens
 ``closeable`` setzen.
 
-Bitte beachten Sie, dass Transaktionen explizit durch Aufruf der Methode
-``begin()`` eingeleitet werden müssen. Hierdurch wird sichergestellt, dass
-das transparente Neueröffnen von Verbindungen bis zum Ende der Transaktion
-ausgesetzt wird, und dass die Verbindung zurückgerollt wird, before sie vom
-gleichen Thread erneut benutzt wird.
+.. warning::
+    Bitte beachten Sie, dass Transaktionen explizit durch Aufruf der Methode
+    ``begin()`` eingeleitet werden müssen. Hierdurch wird sichergestellt, dass
+    das transparente Neueröffnen von Verbindungen bis zum Ende der Transaktion
+    ausgesetzt wird, und dass die Verbindung zurückgerollt wird, before sie vom
+    gleichen Thread erneut benutzt wird.
 
 Das Holen einer Verbindung kann etwas beschleunigt werden, indem man den
 Parameter ``threadlocal`` auf ``threading.local`` setzt; dies könnte aber in
@@ -452,13 +453,13 @@ Sie können dies auch durch Verwendung von Kontext-Managern vereinfachen::
           cur.execute(...)
           res = cur.fetchone()
 
-
-Bitte beachten Sie, dass Transaktionen explizit durch Aufruf der Methode
-``begin()`` eingeleitet werden müssen. Hierdurch wird sichergestellt,
-dass die Verbindung nicht mehr mit anderen Threads geteilt wird, dass das
-transparente Neueröffnen von Verbindungen bis zum Ende der Transaktion
-ausgesetzt wird, und dass die Verbindung zurückgerollt wird, bevor sie
-wieder an den Verbindungspool zurückgegeben wird.
+.. warning::
+    Bitte beachten Sie, dass Transaktionen explizit durch Aufruf der Methode
+    ``begin()`` eingeleitet werden müssen. Hierdurch wird sichergestellt,
+    dass die Verbindung nicht mehr mit anderen Threads geteilt wird, dass das
+    transparente Neueröffnen von Verbindungen bis zum Ende der Transaktion
+    ausgesetzt wird, und dass die Verbindung zurückgerollt wird, bevor sie
+    wieder an den Verbindungspool zurückgegeben wird.
 
 
 Besonderheiten bei der Benutzung

@@ -294,10 +294,11 @@ contrary to the intent of having persistent connections. Instead,
 the connection will be automatically closed when the thread dies.
 You can change this behavior by setting the ``closeable`` parameter.
 
-Note that you need to explicitly start transactions by calling the
-``begin()`` method. This ensures that the transparent reopening will be
-suspended until the end of the transaction, and that the connection
-will be rolled back before being reused by the same thread.
+.. warning::
+    Note that you need to explicitly start transactions by calling the
+    ``begin()`` method. This ensures that the transparent reopening will be
+    suspended until the end of the transaction, and that the connection
+    will be rolled back before being reused by the same thread.
 
 By setting the ``threadlocal`` parameter to ``threading.local``, getting
 connections may become a bit faster, but this may not work in all
@@ -392,7 +393,7 @@ Instead of this, you can also get a dedicated connection as follows::
 If you don't need it anymore, you should immediately return it to the
 pool with ``db.close()``. You can get another connection in the same way.
 
-*Warning:* In a threaded environment, never do the following::
+⚠ Warning: In a threaded environment, never do the following::
 
   pool.connection().cursor().execute(...)
 
@@ -414,11 +415,12 @@ You can also use context managers for simpler code::
           cur.execute(...)
           res = cur.fetchone()
 
-Note that you need to explicitly start transactions by calling the
-``begin()`` method. This ensures that the connection will not be shared
-with other threads, that the transparent reopening will be suspended
-until the end of the transaction, and that the connection will be rolled
-back before being given back to the connection pool.
+.. warning::
+    Note that you need to explicitly start transactions by calling the
+    ``begin()`` method. This ensures that the connection will not be shared
+    with other threads, that the transparent reopening will be suspended
+    until the end of the transaction, and that the connection will be rolled
+    back before being given back to the connection pool.
 
 
 Advanced Usage

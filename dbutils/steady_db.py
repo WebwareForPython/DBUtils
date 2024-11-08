@@ -651,6 +651,8 @@ class SteadyDBCursor:
                             if execute:
                                 self._setsizes(cursor2)
                             method2 = getattr(cursor2, name)
+                            # if the following call hangs,
+                            # you may have forgotten to call begin()
                             result = method2(*args, **kwargs)
                             if execute:
                                 self._clearsizes()
