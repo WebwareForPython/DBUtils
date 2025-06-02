@@ -95,7 +95,7 @@ It is even easier to download and install the package in one go using `pip`_::
 Requirements
 ============
 
-DBUtils supports Python_ versions 3.7 to 3.12.
+DBUtils supports Python_ versions 3.9 to 3.13.
 
 The modules in the classic PyGreSQL variant need PyGreSQL_ version 4.0
 or above, while the modules in the universal DB-API 2 variant run with
