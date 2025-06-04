@@ -113,6 +113,8 @@ except ImportError:
     # Fall back to the default version of threading.local.
     from threading import local
 
+__all__ = ['PersistentPg']
+
 
 class PersistentPg:
     """Generator for persistent classic PyGreSQL connections.

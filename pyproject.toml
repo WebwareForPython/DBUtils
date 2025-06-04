@@ -6,11 +6,11 @@ requires = [
 
 [project]
 name = "DBUtils"
-version = "3.1.0"
+version = "3.1.1"
 description = "Database connections for multi-threaded environments."
 license = {text = "MIT License"}
 authors = [{name = "Christoph Zwerschke", email = "cito@online.de"}]
-requires-python = ">3.7"
+requires-python = ">=3.7"
 classifiers = [
   "Development Status :: 5 - Production/Stable",
   "Environment :: Web Environment",
@@ -25,6 +25,7 @@ classifiers = [
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
   "Topic :: Database",
   "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
   "Topic :: Software Development :: Libraries :: Python Modules",
@@ -111,8 +112,9 @@ select = [
 ]
 # Note: use `ruff rule ...` to see explanations of rules
 ignore = [
-  "D203",  # no blank line before class docstring
-  "D213",  # multi-line docstrings should not start at second line
+  "D203",    # no blank line before class docstring
+  "D213",    # multi-line docstrings should not start at second line
+  "RUF022",  # __all__ can have custom order
 ]
 
 [tool.ruff.lint.mccabe]

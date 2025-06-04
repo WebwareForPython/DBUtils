@@ -1,4 +1,4 @@
-#!/usr/bin/python3.11
+#!/usr/bin/python3.12
 
 """Build HTML from reST files."""
 

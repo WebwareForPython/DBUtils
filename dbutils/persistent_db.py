@@ -123,6 +123,8 @@ except ImportError:
     # Fall back to the default version of threading.local.
     from threading import local
 
+__all__ = ['PersistentDB', 'PersistentDBError', 'NotSupportedError']
+
 
 class PersistentDBError(Exception):
     """General PersistentDB error."""

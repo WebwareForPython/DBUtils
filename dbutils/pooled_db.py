@@ -153,6 +153,13 @@ from threading import Condition
 from . import __version__
 from .steady_db import connect
 
+__all__ = [
+    'PooledDB', 'PooledDedicatedDBConnection',
+    'SharedDBConnection', 'PooledSharedDBConnection',
+    'PooledDBError', 'InvalidConnectionError',
+    'NotSupportedError', 'TooManyConnectionsError',
+]
+
 
 class PooledDBError(Exception):
     """General PooledDB error."""

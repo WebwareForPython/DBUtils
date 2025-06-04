@@ -1,7 +1,7 @@
 ﻿DBUtils User's Guide
 ++++++++++++++++++++
 
-:Version: 3.1.0
+:Version: 3.1.1
 :Translations: English | German_
 
 .. _German: main.de.html
@@ -95,7 +95,7 @@ It is even easier to download and install the package in one go using `pip`_::
 Requirements
 ============
 
-DBUtils supports Python_ versions 3.7 to 3.12.
+DBUtils supports Python_ versions 3.7 to 3.13.
 
 The modules in the classic PyGreSQL variant need PyGreSQL_ version 4.0
 or above, while the modules in the universal DB-API 2 variant run with
@@ -545,7 +545,7 @@ Credits
 Copyright and License
 =====================
 
-Copyright © 2005-2024 by Christoph Zwerschke.
+Copyright © 2005-2025 by Christoph Zwerschke.
 All Rights Reserved.
 
 DBUtils is free and open source software,

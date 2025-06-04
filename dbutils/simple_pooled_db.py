@@ -74,6 +74,10 @@ Licensed under the MIT license.
 
 from . import __version__
 
+__all__ = [
+    'PooledDB', 'PooledDBConnection', 'PooledDBError', 'NotSupportedError',
+]
+
 
 class PooledDBError(Exception):
     """General PooledDB error."""

@@ -71,6 +71,8 @@ from pg import DB as PgConnection  # noqa: N811
 
 from . import __version__
 
+__all__ = ['PooledPg', 'PooledPgConnection']
+
 
 class PooledPgConnection:
     """A proxy class for pooled PostgreSQL connections.

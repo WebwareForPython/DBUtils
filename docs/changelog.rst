@@ -1,6 +1,15 @@
 ﻿Changelog for DBUtils
 +++++++++++++++++++++
 
+3.1.1
+=====
+
+DBUtils 3.1.1 was released on June 4, 2025.
+
+Changes:
+
+* Support Python version 3.13.
+
 3.1.0
 =====
 
@@ -10,7 +19,6 @@ Changes:
 
 * Support Python version 3.12, cease support for Python 3.6.
 * Various small internal improvements and modernizations.
-
 
 3.0.3
 =====
