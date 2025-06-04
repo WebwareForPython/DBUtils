@@ -1,21 +1,18 @@
 [build-system]
 build-backend = "setuptools.build_meta"
-requires = [
-  "setuptools>=68",
-]
+requires = ["setuptools>=77"]
 
 [project]
 name = "DBUtils"
 version = "3.1.1"
 description = "Database connections for multi-threaded environments."
-license = {text = "MIT License"}
+license = "MIT"
 authors = [{name = "Christoph Zwerschke", email = "cito@online.de"}]
 requires-python = ">=3.7"
 classifiers = [
   "Development Status :: 5 - Production/Stable",
   "Environment :: Web Environment",
   "Intended Audience :: Developers",
-  "License :: OSI Approved :: MIT License",
   "Operating System :: OS Independent",
   "Programming Language :: Python",
   "Programming Language :: Python :: 3",
@@ -31,16 +28,9 @@ classifiers = [
   "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 [project.optional-dependencies]
-pg = [
-  "PyGreSQL>=5",
-]
-docs = [
-  "docutils",
-]
-tests = [
-  "pytest>=7",
-  "ruff",
-]
+pg = ["PyGreSQL>=5"]
+docs = ["docutils"]
+tests = ["pytest>=7", "ruff"]
 
 [project.readme]
 file = "README.md"
