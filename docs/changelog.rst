@@ -1,5 +1,14 @@
-﻿Changelog for DBUtils
+Changelog for DBUtils
 +++++++++++++++++++++
+
+3.1.2
+=====
+
+DBUtils 3.1.2 was released on September 7, 2025.
+
+Changes:
+
+* Support Python version 3.14.
 
 3.1.1
 =====

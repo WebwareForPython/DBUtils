@@ -145,7 +145,7 @@ class PooledDB:
             # If there is no connection level safety, build
             # the pool using the synchronized queue class
             # that implements all the required locking semantics.
-            from queue import Queue
+            from queue import Queue  # noqa: PLC0415
             self._queue = Queue(maxconnections)  # create the queue
             self.connection = self._unthreadsafe_get_connection
             self.addConnection = self._unthreadsafe_add_connection
@@ -154,7 +154,7 @@ class PooledDB:
             # If there is connection level safety, implement the
             # pool with an ordinary list used as a circular buffer.
             # We only need a minimum of locking in this case.
-            from threading import Lock
+            from threading import Lock  # noqa: PLC0415
             self._lock = Lock()  # create a lock object to be used later
             self._nextConnection = 0  # index of the next connection to be used
             self._connections = []  # the list of connections

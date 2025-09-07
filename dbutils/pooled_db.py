@@ -476,6 +476,10 @@ class SharedDBConnection:
         return (self.con._transaction == other.con._transaction
                 and self.shared == other.shared)
 
+    def __hash__(self):
+        """Get hash value of this connection."""
+        return hash((self.con, self.shared))
+
     def share(self):
         """Increase the share of this connection."""
         self.shared += 1

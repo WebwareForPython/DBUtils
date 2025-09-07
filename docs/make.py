@@ -1,4 +1,4 @@
-#!/usr/bin/python3.12
+#!/usr/bin/env python3.12
 
 """Build HTML from reST files."""
 
@@ -21,7 +21,7 @@ for rst_file in Path().glob('*.rst'):
     html_path = Path(name + '.html')
     print(name, lang)
 
-    with rst_path.open(encoding='utf-8-sig') as source, \
+    with rst_path.open(encoding='utf-8') as source, \
             html_path.open('w', encoding='utf-8') as destination:
         output = publish_file(
             writer_name='html5', source=source, destination=destination,

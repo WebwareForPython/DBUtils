@@ -15,8 +15,11 @@ dist
 local
 
 .idea
+.vscode
+
 .tox
 .pytest_cache
+.ruff_cache
 
 test.bat
 

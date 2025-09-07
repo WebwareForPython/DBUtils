@@ -198,7 +198,7 @@ class PooledPg:
         if maxconnections:
             maxconnections = max(maxconnections, maxcached)
             # Create semaphore for number of allowed connections generally:
-            from threading import Semaphore
+            from threading import Semaphore  # noqa: PLC0415
             self._connections = Semaphore(maxconnections)
             self._blocking = blocking
         else:
