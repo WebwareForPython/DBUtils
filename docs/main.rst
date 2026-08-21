@@ -12,7 +12,7 @@ DBUtils User's Guide
 Synopsis
 ========
 
-DBUtils_ is a suite of Python modules allowing to connect in a safe and
+DBUtils_ is a suite of Python modules that allows you to connect in a safe and
 efficient way between a threaded Python_ application and a database.
 
 DBUtils has been originally written particularly for `Webware for Python`_ as
@@ -66,7 +66,7 @@ are similar:
 Download
 ========
 
-You can download the actual version of DBUtils from
+You can download the current version of DBUtils from
 the Python Package Index at::
 
   https://pypi.python.org/pypi/DBUtils
@@ -79,8 +79,6 @@ The source code repository can be found here on GitHub::
 Installation
 ============
 
-Installation
-------------
 The package can be installed in the usual way::
 
   python setup.py install
@@ -138,7 +136,7 @@ a network that is separated by a firewall and the firewall has been
 restarted and lost its state.
 
 Usually, you will not use the ``steady_db`` module directly; it merely serves
-as a basis for the next two modules, ``persistent_db`` and ``Pooled_db``.
+as a basis for the next two modules, ``persistent_db`` and ``pooled_db``.
 
 PersistentDB (persistent_db)
 ----------------------------
@@ -186,7 +184,7 @@ connection pool with a positive value of ``maxshared`` and the underlying
 DB-API 2 is thread-safe at the connection level, but you can also request
 dedicated database connections that will not be shared between threads.
 Besides the pool of shared connections, you can also set up a pool of
-at least ``mincached`` and at the most ``maxcached`` idle connections that
+at least ``mincached`` and at most ``maxcached`` idle connections that
 will be used whenever a thread is requesting a dedicated database connection
 or the pool of shared connections is not yet full. When a thread closes a
 connection that is not shared anymore, it is returned back to the pool of
@@ -202,7 +200,7 @@ Which one to use?
 -----------------
 Both ``persistent_db`` and ``pooled_db`` serve the same purpose to improve
 the database access performance by recycling database connections, while
-preserving stability even if database connection will be disrupted.
+preserving stability even if the database connection is disrupted.
 
 So which of these two modules should you use? From the above explanations
 it is clear that ``persistent_db`` will make more sense if your application
@@ -235,7 +233,7 @@ PersistentDB (persistent_db)
 ----------------------------
 In order to make use of the ``persistent_db`` module, you first need to set
 up a generator for your kind of database connections by creating an instance
-of ``persistent_db``, passing the following parameters:
+of ``PersistentDB``, passing the following parameters:
 
 * ``creator``: either an arbitrary function returning new DB-API 2
   connection objects or a DB-API 2 compliant database module
@@ -313,13 +311,13 @@ since it clears the ``threading.local`` data between requests).
 PooledDB (pooled_db)
 --------------------
 In order to make use of the ``pooled_db`` module, you first need to set up the
-database connection pool by creating an instance of ``pooled_db``, passing the
+database connection pool by creating an instance of ``PooledDB``, passing the
 following parameters:
 
 * ``creator``: either an arbitrary function returning new DB-API 2
   connection objects or a DB-API 2 compliant database module
 
-* ``mincached`` : the initial number of idle connections in the pool
+* ``mincached``: the initial number of idle connections in the pool
   (the default of ``0`` means no connections are made at startup)
 
 * ``maxcached``: the maximum number of idle connections in the pool
@@ -403,20 +401,21 @@ Instead of this, you can also get a dedicated connection as follows::
 If you don't need it anymore, you should immediately return it to the
 pool with ``db.close()``. You can get another connection in the same way.
 
-⚠ Warning: In a threaded environment, never do the following::
+.. warning::
+    In a threaded environment, never do the following::
 
-  pool.connection().cursor().execute(...)
+      pool.connection().cursor().execute(...)
 
-This would release the connection too early for reuse which may be fatal
-if the connections are not thread-safe. Make sure that the connection
-object stays alive as long as you are using it, like that::
+    This would release the connection too early for reuse which may be fatal
+    if the connections are not thread-safe. Make sure that the connection
+    object stays alive as long as you are using it, like that::
 
-  db = pool.connection()
-  cur = db.cursor()
-  cur.execute(...)
-  res = cur.fetchone()
-  cur.close()  # or del cur
-  db.close()  # or del db
+      db = pool.connection()
+      cur = db.cursor()
+      cur.execute(...)
+      res = cur.fetchone()
+      cur.close()  # or del cur
+      db.close()  # or del db
 
 You can also use context managers for simpler code::
 
@@ -442,12 +441,12 @@ the ``setencoding()`` method of the connection. You can do this by passing
 a modified ``connect()`` function to ``PersistentDB`` or ``PooledDB`` as
 ``creator`` (the first argument), like this::
 
-    from pyodbc import connect
+    import pyodbc
     from dbutils.pooled_db import PooledDB
 
     def creator():
-        con = connect(...)
-        con.setdecoding(...)
+        con = pyodbc.connect(...)
+        con.setencoding(...)
         return con
 
     creator.dbapi = pyodbc
@@ -532,7 +531,7 @@ Also note that when you are using a solution like the Apache webserver
 with mod_python_ or mod_wsgi_, then your Python code will be usually run
 in the context of the webserver's child processes. So if you are using
 the ``pooled_db`` module, and several of these child processes are running,
-you will have as much database connection pools. If these processes are
+you will have as many database connection pools. If these processes are
 running many threads, this may still be a reasonable approach, but if these
 processes don't spawn more than one worker thread, as in the case of Apache's
 "prefork" multi-processing module, this approach does not make sense.
@@ -567,7 +566,6 @@ Bug reports and feedback
 You can transmit bug reports, patches and feedback by creating issues_ or
 `pull requests`_ on the GitHub project page for DBUtils.
 
-.. _GitHub-Projektseite: https://github.com/WebwareForPython/DBUtils
 .. _Issues: https://github.com/WebwareForPython/DBUtils/issues
 .. _Pull Requests: https://github.com/WebwareForPython/DBUtils/pulls
 

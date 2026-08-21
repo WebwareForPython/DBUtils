@@ -62,7 +62,7 @@ sind im folgenden Diagramm dargestellt:
 Die Abhängigkeiten der Module in der Variante für den klassischen
 PyGreSQL-Adapter sehen ähnlich aus:
 
-.. image:: depdependencies_pg.png
+.. image:: dependencies_pg.png
 
 
 Download
@@ -81,8 +81,6 @@ Das Source-Code-Repository befindet sich hier auf GitHub::
 Installation
 ============
 
-Installation
-------------
 Das Paket kann auf die übliche Weise installiert werden::
 
   python setup.py install
@@ -113,7 +111,7 @@ Dieser Abschnitt verwendet nur die Bezeichnungen der DB-API-2-Variante, aber
 Entsprechendes gilt auch für die PyGreSQL-Variante.
 
 DBUtils installiert sich als Paket ``dbutils``, das alle hier beschriebenen
-Module enthält. Jedes dieser Modul enthält im Wesentlichen eine Klasse, die
+Module enthält. Jedes dieser Module enthält im Wesentlichen eine Klasse, die
 einen analogen Namen trägt und die jeweilige Funktionalität bereitstellt.
 So enthält z.B. das Modul ``dbutils.pooled_db`` die Klasse ``PooledDB``.
 
@@ -132,13 +130,13 @@ als zum Einsatz im produktiven Betrieb.
 SteadyDBConnection (steady_db)
 ------------------------------
 Die Klasse ``SteadyDBConnection`` im Modul ``dbutils.steady_db`` stellt
-"gehärtete" Datenbankverbindungen bereit, denen gewöhnlichen Verbindungen
+"gehärtete" Datenbankverbindungen bereit, denen gewöhnliche Verbindungen
 eines DB-API-2-Datenbankadapters zugrunde liegen. Eine "gehärtete" Verbindung
 wird bei Zugriff automatisch, ohne dass die Anwendung dies bemerkt, wieder
 geöffnet, wenn sie geschlossen wurde, die Datenbankverbindung unterbrochen
 wurde, oder wenn sie öfter als ein optionales Limit genutzt wurde.
 
-Ein typisches Beispiel wo dies benötig wird, ist, wenn die Datenbank neu
+Ein typisches Beispiel, wo dies benötigt wird, ist, wenn die Datenbank neu
 gestartet wurde, während Ihre Anwendung immer noch läuft und Verbindungen
 zur Datenbank offen hat, oder wenn Ihre Anwendung auf eine entfernte Datenbank
 über ein Netzwerk zugreift, das durch eine Firewall geschützt ist, und die
@@ -150,7 +148,7 @@ von den beiden nächsten Modulen benötigt, ``persistent_db`` und ``pooled_db``.
 PersistentDB (persistent_db)
 ----------------------------
 Die Klasse ``PersistentDB`` im Modul ``dbutils.persistent_db`` stellt
-gehärtete,  thread-affine, persistente Datenbankverbindungen zur Verfügung,
+gehärtete, thread-affine, persistente Datenbankverbindungen zur Verfügung,
 unter Benutzung eines beliebigen DB-API-2-Datenbankadapters. Mit "thread-affin"
 und "persistent" ist hierbei gemeint, dass die einzelnen Datenbankverbindungen
 den jeweiligen Threads fest zugeordnet bleiben und während der Laufzeit des
@@ -195,7 +193,7 @@ Wie im Diagramm angedeutet, kann ``pooled_db`` geöffnete Datenbankverbindungen
 den verschiedenen Threads beliebig zuteilen. Dies geschieht standardmäßig, wenn
 Sie den Verbindungspool mit einem positiven Wert für ``maxshared`` einrichten
 und der zugrunde liegende DB-API-2-Datenbankadapter auf der Verbindungsebene
-thread-sicher ist, aber sie können auch dedizierte Datenbankverbindungen
+thread-sicher ist, aber Sie können auch dedizierte Datenbankverbindungen
 anfordern, die nicht von anderen Threads verwendet werden sollen. Neben dem
 Pool gemeinsam genutzter Datenbankverbindungen ("shared pool") können Sie auch
 einen Pool von mindestens ``mincached`` und höchstens ``maxcached`` inaktiven
@@ -254,7 +252,7 @@ PersistentDB (persistent_db)
 ----------------------------
 Wenn Sie das ``persistent_db``-Modul einsetzen möchten, müssen Sie zuerst einen
 Generator für die von Ihnen gewünschte Art von Datenbankverbindungen einrichten,
-indem Sie eine Instanz der Klasse ``persistent_db`` erzeugen, wobei Sie folgende
+indem Sie eine Instanz der Klasse ``PersistentDB`` erzeugen, wobei Sie folgende
 Parameter angeben müssen:
 
 * ``creator``: entweder eine Funktion, die neue DB-API-2-Verbindungen
@@ -326,7 +324,7 @@ endet. Sie können dieses Verhalten ändern, indem Sie den Parameter namens
     Bitte beachten Sie, dass Transaktionen explizit durch Aufruf der Methode
     ``begin()`` eingeleitet werden müssen. Hierdurch wird sichergestellt, dass
     das transparente Neueröffnen von Verbindungen bis zum Ende der Transaktion
-    ausgesetzt wird, und dass die Verbindung zurückgerollt wird, before sie vom
+    ausgesetzt wird, und dass die Verbindung zurückgerollt wird, bevor sie vom
     gleichen Thread erneut benutzt wird.
 
 Das Holen einer Verbindung kann etwas beschleunigt werden, indem man den
@@ -339,13 +337,13 @@ PooledDB (pooled_db)
 --------------------
 Wenn Sie das ``pooled_db``-Modul einsetzen möchten, müssen Sie zuerst einen
 Pool für die von Ihnen gewünschte Art von Datenbankverbindungen einrichten,
-indem Sie eine Instanz der Klasse ``pooled_db`` erzeugen, wobei Sie folgende
+indem Sie eine Instanz der Klasse ``PooledDB`` erzeugen, wobei Sie folgende
 Parameter angeben müssen:
 
 * ``creator``: entweder eine Funktion, die neue DB-API-2-Verbindungen
   erzeugt, oder ein DB-API-2-Datenbankadapter-Modul
 
-* ``mincached`` : die anfängliche Anzahl inaktiver Verbindungen, die auf
+* ``mincached``: die anfängliche Anzahl inaktiver Verbindungen, die auf
   Vorrat gehalten werden sollen (der Standardwert ``0`` bedeutet, dass beim
   Start keine Verbindungen geöffnet werden)
 
@@ -353,12 +351,12 @@ Parameter angeben müssen:
   Vorrat gehalten werden sollen (der Standardwert ``0`` oder ``None`` bedeutet
   unbegrenzte Größe des Vorratsspeichers)
 
-* ``maxshared``: Obergrenze für die Anzahl gemeinsam genutzer Verbindungen
+* ``maxshared``: Obergrenze für die Anzahl gemeinsam genutzter Verbindungen
   (der Standardwert ``0`` oder ``None`` bedeutet, dass alle Verbindungen
   dediziert sind)
 
-  Wenn diese Obergrenze erreicht wird, werden Verbindungen wiederverwendet,
-  wenn diese als wiederverwendbar angefordert werden.
+  Wenn diese Obergrenze erreicht wird, werden Verbindungen gemeinsam genutzt,
+  sofern diese als gemeinsam nutzbar angefordert werden.
 
 * ``maxconnections``: Obergrenze für die Anzahl an Datenbankverbindungen,
   die insgesamt überhaupt erlaubt werden sollen (der Standardwert ``0``
@@ -440,21 +438,22 @@ Wenn Sie die Datenbankverbindung nicht mehr benötigen, sollten Sie diese sofort
 wieder mit ``db.close()`` an den Pool zurückgeben. Sie können auf die gleiche
 Weise eine neue Verbindung erhalten.
 
-*Warnung:* In einer Multithread-Umgebung benutzen Sie niemals::
+.. warning::
+    In einer Multithread-Umgebung benutzen Sie niemals::
 
-  pool.connection().cursor().execute(...)
+      pool.connection().cursor().execute(...)
 
-Dies würde die Datenbankverbindung zu früh zur Wiederverwendung zurückgeben,
-was fatale Folgen haben könnte, wenn die Verbindungen nicht thread-sicher sind.
-Stellen Sie sicher, dass die Verbindungsobjekte so lange vorhanden sind, wie
-sie gebraucht werden, etwa so::
+    Dies würde die Datenbankverbindung zu früh zur Wiederverwendung
+    zurückgeben, was fatale Folgen haben könnte, wenn die Verbindungen nicht
+    thread-sicher sind. Stellen Sie sicher, dass die Verbindungsobjekte so
+    lange vorhanden sind, wie sie gebraucht werden, etwa so::
 
-  db = pool.connection()
-  cur = db.cursor()
-  cur.execute(...)
-  res = cur.fetchone()
-  cur.close()  # oder del cur
-  db.close()  # oder del db
+      db = pool.connection()
+      cur = db.cursor()
+      cur.execute(...)
+      res = cur.fetchone()
+      cur.close()  # oder del cur
+      db.close()  # oder del db
 
 Sie können dies auch durch Verwendung von Kontext-Managern vereinfachen::
 
@@ -474,20 +473,20 @@ Sie können dies auch durch Verwendung von Kontext-Managern vereinfachen::
 
 Besonderheiten bei der Benutzung
 ================================
-Manchmal möchte man Datenbankverbindung besonders vorbereiten, bevor sie
+Manchmal möchte man Datenbankverbindungen besonders vorbereiten, bevor sie
 von DBUtils verwendet werden, und dies ist nicht immer durch Verwendung
-der passenden Parameter möglich. Zum Beispiel kann es ``pyodb`` erfordern,
+der passenden Parameter möglich. Zum Beispiel kann es ``pyodbc`` erfordern,
 dass man die Methode ``setencoding()`` der Datenbankverbindung aufruft.
 Sie können dies erreichen, indem Sie eine modifizierte Version der
 Funktion ``connect()`` verwenden und diese als ``creator`` (dem ersten
 Argument) an ``PersistentDB`` oder ``PooledDB`` übergeben, etwa so::
 
-    from pyodbc import connect
+    import pyodbc
     from dbutils.pooled_db import PooledDB
 
     def creator():
-        con = connect(...)
-        con.setdecoding(...)
+        con = pyodbc.connect(...)
+        con.setencoding(...)
         return con
 
     creator.dbapi = pyodbc
@@ -579,9 +578,9 @@ oder mod_wsgi_, dann sollten Sie bedenken, dass Ihr Python-Code normalerweise
 im Kontext der Kindprozesse des Webservers läuft. Wenn Sie also das
 ``pooled_db``-Modul einsetzen, und mehrere dieser Kindprozesse laufen, dann
 werden Sie ebenso viele Pools mit Datenbankverbindungen erhalten. Wenn diese
-Prozesse viele Threads laufen lassen,  dann mag dies eine sinnvoller Ansatz
+Prozesse viele Threads laufen lassen, dann mag dies ein sinnvoller Ansatz
 sein, wenn aber diese Prozesse nicht mehr als einen Worker-Thread starten,
-wie im Fall des Multi-Processing Moduls "prefork" für den Apache-Webserver,
+wie im Fall des Multi-Processing-Moduls "prefork" für den Apache-Webserver,
 dann sollten Sie auf eine Middleware für das Connection-Pooling zurückgreifen,
 die Multi-Processing unterstützt, wie zum Beispiel pgpool_ oder pgbouncer_
 für die PostgreSQL-Datenbank.
@@ -603,7 +602,7 @@ Einige Ideen für zukünftige Verbesserungen:
   bemerken, weil erst dann die unterbrochenen Datenbankverbindungen entdeckt
   würden und sich der Pool langsam wieder neu aufbaut. Mit dem Monitor-Thread
   würde dies schon während der Nacht passieren, kurz nach der Unterbrechung.
-  Der Monitor-Thread könnte auch so konfiguriert werden, dass er überhaupt
+  Der Monitor-Thread könnte auch so konfiguriert werden, dass er generell
   täglich den Verbindungspool erneuert, kurz bevor die Benutzer erscheinen.
 * Optional sollten Benutzung, schlechte Verbindungen und Überschreitung von
   Obergrenzen in Logs gespeichert werden können.
@@ -618,6 +617,7 @@ Fehlermeldungen, Patches und Feedback können Sie als Issues_ oder
 .. _Issues: https://github.com/WebwareForPython/DBUtils/issues
 .. _Pull Requests: https://github.com/WebwareForPython/DBUtils/pulls
 
+
 Links
 =====
 Einige Links zu verwandter und alternativer Software:
@@ -627,7 +627,7 @@ Einige Links zu verwandter und alternativer Software:
 * `Webware for Python`_ Framework
 * Python `DB-API 2`_
 * PostgreSQL_ Datenbank
-* PyGreSQL_ Python-Adapter for PostgreSQL
+* PyGreSQL_ Python-Adapter für PostgreSQL
 * pgpool_ Middleware für Connection-Pooling mit PostgreSQL
 * pgbouncer_ Middleware für Connection-Pooling mit PostgreSQL
 * SQLObject_ Objekt-relationaler Mapper
@@ -661,6 +661,7 @@ Autoren
   Matthew Harriger, Gregory Piñero und Josef van Eenbergen.
 
 .. _Christoph Zwerschke: https://github.com/Cito
+
 
 Copyright und Lizenz
 ====================
