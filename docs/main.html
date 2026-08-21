@@ -43,14 +43,15 @@
 <li><p><a class="reference internal" href="#advanced-usage" id="toc-entry-15">Advanced Usage</a></p>
 <ul>
 <li><p><a class="reference internal" href="#controlling-the-failover-mechanism" id="toc-entry-16">Controlling the failover mechanism</a></p></li>
+<li><p><a class="reference internal" href="#checking-connections" id="toc-entry-17">Checking connections</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#notes" id="toc-entry-17">Notes</a></p></li>
-<li><p><a class="reference internal" href="#future" id="toc-entry-18">Future</a></p></li>
-<li><p><a class="reference internal" href="#bug-reports-and-feedback" id="toc-entry-19">Bug reports and feedback</a></p></li>
-<li><p><a class="reference internal" href="#links" id="toc-entry-20">Links</a></p></li>
-<li><p><a class="reference internal" href="#credits" id="toc-entry-21">Credits</a></p></li>
-<li><p><a class="reference internal" href="#copyright-and-license" id="toc-entry-22">Copyright and License</a></p></li>
+<li><p><a class="reference internal" href="#notes" id="toc-entry-18">Notes</a></p></li>
+<li><p><a class="reference internal" href="#future" id="toc-entry-19">Future</a></p></li>
+<li><p><a class="reference internal" href="#bug-reports-and-feedback" id="toc-entry-20">Bug reports and feedback</a></p></li>
+<li><p><a class="reference internal" href="#links" id="toc-entry-21">Links</a></p></li>
+<li><p><a class="reference internal" href="#credits" id="toc-entry-22">Credits</a></p></li>
+<li><p><a class="reference internal" href="#copyright-and-license" id="toc-entry-23">Copyright and License</a></p></li>
 </ul>
 </nav>
 <section id="synopsis">
@@ -268,10 +269,14 @@ has been raised and shall return whether the connection failover mechanism
 shall be applied (must be passed as a keyword argument, see
 <a class="reference internal" href="#controlling-the-failover-mechanism">Controlling the failover mechanism</a>)</p></li>
 <li><p><span class="docutils literal">ping</span>: an optional flag controlling when connections are checked
-with the <span class="docutils literal">ping()</span> method if such a method is available
 (<span class="docutils literal">0</span> = <span class="docutils literal">None</span> = never, <span class="docutils literal">1</span> = default = whenever it is requested,
 <span class="docutils literal">2</span> = when a cursor is created, <span class="docutils literal">4</span> = when a query is executed,
-<span class="docutils literal">7</span> = always, and all other bit combinations of these values)</p></li>
+<span class="docutils literal">7</span> = always, and all other bit combinations of these values)</p>
+<p>By default, connections are checked with the <span class="docutils literal">ping()</span> method if such a
+method is available. You can also pass an SQL statement or a callable that
+shall be used for the check instead, which is then made as with <span class="docutils literal">ping=1</span>,
+or a tuple with the flag and one of the latter (see <a class="reference internal" href="#checking-connections">Checking connections</a>).</p>
+</li>
 <li><p><span class="docutils literal">closeable</span>: if this is set to true, then closing connections will
 be allowed, but by default this will be silently ignored</p></li>
 <li><p><span class="docutils literal">threadlocal</span>: an optional class for representing thread-local data
@@ -353,10 +358,14 @@ has been raised and shall return whether the connection failover mechanism
 shall be applied (must be passed as a keyword argument, see
 <a class="reference internal" href="#controlling-the-failover-mechanism">Controlling the failover mechanism</a>)</p></li>
 <li><p><span class="docutils literal">ping</span>: an optional flag controlling when connections are checked
-with the <span class="docutils literal">ping()</span> method if such a method is available
 (<span class="docutils literal">0</span> = <span class="docutils literal">None</span> = never, <span class="docutils literal">1</span> = default = whenever fetched from the pool,
 <span class="docutils literal">2</span> = when a cursor is created, <span class="docutils literal">4</span> = when a query is executed,
-<span class="docutils literal">7</span> = always, and all other bit combinations of these values)</p></li>
+<span class="docutils literal">7</span> = always, and all other bit combinations of these values)</p>
+<p>By default, connections are checked with the <span class="docutils literal">ping()</span> method if such a
+method is available. You can also pass an SQL statement or a callable that
+shall be used for the check instead, which is then made as with <span class="docutils literal">ping=1</span>,
+or a tuple with the flag and one of the latter (see <a class="reference internal" href="#checking-connections">Checking connections</a>).</p>
+</li>
 <li><p>The creator function or the connect function of the DB-API 2 compliant
 database module specified as the creator will receive any additional
 parameters such as the host, database, user, password etc. You may
@@ -485,6 +494,48 @@ are not counted towards the <span class="docutils literal">maxusage</span> limit
 <span class="docutils literal">begin()</span> method, since the failover mechanism is always suspended
 during transactions. Keep in mind though that this really starts a
 transaction on the database server, with all its implications.</p>
+</aside>
+</section>
+<section id="checking-connections">
+<h3>Checking connections</h3>
+<p>Connections that are kept in the pool or bound to a thread may become stale
+when the database server is restarted or drops connections that have been
+idle for too long. In order to notice this before the connection is used,
+DBUtils can check it with the <span class="docutils literal">ping()</span> method of the underlying DB-API 2
+connection, and the <span class="docutils literal">ping</span> parameter controls when such a check is made.</p>
+<p>However, <span class="docutils literal">ping()</span> is not part of the DB-API 2 specification, and many
+widely used database modules do not implement it. When DBUtils notices that
+the method is unavailable, it stops checking the connections altogether.
+In this case, you can pass an SQL statement as <span class="docutils literal">ping</span> parameter that shall
+be executed for checking the connection instead:</p>
+<pre class="literal-block">import psycopg2
+from dbutils.pooled_db import PooledDB
+
+pool = PooledDB(psycopg2, 5, database='mydb', ping='select 1')</pre>
+<p>Instead of an SQL statement, you can also pass a callable that is passed the
+underlying DB-API 2 connection and shall return whether it is still alive:</p>
+<pre class="literal-block">def is_healthy(con):
+    # psycopg2 knows whether the connection has been closed already
+    return not con.closed
+
+pool = PooledDB(psycopg2, 5, database='mydb', ping=is_healthy)</pre>
+<p>Returning <span class="docutils literal">None</span> counts as alive and raising an exception counts as not
+alive, so a callable that simply carries out some database operation without
+catching errors can be used as well. When the check reports the connection as
+not alive, it is transparently replaced with a newly opened connection, just
+as if <span class="docutils literal">ping()</span> had reported it as broken.</p>
+<p>Such a check is made whenever a connection is fetched from the pool or
+requested by a thread, i.e. at the time corresponding to <span class="docutils literal">ping=1</span>. If you
+want it to be made at the other times as well, pass a tuple with the usual
+integer value and the SQL statement or the callable:</p>
+<pre class="literal-block">pool = PooledDB(psycopg2, 5, database='mydb', ping=(4, 'select 1'))</pre>
+<aside class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Every check of this kind requires an extra round trip to the database
+server, so you should combine it with <span class="docutils literal">ping=4</span> or <span class="docutils literal">ping=7</span> only when
+you really need it. Also keep in mind that an SQL statement executed for
+checking a connection can start a transaction on the database server
+when the connection does not run in autocommit mode.</p>
 </aside>
 </section>
 </section>

@@ -263,6 +263,22 @@ def test_ping_check_when_fetched(dbapi, ping_con_cls):
     assert ping_con_cls.num_pings == 2
 
 
+def test_ping_check_with_sql_when_fetched(dbapi, con_cls):
+    """Check that connections can be checked with an SQL statement."""
+    persist = PersistentDB(dbapi, 0, None, None, 'select 1', True)
+    db = persist.connection()
+    assert db._con.valid is True
+    # the statement has been executed instead of using the ping method
+    assert db._con.num_queries == 1
+    assert con_cls.num_pings == 0
+    # the closed connection is checked when it is requested again,
+    # so it is transparently reopened
+    db.close()
+    db = persist.connection()
+    assert db._con.valid is True
+    assert con_cls.num_pings == 0
+
+
 def test_ping_check_when_cursor_created(dbapi, ping_con_cls):
     """Check that connections are pinged when ping is 2."""
     persist = PersistentDB(dbapi, 0, None, None, 2, True)

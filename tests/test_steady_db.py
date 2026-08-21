@@ -890,6 +890,150 @@ def test_connection_ping_check_combinations(ping, ping_con_cls):
     assert db._con.valid is on_request
 
 
+def test_connection_ping_check_with_sql(con_cls):
+    """Check that connections can be checked with an SQL statement."""
+    db = steady_db_connect(dbapi, ping='select 1')
+    con = db._con
+    assert con.num_queries == 0
+    # the statement is executed instead of using the ping method
+    assert db._ping_check()
+    assert con_cls.num_pings == 0
+    assert con.num_queries == 1
+    # the cursor used for the check has been closed again
+    assert con.open_cursors == 0
+    # and the check does not count towards the usage limit
+    assert db._usage == 0
+    # a broken connection is detected and transparently reopened
+    db.close()
+    assert not con.valid
+    assert db._ping_check()
+    assert db._con is not con
+    assert db._con.valid
+    assert con_cls.num_pings == 0
+
+
+def test_connection_ping_check_with_sql_when_query_executed(con_cls):
+    """Check that an SQL statement can also be used at other times."""
+    db = steady_db_connect(dbapi, ping=(4, 'select 1'))
+    con = db._con
+    cursor = db.cursor()
+    # creating a cursor does not check the connection
+    assert con.num_queries == 0
+    # but executing a query does, in addition to the query itself
+    cursor.execute('select test')
+    assert con.num_queries == 2
+    assert cursor.fetchone() == 'test'
+    assert con_cls.num_pings == 0
+
+
+def test_connection_ping_check_with_failing_sql(con_cls):
+    """Check that a failing check statement is not fatal."""
+    db = steady_db_connect(dbapi, ping='error')
+    con = db._con
+    # the failing statement makes the connection appear broken,
+    # so that it is unnecessarily, but harmlessly reopened
+    assert db._ping_check()
+    assert db._con is not con
+    assert db._con.valid
+    assert con_cls.num_pings == 0
+
+
+def test_connection_ping_check_with_function(con_cls, pinger):
+    """Check that connections can be checked with a check function."""
+    db = steady_db_connect(dbapi, ping=pinger)
+    con = db._con
+    assert not pinger.calls
+    assert db._ping_check()
+    # the function is passed the underlying DB-API 2 connection
+    assert pinger.calls == [con]
+    assert con_cls.num_pings == 0
+    assert con.num_queries == 0
+    # a broken connection is detected and transparently reopened
+    db.close()
+    assert db._ping_check()
+    assert pinger.calls == [con, con]
+    assert db._con is not con
+    assert db._con.valid
+
+
+def test_connection_ping_check_with_function_at_default_times(pinger):
+    """Check that a check function is used at the default times."""
+    db = steady_db_connect(dbapi, ping=pinger)
+    # neither creating a cursor nor executing a query checks the connection
+    db.cursor().execute('select test')
+    assert not pinger.calls
+    # but requesting an explicit check does
+    assert db._ping_check()
+    assert len(pinger.calls) == 1
+
+
+def test_connection_ping_check_with_broken_function(con_cls):
+    """Check that a broken check function does not disable the check."""
+    def broken_check(_con):
+        raise AttributeError
+
+    db = steady_db_connect(dbapi, ping=(7, broken_check))
+    con = db._con
+    assert db._ping_check()
+    # in contrast to a missing ping method, the check is not given up,
+    # the connection is only considered broken and therefore reopened
+    assert db._ping == 7
+    assert db._con is not con
+    assert db._con.valid
+    assert con_cls.num_pings == 0
+
+
+def test_connection_ping_check_with_invalid_parameter():
+    """Check that an invalid check function or statement is rejected."""
+    with pytest.raises(TypeError):
+        steady_db_connect(dbapi, ping=(1, 42))
+    with pytest.raises(TypeError):
+        steady_db_connect(dbapi, ping=(1, 'select 1', 2))
+    # non-integer values without a check function disable the check
+    db = steady_db_connect(dbapi, ping=None)
+    assert db._ping == 0
+    assert db._pinger is None
+
+
+@pytest.mark.parametrize("ping", range(8))
+def test_connection_ping_check_combinations_with_function(
+        ping, con_cls, pinger):
+    """Check the three ping triggers when a check function is used."""
+    on_request = bool(ping & 1)  # 1 = when _ping_check() is called
+    on_cursor = bool(ping & 2)  # 2 = whenever a cursor is created
+    on_execute = bool(ping & 4)  # 4 = when a query is executed
+    db = steady_db_connect(dbapi, ping=(ping, pinger))
+    assert not pinger.calls
+    # while the connection is open, only the configured triggers check it
+    expected = 0
+    cursor = db.cursor()
+    expected += on_cursor
+    assert len(pinger.calls) == expected
+    cursor.execute('select test')
+    expected += on_execute
+    assert len(pinger.calls) == expected
+    assert cursor.fetchone() == 'test'
+    # a closed connection is checked just as often, since the check reports
+    # it as broken and the connection is then reopened transparently
+    db.close()
+    cursor = db.cursor()
+    expected += on_cursor
+    assert len(pinger.calls) == expected
+    cursor.execute('select test')
+    expected += on_execute
+    assert len(pinger.calls) == expected
+    assert cursor.fetchone() == 'test'
+    # an explicit check is made only when this has been requested,
+    # and it reopens the connection when it has been closed
+    db.close()
+    assert db._ping_check() is (True if on_request else None)
+    expected += on_request
+    assert len(pinger.calls) == expected
+    assert db._con.valid is on_request
+    # the ping method has not been used at all
+    assert con_cls.num_pings == 0
+
+
 def test_connection_ping_check_always_with_cursor(ping_con_cls):
     """Check that a kept cursor is pinged everywhere when ping is 7."""
     db = steady_db_connect(dbapi, ping=7)

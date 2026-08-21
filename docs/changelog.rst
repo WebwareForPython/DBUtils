@@ -15,6 +15,13 @@ Changes:
   failed statement, such as a deliberate server side statement timeout, from
   errors that report a broken connection, when the database module maps both
   onto the same exception class.
+* The ``ping`` parameter of ``PersistentDB``, ``PooledDB`` and
+  ``steady_db.connect()`` now also accepts an SQL statement such as
+  ``"select 1"`` or a callable that shall be used for checking the
+  connections instead of the ``ping()`` method, which is not part of the
+  DB-API 2 specification and not provided by every database module.  Pass a
+  tuple with the usual integer value and the SQL statement or the callable
+  if the connections shall not only be checked when they are requested.
 * Added a ``no_failover()`` context manager to steady cursors that suspends
   the failover mechanism for individual statements.
 * Added ``dbapi_connection`` and ``dbapi_cursor`` attributes providing

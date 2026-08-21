@@ -32,3 +32,20 @@ def ping_con_cls(con_cls):
     """Get the mock connection class with a working ping method."""
     con_cls.has_ping = True
     return con_cls
+
+
+@pytest.fixture
+def pinger(con_cls):  # noqa: ARG001
+    """Get a check function that can be passed as ping parameter.
+
+    The connection class does not have a ping method, so that the check
+    function must be used.  It reports valid connections as alive, just
+    as the ping method would do, and it records all of its calls.
+    """
+    def check(con):
+        check.calls.append(con)
+        if not con.valid:
+            raise mock_db.OperationalError
+
+    check.calls = []
+    return check

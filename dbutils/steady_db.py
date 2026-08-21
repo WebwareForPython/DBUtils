@@ -112,6 +112,25 @@ class InvalidCursorError(SteadyDBError):
 InvalidCursor = InvalidCursorError
 
 
+_PING_ERROR = (
+    "'ping' must be an integer, an SQL statement, a callable,"
+    " or a tuple with an integer and one of the latter.")
+
+
+def _sql_pinger(sql):
+    """Create a check function executing the given SQL statement."""
+    def pinger(con):
+        """Check the connection by executing an SQL statement."""
+        cursor = con.cursor()
+        try:
+            cursor.execute(sql)
+        finally:
+            with suppress(Exception):
+                cursor.close()
+
+    return pinger
+
+
 def connect(
         creator, maxusage=None, setsession=None,
         failures=None, ping=1, closeable=True, isfatal=None,
@@ -143,10 +162,21 @@ def connect(
         when the database module maps both onto the same exception class.
         The callable must tolerate arbitrary exception instances of the
         classes given as failures, including instances without args.
-    ping: determines when the connection should be checked with ping()
+    ping: determines when and how the connection shall be checked
         (0 = None = never, 1 = default = when _ping_check() is called,
         2 = whenever a cursor is created, 4 = when a query is executed,
-        7 = always, and all other bit combinations of these values)
+        7 = always, and all other bit combinations of these values).
+        By default, the connection is checked with its ping() method.
+        Since ping() is not part of the DB-API 2 specification and not
+        available in every database module, you can also pass an SQL
+        statement such as "select 1" that shall be executed instead, or
+        a callable that is passed the underlying DB-API 2 connection and
+        shall return whether that connection is still alive, where None
+        counts as alive and raising an exception counts as not alive.
+        Such a check is made as with ping=1, i.e. when _ping_check()
+        is called; if you want it to be made at other times, pass a tuple
+        with one of the integer values above and the SQL statement or the
+        callable, e.g. ping=(4, "select 1").
     closeable: if this is set to false, then closing the connection will
         be silently ignored, but by default the connection can be closed
     args, kwargs: the parameters that shall be passed to the creator
@@ -212,10 +242,33 @@ class SteadyDBConnection:
         if isfatal is not None and not callable(isfatal):
             raise TypeError("'isfatal' must be a callable.")
         self._isfatal = isfatal
-        self._ping = ping if isinstance(ping, int) else 0
+        self._ping, self._pinger = self._parse_ping(ping)
         self._closeable = closeable
         self._args, self._kwargs = args, kwargs
         self._store(self._create())
+
+    @staticmethod
+    def _parse_ping(ping):
+        """Split the ping parameter into a flag and a check function.
+
+        The ping parameter determines when the connection shall be checked
+        and can also determine how it shall be checked, by passing an SQL
+        statement or a callable instead of or together with the flag.
+        """
+        if isinstance(ping, tuple):
+            try:
+                ping, pinger = ping
+            except ValueError:
+                raise TypeError(_PING_ERROR) from None
+        elif isinstance(ping, str) or callable(ping):
+            ping, pinger = 1, ping
+        else:
+            pinger = None
+        if isinstance(pinger, str):
+            pinger = _sql_pinger(pinger)
+        elif pinger is not None and not callable(pinger):
+            raise TypeError(_PING_ERROR)
+        return ping if isinstance(ping, int) else 0, pinger
 
     def __enter__(self):
         """Enter the runtime context for the connection object."""
@@ -354,29 +407,37 @@ class SteadyDBConnection:
                 self.rollback()
 
     def _ping_check(self, ping=1, reconnect=True):
-        """Check whether the connection is still alive using ping().
+        """Check whether the connection is still alive.
+
+        The connection is checked with the check function that has been
+        derived from the ping parameter, or with the ping() method of the
+        underlying connection if no such function has been specified.
 
         If the underlying connection is not active and the ping
         parameter is set accordingly, the connection will be recreated
         unless the connection is currently inside a transaction.
         """
         if ping & self._ping:
-            try:  # if possible, ping the connection
-                try:  # pass a reconnect=False flag if this is supported
-                    alive = self._con.ping(False)
-                except TypeError:  # the reconnect flag is not supported
-                    alive = self._con.ping()
-            except (AttributeError, IndexError, TypeError, ValueError):
-                self._ping = 0  # ping() is not available
-                alive = None
-                reconnect = False
-            except Exception:
-                alive = False
+            if self._pinger is None:
+                try:  # if possible, ping the connection
+                    try:  # pass a reconnect=False flag if this is supported
+                        alive = self._con.ping(False)
+                    except TypeError:  # the reconnect flag is not supported
+                        alive = self._con.ping()
+                except (AttributeError, IndexError, TypeError, ValueError):
+                    self._ping = 0  # ping() is not available
+                    return None  # the connection cannot be checked
+                except Exception:
+                    alive = False
             else:
-                if alive is None:
-                    alive = True
-                if alive:
-                    reconnect = False
+                try:  # check the connection with the given check function
+                    alive = self._pinger(self._con)
+                except Exception:
+                    alive = False
+            if alive is None:
+                alive = True
+            if alive:
+                reconnect = False
             if reconnect and not self._transaction:
                 try:  # try to reopen the connection
                     con = self._create()

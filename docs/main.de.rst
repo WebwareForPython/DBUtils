@@ -278,10 +278,16 @@ Parameter angeben müssen:
   `Steuerung der Ausfallsicherung`_)
 
 * ``ping``: mit diesem Parameter kann eingestellt werden, wann Verbindungen
-  mit der ``ping()``-Methode geprüft werden, falls eine solche vorhanden ist
+  geprüft werden
   (``0`` = ``None`` = nie, ``1`` = Standardwert = immer wenn neu angefragt,
   ``2`` = vor Erzeugen eines Cursors, ``4`` = vor dem Ausführen von Abfragen,
   ``7`` = immer, und alle Bitkombinationen dieser Werte)
+
+  Standardmäßig werden Verbindungen mit der ``ping()``-Methode geprüft, falls
+  eine solche vorhanden ist. Sie können für die Prüfung stattdessen auch einen
+  SQL-Befehl oder eine Funktion angeben, die dann wie bei ``ping=1`` erfolgt,
+  oder ein Tupel aus dem obigen Wert und einem der beiden
+  (siehe `Prüfung der Verbindungen`_).
 
 * ``closeable``: wenn dies auf ``True`` gesetzt wird, dann wird das Schließen
   von Verbindungen erlaubt, normalerweise wird es jedoch ignoriert
@@ -394,10 +400,16 @@ Parameter angeben müssen:
   `Steuerung der Ausfallsicherung`_)
 
 * ``ping``: mit diesem Parameter kann eingestellt werden, wann Verbindungen
-  mit der ``ping()``-Methode geprüft werden, falls eine solche vorhanden ist
+  geprüft werden
   (``0`` = ``None`` = nie, ``1`` = Standardwert = immer wenn neu angefragt,
   ``2`` = vor Erzeugen eines Cursors, ``4`` = vor dem Ausführen von Abfragen,
   ``7`` = immer, und alle Bitkombinationen dieser Werte)
+
+  Standardmäßig werden Verbindungen mit der ``ping()``-Methode geprüft, falls
+  eine solche vorhanden ist. Sie können für die Prüfung stattdessen auch einen
+  SQL-Befehl oder eine Funktion angeben, die dann wie bei ``ping=1`` erfolgt,
+  oder ein Tupel aus dem obigen Wert und einem der beiden
+  (siehe `Prüfung der Verbindungen`_).
 
 * Die als ``creator`` angegebene Funktion oder die Funktion ``connect``
   des DB-API-2-Datenbankadapter-Moduls erhalten alle weiteren Parameter,
@@ -563,6 +575,59 @@ erfasst und auch nicht auf die Begrenzung ``maxusage`` angerechnet werden.
     einer Transaktion stets ausgesetzt wird. Bedenken Sie aber, dass dadurch
     tatsächlich eine Transaktion auf dem Datenbankserver gestartet wird,
     mit allen sich daraus ergebenden Folgen.
+
+Prüfung der Verbindungen
+------------------------
+Verbindungen, die im Verbindungspool gehalten oder einem Thread zugeordnet
+sind, können unbrauchbar werden, wenn der Datenbankserver neu gestartet wird
+oder zu lange untätige Verbindungen abbricht. Damit dies auffällt, bevor die
+Verbindung verwendet wird, kann DBUtils sie mit der ``ping()``-Methode der
+zugrunde liegenden DB-API-2-Verbindung prüfen, wobei der Parameter ``ping``
+festlegt, wann eine solche Prüfung stattfindet.
+
+Allerdings ist ``ping()`` nicht Teil der DB-API-2-Spezifikation, und viele
+gebräuchliche Datenbankadapter-Module stellen diese Methode nicht bereit.
+Sobald DBUtils bemerkt, dass die Methode nicht verfügbar ist, werden die
+Verbindungen überhaupt nicht mehr geprüft. In diesem Fall können Sie als
+Parameter ``ping`` einen SQL-Befehl angeben, der stattdessen zur Prüfung
+der Verbindung ausgeführt werden soll::
+
+    import psycopg2
+    from dbutils.pooled_db import PooledDB
+
+    pool = PooledDB(psycopg2, 5, database='meinedb', ping='select 1')
+
+Statt eines SQL-Befehls können Sie auch eine Funktion angeben, der die
+zugrunde liegende DB-API-2-Verbindung übergeben wird und die zurückgibt,
+ob diese noch intakt ist::
+
+    def is_healthy(con):
+        # psycopg2 weiß, ob die Verbindung bereits geschlossen wurde
+        return not con.closed
+
+    pool = PooledDB(psycopg2, 5, database='meinedb', ping=is_healthy)
+
+Die Rückgabe von ``None`` gilt als intakt, das Auslösen einer Exception als
+nicht intakt, so dass auch eine Funktion verwendet werden kann, die einfach
+eine Datenbankoperation ausführt, ohne Fehler abzufangen. Meldet die Prüfung
+die Verbindung als nicht intakt, dann wird diese transparent durch eine neu
+geöffnete Verbindung ersetzt, genau wie wenn ``ping()`` sie als nicht mehr
+brauchbar gemeldet hätte.
+
+Eine solche Prüfung findet immer dann statt, wenn eine Verbindung aus dem
+Verbindungspool geholt oder von einem Thread angefragt wird, also zu dem
+Zeitpunkt, der dem Wert ``ping=1`` entspricht. Wenn sie auch zu den anderen
+Zeitpunkten stattfinden soll, dann geben Sie ein Tupel aus dem üblichen
+ganzzahligen Wert und dem SQL-Befehl oder der Funktion an::
+
+    pool = PooledDB(psycopg2, 5, database='meinedb', ping=(4, 'select 1'))
+
+.. warning::
+    Jede derartige Prüfung erfordert eine zusätzliche Anfrage an den
+    Datenbankserver, weshalb Sie sie nur bei wirklichem Bedarf mit ``ping=4``
+    oder ``ping=7`` kombinieren sollten. Bedenken Sie außerdem, dass ein zur
+    Prüfung ausgeführter SQL-Befehl eine Transaktion auf dem Datenbankserver
+    starten kann, wenn die Verbindung nicht im Autocommit-Modus läuft.
 
 
 Anmerkungen

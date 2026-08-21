@@ -1275,6 +1275,24 @@ def test_ping_check_when_fetched_shared(dbapi, ping_con_cls):
     assert ping_con_cls.num_pings == 2
 
 
+def test_ping_check_with_sql_when_fetched(dbapi, con_cls):
+    """Check that connections can be checked with an SQL statement."""
+    pool = PooledDB(
+        dbapi, 1, 1, 0, 0, False, None, None, True, None, 'select 1')
+    db = pool.connection()
+    assert db._con._con.valid
+    # the statement has been executed instead of using the ping method
+    assert db._con._con.num_queries == 1
+    assert con_cls.num_pings == 0
+    # the broken connection is checked when fetched from the pool again,
+    # so it is transparently reopened
+    db._con.close()
+    db.close()
+    db = pool.connection()
+    assert db._con._con.valid
+    assert con_cls.num_pings == 0
+
+
 def test_ping_check_when_cursor_created(dbapi, ping_con_cls):
     """Check that connections are pinged when ping is 2."""
     pool = PooledDB(dbapi, 1, 1, 1, 0, False, None, None, True, None, 2)

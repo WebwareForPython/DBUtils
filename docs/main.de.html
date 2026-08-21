@@ -43,14 +43,15 @@
 <li><p><a class="reference internal" href="#besonderheiten-bei-der-benutzung" id="toc-entry-15">Besonderheiten bei der Benutzung</a></p>
 <ul>
 <li><p><a class="reference internal" href="#steuerung-der-ausfallsicherung" id="toc-entry-16">Steuerung der Ausfallsicherung</a></p></li>
+<li><p><a class="reference internal" href="#prufung-der-verbindungen" id="toc-entry-17">Prüfung der Verbindungen</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#anmerkungen" id="toc-entry-17">Anmerkungen</a></p></li>
-<li><p><a class="reference internal" href="#zukunft" id="toc-entry-18">Zukunft</a></p></li>
-<li><p><a class="reference internal" href="#fehlermeldungen-und-feedback" id="toc-entry-19">Fehlermeldungen und Feedback</a></p></li>
-<li><p><a class="reference internal" href="#links" id="toc-entry-20">Links</a></p></li>
-<li><p><a class="reference internal" href="#autoren" id="toc-entry-21">Autoren</a></p></li>
-<li><p><a class="reference internal" href="#copyright-und-lizenz" id="toc-entry-22">Copyright und Lizenz</a></p></li>
+<li><p><a class="reference internal" href="#anmerkungen" id="toc-entry-18">Anmerkungen</a></p></li>
+<li><p><a class="reference internal" href="#zukunft" id="toc-entry-19">Zukunft</a></p></li>
+<li><p><a class="reference internal" href="#fehlermeldungen-und-feedback" id="toc-entry-20">Fehlermeldungen und Feedback</a></p></li>
+<li><p><a class="reference internal" href="#links" id="toc-entry-21">Links</a></p></li>
+<li><p><a class="reference internal" href="#autoren" id="toc-entry-22">Autoren</a></p></li>
+<li><p><a class="reference internal" href="#copyright-und-lizenz" id="toc-entry-23">Copyright und Lizenz</a></p></li>
 </ul>
 </nav>
 <section id="zusammenfassung">
@@ -289,10 +290,16 @@ Datenbankadapter-Modul nicht geeignet sein sollte</p></li>
 kommen soll (muss als Schlüsselwort-Argument übergeben werden, siehe
 <a class="reference internal" href="#steuerung-der-ausfallsicherung">Steuerung der Ausfallsicherung</a>)</p></li>
 <li><p><span class="docutils literal">ping</span>: mit diesem Parameter kann eingestellt werden, wann Verbindungen
-mit der <span class="docutils literal">ping()</span>-Methode geprüft werden, falls eine solche vorhanden ist
+geprüft werden
 (<span class="docutils literal">0</span> = <span class="docutils literal">None</span> = nie, <span class="docutils literal">1</span> = Standardwert = immer wenn neu angefragt,
 <span class="docutils literal">2</span> = vor Erzeugen eines Cursors, <span class="docutils literal">4</span> = vor dem Ausführen von Abfragen,
-<span class="docutils literal">7</span> = immer, und alle Bitkombinationen dieser Werte)</p></li>
+<span class="docutils literal">7</span> = immer, und alle Bitkombinationen dieser Werte)</p>
+<p>Standardmäßig werden Verbindungen mit der <span class="docutils literal">ping()</span>-Methode geprüft, falls
+eine solche vorhanden ist. Sie können für die Prüfung stattdessen auch einen
+SQL-Befehl oder eine Funktion angeben, die dann wie bei <span class="docutils literal">ping=1</span> erfolgt,
+oder ein Tupel aus dem obigen Wert und einem der beiden
+(siehe <a class="reference internal" href="#prufung-der-verbindungen">Prüfung der Verbindungen</a>).</p>
+</li>
 <li><p><span class="docutils literal">closeable</span>: wenn dies auf <span class="docutils literal">True</span> gesetzt wird, dann wird das Schließen
 von Verbindungen erlaubt, normalerweise wird es jedoch ignoriert</p></li>
 <li><p><span class="docutils literal">threadlocal</span>: eine optionale Klasse zur Speicherung thread-lokaler Daten,
@@ -386,10 +393,16 @@ Datenbankadapter-Modul nicht geeignet sein sollte</p></li>
 kommen soll (muss als Schlüsselwort-Argument übergeben werden, siehe
 <a class="reference internal" href="#steuerung-der-ausfallsicherung">Steuerung der Ausfallsicherung</a>)</p></li>
 <li><p><span class="docutils literal">ping</span>: mit diesem Parameter kann eingestellt werden, wann Verbindungen
-mit der <span class="docutils literal">ping()</span>-Methode geprüft werden, falls eine solche vorhanden ist
+geprüft werden
 (<span class="docutils literal">0</span> = <span class="docutils literal">None</span> = nie, <span class="docutils literal">1</span> = Standardwert = immer wenn neu angefragt,
 <span class="docutils literal">2</span> = vor Erzeugen eines Cursors, <span class="docutils literal">4</span> = vor dem Ausführen von Abfragen,
-<span class="docutils literal">7</span> = immer, und alle Bitkombinationen dieser Werte)</p></li>
+<span class="docutils literal">7</span> = immer, und alle Bitkombinationen dieser Werte)</p>
+<p>Standardmäßig werden Verbindungen mit der <span class="docutils literal">ping()</span>-Methode geprüft, falls
+eine solche vorhanden ist. Sie können für die Prüfung stattdessen auch einen
+SQL-Befehl oder eine Funktion angeben, die dann wie bei <span class="docutils literal">ping=1</span> erfolgt,
+oder ein Tupel aus dem obigen Wert und einem der beiden
+(siehe <a class="reference internal" href="#prufung-der-verbindungen">Prüfung der Verbindungen</a>).</p>
+</li>
 <li><p>Die als <span class="docutils literal">creator</span> angegebene Funktion oder die Funktion <span class="docutils literal">connect</span>
 des DB-API-2-Datenbankadapter-Moduls erhalten alle weiteren Parameter,
 wie <span class="docutils literal">host</span>, <span class="docutils literal">database</span>, <span class="docutils literal">user</span>, <span class="docutils literal">password</span> usw. Sie können einige
@@ -530,6 +543,53 @@ erfasst und auch nicht auf die Begrenzung <span class="docutils literal">maxusag
 einer Transaktion stets ausgesetzt wird. Bedenken Sie aber, dass dadurch
 tatsächlich eine Transaktion auf dem Datenbankserver gestartet wird,
 mit allen sich daraus ergebenden Folgen.</p>
+</aside>
+</section>
+<section id="prufung-der-verbindungen">
+<h3>Prüfung der Verbindungen</h3>
+<p>Verbindungen, die im Verbindungspool gehalten oder einem Thread zugeordnet
+sind, können unbrauchbar werden, wenn der Datenbankserver neu gestartet wird
+oder zu lange untätige Verbindungen abbricht. Damit dies auffällt, bevor die
+Verbindung verwendet wird, kann DBUtils sie mit der <span class="docutils literal">ping()</span>-Methode der
+zugrunde liegenden DB-API-2-Verbindung prüfen, wobei der Parameter <span class="docutils literal">ping</span>
+festlegt, wann eine solche Prüfung stattfindet.</p>
+<p>Allerdings ist <span class="docutils literal">ping()</span> nicht Teil der DB-API-2-Spezifikation, und viele
+gebräuchliche Datenbankadapter-Module stellen diese Methode nicht bereit.
+Sobald DBUtils bemerkt, dass die Methode nicht verfügbar ist, werden die
+Verbindungen überhaupt nicht mehr geprüft. In diesem Fall können Sie als
+Parameter <span class="docutils literal">ping</span> einen SQL-Befehl angeben, der stattdessen zur Prüfung
+der Verbindung ausgeführt werden soll:</p>
+<pre class="literal-block">import psycopg2
+from dbutils.pooled_db import PooledDB
+
+pool = PooledDB(psycopg2, 5, database='meinedb', ping='select 1')</pre>
+<p>Statt eines SQL-Befehls können Sie auch eine Funktion angeben, der die
+zugrunde liegende DB-API-2-Verbindung übergeben wird und die zurückgibt,
+ob diese noch intakt ist:</p>
+<pre class="literal-block">def is_healthy(con):
+    # psycopg2 weiß, ob die Verbindung bereits geschlossen wurde
+    return not con.closed
+
+pool = PooledDB(psycopg2, 5, database='meinedb', ping=is_healthy)</pre>
+<p>Die Rückgabe von <span class="docutils literal">None</span> gilt als intakt, das Auslösen einer Exception als
+nicht intakt, so dass auch eine Funktion verwendet werden kann, die einfach
+eine Datenbankoperation ausführt, ohne Fehler abzufangen. Meldet die Prüfung
+die Verbindung als nicht intakt, dann wird diese transparent durch eine neu
+geöffnete Verbindung ersetzt, genau wie wenn <span class="docutils literal">ping()</span> sie als nicht mehr
+brauchbar gemeldet hätte.</p>
+<p>Eine solche Prüfung findet immer dann statt, wenn eine Verbindung aus dem
+Verbindungspool geholt oder von einem Thread angefragt wird, also zu dem
+Zeitpunkt, der dem Wert <span class="docutils literal">ping=1</span> entspricht. Wenn sie auch zu den anderen
+Zeitpunkten stattfinden soll, dann geben Sie ein Tupel aus dem üblichen
+ganzzahligen Wert und dem SQL-Befehl oder der Funktion an:</p>
+<pre class="literal-block">pool = PooledDB(psycopg2, 5, database='meinedb', ping=(4, 'select 1'))</pre>
+<aside class="admonition warning">
+<p class="admonition-title">Warnung</p>
+<p>Jede derartige Prüfung erfordert eine zusätzliche Anfrage an den
+Datenbankserver, weshalb Sie sie nur bei wirklichem Bedarf mit <span class="docutils literal">ping=4</span>
+oder <span class="docutils literal">ping=7</span> kombinieren sollten. Bedenken Sie außerdem, dass ein zur
+Prüfung ausgeführter SQL-Befehl eine Transaktion auf dem Datenbankserver
+starten kann, wenn die Verbindung nicht im Autocommit-Modus läuft.</p>
 </aside>
 </section>
 </section>

@@ -257,10 +257,14 @@ of ``PersistentDB``, passing the following parameters:
   `Controlling the failover mechanism`_)
 
 * ``ping``: an optional flag controlling when connections are checked
-  with the ``ping()`` method if such a method is available
   (``0`` = ``None`` = never, ``1`` = default = whenever it is requested,
   ``2`` = when a cursor is created, ``4`` = when a query is executed,
   ``7`` = always, and all other bit combinations of these values)
+
+  By default, connections are checked with the ``ping()`` method if such a
+  method is available. You can also pass an SQL statement or a callable that
+  shall be used for the check instead, which is then made as with ``ping=1``,
+  or a tuple with the flag and one of the latter (see `Checking connections`_).
 
 * ``closeable``: if this is set to true, then closing connections will
   be allowed, but by default this will be silently ignored
@@ -361,10 +365,14 @@ following parameters:
   `Controlling the failover mechanism`_)
 
 * ``ping``: an optional flag controlling when connections are checked
-  with the ``ping()`` method if such a method is available
   (``0`` = ``None`` = never, ``1`` = default = whenever fetched from the pool,
   ``2`` = when a cursor is created, ``4`` = when a query is executed,
   ``7`` = always, and all other bit combinations of these values)
+
+  By default, connections are checked with the ``ping()`` method if such a
+  method is available. You can also pass an SQL statement or a callable that
+  shall be used for the check instead, which is then made as with ``ping=1``,
+  or a tuple with the flag and one of the latter (see `Checking connections`_).
 
 * The creator function or the connect function of the DB-API 2 compliant
   database module specified as the creator will receive any additional
@@ -518,6 +526,54 @@ are not counted towards the ``maxusage`` limit either.
     ``begin()`` method, since the failover mechanism is always suspended
     during transactions. Keep in mind though that this really starts a
     transaction on the database server, with all its implications.
+
+Checking connections
+--------------------
+Connections that are kept in the pool or bound to a thread may become stale
+when the database server is restarted or drops connections that have been
+idle for too long. In order to notice this before the connection is used,
+DBUtils can check it with the ``ping()`` method of the underlying DB-API 2
+connection, and the ``ping`` parameter controls when such a check is made.
+
+However, ``ping()`` is not part of the DB-API 2 specification, and many
+widely used database modules do not implement it. When DBUtils notices that
+the method is unavailable, it stops checking the connections altogether.
+In this case, you can pass an SQL statement as ``ping`` parameter that shall
+be executed for checking the connection instead::
+
+    import psycopg2
+    from dbutils.pooled_db import PooledDB
+
+    pool = PooledDB(psycopg2, 5, database='mydb', ping='select 1')
+
+Instead of an SQL statement, you can also pass a callable that is passed the
+underlying DB-API 2 connection and shall return whether it is still alive::
+
+    def is_healthy(con):
+        # psycopg2 knows whether the connection has been closed already
+        return not con.closed
+
+    pool = PooledDB(psycopg2, 5, database='mydb', ping=is_healthy)
+
+Returning ``None`` counts as alive and raising an exception counts as not
+alive, so a callable that simply carries out some database operation without
+catching errors can be used as well. When the check reports the connection as
+not alive, it is transparently replaced with a newly opened connection, just
+as if ``ping()`` had reported it as broken.
+
+Such a check is made whenever a connection is fetched from the pool or
+requested by a thread, i.e. at the time corresponding to ``ping=1``. If you
+want it to be made at the other times as well, pass a tuple with the usual
+integer value and the SQL statement or the callable::
+
+    pool = PooledDB(psycopg2, 5, database='mydb', ping=(4, 'select 1'))
+
+.. warning::
+    Every check of this kind requires an extra round trip to the database
+    server, so you should combine it with ``ping=4`` or ``ping=7`` only when
+    you really need it. Also keep in mind that an SQL statement executed for
+    checking a connection can start a transaction on the database server
+    when the connection does not run in autocommit mode.
 
 
 Notes

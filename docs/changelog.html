@@ -23,6 +23,13 @@ shall be applied. This allows distinguishing errors that merely report a
 failed statement, such as a deliberate server side statement timeout, from
 errors that report a broken connection, when the database module maps both
 onto the same exception class.</p></li>
+<li><p>The <span class="docutils literal">ping</span> parameter of <span class="docutils literal">PersistentDB</span>, <span class="docutils literal">PooledDB</span> and
+<span class="docutils literal">steady_db.connect()</span> now also accepts an SQL statement such as
+<span class="docutils literal">&quot;select 1&quot;</span> or a callable that shall be used for checking the
+connections instead of the <span class="docutils literal">ping()</span> method, which is not part of the
+DB-API 2 specification and not provided by every database module.  Pass a
+tuple with the usual integer value and the SQL statement or the callable
+if the connections shall not only be checked when they are requested.</p></li>
 <li><p>Added a <span class="docutils literal">no_failover()</span> context manager to steady cursors that suspends
 the failover mechanism for individual statements.</p></li>
 <li><p>Added <span class="docutils literal">dbapi_connection</span> and <span class="docutils literal">dbapi_cursor</span> attributes providing

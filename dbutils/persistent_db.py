@@ -48,10 +48,14 @@ by creating an instance of PersistentDB, passing the following parameters:
         really fatal for the connection and the failover mechanism shall
         be applied (see the steady_db module for details)
     ping: an optional flag controlling when connections are checked
-        with the ping() method if such a method is available
         (0 = None = never, 1 = default = whenever it is requested,
         2 = when a cursor is created, 4 = when a query is executed,
         7 = always, and all other bit combinations of these values)
+        By default, connections are checked with the ping() method if
+        such a method is available.  You can also pass an SQL statement
+        or a callable that shall be used for the check instead, which is
+        then made as with ping=1, or a tuple with the flag and one of the
+        latter (see the steady_db module for details).
     closeable: if this is set to true, then closing connections will
         be allowed, but by default this will be silently ignored
     threadlocal: an optional class for representing thread-local data
@@ -173,10 +177,20 @@ class PersistentDB:
             database module maps both onto the same exception class.  The
             callable must tolerate arbitrary exception instances, including
             instances without args.
-        ping: determines when the connection should be checked with ping()
+        ping: determines when the connection should be checked
             (0 = None = never, 1 = default = whenever it is requested,
             2 = when a cursor is created, 4 = when a query is executed,
             7 = always, and all other bit combinations of these values)
+            By default, the connection is checked with its ping() method.
+            Since ping() is not part of the DB-API 2 specification, you
+            can also pass an SQL statement such as "select 1" that shall
+            be executed instead, or a callable that is passed the
+            underlying DB-API 2 connection and shall return whether that
+            connection is still alive.  Such a check is made as with
+            ping=1, i.e. whenever a connection is requested; if you want
+            it to be made at other times, pass a tuple with one of the
+            integer values above and the SQL statement or the callable,
+            e.g. ping=(4, "select 1").
         closeable: if this is set to true, then closing connections will
             be allowed, but by default this will be silently ignored
         threadlocal: an optional class for representing thread-local data
