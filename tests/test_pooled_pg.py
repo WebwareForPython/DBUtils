@@ -126,6 +126,8 @@ def test_close_connection():
     # every round takes the given number of connections out of the pool
     # and expects the given number of cached connections after closing them
     (3, 0, 3, [(3, 3), (6, 6)]),  # unlimited cache grows with the demand
+    (3, None, 3, [(3, 3), (6, 6)]),  # None is the same as zero here
+    (None, None, 0, [(3, 3), (6, 6)]),  # and also when nothing is cached
     (3, 4, 3, [(3, 3), (6, 4)]),  # cache fills up to maxcached
     (3, 2, 3, [(4, 3)]),  # mincached wins when it exceeds maxcached
     (2, 5, 2, [(10, 5)]),  # cache grows from mincached to maxcached
@@ -153,6 +155,15 @@ def test_max_connections():
     assert pool._cache.qsize() == 0
     with pytest.raises(TooManyConnectionsError):
         pool.connection()
+    assert cache
+
+
+def test_max_connections_unlimited():
+    """Check that the number of connections is unlimited by default."""
+    pool = PooledPg(0, 0, None)
+    assert pool._connections is None
+    cache = [pool.connection() for _i in range(10)]
+    assert pool._cache.qsize() == 0
     assert cache
 
 
@@ -325,6 +336,38 @@ def test_reset_transaction_completely():
     assert not con._transaction
     assert con.session == []
     assert con.num_queries == 0
+
+
+def test_reopen_connection():
+    """Check that a pooled connection in use can be reopened."""
+    pool = PooledPg(1)
+    db = pool.connection()
+    con = db._con
+    db.query('select test')
+    assert con.num_queries == 1
+    # the underlying connection is reopened, which resets the counter
+    db.reopen()
+    assert db._con is con
+    assert con.num_queries == 0
+    assert db.query('select test') == 'test'
+    assert con.num_queries == 1
+
+
+def test_reopen_connection_after_closing():
+    """Check that a connection that is back in the pool can be reopened."""
+    pool = PooledPg(1)
+    db = pool.connection()
+    con = db._con
+    db.close()
+    assert db._con is None
+    # the connection cannot be used any more when it has been closed
+    with pytest.raises(InvalidConnectionError):
+        db.query  # noqa: B018
+    # but reopening takes another connection out of the pool
+    db.reopen()
+    assert db._con is not None
+    assert db.query('select test') == 'test'
+    assert con.num_queries == 1
 
 
 def test_context_manager():

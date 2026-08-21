@@ -399,6 +399,172 @@ def test_connection_creator_function():
     db1.close()
 
 
+def creator_of_this_module(*args, **kwargs):
+    """Create a mocked connection from inside this test module."""
+    return dbapi.connect(*args, **kwargs)
+
+
+def test_connection_creator_function_of_other_module():
+    """Check that the DB-API 2 module is determined via the connection."""
+    db = steady_db_connect(creator_of_this_module, database='ok')
+    # the module cannot be derived from a creator function defined here,
+    # but it is found via the module of the connection that it returns
+    assert db.dbapi() is dbapi
+    assert db.threadsafety() == dbapi.threadsafety
+    assert db._failures == (
+        dbapi.OperationalError, dbapi.InterfaceError, dbapi.InternalError)
+    # the failover mechanism works just as with a module as creator
+    db.close()
+    cursor = db.cursor()
+    cursor.execute('select test')
+    assert cursor.fetchone() == 'test'
+
+
+def test_connection_creator_class():
+    """Check that the connection class itself can be used as creator."""
+    db = steady_db_connect(dbapi.Connection, database='ok')
+    # the module of the creator provides a connect() function, but it is
+    # a different one, so the module is determined via the connection
+    assert db.dbapi() is dbapi
+    assert db.threadsafety() == dbapi.threadsafety
+    cursor = db.cursor()
+    cursor.execute('select test')
+    assert cursor.fetchone() == 'test'
+
+
+class CreatorWithDbapi:
+    """A creator module that points to the real DB-API 2 module."""
+
+    dbapi = dbapi
+    connect = staticmethod(dbapi.connect)
+
+
+def test_connection_creator_with_dbapi():
+    """Check that a creator can name its DB-API 2 module explicitly."""
+    db = steady_db_connect(CreatorWithDbapi, database='ok')
+    assert db.dbapi() is dbapi
+    assert db.threadsafety() == dbapi.threadsafety
+    cursor = db.cursor()
+    cursor.execute('select test')
+    assert cursor.fetchone() == 'test'
+
+
+class ConnectionWithErrorsOnly:
+    """A connection that reveals its module only via its error classes."""
+
+    OperationalError = dbapi.OperationalError
+    InterfaceError = dbapi.InterfaceError
+    InternalError = dbapi.InternalError
+
+    def close(self):
+        """Close the connection."""
+
+
+def creator_of_hidden_module():
+    """Create a connection that hides the module it belongs to."""
+    return ConnectionWithErrorsOnly()
+
+
+def test_connection_module_found_via_error_class():
+    """Check that the DB-API 2 module is found via the error classes."""
+    db = steady_db_connect(creator_of_hidden_module)
+    # the module of the connection itself does not provide connect(),
+    # but the module of its error classes does
+    assert db.dbapi() is dbapi
+    assert db.threadsafety() == dbapi.threadsafety
+
+
+def test_connection_with_unknown_threadsafety(monkeypatch):
+    """Check that an undeterminable threadsafety is reported as zero."""
+    monkeypatch.delattr(dbapi, 'threadsafety')
+    db = steady_db_connect(creator_of_this_module, database='ok')
+    assert db.dbapi() is dbapi
+    assert db.threadsafety() == 0
+
+
+def unknown_error_cls(name):
+    """Create an error class belonging to an unimportable module."""
+    return type(name, (Exception,), {'__module__': 'unknown_db_module'})
+
+
+class UnknownConnection:
+    """A connection that cannot be traced back to a DB-API 2 module.
+
+    Neither this test module nor the module claimed by the error
+    classes provides a connect() function, so there is no way to
+    determine the DB-API 2 module from such a connection.
+    """
+
+    threadsafety = 3
+
+    OperationalError = unknown_error_cls('OperationalError')
+    InterfaceError = unknown_error_cls('InterfaceError')
+    InternalError = unknown_error_cls('InternalError')
+
+    def close(self):
+        """Close the connection."""
+
+
+class NamelessConnection:
+    """A connection that does not tell anything about its module."""
+
+    def close(self):
+        """Close the connection."""
+
+
+def creator_of_unknown_module():
+    """Create a connection with an undeterminable DB-API 2 module."""
+    return UnknownConnection()
+
+
+def creator_with_failures():
+    """Create such a connection, but make the failures known."""
+    return UnknownConnection()
+
+
+creator_with_failures.OperationalError = (
+    UnknownConnection.OperationalError)
+creator_with_failures.InterfaceError = (
+    UnknownConnection.InterfaceError)
+creator_with_failures.InternalError = (
+    UnknownConnection.InternalError)
+
+
+def test_connection_with_unknown_module():
+    """Check the fallbacks when the DB-API 2 module cannot be determined."""
+    db = steady_db_connect(creator_of_unknown_module)
+    with pytest.raises(AttributeError):
+        db.dbapi()
+    # the threadsafety and the failures are taken from the connection
+    assert db.threadsafety() == 3
+    assert db._failures == (
+        UnknownConnection.OperationalError,
+        UnknownConnection.InterfaceError,
+        UnknownConnection.InternalError)
+
+
+def test_connection_with_failures_of_creator():
+    """Check that the failures can also be taken from the creator."""
+    db = steady_db_connect(creator_with_failures)
+    assert db._failures == (
+        UnknownConnection.OperationalError,
+        UnknownConnection.InterfaceError,
+        UnknownConnection.InternalError)
+
+
+def test_connection_with_undeterminable_failures():
+    """Check that undeterminable failures are reported as an error."""
+    with pytest.raises(AttributeError, match='failure exceptions'):
+        steady_db_connect(NamelessConnection)
+
+
+def test_connection_with_undeterminable_threadsafety():
+    """Check that an undeterminable threadsafety is reported as an error."""
+    db = steady_db_connect(NamelessConnection, failures=dbapi.InternalError)
+    with pytest.raises(AttributeError, match='threadsafety'):
+        db.threadsafety()
+
+
 def test_connection_maxusage():
     """Check that the connection is reset when used too often."""
     db = steady_db_connect(dbapi, 10)
@@ -455,6 +621,24 @@ def test_connection_maxusage():
     assert db._usage == 1
     assert db._con.num_uses == 1
     assert db._con.num_queries == 1
+
+
+def test_connection_setsession_error():
+    """Check that a session that cannot be prepared is reported."""
+    with pytest.raises(dbapi.ProgrammingError):
+        steady_db_connect(dbapi, 0, ('set time zone', 'error'))
+    # the connection is closed again when the session cannot be prepared
+    connections = []
+
+    def creator(*args, **kwargs):
+        con = dbapi.connect(*args, **kwargs)
+        connections.append(con)
+        return con
+
+    with pytest.raises(dbapi.ProgrammingError):
+        steady_db_connect(creator, 0, ('error',), failures=dbapi.InternalError)
+    assert len(connections) == 1
+    assert not connections[0].valid
 
 
 def test_connection_setsession():
@@ -521,6 +705,29 @@ def test_connection_setsession():
     assert db._con.session == ['time zone', 'datestyle']
 
 
+def test_connection_maxusage_must_be_integer():
+    """Check that maxusage must be an integer when it is given."""
+    steady_db_connect(dbapi, None)
+    steady_db_connect(dbapi, 42)
+    with pytest.raises(TypeError):
+        steady_db_connect(dbapi, 'unlimited')
+    with pytest.raises(TypeError):
+        steady_db_connect(dbapi, 42.5)
+
+
+def test_connection_failures_must_be_exceptions():
+    """Check that failures must be exception classes when they are given."""
+    steady_db_connect(dbapi, failures=None)
+    steady_db_connect(dbapi, failures=dbapi.InternalError)
+    steady_db_connect(dbapi, failures=(dbapi.InternalError,))
+    with pytest.raises(TypeError):
+        steady_db_connect(dbapi, failures=int)
+    with pytest.raises(TypeError):
+        steady_db_connect(dbapi, failures='InternalError')
+    with pytest.raises(TypeError):
+        steady_db_connect(dbapi, failures=42)
+
+
 def test_connection_failures():
     """Check that only the configured failures trigger the failover."""
     db = steady_db_connect(dbapi)
@@ -583,6 +790,31 @@ def test_connection_set_sizes():
     assert result == ([6, 42, 7], {None: 7, 3: 15, 9: 42})
 
 
+def test_connection_ping(ping_con_cls):
+    """Check that ping() is passed on to the underlying connection."""
+    db = steady_db_connect(dbapi)
+    assert ping_con_cls.num_pings == 0
+    assert db.ping() is None
+    assert ping_con_cls.num_pings == 1
+    # in contrast to the ping check, this does not swallow the error
+    # and does not reopen the connection when it has been closed
+    con = db._con
+    db.close()
+    with pytest.raises(dbapi.OperationalError):
+        db.ping()
+    assert ping_con_cls.num_pings == 2
+    assert db._con is con
+
+
+def test_connection_ping_without_ping_method(con_cls):
+    """Check that ping() reports when the connection cannot be pinged."""
+    db = steady_db_connect(dbapi)
+    assert con_cls.num_pings == 0
+    with pytest.raises(AttributeError):
+        db.ping()
+    assert con_cls.num_pings == 1
+
+
 def test_connection_ping_check_without_ping_method(con_cls):
     """Check that pinging is skipped when there is no ping method."""
     db = steady_db_connect(dbapi)
@@ -622,66 +854,40 @@ def test_connection_ping_check_default(ping_con_cls):
     assert ping_con_cls.num_pings == 1
 
 
-def test_connection_ping_check_when_requested(ping_con_cls):
-    """Check that connections are pinged on request when ping is 1."""
-    db = steady_db_connect(dbapi, ping=1)
-    # neither creating a cursor nor executing a query pings the connection
-    db.cursor().execute('select test')
+@pytest.mark.parametrize("ping", range(8))
+def test_connection_ping_check_combinations(ping, ping_con_cls):
+    """Check the three ping triggers in all of their bit combinations."""
+    on_request = bool(ping & 1)  # 1 = when _ping_check() is called
+    on_cursor = bool(ping & 2)  # 2 = whenever a cursor is created
+    on_execute = bool(ping & 4)  # 4 = when a query is executed
+    db = steady_db_connect(dbapi, ping=ping)
     assert ping_con_cls.num_pings == 0
-    db.close()
-    db.cursor().execute('select test')
-    assert ping_con_cls.num_pings == 0
-    # only an explicit check does, no matter whether the connection is open
-    assert db._ping_check()
-    assert ping_con_cls.num_pings == 1
-    db.close()
-    assert db._ping_check()
-    assert ping_con_cls.num_pings == 2
-
-
-def test_connection_ping_check_always(ping_con_cls):
-    """Check that connections are pinged everywhere when ping is 7."""
-    db = steady_db_connect(dbapi, ping=7)
-    # creating the cursor and executing the query both ping the connection
-    db.cursor().execute('select test')
-    assert ping_con_cls.num_pings == 2
-    db.close()
-    db.cursor().execute('select test')
-    assert ping_con_cls.num_pings == 4
-
-
-def test_connection_ping_check_when_cursor_created(ping_con_cls):
-    """Check that connections are pinged on cursor creation when ping is 3."""
-    db = steady_db_connect(dbapi, ping=3)
-    assert ping_con_cls.num_pings == 0
-    db.cursor()
-    assert ping_con_cls.num_pings == 1
+    # while the connection is open, only the configured triggers ping it
+    expected = 0
+    cursor = db.cursor()
+    expected += on_cursor
+    assert ping_con_cls.num_pings == expected
+    cursor.execute('select test')
+    expected += on_execute
+    assert ping_con_cls.num_pings == expected
+    assert cursor.fetchone() == 'test'
+    # a closed connection is pinged just as often, since the ping reports
+    # it as broken and the connection is then reopened transparently
     db.close()
     cursor = db.cursor()
-    assert ping_con_cls.num_pings == 2
-    # executing a query does not ping again
+    expected += on_cursor
+    assert ping_con_cls.num_pings == expected
     cursor.execute('select test')
-    assert ping_con_cls.num_pings == 2
-
-
-def test_connection_ping_check_when_query_executed(ping_con_cls):
-    """Check that connections are pinged on execution when ping is 5."""
-    db = steady_db_connect(dbapi, ping=5)
-    # creating a cursor does not ping the connection
-    assert ping_con_cls.num_pings == 0
-    db.cursor()
-    assert ping_con_cls.num_pings == 0
+    expected += on_execute
+    assert ping_con_cls.num_pings == expected
+    assert cursor.fetchone() == 'test'
+    # an explicit check pings only when this has been requested,
+    # and it reopens the connection when it has been closed
     db.close()
-    cursor = db.cursor()
-    assert ping_con_cls.num_pings == 0
-    # only executing a query does
-    cursor.execute('select test')
-    assert ping_con_cls.num_pings == 1
-    db.close()
-    cursor = db.cursor()
-    assert ping_con_cls.num_pings == 1
-    cursor.execute('select test')
-    assert ping_con_cls.num_pings == 2
+    assert db._ping_check() is (True if on_request else None)
+    expected += on_request
+    assert ping_con_cls.num_pings == expected
+    assert db._con.valid is on_request
 
 
 def test_connection_ping_check_always_with_cursor(ping_con_cls):
@@ -844,6 +1050,102 @@ def test_rollback_error():
     assert db._con.valid
 
 
+def test_commit_error_when_reopening_fails():
+    """Check that a failed commit is reported when there is no recovery."""
+    db = steady_db_connect(dbapi, database='ok')
+    db.begin()
+    con = db._con
+    # the database goes away and cannot be reached again
+    db._con.valid = False
+    db._kwargs['database'] = 'error'
+    with pytest.raises(dbapi.InternalError):
+        db.commit()
+    # the connection could not be replaced, but the transaction is over
+    assert db._con is con
+    assert not db._transaction
+
+
+def test_rollback_error_when_reopening_fails():
+    """Check that a failed rollback is reported when there is no recovery."""
+    db = steady_db_connect(dbapi, database='ok')
+    db.begin()
+    con = db._con
+    db._con.valid = False
+    db._kwargs['database'] = 'error'
+    with pytest.raises(dbapi.InternalError):
+        db.rollback()
+    assert db._con is con
+    assert not db._transaction
+
+
+def test_ping_check_when_reopening_fails(ping_con_cls):
+    """Check that a failed ping is reported when there is no recovery."""
+    db = steady_db_connect(dbapi, database='ok')
+    db.close()
+    db._kwargs['database'] = 'error'
+    # the ping reports the connection as broken and it cannot be reopened
+    assert db._ping_check() is False
+    assert ping_con_cls.num_pings == 1
+    assert not db._con.valid
+    # when the database is back, the connection is reopened as usual
+    db._kwargs['database'] = 'ok'
+    assert db._ping_check() is True
+    assert ping_con_cls.num_pings == 2
+    assert db._con.valid
+
+
+def test_cursor_when_reopening_fails():
+    """Check that a cursor cannot be created when there is no recovery."""
+    db = steady_db_connect(dbapi, database='ok')
+    db.close()
+    db._kwargs['database'] = 'error'
+    with pytest.raises(dbapi.InternalError):
+        db.cursor()
+    # when the database is back, the cursor can be created as usual
+    db._kwargs['database'] = 'ok'
+    cursor = db.cursor()
+    cursor.execute('select test')
+    assert cursor.fetchone() == 'test'
+
+
+def test_cursor_in_transaction_when_connection_is_replaced():
+    """Check that a transaction is not silently continued elsewhere."""
+    db = steady_db_connect(dbapi, database='ok')
+    db.begin()
+    con = db._con
+    db._con.valid = False
+    with pytest.raises(dbapi.InternalError):
+        db.cursor()
+    # the connection has been replaced, but the error is still raised,
+    # since the transaction cannot be continued on the new connection
+    assert db._con is not con
+    assert db._con.valid
+    assert not db._transaction
+
+
+def test_cursor_in_transaction_when_reopening_fails():
+    """A transaction that cannot be reopened must not stay active.
+
+    This is the counterpart of the test below for the case that already
+    the creation of the cursor fails, and not only its execution.
+    """
+    db = steady_db_connect(dbapi, database='ok')
+    db.begin()
+    assert db._transaction
+    # the database goes away and cannot be reached again
+    db._con.valid = False
+    db._kwargs['database'] = 'error'
+    with pytest.raises(dbapi.InternalError):
+        db.cursor()
+    assert not db._transaction
+    # when the database is back, the failover mechanism must work again
+    db._kwargs['database'] = 'ok'
+    cursor = db.cursor()
+    cursor.execute('select test')
+    assert cursor.fetchone() == 'test'
+    assert db._con.valid
+
+
 def test_transaction_ended_when_reopening_fails():
     """A transaction that cannot be reopened must not stay active.
 
@@ -865,6 +1167,89 @@ def test_transaction_ended_when_reopening_fails():
     cursor.execute('select test')
     assert cursor.fetchone() == 'test'
     assert db._con.valid
+
+
+def test_execute_when_reopening_fails():
+    """Check that a statement is reported when there is no recovery."""
+    db = steady_db_connect(dbapi, database='ok')
+    cursor = db.cursor()
+    # the database goes away and cannot be reached again
+    db._con.valid = cursor._cursor.valid = False
+    db._kwargs['database'] = 'error'
+    with pytest.raises(dbapi.InternalError):
+        cursor.execute('select test')
+    # when the database is back, the statement can be executed again
+    db._kwargs['database'] = 'ok'
+    cursor.execute('select test')
+    assert cursor.fetchone() == 'test'
+
+
+def test_execute_when_cursor_cannot_be_reopened():
+    """Check that a statement is reported when no cursor can be opened."""
+    db = steady_db_connect(dbapi, database='ok')
+    cursor = db.cursor()
+    # the cursor cannot be recreated, neither on the old connection
+    # that is reopened first, nor on a completely new connection
+    cursor._args = ('error',)
+    con = db._con
+    db._con.valid = cursor._cursor.valid = False
+    with pytest.raises(dbapi.InternalError):
+        cursor.execute('select test')
+    assert db._con is con
+    assert not db._con.valid
+
+
+class FlakyCreator:
+    """A creator that fails at the first attempt to reconnect."""
+
+    def __init__(self):
+        """Create the creator with the failover switched off."""
+        self.fail = False
+
+    def __call__(self, *args, **kwargs):
+        """Create a mocked connection, but fail once when requested."""
+        if self.fail:
+            self.fail = False
+            raise dbapi.OperationalError
+        return dbapi.connect(*args, **kwargs)
+
+
+def test_execute_retried_on_a_new_connection():
+    """Check that the failover falls back on a completely new connection."""
+    creator = FlakyCreator()
+    db = steady_db_connect(creator, database='ok')
+    cursor = db.cursor()
+    cursor.execute('select test')
+    assert db._usage == 1
+    con = db._con
+    # the connection breaks, and reopening it while getting a new cursor
+    # fails as well, so the whole connection is created from scratch
+    db._con.valid = cursor._cursor.valid = False
+    creator.fail = True
+    cursor.execute('select test2')
+    assert cursor.fetchone() == 'test2'
+    assert db._con is not con
+    assert db._con.valid
+    assert not creator.fail
+    # the usage count has been restarted together with the connection
+    assert db._usage == 1
+    assert db._con.num_uses == 1
+
+
+def test_execute_retried_on_a_new_connection_with_sizes():
+    """Check that the stored sizes are set on the new connection too."""
+    creator = FlakyCreator()
+    db = steady_db_connect(creator, database='ok')
+    cursor = db.cursor()
+    cursor.setinputsizes([7, 42, 6])
+    cursor.setoutputsize(9)
+    db._con.valid = cursor._cursor.valid = False
+    creator.fail = True
+    cursor.execute('get sizes')
+    assert cursor.fetchone() == ([7, 42, 6], {None: 9})
+    # the sizes have been cleared after they have been used
+    cursor.execute('get sizes')
+    assert cursor.fetchone() == ([], {})
 
 
 def timeout_is_not_fatal(error):
@@ -1075,3 +1460,16 @@ def test_dbapi_cursor():
     cursor._cursor = None
     with pytest.raises(InvalidCursorError):
         cursor.dbapi_cursor  # noqa: B018
+
+
+def test_invalid_cursor():
+    """Check that the members of an invalid cursor cannot be accessed."""
+    db = steady_db_connect(dbapi)
+    cursor = db.cursor()
+    assert cursor.fetchone() is None  # inherited from the underlying cursor
+    assert callable(cursor.execute)  # made "tough" by the wrapper
+    cursor._cursor = None
+    with pytest.raises(InvalidCursorError):
+        cursor.fetchone  # noqa: B018
+    with pytest.raises(InvalidCursorError):
+        cursor.execute  # noqa: B018

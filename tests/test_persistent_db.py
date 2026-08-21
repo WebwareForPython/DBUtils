@@ -33,6 +33,40 @@ def test_no_threadsafety(dbapi, threadsafety):
         PersistentDB(dbapi)
 
 
+def test_creator_function(dbapi):
+    """Check that a creator function can be used instead of a module."""
+    persist = PersistentDB(dbapi.connect, database='ok')
+    # the threadsafety cannot be determined from a plain creator function,
+    # so the connections are optimistically assumed to be thread-safe
+    db = persist.connection()
+    assert db.threadsafety() == dbapi.threadsafety
+    cursor = db.cursor()
+    cursor.execute('select test')
+    assert cursor.fetchone() == 'test'
+
+
+def test_creator_without_threadsafety(dbapi):
+    """Check that a creator that hides its threadsafety is rejected."""
+
+    class Creator:
+        """A database module that does not report its threadsafety."""
+
+        connect = staticmethod(dbapi.connect)
+
+    with pytest.raises(NotSupportedError):
+        PersistentDB(Creator)
+
+
+def test_creator_with_unsafe_connections(dbapi, monkeypatch):
+    """Check that connections that are not thread-safe are rejected."""
+    monkeypatch.delattr(dbapi, 'threadsafety')
+    # a creator function is optimistically assumed to provide thread-safe
+    # connections, but the connections themselves know better
+    persist = PersistentDB(dbapi.connect)
+    with pytest.raises(NotSupportedError):
+        persist.connection()
+
+
 @pytest.mark.parametrize("closeable", [False, True])
 def test_close(dbapi, closeable):
     """Check that closing is only allowed when the connection is closeable."""

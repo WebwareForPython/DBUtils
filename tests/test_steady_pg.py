@@ -16,7 +16,7 @@ import sys
 import pg
 import pytest
 
-from dbutils.steady_pg import SteadyPgConnection
+from dbutils.steady_pg import InvalidConnectionError, SteadyPgConnection
 
 
 def test_version():
@@ -334,6 +334,121 @@ def test_begin(closeable):
     assert db.num_queries == 2
 
 
+def test_query_error_when_connection_is_healthy():
+    """Check that a query error is propagated when the connection is fine."""
+    db = SteadyPgConnection()
+    db.query('select test')
+    assert db._usage == 1
+    # the statement is bad, but the connection is not, so it is not reset
+    with pytest.raises(pg.ProgrammingError):
+        db.query('error')
+    assert db.db.status
+    assert db._usage == 1
+    assert db.query('select test') == 'test'
+    assert db._usage == 2
+
+
+def test_query_retried_when_connection_is_lost():
+    """Check that a query is retried when the connection was lost."""
+    db = SteadyPgConnection()
+    query = db._con.query
+    queries = []
+
+    def failing_query(qstr):
+        """Lose the connection while the first query is running."""
+        queries.append(qstr)
+        if len(queries) == 1:
+            db._con.db.status = False
+            raise pg.InternalError
+        return query(qstr)
+
+    db._con.query = failing_query
+    # the connection looked healthy before the query, so it is only
+    # reset afterwards, and the query is then run a second time
+    assert db.query('select test') == 'test'
+    assert queries == ['select test', 'select test']
+    assert db.db.status
+    assert db._usage == 1
+
+
+def test_reopen_when_broken_in_transaction():
+    """Check that a transaction is ended when reopening fails."""
+    db = SteadyPgConnection()
+    db.begin()
+    assert db._transaction
+    # the connection cannot even be closed properly any more
+    db._con.db.valid = False
+    db.reopen()
+    assert not db._transaction
+
+
+def test_reset_when_reopening_fails():
+    """Check that a rollback is attempted when a reset is impossible."""
+    db = SteadyPgConnection()
+    db.begin()
+    # the connection can neither be reset nor have its session prepared
+    db._setsession_sql = ('error',)
+    db._con.db = None
+    db.reset()
+    assert not db._transaction
+    assert db.session == ['rollback']
+
+
+def test_invalid_connection():
+    """Check that the members of an invalid connection are not accessible."""
+    db = SteadyPgConnection()
+    assert db.query('select test') == 'test'
+    db._con = None
+    with pytest.raises(InvalidConnectionError):
+        db.query  # noqa: B018
+    with pytest.raises(InvalidConnectionError):
+        db.session  # noqa: B018
+
+
+@pytest.fixture
+def pg_with_transaction_methods(monkeypatch):
+    """Add the transaction methods that real PyGreSQL connections have."""
+    def transaction_method(name):
+        """Create the transaction method with the given name."""
+        def method(self, sql=None):
+            """Run the given or the default transaction command."""
+            return self.query(sql or name)
+
+        return method
+
+    for name in ('begin', 'end', 'commit', 'rollback'):
+        monkeypatch.setattr(
+            pg.DB, name, transaction_method(name), raising=False)
+
+
+@pytest.mark.usefixtures("pg_with_transaction_methods")
+@pytest.mark.parametrize("end", ["end", "commit", "rollback"])
+def test_transaction_methods_of_driver(end):
+    """Check that the transaction methods of the driver are used."""
+    db = SteadyPgConnection()
+    db.begin()
+    assert db._transaction
+    assert db.session == ['begin']
+    db.query('select test')
+    assert db.num_queries == 1
+    getattr(db, end)()
+    assert not db._transaction
+    assert db.session == ['begin', end]
+
+
+@pytest.mark.usefixtures("pg_with_transaction_methods")
+@pytest.mark.parametrize("end", ["end", "commit", "rollback"])
+def test_transaction_methods_of_driver_with_sql(end):
+    """Check that explicit SQL commands are passed on to the driver."""
+    db = SteadyPgConnection()
+    assert db.begin(f'select sql:{end}') == f'sql:{end}'
+    assert db._transaction
+    assert db.num_queries == 1
+    assert getattr(db, end)(f'select sql:{end}') == f'sql:{end}'
+    assert not db._transaction
+    assert db.num_queries == 2
+
+
 @pytest.mark.parametrize("closeable", [False, True])
 @pytest.mark.parametrize("end", ["end", "commit", "rollback"])
 def test_end(closeable, end):
@@ -347,6 +462,9 @@ def test_end(closeable, end):
     db.db.close()
     db.query('select test')
     assert db.num_queries == 1
-    # a transaction can also be started with an explicit SQL command
-    assert db.begin(f'select sql:{end}') == f'sql:{end}'
+    # a transaction can also be ended with an explicit SQL command
+    db.begin()
+    assert db._transaction
+    assert getattr(db, end)(f'select sql:{end}') == f'sql:{end}'
+    assert not db._transaction
     assert db.num_queries == 2

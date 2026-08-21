@@ -40,6 +40,42 @@ def test_no_threadsafety(dbapi, threadsafety):
         PooledDB(dbapi)
 
 
+def test_creator_function(dbapi):
+    """Check that a creator function can be used instead of a module."""
+    pool = PooledDB(dbapi.connect, 1, database='ok')
+    # the threadsafety cannot be determined from a plain creator function,
+    # so the connections are optimistically assumed to be thread-safe,
+    # but not safe enough to be shared between several threads
+    assert pool._maxshared == 0
+    db = pool.connection()
+    assert db.threadsafety() == dbapi.threadsafety
+    cursor = db.cursor()
+    cursor.execute('select test')
+    assert cursor.fetchone() == 'test'
+
+
+def test_creator_without_threadsafety(dbapi):
+    """Check that a creator that hides its threadsafety is rejected."""
+
+    class Creator:
+        """A database module that does not report its threadsafety."""
+
+        connect = staticmethod(dbapi.connect)
+
+    with pytest.raises(NotSupportedError):
+        PooledDB(Creator)
+
+
+def test_creator_with_unsafe_connections(dbapi, monkeypatch):
+    """Check that connections that are not thread-safe are rejected."""
+    monkeypatch.delattr(dbapi, 'threadsafety')
+    # the pool optimistically assumes that a creator function provides
+    # thread-safe connections, but the connections themselves know better
+    pool = PooledDB(dbapi.connect, 0)
+    with pytest.raises(NotSupportedError):
+        pool.connection()
+
+
 @pytest.mark.parametrize("threadsafety", [1, 2, 3])
 def test_threadsafety(dbapi, threadsafety):
     """Check that connections are only shared when they may be."""
@@ -470,6 +506,8 @@ def test_unshare_connection(dbapi, threadsafety):
     # every round takes the given number of connections out of the pool
     # and expects the given number of idle connections after releasing them
     (3, 0, 3, [(3, 3), (6, 6)]),  # unlimited cache grows with the demand
+    (3, None, 3, [(3, 3), (6, 6)]),  # None is the same as zero here
+    (None, None, 0, [(3, 3), (6, 6)]),  # and also when nothing is cached
     (0, 3, 0, [(3, 3), (6, 3)]),  # cache fills up to maxcached
     (3, 3, 3, [(3, 3), (6, 3)]),  # cache stays at the common bound
     (3, 2, 3, [(4, 3)]),  # mincached wins when it exceeds maxcached
@@ -959,11 +997,12 @@ def test_maxconnections_equal_to_maxshared(dbapi, threadsafety):
 
 
 @pytest.mark.parametrize("threadsafety", [1, 2])
-def test_maxconnections_unlimited(dbapi, threadsafety):
+@pytest.mark.parametrize("maxconnections", [0, None])
+def test_maxconnections_unlimited(dbapi, threadsafety, maxconnections):
     """Check that the number of connections is unlimited by default."""
     dbapi.threadsafety = threadsafety
     shareable = threadsafety > 1
-    pool = PooledDB(dbapi, 0, 0, 3)
+    pool = PooledDB(dbapi, 0, 0, 3, maxconnections)
     assert pool._maxconnections == 0
     assert pool._connections == 0
     cache = []
@@ -1312,6 +1351,34 @@ def test_shared_in_transaction(dbapi):
         pool.connection()
 
 
+def test_shared_in_transaction_blocking(dbapi):
+    """Check that a thread waits for a shared connection in a transaction."""
+    pool = PooledDB(dbapi, 0, 0, 1, 0, True)
+    db = pool.connection()
+    con = db._con
+    db.begin()
+    # the only connection that may be shared is in a transaction now
+    shared = []
+
+    def connection():
+        shared.append(pool.connection())
+
+    thread = Thread(target=connection)
+    thread.start()
+    thread.join(0.1)
+    # the thread cannot share that connection and blocks instead of failing
+    assert thread.is_alive()
+    assert not shared
+    db.commit()
+    # the thread is woken up when a connection is put back into the pool,
+    # and then finds the connection shareable again
+    pool.dedicated_connection().close()
+    thread.join(0.1)
+    assert not thread.is_alive()
+    assert len(shared) == 1
+    assert shared[0]._con is con
+
+
 def test_shared_in_transaction_with_two_connections(dbapi):
     """Check that sharing prefers connections without a transaction."""
     pool = PooledDB(dbapi, 0, 2, 2)
@@ -1443,6 +1510,19 @@ def test_shared_db_connection_compare(dbapi):
     assert con1 != con2
     assert not con1 < con2
     assert con1 > con2
+
+
+def test_shared_db_connection_hash(dbapi):
+    """Check that shared connections stay hashable."""
+    # defining __eq__ would otherwise make the class unhashable
+    con = SharedDBConnection(dbapi.connect())
+    hashed = hash(con)
+    assert hash(con) == hashed
+    # the hash is derived from the underlying connection and the shares
+    con.share()
+    assert hash(con) != hashed
+    con.unshare()
+    assert hash(con) == hashed
 
 
 def timeout_is_not_fatal(error):

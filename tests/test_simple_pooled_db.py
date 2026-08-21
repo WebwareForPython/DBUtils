@@ -47,6 +47,14 @@ def test_no_threadsafety(threadsafety):
         my_db_pool(threadsafety, 1)
 
 
+def test_no_threadsafety_attribute(monkeypatch):
+    """Check that a module hiding its threadsafety is rejected."""
+    monkeypatch.delattr(dbapi, 'threadsafety')
+    with pytest.raises(simple_pooled_db.NotSupportedError):
+        simple_pooled_db.PooledDB(
+            dbapi, 1, 'SimplePooledDBTestDB', 'SimplePooledDBTestUser')
+
+
 @pytest.mark.parametrize("threadsafety", [1, 2, 3])
 def test_create_connection(threadsafety):
     """Check that the pool creates a usable connection."""
