@@ -43,9 +43,11 @@ def test_create_connection():
     assert pool._setsession is None
     assert hasattr(pool, '_reset')
     assert not pool._reset
+    # mincached=1, so one steady connection has been created up front
     db_con = pool._cache.get(0)
     pool._cache.put(db_con, 0)
     assert isinstance(db_con, SteadyPgConnection)
+    # taking it out of the pool empties the cache
     db = pool.connection()
     assert pool._cache.qsize() == 0
     assert hasattr(db, '_con')
@@ -57,12 +59,17 @@ def test_create_connection():
     assert db._maxusage == 0
     assert hasattr(db, '_setsession_sql')
     assert db._setsession_sql is None
+    # the connect parameters have been passed down to the connection
     assert hasattr(db, 'dbname')
     assert db.dbname == 'PooledPgTestDB'
     assert hasattr(db, 'user')
     assert db.user == 'PooledPgTestUser'
     db.query('select test')
     assert db.num_queries == 1
+
+
+def test_create_connection_without_parameters():
+    """Check that a pool can be created without connect parameters."""
     pool = PooledPg(1)
     db = pool.connection()
     assert hasattr(db, 'dbname')
@@ -71,6 +78,10 @@ def test_create_connection():
     assert db.user is None
     assert hasattr(db, 'num_queries')
     assert db.num_queries == 0
+
+
+def test_create_connection_with_settings():
+    """Check that maxusage and setsession are passed on to the connections."""
     pool = PooledPg(0, 0, 0, False, 3, ('set datestyle',))
     assert pool._maxusage == 3
     assert pool._setsession == ('set datestyle',)
@@ -111,52 +122,27 @@ def test_close_connection():
     del db
 
 
-def test_min_max_cached():
+@pytest.mark.parametrize(("mincached", "maxcached", "cached", "rounds"), [
+    # every round takes the given number of connections out of the pool
+    # and expects the given number of cached connections after closing them
+    (3, 0, 3, [(3, 3), (6, 6)]),  # unlimited cache grows with the demand
+    (3, 4, 3, [(3, 3), (6, 4)]),  # cache fills up to maxcached
+    (3, 2, 3, [(4, 3)]),  # mincached wins when it exceeds maxcached
+    (2, 5, 2, [(10, 5)]),  # cache grows from mincached to maxcached
+])
+def test_min_max_cached(mincached, maxcached, cached, rounds):
     """Check that the cache is kept between the given bounds."""
-    pool = PooledPg(3)
+    pool = PooledPg(mincached, maxcached)
     assert hasattr(pool, '_cache')
-    assert pool._cache.qsize() == 3
-    cache = [pool.connection() for _i in range(3)]
-    assert pool._cache.qsize() == 0
-    for _i in range(3):
-        cache.pop().close()
-    assert pool._cache.qsize() == 3
-    for _i in range(6):
-        cache.append(pool.connection())
-    assert pool._cache.qsize() == 0
-    for _i in range(6):
-        cache.pop().close()
-    assert pool._cache.qsize() == 6
-    pool = PooledPg(3, 4)
-    assert hasattr(pool, '_cache')
-    assert pool._cache.qsize() == 3
-    cache = [pool.connection() for _i in range(3)]
-    assert pool._cache.qsize() == 0
-    for _i in range(3):
-        cache.pop().close()
-    assert pool._cache.qsize() == 3
-    for _i in range(6):
-        cache.append(pool.connection())
-    assert pool._cache.qsize() == 0
-    for _i in range(6):
-        cache.pop().close()
-    assert pool._cache.qsize() == 4
-    pool = PooledPg(3, 2)
-    assert hasattr(pool, '_cache')
-    assert pool._cache.qsize() == 3
-    cache = [pool.connection() for _i in range(4)]
-    assert pool._cache.qsize() == 0
-    for _i in range(4):
-        cache.pop().close()
-    assert pool._cache.qsize() == 3
-    pool = PooledPg(2, 5)
-    assert hasattr(pool, '_cache')
-    assert pool._cache.qsize() == 2
-    cache = [pool.connection() for _i in range(10)]
-    assert pool._cache.qsize() == 0
-    for _i in range(10):
-        cache.pop().close()
-    assert pool._cache.qsize() == 5
+    assert pool._cache.qsize() == cached
+    cache = []
+    for taken, cached_again in rounds:
+        for _i in range(taken):
+            cache.append(pool.connection())
+        assert pool._cache.qsize() == 0
+        for _i in range(taken):
+            cache.pop().close()
+        assert pool._cache.qsize() == cached_again
 
 
 def test_max_connections():
@@ -167,6 +153,11 @@ def test_max_connections():
     assert pool._cache.qsize() == 0
     with pytest.raises(TooManyConnectionsError):
         pool.connection()
+    assert cache
+
+
+def test_max_connections_one():
+    """Check that a pool can be limited to a single connection."""
     pool = PooledPg(0, 1, 1, False)
     assert pool._blocking == 0
     assert pool._cache.qsize() == 0
@@ -176,8 +167,10 @@ def test_max_connections():
         pool.connection()
     assert db
     del db
-    assert cache
-    del cache
+
+
+def test_max_connections_raised_to_maxcached():
+    """Check that maxconnections is raised to the value of maxcached."""
     pool = PooledPg(1, 2, 1)
     assert pool._cache.qsize() == 1
     cache = [pool.connection()]
@@ -186,6 +179,10 @@ def test_max_connections():
     assert pool._cache.qsize() == 0
     with pytest.raises(TooManyConnectionsError):
         pool.connection()
+
+
+def test_max_connections_raised_to_mincached():
+    """Check that maxconnections is raised to the value of mincached."""
     pool = PooledPg(3, 2, 1, False)
     assert pool._cache.qsize() == 3
     cache = [pool.connection() for _i in range(3)]
@@ -193,6 +190,10 @@ def test_max_connections():
     assert pool._cache.qsize() == 0
     with pytest.raises(TooManyConnectionsError):
         pool.connection()
+
+
+def test_max_connections_blocking():
+    """Check that a thread waits for a connection when blocking is set."""
     pool = PooledPg(1, 1, 1, True)
     assert pool._blocking == 1
     assert pool._cache.qsize() == 1
@@ -202,6 +203,7 @@ def test_max_connections():
     def connection():
         pool.connection().query('set thread')
 
+    # the thread cannot get a connection and blocks instead of failing
     thread = Thread(target=connection)
     thread.start()
     thread.join(0.1)
@@ -209,6 +211,7 @@ def test_max_connections():
     assert pool._cache.qsize() == 0
     session = db._con.session
     assert session == []
+    # releasing the connection unblocks the thread, which then runs to the end
     del db
     thread.join(0.1)
     assert not thread.is_alive()
@@ -271,7 +274,7 @@ def test_three_threads_two_connections():
 
 
 def test_reset_transaction():
-    """Check how connections are reset when returned to the pool."""
+    """Check that an open transaction is rolled back by default."""
     pool = PooledPg(1)
     db = pool.connection()
     db.begin()
@@ -279,24 +282,35 @@ def test_reset_transaction():
     assert con._transaction
     db.query('select test')
     assert con.num_queries == 1
+    # the transaction is rolled back, but nothing else is reset
     db.close()
     assert pool.connection()._con is con
     assert not con._transaction
     assert con.session == ['begin', 'rollback']
     assert con.num_queries == 1
+
+
+def test_reset_transaction_always():
+    """Check that a rollback is always issued when reset is 1."""
     pool = PooledPg(1, reset=1)
     db = pool.connection()
     db.begin()
     con = db._con
     assert con._transaction
+    # the connection has already been rolled back when it was created
     assert con.session == ['rollback', 'begin']
     db.query('select test')
     assert con.num_queries == 1
+    # and it is rolled back again when it is returned to the pool
     db.close()
     assert pool.connection()._con is con
     assert not con._transaction
     assert con.session == ['rollback', 'begin', 'rollback', 'rollback']
     assert con.num_queries == 1
+
+
+def test_reset_transaction_completely():
+    """Check that the connection is reopened when reset is 2."""
     pool = PooledPg(1, reset=2)
     db = pool.connection()
     db.begin()
@@ -305,6 +319,7 @@ def test_reset_transaction():
     assert con.session == ['begin']
     db.query('select test')
     assert con.num_queries == 1
+    # the connection is closed and reopened, so session and counters are gone
     db.close()
     assert pool.connection()._con is con
     assert not con._transaction

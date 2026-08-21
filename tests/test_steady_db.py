@@ -32,8 +32,6 @@ def test_mocked_connection():
     """Check that the mocked DB-API 2 connection behaves as expected."""
     db = dbapi.connect(
         'SteadyDBTestDB', user='SteadyDBTestUser')
-    db.__class__.has_ping = False
-    db.__class__.num_pings = 0
     assert hasattr(db, 'database')
     assert db.database == 'SteadyDBTestDB'
     assert hasattr(db, 'user')
@@ -46,6 +44,8 @@ def test_mocked_connection():
     assert hasattr(db, 'session')
     assert hasattr(db, 'valid')
     assert db.valid
+    # cursors are counted while they are open,
+    # no matter whether they are closed explicitly or garbage collected
     assert db.open_cursors == 0
     for _i in range(3):
         cursor = db.cursor()
@@ -66,6 +66,8 @@ def test_mocked_connection():
     assert hasattr(cursor, 'valid')
     assert cursor.valid
     assert db.open_cursors == 1
+    # queries and procedure calls both count as uses,
+    # but only the queries are counted as queries
     for i in range(3):
         assert db.num_uses == i
         assert db.num_queries == i
@@ -80,19 +82,14 @@ def test_mocked_connection():
     assert db.open_cursors == 0
     assert db.num_uses == 7
     assert db.num_queries == 3
+    # a closed cursor cannot be used or closed again
     with pytest.raises(dbapi.InternalError):
         cursor.close()
     with pytest.raises(dbapi.InternalError):
         cursor.execute('select test')
+    # closing the connection resets the counters,
+    # and the connection cannot be used or closed again either
     assert db.valid
-    assert not db.__class__.has_ping
-    assert db.__class__.num_pings == 0
-    with pytest.raises(AttributeError):
-        db.ping()
-    assert db.__class__.num_pings == 1
-    db.__class__.has_ping = True
-    assert db.ping() is None
-    assert db.__class__.num_pings == 2
     db.close()
     assert not db.valid
     assert db.num_uses == 0
@@ -101,11 +98,26 @@ def test_mocked_connection():
         db.close()
     with pytest.raises(dbapi.InternalError):
         db.cursor()
+
+
+def test_mocked_connection_ping(con_cls):
+    """Check that the mocked DB-API 2 connection can be pinged."""
+    db = dbapi.connect(
+        'SteadyDBTestDB', user='SteadyDBTestUser')
+    # every attempt to ping is counted, even when there is no ping method
+    assert not con_cls.has_ping
+    assert con_cls.num_pings == 0
+    with pytest.raises(AttributeError):
+        db.ping()
+    assert con_cls.num_pings == 1
+    con_cls.has_ping = True
+    assert db.ping() is None
+    assert con_cls.num_pings == 2
+    # pinging a closed connection reports it as broken
+    db.close()
     with pytest.raises(dbapi.OperationalError):
         db.ping()
-    assert db.__class__.num_pings == 3
-    db.__class__.has_ping = False
-    db.__class__.num_pings = 0
+    assert con_cls.num_pings == 3
 
 
 def test_broken_connection():
@@ -146,8 +158,8 @@ def test_close(closeable):
     assert not db._con.valid
 
 
-def test_connection():  # noqa: PLR0915
-    """Check that the connection wraps and reopens the DB-API 2 connection."""
+def test_connection():
+    """Check that the connection wraps the DB-API 2 connection."""
     db = steady_db_connect(
         dbapi, 0, None, None, None, True, None,
         'SteadyDBTestDB', user='SteadyDBTestUser')
@@ -169,6 +181,7 @@ def test_connection():  # noqa: PLR0915
     assert db._con.user == 'SteadyDBTestUser'
     assert hasattr(db, 'cursor')
     assert hasattr(db, 'close')
+    # cursors created through the wrapper are counted like the mocked ones
     assert db._con.open_cursors == 0
     for _i in range(3):
         cursor = db.cursor()
@@ -189,6 +202,7 @@ def test_connection():  # noqa: PLR0915
     assert hasattr(cursor, 'valid')
     assert cursor.valid
     assert db._con.open_cursors == 1
+    # the wrapper keeps its own usage count next to the mocked counters
     for i in range(3):
         assert db._usage == i
         assert db._con.num_uses == i
@@ -205,6 +219,7 @@ def test_connection():  # noqa: PLR0915
     assert db._usage == 7
     assert db._con.num_uses == 7
     assert db._con.num_queries == 3
+    # unlike the mocked cursor, the wrapped one can be closed and used again
     cursor.close()
     cursor.execute('select test8')
     assert cursor.valid
@@ -213,11 +228,23 @@ def test_connection():  # noqa: PLR0915
     assert db._usage == 8
     assert db._con.num_uses == 8
     assert db._con.num_queries == 4
+
+
+def test_connection_close():
+    """Check that closing the connection closes the DB-API 2 connection."""
+    db = steady_db_connect(
+        dbapi, 0, None, None, None, True, None,
+        'SteadyDBTestDB', user='SteadyDBTestUser')
+    cursor = db.cursor()
+    cursor.execute('select test')
+    assert db._usage == 1
     assert db._con.valid
+    # the underlying connection is closed, but the wrapper keeps its
+    # usage count and can be closed again without an error
     db.close()
     assert not db._con.valid
     assert db._con.open_cursors == 0
-    assert db._usage == 8
+    assert db._usage == 1
     assert db._con.num_uses == 0
     assert db._con.num_queries == 0
     with pytest.raises(dbapi.InternalError):
@@ -225,6 +252,15 @@ def test_connection():  # noqa: PLR0915
     db.close()
     with pytest.raises(dbapi.InternalError):
         db._con.cursor()
+
+
+def test_connection_reopen():
+    """Check that the DB-API 2 connection is transparently reopened."""
+    db = steady_db_connect(
+        dbapi, 0, None, None, None, True, None,
+        'SteadyDBTestDB', user='SteadyDBTestUser')
+    db.close()
+    # asking for a cursor reopens the underlying connection
     cursor = db.cursor()
     assert db._con.valid
     cursor.execute('select test11')
@@ -235,6 +271,7 @@ def test_connection():  # noqa: PLR0915
     assert db._usage == 3
     assert db._con.num_uses == 3
     assert db._con.num_queries == 2
+    # a second cursor works on the same reopened connection
     cursor2 = db.cursor()
     assert db._con.open_cursors == 2
     cursor2.execute('select test13')
@@ -243,9 +280,17 @@ def test_connection():  # noqa: PLR0915
     db.close()
     assert db._con.open_cursors == 0
     assert db._con.num_queries == 0
+
+
+def test_connection_reopen_when_broken():
+    """Check that a broken connection or cursor is transparently replaced."""
+    db = steady_db_connect(
+        dbapi, 0, None, None, None, True, None,
+        'SteadyDBTestDB', user='SteadyDBTestUser')
     cursor = db.cursor()
     assert cursor.valid
     cursor.callproc('test')
+    # invalidating the underlying cursor makes the wrapper get a new one
     cursor._cursor.valid = False
     assert not cursor.valid
     with pytest.raises(dbapi.InternalError):
@@ -255,11 +300,14 @@ def test_connection():  # noqa: PLR0915
     cursor._cursor.callproc('test')
     assert db._usage == 2
     assert db._con.num_uses == 3
+    # invalidating the connection as well makes it reconnect,
+    # which resets the usage count of the wrapper too
     db._con.valid = cursor._cursor.valid = False
     cursor.callproc('test')
     assert cursor.valid
     assert db._usage == 1
     assert db._con.num_uses == 1
+    # the session is passed on to the underlying connection as usual
     cursor.execute('set this')
     db.commit()
     cursor.execute('set that')
@@ -355,6 +403,7 @@ def test_connection_maxusage():
     """Check that the connection is reset when used too often."""
     db = steady_db_connect(dbapi, 10)
     cursor = db.cursor()
+    # the connection is silently reset after every 10 uses
     for i in range(100):
         cursor.execute(f'select test{i}')
         r = cursor.fetchone()
@@ -365,6 +414,8 @@ def test_connection_maxusage():
         assert db._con.num_uses == j
         assert db._con.num_queries == j
     assert db._con.open_cursors == 1
+    # inside a transaction the reset is postponed until it has been ended,
+    # so the usage count keeps growing beyond the maximum until then
     db.begin()
     for i in range(100):
         cursor.callproc('test')
@@ -376,6 +427,8 @@ def test_connection_maxusage():
         assert db._con.num_uses == j
         j = 0 if i > 49 else 10
         assert db._con.num_queries == j
+    # a connection that breaks in between is reset early,
+    # which also restarts the counting of the uses
     for i in range(10):
         if i == 7:
             db._con.valid = cursor._cursor.valid = False
@@ -395,6 +448,7 @@ def test_connection_maxusage():
         assert db._con.num_uses == j
         j = 3 if i < 5 else 0
         assert db._con.num_queries == j
+    # closing the connection restarts the counting as well
     db.close()
     cursor.execute('select test1')
     assert cursor.fetchone() == 'test1'
@@ -416,6 +470,8 @@ def test_connection_setsession():
     assert db._con.num_queries == 0
     assert hasattr(db._con, 'session')
     assert tuple(db._con.session) == ('time zone', 'datestyle')
+    # maxusage is 3, so the connection is reset after every third query
+    # and the session is prepared again from scratch each time
     for _i in range(11):
         db.cursor().execute('select test')
     assert db._con.open_cursors == 0
@@ -423,6 +479,7 @@ def test_connection_setsession():
     assert db._con.num_uses == 4
     assert db._con.num_queries == 2
     assert db._con.session == ['time zone', 'datestyle']
+    # a "set" command is added to the session, but is lost on the next reset
     db.cursor().execute('set test')
     assert db._con.open_cursors == 0
     assert db._usage == 3
@@ -447,6 +504,7 @@ def test_connection_setsession():
     assert db._con.num_uses == 5
     assert db._con.num_queries == 2
     assert db._con.session == ['time zone', 'datestyle', 'test']
+    # the same happens after the connection has been closed explicitly
     db.close()
     db.cursor().execute('set test')
     assert db._con.open_cursors == 0
@@ -525,95 +583,128 @@ def test_connection_set_sizes():
     assert result == ([6, 42, 7], {None: 7, 3: 15, 9: 42})
 
 
-def test_connection_ping_check():
-    """Check that connections are pinged as configured."""
-    con_cls = dbapi.Connection
-    con_cls.has_ping = False
-    con_cls.num_pings = 0
+def test_connection_ping_check_without_ping_method(con_cls):
+    """Check that pinging is skipped when there is no ping method."""
     db = steady_db_connect(dbapi)
     db.cursor().execute('select test')
     assert con_cls.num_pings == 0
     db.close()
     db.cursor().execute('select test')
     assert con_cls.num_pings == 0
+    # an explicit check attempts a ping, but cannot report anything
     assert db._ping_check() is None
     assert con_cls.num_pings == 1
+
+
+def test_connection_ping_check_always_without_ping_method(con_cls):
+    """Check that pinging is given up when there is no ping method."""
     db = steady_db_connect(dbapi, ping=7)
+    # the first attempt fails with an AttributeError,
+    # after which no further pings are attempted at all
     db.cursor().execute('select test')
-    assert con_cls.num_pings == 2
+    assert con_cls.num_pings == 1
     db.close()
     db.cursor().execute('select test')
-    assert con_cls.num_pings == 2
+    assert con_cls.num_pings == 1
     assert db._ping_check() is None
-    assert con_cls.num_pings == 2
-    con_cls.has_ping = True
+    assert con_cls.num_pings == 1
+
+
+def test_connection_ping_check_default(ping_con_cls):
+    """Check that connections are pinged on request by default."""
     db = steady_db_connect(dbapi)
     db.cursor().execute('select test')
-    assert con_cls.num_pings == 2
+    assert ping_con_cls.num_pings == 0
     db.close()
     db.cursor().execute('select test')
-    assert con_cls.num_pings == 2
+    assert ping_con_cls.num_pings == 0
     assert db._ping_check()
-    assert con_cls.num_pings == 3
+    assert ping_con_cls.num_pings == 1
+
+
+def test_connection_ping_check_when_requested(ping_con_cls):
+    """Check that connections are pinged on request when ping is 1."""
     db = steady_db_connect(dbapi, ping=1)
+    # neither creating a cursor nor executing a query pings the connection
     db.cursor().execute('select test')
-    assert con_cls.num_pings == 3
+    assert ping_con_cls.num_pings == 0
     db.close()
     db.cursor().execute('select test')
-    assert con_cls.num_pings == 3
+    assert ping_con_cls.num_pings == 0
+    # only an explicit check does, no matter whether the connection is open
     assert db._ping_check()
-    assert con_cls.num_pings == 4
+    assert ping_con_cls.num_pings == 1
     db.close()
     assert db._ping_check()
-    assert con_cls.num_pings == 5
+    assert ping_con_cls.num_pings == 2
+
+
+def test_connection_ping_check_always(ping_con_cls):
+    """Check that connections are pinged everywhere when ping is 7."""
     db = steady_db_connect(dbapi, ping=7)
+    # creating the cursor and executing the query both ping the connection
     db.cursor().execute('select test')
-    assert con_cls.num_pings == 7
+    assert ping_con_cls.num_pings == 2
     db.close()
     db.cursor().execute('select test')
-    assert con_cls.num_pings == 9
+    assert ping_con_cls.num_pings == 4
+
+
+def test_connection_ping_check_when_cursor_created(ping_con_cls):
+    """Check that connections are pinged on cursor creation when ping is 3."""
     db = steady_db_connect(dbapi, ping=3)
-    assert con_cls.num_pings == 9
+    assert ping_con_cls.num_pings == 0
     db.cursor()
-    assert con_cls.num_pings == 10
+    assert ping_con_cls.num_pings == 1
     db.close()
     cursor = db.cursor()
-    assert con_cls.num_pings == 11
+    assert ping_con_cls.num_pings == 2
+    # executing a query does not ping again
     cursor.execute('select test')
-    assert con_cls.num_pings == 11
+    assert ping_con_cls.num_pings == 2
+
+
+def test_connection_ping_check_when_query_executed(ping_con_cls):
+    """Check that connections are pinged on execution when ping is 5."""
     db = steady_db_connect(dbapi, ping=5)
-    assert con_cls.num_pings == 11
+    # creating a cursor does not ping the connection
+    assert ping_con_cls.num_pings == 0
     db.cursor()
-    assert con_cls.num_pings == 11
+    assert ping_con_cls.num_pings == 0
     db.close()
     cursor = db.cursor()
-    assert con_cls.num_pings == 11
+    assert ping_con_cls.num_pings == 0
+    # only executing a query does
     cursor.execute('select test')
-    assert con_cls.num_pings == 12
+    assert ping_con_cls.num_pings == 1
     db.close()
     cursor = db.cursor()
-    assert con_cls.num_pings == 12
+    assert ping_con_cls.num_pings == 1
     cursor.execute('select test')
-    assert con_cls.num_pings == 13
+    assert ping_con_cls.num_pings == 2
+
+
+def test_connection_ping_check_always_with_cursor(ping_con_cls):
+    """Check that a kept cursor is pinged everywhere when ping is 7."""
     db = steady_db_connect(dbapi, ping=7)
-    assert con_cls.num_pings == 13
+    assert ping_con_cls.num_pings == 0
     db.cursor()
-    assert con_cls.num_pings == 14
+    assert ping_con_cls.num_pings == 1
     db.close()
     cursor = db.cursor()
-    assert con_cls.num_pings == 15
+    assert ping_con_cls.num_pings == 2
     cursor.execute('select test')
-    assert con_cls.num_pings == 16
+    assert ping_con_cls.num_pings == 3
     db.close()
     cursor = db.cursor()
-    assert con_cls.num_pings == 17
+    assert ping_con_cls.num_pings == 4
     cursor.execute('select test')
-    assert con_cls.num_pings == 18
+    assert ping_con_cls.num_pings == 5
+    # when the connection was closed, the cursor is recreated on execution,
+    # which pings the connection a second time
     db.close()
     cursor.execute('select test')
-    assert con_cls.num_pings == 20
-    con_cls.has_ping = False
-    con_cls.num_pings = 0
+    assert ping_con_cls.num_pings == 7
 
 
 def test_begin_transaction():

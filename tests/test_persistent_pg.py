@@ -53,6 +53,12 @@ def test_threads():
         result_queue.append(Queue(1))
 
     def run_queries(idx):
+        """Answer the queries sent to this thread until it gets None.
+
+        Every answer is prefixed with the thread number and the usage
+        count of the connection, so that the main thread can check that
+        the thread kept using its own connection.
+        """
         this_db = persist.connection().db
         db = None
         while True:
@@ -82,17 +88,21 @@ def test_threads():
         thread = Thread(target=run_queries, args=(i,))
         threads.append(thread)
         thread.start()
+    # all threads are alive and have an unused connection of their own
     for i in range(num_threads):
         query_queue[i].put('ping', timeout=1)
     for i in range(num_threads):
         r = result_queue[i].get(timeout=1)
         assert r == f'{i}(0): ok - thread alive'
         assert threads[i].is_alive()
+    # let thread number i run i + 1 queries on its own connection
     for i in range(num_threads):
         for j in range(i + 1):
             query_queue[i].put(f'select test{j}', timeout=1)
             r = result_queue[i].get(timeout=1)
             assert r == f'{i}({j + 1}): test{j}'
+    # closing the connection of the second thread restarts its usage count,
+    # but does not affect the connections of the other threads
     query_queue[1].put('select test4', timeout=1)
     r = result_queue[1].get(timeout=1)
     assert r == '1(3): test4'
@@ -103,6 +113,7 @@ def test_threads():
         query_queue[1].put(f'select test{j}', timeout=1)
         r = result_queue[1].get(timeout=1)
         assert r == f'1({j + 1}): test{j}'
+    # every thread still has its own connection with its own usage count
     for i in range(num_threads):
         assert threads[i].is_alive()
         query_queue[i].put('ping', timeout=1)
@@ -110,6 +121,7 @@ def test_threads():
         r = result_queue[i].get(timeout=1)
         assert r == f'{i}({i + 1}): ok - thread alive'
         assert threads[i].is_alive()
+    # send the sentinel that makes the threads finish
     for i in range(num_threads):
         query_queue[i].put(None, timeout=1)
 

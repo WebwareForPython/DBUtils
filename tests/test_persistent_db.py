@@ -75,6 +75,12 @@ def test_threads(dbapi):
         result_queue.append(Queue(1))
 
     def run_queries(idx):
+        """Answer the queries sent to this thread until it gets None.
+
+        Every answer is prefixed with the thread number and the usage
+        count of the connection, so that the main thread can check that
+        the thread kept using its own connection.
+        """
         this_db = persist.connection()
         db = None
         while True:
@@ -107,17 +113,21 @@ def test_threads(dbapi):
         thread = Thread(target=run_queries, args=(i,))
         threads.append(thread)
         thread.start()
+    # all threads are alive and have an unused connection of their own
     for i in range(num_threads):
         query_queue[i].put('ping', timeout=1)
     for i in range(num_threads):
         r = result_queue[i].get(timeout=1)
         assert r == f'{i}(0): ok - thread alive'
         assert threads[i].is_alive()
+    # let thread number i run i + 1 queries on its own connection
     for i in range(num_threads):
         for j in range(i + 1):
             query_queue[i].put(f'select test{j}', timeout=1)
             r = result_queue[i].get(timeout=1)
             assert r == f'{i}({j + 1}): test{j}'
+    # closing the connection of the second thread restarts its usage count,
+    # but does not affect the connections of the other threads
     query_queue[1].put('select test4', timeout=1)
     r = result_queue[1].get(timeout=1)
     assert r == '1(3): test4'
@@ -128,6 +138,7 @@ def test_threads(dbapi):
         query_queue[1].put(f'select test{j}', timeout=1)
         r = result_queue[1].get(timeout=1)
         assert r == f'1({j + 1}): test{j}'
+    # every thread still has its own connection with its own usage count
     for i in range(num_threads):
         assert threads[i].is_alive()
         query_queue[i].put('ping', timeout=1)
@@ -135,6 +146,7 @@ def test_threads(dbapi):
         r = result_queue[i].get(timeout=1)
         assert r == f'{i}({i + 1}): ok - thread alive'
         assert threads[i].is_alive()
+    # send the sentinel that makes the threads finish
     for i in range(num_threads):
         query_queue[i].put(None, timeout=1)
 
@@ -189,58 +201,74 @@ def test_threadlocal(dbapi):
     assert isinstance(persist.thread, Threadlocal)
 
 
-def test_ping_check(dbapi):
-    """Check that connections are pinged as configured."""
-    con_cls = dbapi.Connection
-    con_cls.has_ping = True
-    con_cls.num_pings = 0
+def test_ping_check_never(dbapi, ping_con_cls):
+    """Check that connections are not pinged when ping is 0."""
     persist = PersistentDB(dbapi, 0, None, None, 0, True)
     db = persist.connection()
     assert db._con.valid is True
-    assert con_cls.num_pings == 0
+    assert ping_con_cls.num_pings == 0
+    # the closed connection is handed out again without being pinged,
+    # so the fact that it is broken goes unnoticed
     db.close()
     db = persist.connection()
     assert db._con.valid is False
-    assert con_cls.num_pings == 0
+    assert ping_con_cls.num_pings == 0
+
+
+def test_ping_check_when_fetched(dbapi, ping_con_cls):
+    """Check that connections are pinged when ping is 1."""
     persist = PersistentDB(dbapi, 0, None, None, 1, True)
     db = persist.connection()
     assert db._con.valid is True
-    assert con_cls.num_pings == 1
+    assert ping_con_cls.num_pings == 1
+    # the closed connection is pinged when it is requested again,
+    # so it is transparently reopened
     db.close()
     db = persist.connection()
     assert db._con.valid is True
-    assert con_cls.num_pings == 2
+    assert ping_con_cls.num_pings == 2
+
+
+def test_ping_check_when_cursor_created(dbapi, ping_con_cls):
+    """Check that connections are pinged when ping is 2."""
     persist = PersistentDB(dbapi, 0, None, None, 2, True)
     db = persist.connection()
     assert db._con.valid is True
-    assert con_cls.num_pings == 2
+    assert ping_con_cls.num_pings == 0
+    # requesting the closed connection does not ping it yet
     db.close()
     db = persist.connection()
     assert db._con.valid is False
-    assert con_cls.num_pings == 2
+    assert ping_con_cls.num_pings == 0
+    # but creating a cursor does, which reopens the connection
     cursor = db.cursor()
     assert db._con.valid is True
-    assert con_cls.num_pings == 3
+    assert ping_con_cls.num_pings == 1
+    # executing a query does not ping again
     cursor.execute('select test')
     assert db._con.valid is True
-    assert con_cls.num_pings == 3
+    assert ping_con_cls.num_pings == 1
+
+
+def test_ping_check_when_query_executed(dbapi, ping_con_cls):
+    """Check that connections are pinged when ping is 4."""
     persist = PersistentDB(dbapi, 0, None, None, 4, True)
     db = persist.connection()
     assert db._con.valid is True
-    assert con_cls.num_pings == 3
+    assert ping_con_cls.num_pings == 0
+    # neither requesting the connection nor creating a cursor pings it
     db.close()
     db = persist.connection()
     assert db._con.valid is False
-    assert con_cls.num_pings == 3
+    assert ping_con_cls.num_pings == 0
     cursor = db.cursor()
     db._con.close()
     assert db._con.valid is False
-    assert con_cls.num_pings == 3
+    assert ping_con_cls.num_pings == 0
+    # only executing a query does, which reopens the connection
     cursor.execute('select test')
     assert db._con.valid is True
-    assert con_cls.num_pings == 4
-    con_cls.has_ping = False
-    con_cls.num_pings = 0
+    assert ping_con_cls.num_pings == 1
 
 
 def test_failed_transaction(dbapi):

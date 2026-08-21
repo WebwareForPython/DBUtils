@@ -56,6 +56,7 @@ def test_mocked_connection():
     assert db.dbname == 'SteadyPgTestDB'
     assert hasattr(db, 'user')
     assert db.user == 'SteadyPgTestUser'
+    # queries are counted, and reopening the connection resets the counter
     for i in range(3):
         assert db.num_queries == i
         assert db.query(f'select test{i}') == f'test{i}'
@@ -65,6 +66,7 @@ def test_mocked_connection():
     assert db.num_queries == 0
     assert db.query('select test4') == 'test4'
     assert db.get_tables() == 'test'
+    # a closed connection cannot be used or closed again
     db.close()
     try:
         status = db.db.status
@@ -109,7 +111,7 @@ def test_close(closeable):
 
 
 def test_connection():
-    """Check that the connection wraps and reopens the PyGreSQL connection."""
+    """Check that the connection wraps the PyGreSQL connection."""
     db = SteadyPgConnection(
         0, None, 1, 'SteadyPgTestDB', user='SteadyPgTestUser')
     assert hasattr(db, 'db')
@@ -141,6 +143,8 @@ def test_connection():
     assert hasattr(db, 'user')
     assert db.user == 'SteadyPgTestUser'
     assert hasattr(db, 'get_tables')
+    # the wrapper keeps its own usage count next to the query count,
+    # and get_tables() counts as a use, but not as a query
     for i in range(3):
         assert db._usage == i
         assert db.num_queries == i
@@ -150,6 +154,7 @@ def test_connection():
     assert db.db.status
     assert db._usage == 4
     assert db.num_queries == 3
+    # reopening the connection resets both counters
     db.reopen()
     assert db.db.status
     assert db._usage == 0
@@ -158,14 +163,21 @@ def test_connection():
     assert db.db.status
     assert hasattr(db._con, 'status')
     assert db._con.status
-    assert hasattr(db._con, 'close')
-    assert hasattr(db._con, 'query')
+
+
+def test_connection_close():
+    """Check that closing the connection closes the PyGreSQL connection."""
+    db = SteadyPgConnection(
+        0, None, 1, 'SteadyPgTestDB', user='SteadyPgTestUser')
+    db.query('select test')
+    assert db.db.status
     db.close()
     try:
         status = db.db.status
     except AttributeError:
         status = False
     assert not status
+    # the underlying connection is still wrapped, but cannot be used any more
     assert hasattr(db._con, 'close')
     assert hasattr(db._con, 'query')
     internal_error_cls = sys.modules[db._con.__module__].InternalError
@@ -173,16 +185,26 @@ def test_connection():
         db._con.close()
     with pytest.raises(internal_error_cls):
         db._con.query('select test')
+
+
+def test_connection_reopen_when_broken():
+    """Check that the PyGreSQL connection is transparently reopened."""
+    db = SteadyPgConnection(
+        0, None, 1, 'SteadyPgTestDB', user='SteadyPgTestUser')
+    # querying a closed connection reopens it and starts counting anew
+    db.close()
     assert db.query('select test') == 'test'
     assert db.db.status
     assert db._usage == 1
     assert db.num_queries == 1
+    # the same happens when the connection reports a bad status
     db.db.status = False
     assert not db.db.status
     assert db.query('select test') == 'test'
     assert db.db.status
     assert db._usage == 1
     assert db.num_queries == 1
+    # and when it is used through one of the PyGreSQL extension methods
     db.db.status = False
     assert not db.db.status
     assert db.get_tables() == 'test'
@@ -213,6 +235,7 @@ def test_connection_context_handler():
 def test_connection_maxusage():
     """Check that the connection is reset when used too often."""
     db = SteadyPgConnection(10)
+    # the connection is silently reset after every 10 uses
     for i in range(100):
         r = db.query(f'select test{i}')
         assert r == f'test{i}'
@@ -220,6 +243,8 @@ def test_connection_maxusage():
         j = i % 10 + 1
         assert db._usage == j
         assert db.num_queries == j
+    # inside a transaction the reset is postponed until it has been ended,
+    # so the usage count keeps growing beyond the maximum until then
     db.begin()
     for i in range(100):
         r = db.get_tables()
@@ -231,6 +256,8 @@ def test_connection_maxusage():
         assert db._usage == j
         j = 0 if i > 49 else 10
         assert db.num_queries == j
+    # a connection that breaks in between is reset early,
+    # which also restarts the counting of the uses
     for i in range(10):
         if i == 7:
             db.db.status = False
@@ -248,6 +275,7 @@ def test_connection_maxusage():
         assert db._usage == j
         j = 3 if i < 5 else 0
         assert db.num_queries == j
+    # closing and reopening the connection restart the counting as well
     db.close()
     assert db.query('select test1') == 'test1'
     assert db._usage == 1
@@ -307,33 +335,18 @@ def test_begin(closeable):
 
 
 @pytest.mark.parametrize("closeable", [False, True])
-def test_end(closeable):
+@pytest.mark.parametrize("end", ["end", "commit", "rollback"])
+def test_end(closeable, end):
     """Check that end(), commit() and rollback() finish the transaction."""
     db = SteadyPgConnection(closeable=closeable)
     db.begin()
     db.query('select test')
-    db.end()
-    assert db.session == ['begin', 'end']
+    getattr(db, end)()
+    assert db.session == ['begin', end]
+    # the transaction is over, so the connection is reopened transparently
     db.db.close()
     db.query('select test')
     assert db.num_queries == 1
-    assert db.begin('select sql:end') == 'sql:end'
-    assert db.num_queries == 2
-    db.begin()
-    db.query('select test')
-    db.commit()
-    assert db.session == ['begin', 'commit']
-    db.db.close()
-    db.query('select test')
-    assert db.num_queries == 1
-    assert db.begin('select sql:commit') == 'sql:commit'
-    assert db.num_queries == 2
-    db.begin()
-    db.query('select test')
-    db.rollback()
-    assert db.session == ['begin', 'rollback']
-    db.db.close()
-    db.query('select test')
-    assert db.num_queries == 1
-    assert db.begin('select sql:rollback') == 'sql:rollback'
+    # a transaction can also be started with an explicit SQL command
+    assert db.begin(f'select sql:{end}') == f'sql:{end}'
     assert db.num_queries == 2
