@@ -20,12 +20,14 @@ from dbutils.steady_pg import SteadyPgConnection
 
 
 def test_version():
+    """Check that the module and class versions are in sync."""
     from dbutils import __version__, steady_pg
     assert steady_pg.__version__ == __version__
     assert steady_pg.SteadyPgConnection.version == __version__
 
 
 def test_mocked_connection():
+    """Check that the mocked PyGreSQL connection behaves as expected."""
     db_cls = pg.DB
     db = db_cls(
         'SteadyPgTestDB', user='SteadyPgTestUser')
@@ -78,6 +80,7 @@ def test_mocked_connection():
 
 
 def test_broken_connection():
+    """Check that errors when opening a connection are reported."""
     with pytest.raises(TypeError):
         SteadyPgConnection('wrong')
     db = SteadyPgConnection(dbname='ok')
@@ -91,6 +94,7 @@ def test_broken_connection():
 
 @pytest.mark.parametrize("closeable", [False, True])
 def test_close(closeable):
+    """Check that closing is only allowed when the connection is closeable."""
     db = SteadyPgConnection(closeable=closeable)
     assert db._con.db
     assert db._con.valid is True
@@ -105,6 +109,7 @@ def test_close(closeable):
 
 
 def test_connection():
+    """Check that the connection wraps and reopens the PyGreSQL connection."""
     db = SteadyPgConnection(
         0, None, 1, 'SteadyPgTestDB', user='SteadyPgTestUser')
     assert hasattr(db, 'db')
@@ -187,6 +192,7 @@ def test_connection():
 
 
 def test_connection_context_handler():
+    """Check that the context handler commits or rolls back."""
     db = SteadyPgConnection(
         0, None, 1, 'SteadyPgTestDB', user='SteadyPgTestUser')
     assert db.session == []
@@ -205,6 +211,7 @@ def test_connection_context_handler():
 
 
 def test_connection_maxusage():
+    """Check that the connection is reset when used too often."""
     db = SteadyPgConnection(10)
     for i in range(100):
         r = db.query(f'select test{i}')
@@ -254,6 +261,7 @@ def test_connection_maxusage():
 
 
 def test_connection_setsession():
+    """Check that the session is prepared after every reopening."""
     db = SteadyPgConnection(3, ('set time zone', 'set datestyle'))
     assert hasattr(db, 'num_queries')
     assert db.num_queries == 0
@@ -277,6 +285,7 @@ def test_connection_setsession():
 
 @pytest.mark.parametrize("closeable", [False, True])
 def test_begin(closeable):
+    """Check that transparent reopening is suspended after begin()."""
     db = SteadyPgConnection(closeable=closeable)
     db.begin()
     assert db.session == ['begin']
@@ -299,6 +308,7 @@ def test_begin(closeable):
 
 @pytest.mark.parametrize("closeable", [False, True])
 def test_end(closeable):
+    """Check that end(), commit() and rollback() finish the transaction."""
     db = SteadyPgConnection(closeable=closeable)
     db.begin()
     db.query('select test')

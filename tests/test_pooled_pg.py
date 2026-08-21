@@ -25,12 +25,14 @@ from dbutils.steady_pg import SteadyPgConnection
 
 
 def test_version():
+    """Check that the module and class versions are in sync."""
     from dbutils import __version__, pooled_pg
     assert pooled_pg.__version__ == __version__
     assert PooledPg.version == __version__
 
 
 def test_create_connection():
+    """Check that the pool creates connections with the given parameters."""
     pool = PooledPg(
         1, 1, 0, False, None, None, False,
         'PooledPgTestDB', user='PooledPgTestUser')
@@ -79,6 +81,7 @@ def test_create_connection():
 
 
 def test_close_connection():
+    """Check that a closed connection is returned to the pool."""
     pool = PooledPg(
         0, 1, 0, False, None, None, False,
         'PooledPgTestDB', user='PooledPgTestUser')
@@ -110,6 +113,7 @@ def test_close_connection():
 
 
 def test_min_max_cached():
+    """Check that the cache is kept between the given bounds."""
     pool = PooledPg(3)
     assert hasattr(pool, '_cache')
     assert pool._cache.qsize() == 3
@@ -157,6 +161,7 @@ def test_min_max_cached():
 
 
 def test_max_connections():
+    """Check that the maximum number of connections is enforced."""
     pool = PooledPg(1, 2, 3)
     assert pool._cache.qsize() == 1
     cache = [pool.connection() for _i in range(3)]
@@ -217,6 +222,7 @@ def test_max_connections():
 
 
 def test_one_thread_two_connections():
+    """Check that one thread can use two connections at once."""
     pool = PooledPg(2)
     db1 = pool.connection()
     for _i in range(5):
@@ -241,6 +247,7 @@ def test_one_thread_two_connections():
 
 
 def test_three_threads_two_connections():
+    """Check that a third thread must wait for a free connection."""
     pool = PooledPg(2, 2, 2, True)
     queue = Queue(3)
 
@@ -265,6 +272,7 @@ def test_three_threads_two_connections():
 
 
 def test_reset_transaction():
+    """Check how connections are reset when returned to the pool."""
     pool = PooledPg(1)
     db = pool.connection()
     db.begin()
@@ -306,6 +314,7 @@ def test_reset_transaction():
 
 
 def test_context_manager():
+    """Check that the connection can be used as a context manager."""
     pool = PooledPg(1, 1, 1)
     with pool.connection() as db:
         db_con = db._con._con

@@ -34,6 +34,7 @@ def my_db_pool(threadsafety, max_connections):
 
 
 def test_version():
+    """Check that the module and class versions are in sync."""
     from dbutils import __version__
     assert simple_pooled_db.__version__ == __version__
     assert simple_pooled_db.PooledDB.version == __version__
@@ -41,12 +42,14 @@ def test_version():
 
 @pytest.mark.parametrize("threadsafety", [None, -1, 0, 4])
 def test_no_threadsafety(threadsafety):
+    """Check that an unsupported threadsafety level is rejected."""
     with pytest.raises(simple_pooled_db.NotSupportedError):
         my_db_pool(threadsafety, 1)
 
 
 @pytest.mark.parametrize("threadsafety", [1, 2, 3])
 def test_create_connection(threadsafety):
+    """Check that the pool creates a usable connection."""
     dbpool = my_db_pool(threadsafety, 1)
     db = dbpool.connection()
     assert hasattr(db, 'cursor')
@@ -64,6 +67,7 @@ def test_create_connection(threadsafety):
 
 @pytest.mark.parametrize("threadsafety", [1, 2, 3])
 def test_close_connection(threadsafety):
+    """Check that a closed connection is reused by the pool."""
     db_pool = my_db_pool(threadsafety, 1)
     db = db_pool.connection()
     assert db.open_cursors == 0
@@ -87,6 +91,7 @@ def test_close_connection(threadsafety):
 
 @pytest.mark.parametrize("threadsafety", [1, 2, 3])
 def test_two_connections(threadsafety):
+    """Check that two connections from the pool stay independent."""
     db_pool = my_db_pool(threadsafety, 2)
     db1 = db_pool.connection()
     cursors1 = [db1.cursor() for _i_ in range(5)]
@@ -109,6 +114,7 @@ def test_two_connections(threadsafety):
 
 
 def test_threadsafety_1():
+    """Check that threads get dedicated connections and have to wait."""
     db_pool = my_db_pool(1, 2)
     queue = Queue(3)
 
@@ -131,6 +137,7 @@ def test_threadsafety_1():
 
 @pytest.mark.parametrize("threadsafety", [2, 3])
 def test_threadsafety_2(threadsafety):
+    """Check that connections are shared when they are thread-safe."""
     dbpool = my_db_pool(threadsafety, 2)
     db1 = dbpool.connection()
     db2 = dbpool.connection()

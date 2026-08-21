@@ -6,12 +6,14 @@ from dbutils.persistent_db import local
 
 
 def test_getattr():
+    """Check that attributes can be set and read back."""
     my_data = local()
     my_data.number = 42
     assert my_data.number == 42
 
 
 def test_dict():
+    """Check that the attributes are exposed via the instance dict."""
     my_data = local()
     my_data.number = 42
     assert my_data.__dict__ == {'number': 42}
@@ -20,6 +22,7 @@ def test_dict():
 
 
 def test_threadlocal():
+    """Check that each thread sees only its own attributes."""
     def f():
         items = sorted(my_data.__dict__.items())
         log.append(items)
@@ -36,6 +39,7 @@ def test_threadlocal():
 
 
 def test_subclass():
+    """Check that subclasses with own attributes and slots work."""
 
     class MyLocal(local):
         number = 2

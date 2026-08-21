@@ -26,12 +26,14 @@ def my_db_pool(max_connections):
 
 
 def test_version():
+    """Check that the module and class versions are in sync."""
     from dbutils import __version__
     assert simple_pooled_pg.__version__ == __version__
     assert simple_pooled_pg.PooledPg.version == __version__
 
 
 def test_create_connection():
+    """Check that the pool creates a usable connection."""
     db_pool = my_db_pool(1)
     db = db_pool.connection()
     assert hasattr(db, 'query')
@@ -46,6 +48,7 @@ def test_create_connection():
 
 
 def test_close_connection():
+    """Check that a closed connection is reused by the pool."""
     db_pool = my_db_pool(1)
     db = db_pool.connection()
     assert db.num_queries == 0
@@ -64,6 +67,7 @@ def test_close_connection():
 
 
 def test_two_connections():
+    """Check that two connections from the pool stay independent."""
     db_pool = my_db_pool(2)
     db1 = db_pool.connection()
     for _i in range(5):
@@ -88,6 +92,7 @@ def test_two_connections():
 
 
 def test_threads():
+    """Check that threads must wait for a connection to be returned."""
     db_pool = my_db_pool(2)
     queue = Queue(3)
 

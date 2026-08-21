@@ -1,4 +1,4 @@
-"""This module serves as a mock object for the DB-API 2 module"""
+"""Mock object for the DB-API 2 module."""
 
 import sys
 

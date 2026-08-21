@@ -125,10 +125,18 @@ max-statements = 95
   "T201",  # allow print statements
 ]
 "tests/*" = [
-  "D",  # no docstrings necessary here
+  "D413",  # allow plain notes in the module docstrings
   "PLC0415",  # allow imports in tests functions
   "PLR2004",  # allow magic values
   "S101",  # allow assert statements
+]
+"tests/mock_*.py" = [
+  # the mock objects only mimic a foreign API, docstrings would add nothing
+  "D101",  # missing docstring in public class
+  "D102",  # missing docstring in public method
+  "D103",  # missing docstring in public function
+  "D105",  # missing docstring in magic method
+  "D107",  # missing docstring in __init__
 ]
 
 [tool.codespell]

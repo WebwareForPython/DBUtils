@@ -1,4 +1,4 @@
-"""This module serves as a mock object for the pg API module"""
+"""Mock object for the pg API module."""
 
 import sys
 

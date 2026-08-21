@@ -20,6 +20,7 @@ from dbutils.persistent_pg import PersistentPg
 
 
 def test_version():
+    """Check that the module and class versions are in sync."""
     from dbutils import __version__, persistent_pg
     assert persistent_pg.__version__ == __version__
     assert PersistentPg.version == __version__
@@ -27,6 +28,7 @@ def test_version():
 
 @pytest.mark.parametrize("closeable", [False, True])
 def test_close(closeable):
+    """Check that closing is only allowed when the connection is closeable."""
     persist = PersistentPg(closeable=closeable)
     db = persist.connection()
     assert db._con.db
@@ -42,6 +44,7 @@ def test_close(closeable):
 
 
 def test_threads():
+    """Check that every thread keeps its own persistent connection."""
     num_threads = 3
     persist = PersistentPg()
     query_queue, result_queue = [], []
@@ -112,6 +115,7 @@ def test_threads():
 
 
 def test_maxusage():
+    """Check that the connection is reset when used too often."""
     persist = PersistentPg(20)
     db = persist.connection()
     assert db._maxusage == 20
@@ -125,6 +129,7 @@ def test_maxusage():
 
 
 def test_setsession():
+    """Check that the session is prepared after every reopening."""
     persist = PersistentPg(3, ('set datestyle',))
     db = persist.connection()
     assert db._maxusage == 3
@@ -138,6 +143,7 @@ def test_setsession():
 
 
 def test_failed_transaction():
+    """Check that a failed transaction is reported and recovered from."""
     persist = PersistentPg()
     db = persist.connection()
     db._con.close()
@@ -155,6 +161,7 @@ def test_failed_transaction():
 
 
 def test_context_manager():
+    """Check that the connection can be used as a context manager."""
     persist = PersistentPg()
     with persist.connection() as db:
         db.query('select test')

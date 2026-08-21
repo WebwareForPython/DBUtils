@@ -22,12 +22,14 @@ from . import mock_db as dbapi
 
 
 def test_version():
+    """Check that the module and class versions are in sync."""
     from dbutils import __version__, steady_db
     assert steady_db.__version__ == __version__
     assert steady_db.SteadyDBConnection.version == __version__
 
 
 def test_mocked_connection():
+    """Check that the mocked DB-API 2 connection behaves as expected."""
     db = dbapi.connect(
         'SteadyDBTestDB', user='SteadyDBTestUser')
     db.__class__.has_ping = False
@@ -107,6 +109,7 @@ def test_mocked_connection():
 
 
 def test_broken_connection():
+    """Check that errors when opening connection or cursor are reported."""
     with pytest.raises(TypeError):
         SteadyDBConnection(None)
     with pytest.raises(TypeError):
@@ -130,6 +133,7 @@ def test_broken_connection():
 
 @pytest.mark.parametrize("closeable", [False, True])
 def test_close(closeable):
+    """Check that closing is only allowed when the connection is closeable."""
     db = steady_db_connect(dbapi, closeable=closeable)
     assert db._con.valid
     db.close()
@@ -143,6 +147,7 @@ def test_close(closeable):
 
 
 def test_connection():  # noqa: PLR0915
+    """Check that the connection wraps and reopens the DB-API 2 connection."""
     db = steady_db_connect(
         dbapi, 0, None, None, None, True, None,
         'SteadyDBTestDB', user='SteadyDBTestUser')
@@ -263,6 +268,7 @@ def test_connection():  # noqa: PLR0915
 
 
 def test_connection_context_handler():
+    """Check that the context handler commits or rolls back."""
     db = steady_db_connect(
         dbapi, 0, None, None, None, True, None,
         'SteadyDBTestDB', user='SteadyDBTestUser')
@@ -282,6 +288,7 @@ def test_connection_context_handler():
 
 
 def test_cursor_context_handler():
+    """Check that the cursor is closed by the context handler."""
     db = steady_db_connect(
         dbapi, 0, None, None, None, True, None,
         'SteadyDBTestDB', user='SteadyDBTestUser')
@@ -294,6 +301,7 @@ def test_cursor_context_handler():
 
 
 def test_cursor_as_iterator_provided():
+    """Check that an iterator provided by the cursor is used."""
     db = steady_db_connect(
         dbapi, 0, None, None, None, True, None,
         'SteadyDBTestDB', user='SteadyDBTestUser')
@@ -313,6 +321,7 @@ def test_cursor_as_iterator_provided():
 
 
 def test_cursor_as_iterator_created():
+    """Check that an iterator is created when the cursor has none."""
     db = steady_db_connect(
         dbapi, 0, None, None, None, True, None,
         'SteadyDBTestDB', user='SteadyDBTestUser')
@@ -326,6 +335,7 @@ def test_cursor_as_iterator_created():
 
 
 def test_connection_creator_function():
+    """Check that a creator function can be used instead of a module."""
     db1 = steady_db_connect(
         dbapi, 0, None, None, None, True, None,
         'SteadyDBTestDB', user='SteadyDBTestUser')
@@ -342,6 +352,7 @@ def test_connection_creator_function():
 
 
 def test_connection_maxusage():
+    """Check that the connection is reset when used too often."""
     db = steady_db_connect(dbapi, 10)
     cursor = db.cursor()
     for i in range(100):
@@ -393,6 +404,7 @@ def test_connection_maxusage():
 
 
 def test_connection_setsession():
+    """Check that the session is prepared after every reopening."""
     db = steady_db_connect(dbapi, 3, ('set time zone', 'set datestyle'))
     assert hasattr(db, '_usage')
     assert db._usage == 0
@@ -452,6 +464,7 @@ def test_connection_setsession():
 
 
 def test_connection_failures():
+    """Check that only the configured failures trigger the failover."""
     db = steady_db_connect(dbapi)
     db.close()
     db.cursor()
@@ -474,6 +487,7 @@ def test_connection_failures():
 
 
 def test_connection_failure_error():
+    """Check that errors after a successful failover are passed on."""
     db = steady_db_connect(dbapi)
     cursor = db.cursor()
     db.close()
@@ -485,6 +499,7 @@ def test_connection_failure_error():
 
 
 def test_connection_set_sizes():
+    """Check that input and output sizes are set and kept when reopening."""
     db = steady_db_connect(dbapi)
     cursor = db.cursor()
     cursor.execute('get sizes')
@@ -511,6 +526,7 @@ def test_connection_set_sizes():
 
 
 def test_connection_ping_check():
+    """Check that connections are pinged as configured."""
     con_cls = dbapi.Connection
     con_cls.has_ping = False
     con_cls.num_pings = 0
@@ -601,6 +617,7 @@ def test_connection_ping_check():
 
 
 def test_begin_transaction():
+    """Check that transparent reopening is suspended after begin()."""
     db = steady_db_connect(dbapi, database='ok')
     cursor = db.cursor()
     cursor.close()
@@ -628,6 +645,7 @@ def test_begin_transaction():
 
 
 def test_with_begin_extension():
+    """Check that begin() is passed on to the underlying connection."""
     db = steady_db_connect(dbapi, database='ok')
     db._con._begin_called_with = None
 
@@ -643,6 +661,7 @@ def test_with_begin_extension():
 
 
 def test_cancel_transaction():
+    """Check that cancel() ends a transaction started with begin()."""
     db = steady_db_connect(dbapi, database='ok')
     cursor = db.cursor()
     db.begin()
@@ -654,6 +673,7 @@ def test_cancel_transaction():
 
 
 def test_with_cancel_extension():
+    """Check that cancel() is passed on to the underlying connection."""
     db = steady_db_connect(dbapi, database='ok')
     db._con._cancel_called = None
 
@@ -670,6 +690,7 @@ def test_with_cancel_extension():
 
 
 def test_reset_transaction():
+    """Check that closing rolls back a transaction when not closeable."""
     db = steady_db_connect(dbapi, database='ok')
     db.begin()
     assert not db._con.session
@@ -683,6 +704,7 @@ def test_reset_transaction():
 
 
 def test_commit_error():
+    """Check that the connection is reopened when a commit fails."""
     db = steady_db_connect(dbapi, database='ok')
     db.begin()
     assert not db._con.session
@@ -707,6 +729,7 @@ def test_commit_error():
 
 
 def test_rollback_error():
+    """Check that the connection is reopened when a rollback fails."""
     db = steady_db_connect(dbapi, database='ok')
     db.begin()
     assert not db._con.session
@@ -754,19 +777,22 @@ def test_transaction_ended_when_reopening_fails():
 
 
 def timeout_is_not_fatal(error):
-    """A deliberate server side timeout does not break the connection."""
+    """Treat a deliberate server side timeout as not fatal."""
     return not error.args or error.args[0] != 3024
 
 
 def always_fatal(error):  # noqa: ARG001
+    """Treat every error as fatal for the connection."""
     return True
 
 
 def never_fatal(error):  # noqa: ARG001
+    """Treat no error as fatal for the connection."""
     return False
 
 
 def test_connection_isfatal_must_be_callable():
+    """Check that isfatal must be a callable when it is given."""
     steady_db_connect(dbapi, isfatal=None)
     steady_db_connect(dbapi, isfatal=always_fatal)
     with pytest.raises(TypeError):
@@ -776,6 +802,7 @@ def test_connection_isfatal_must_be_callable():
 
 
 def test_connection_isfatal_is_asked():
+    """Check that isfatal is asked and can veto the failover."""
     errors = []
 
     def record_and_veto(error):
@@ -798,6 +825,7 @@ def test_connection_isfatal_is_asked():
 
 
 def test_connection_isfatal_false_and_true():
+    """Check that isfatal can switch the failover off and on."""
     db = steady_db_connect(dbapi, isfatal=never_fatal)
     cursor = db.cursor()
     db.close()
@@ -838,6 +866,7 @@ def test_connection_isfatal_selectively():
 
 
 def test_connection_isfatal_cursor_creation():
+    """Check that isfatal also applies when creating a cursor."""
     db = steady_db_connect(dbapi, isfatal=never_fatal)
     con = db._con
     db.close()
@@ -864,6 +893,7 @@ def test_connection_isfatal_ignored_when_overused():
 
 
 def test_cursor_no_failover():
+    """Check that no_failover() suspends the failover mechanism."""
     dbapi.Connection.num_timeouts = 0
     db = steady_db_connect(dbapi)
     cursor = db.cursor()
@@ -879,6 +909,7 @@ def test_cursor_no_failover():
 
 
 def test_cursor_no_failover_keeps_bookkeeping():
+    """Check that no_failover() still counts the usage."""
     db = steady_db_connect(dbapi)
     cursor = db.cursor()
     with cursor.no_failover():
@@ -890,6 +921,7 @@ def test_cursor_no_failover_keeps_bookkeeping():
 
 
 def test_cursor_no_failover_broken_connection():
+    """Check that no_failover() does not replace the connection."""
     db = steady_db_connect(dbapi)
     cursor = db.cursor()
     con = db._con
@@ -904,6 +936,7 @@ def test_cursor_no_failover_broken_connection():
 
 
 def test_cursor_no_failover_nested():
+    """Check that no_failover() contexts can be nested."""
     db = steady_db_connect(dbapi)
     cursor = db.cursor()
     assert cursor._no_failover == 0
@@ -921,6 +954,7 @@ def test_cursor_no_failover_nested():
 
 
 def test_dbapi_connection():
+    """Check that the underlying DB-API 2 connection is accessible."""
     db = steady_db_connect(dbapi)
     con = db.dbapi_connection
     assert isinstance(con, dbapi.Connection)
@@ -932,6 +966,7 @@ def test_dbapi_connection():
 
 
 def test_dbapi_cursor():
+    """Check that the underlying DB-API 2 cursor is accessible."""
     db = steady_db_connect(dbapi)
     cursor = db.cursor()
     raw_cursor = cursor.dbapi_cursor
