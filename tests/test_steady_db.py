@@ -730,6 +730,29 @@ def test_rollback_error():
     assert db._con.valid
 
 
+def test_transaction_ended_when_reopening_fails():
+    """A transaction that cannot be reopened must not stay active.
+
+    Otherwise the failover mechanism would stay suspended on the
+    connection, so that it could never recover by itself again.
+    """
+    db = steady_db_connect(dbapi, database='ok')
+    cursor = db.cursor()
+    db.begin()
+    assert db._transaction
+    # the database goes away and cannot be reached again
+    db._kwargs['database'] = 'error'
+    db._con.valid = cursor._cursor.valid = False
+    with pytest.raises(dbapi.InternalError):
+        cursor.execute('select test')
+    assert not db._transaction
+    # when the database is back, the failover mechanism must work again
+    db._kwargs['database'] = 'ok'
+    cursor.execute('select test')
+    assert cursor.fetchone() == 'test'
+    assert db._con.valid
+
+
 def timeout_is_not_fatal(error):
     """A deliberate server side timeout does not break the connection."""
     return not error.args or error.args[0] != 3024

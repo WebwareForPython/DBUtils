@@ -20,6 +20,12 @@ Changes:
 * Added ``dbapi_connection`` and ``dbapi_cursor`` attributes providing
   supported access to the underlying DB-API 2 objects.
 
+Bugfixes:
+
+* Fixed the transaction flag being reset on the cursor instead of the
+  connection when a connection could not be reopened during a transaction,
+  which kept the failover mechanism suspended.
+
 3.1.2
 =====
 

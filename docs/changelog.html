@@ -28,6 +28,12 @@ the failover mechanism for individual statements.</p></li>
 <li><p>Added <span class="docutils literal">dbapi_connection</span> and <span class="docutils literal">dbapi_cursor</span> attributes providing
 supported access to the underlying DB-API 2 objects.</p></li>
 </ul>
+<p>Bugfixes:</p>
+<ul class="simple">
+<li><p>Fixed the transaction flag being reset on the cursor instead of the
+connection when a connection could not be reopened during a transaction,
+which kept the failover mechanism suspended.</p></li>
+</ul>
 </section>
 <section id="section-2">
 <h2>3.1.2</h2>

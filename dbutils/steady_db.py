@@ -758,7 +758,7 @@ class SteadyDBCursor:
                     with suppress(Exception):
                         con2.close()
                 if transaction:
-                    self._transaction = False
+                    con._transaction = False
                 raise error  # re-raise the original error again
             else:
                 con._usage += 1
