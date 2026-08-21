@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta charset="utf-8" />
-<meta name="generator" content="Docutils 0.22: https://docutils.sourceforge.io/" />
+<meta name="generator" content="Docutils 0.23: https://docutils.sourceforge.io/" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>DBUtils User's Guide</title>
 <link rel="stylesheet" href="doc.css" type="text/css" />
@@ -12,7 +12,7 @@
 <h1 class="title">DBUtils User's Guide</h1>
 <dl class="docinfo simple">
 <dt class="version">Version<span class="colon">:</span></dt>
-<dd class="version">3.1.2</dd>
+<dd class="version">3.2.0</dd>
 <dt class="translations">Translations<span class="colon">:</span></dt>
 <dd class="translations"><p>English | <a class="reference external" href="main.de.html">German</a></p>
 </dd>
@@ -23,39 +23,40 @@
 <li><p><a class="reference internal" href="#synopsis" id="toc-entry-1">Synopsis</a></p></li>
 <li><p><a class="reference internal" href="#modules" id="toc-entry-2">Modules</a></p></li>
 <li><p><a class="reference internal" href="#download" id="toc-entry-3">Download</a></p></li>
-<li><p><a class="reference internal" href="#installation" id="toc-entry-4">Installation</a></p>
+<li><p><a class="reference internal" href="#installation" id="toc-entry-4">Installation</a></p></li>
+<li><p><a class="reference internal" href="#requirements" id="toc-entry-5">Requirements</a></p></li>
+<li><p><a class="reference internal" href="#functionality" id="toc-entry-6">Functionality</a></p>
 <ul>
-<li><p><a class="reference internal" href="#installation-1" id="toc-entry-5">Installation</a></p></li>
+<li><p><a class="reference internal" href="#simplepooleddb-simple-pooled-db" id="toc-entry-7">SimplePooledDB (simple_pooled_db)</a></p></li>
+<li><p><a class="reference internal" href="#steadydbconnection-steady-db" id="toc-entry-8">SteadyDBConnection (steady_db)</a></p></li>
+<li><p><a class="reference internal" href="#persistentdb-persistent-db" id="toc-entry-9">PersistentDB (persistent_db)</a></p></li>
+<li><p><a class="reference internal" href="#pooleddb-pooled-db" id="toc-entry-10">PooledDB (pooled_db)</a></p></li>
+<li><p><a class="reference internal" href="#which-one-to-use" id="toc-entry-11">Which one to use?</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#requirements" id="toc-entry-6">Requirements</a></p></li>
-<li><p><a class="reference internal" href="#functionality" id="toc-entry-7">Functionality</a></p>
+<li><p><a class="reference internal" href="#usage" id="toc-entry-12">Usage</a></p>
 <ul>
-<li><p><a class="reference internal" href="#simplepooleddb-simple-pooled-db" id="toc-entry-8">SimplePooledDB (simple_pooled_db)</a></p></li>
-<li><p><a class="reference internal" href="#steadydbconnection-steady-db" id="toc-entry-9">SteadyDBConnection (steady_db)</a></p></li>
-<li><p><a class="reference internal" href="#persistentdb-persistent-db" id="toc-entry-10">PersistentDB (persistent_db)</a></p></li>
-<li><p><a class="reference internal" href="#pooleddb-pooled-db" id="toc-entry-11">PooledDB (pooled_db)</a></p></li>
-<li><p><a class="reference internal" href="#which-one-to-use" id="toc-entry-12">Which one to use?</a></p></li>
+<li><p><a class="reference internal" href="#persistentdb-persistent-db-1" id="toc-entry-13">PersistentDB (persistent_db)</a></p></li>
+<li><p><a class="reference internal" href="#pooleddb-pooled-db-1" id="toc-entry-14">PooledDB (pooled_db)</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#usage" id="toc-entry-13">Usage</a></p>
+<li><p><a class="reference internal" href="#advanced-usage" id="toc-entry-15">Advanced Usage</a></p>
 <ul>
-<li><p><a class="reference internal" href="#persistentdb-persistent-db-1" id="toc-entry-14">PersistentDB (persistent_db)</a></p></li>
-<li><p><a class="reference internal" href="#pooleddb-pooled-db-1" id="toc-entry-15">PooledDB (pooled_db)</a></p></li>
+<li><p><a class="reference internal" href="#controlling-the-failover-mechanism" id="toc-entry-16">Controlling the failover mechanism</a></p></li>
+<li><p><a class="reference internal" href="#checking-connections" id="toc-entry-17">Checking connections</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#advanced-usage" id="toc-entry-16">Advanced Usage</a></p></li>
-<li><p><a class="reference internal" href="#notes" id="toc-entry-17">Notes</a></p></li>
-<li><p><a class="reference internal" href="#future" id="toc-entry-18">Future</a></p></li>
-<li><p><a class="reference internal" href="#bug-reports-and-feedback" id="toc-entry-19">Bug reports and feedback</a></p></li>
-<li><p><a class="reference internal" href="#links" id="toc-entry-20">Links</a></p></li>
-<li><p><a class="reference internal" href="#credits" id="toc-entry-21">Credits</a></p></li>
-<li><p><a class="reference internal" href="#copyright-and-license" id="toc-entry-22">Copyright and License</a></p></li>
+<li><p><a class="reference internal" href="#notes" id="toc-entry-18">Notes</a></p></li>
+<li><p><a class="reference internal" href="#future" id="toc-entry-19">Future</a></p></li>
+<li><p><a class="reference internal" href="#bug-reports-and-feedback" id="toc-entry-20">Bug reports and feedback</a></p></li>
+<li><p><a class="reference internal" href="#links" id="toc-entry-21">Links</a></p></li>
+<li><p><a class="reference internal" href="#credits" id="toc-entry-22">Credits</a></p></li>
+<li><p><a class="reference internal" href="#copyright-and-license" id="toc-entry-23">Copyright and License</a></p></li>
 </ul>
 </nav>
 <section id="synopsis">
 <h2>Synopsis</h2>
-<p><a class="reference external" href="https://github.com/WebwareForPython/DBUtils">DBUtils</a> is a suite of Python modules allowing to connect in a safe and
+<p><a class="reference external" href="https://github.com/WebwareForPython/DBUtils">DBUtils</a> is a suite of Python modules that allows you to connect in a safe and
 efficient way between a threaded <a class="reference external" href="https://www.python.org">Python</a> application and a database.</p>
 <p>DBUtils has been originally written particularly for <a class="reference external" href="https://webwareforpython.github.io/w4py/">Webware for Python</a> as
 the application and <a class="reference external" href="https://www.pygresql.org/">PyGreSQL</a> as the adapter to a <a class="reference external" href="https://www.postgresql.org/">PostgreSQL</a> database, but it
@@ -116,7 +117,7 @@ are similar:</p>
 </section>
 <section id="download">
 <h2>Download</h2>
-<p>You can download the actual version of DBUtils from
+<p>You can download the current version of DBUtils from
 the Python Package Index at:</p>
 <pre class="literal-block">https://pypi.python.org/pypi/DBUtils</pre>
 <p>The source code repository can be found here on GitHub:</p>
@@ -124,17 +125,14 @@ the Python Package Index at:</p>
 </section>
 <section id="installation">
 <h2>Installation</h2>
-<section id="installation-1">
-<h3>Installation</h3>
 <p>The package can be installed in the usual way:</p>
 <pre class="literal-block">python setup.py install</pre>
 <p>It is even easier to download and install the package in one go using <a class="reference external" href="https://pip.pypa.io/">pip</a>:</p>
 <pre class="literal-block">pip install DBUtils</pre>
 </section>
-</section>
 <section id="requirements">
 <h2>Requirements</h2>
-<p>DBUtils supports <a class="reference external" href="https://www.python.org">Python</a> versions 3.7 to 3.13.</p>
+<p>DBUtils supports <a class="reference external" href="https://www.python.org">Python</a> versions 3.7 to 3.14.</p>
 <p>The modules in the classic PyGreSQL variant need <a class="reference external" href="https://www.pygresql.org/">PyGreSQL</a> version 4.0
 or above, while the modules in the universal DB-API 2 variant run with
 any Python <a class="reference external" href="https://www.python.org/dev/peps/pep-0249/">DB-API 2</a> compliant database interface module.</p>
@@ -170,7 +168,7 @@ to the database, or when your application accesses a remote database in
 a network that is separated by a firewall and the firewall has been
 restarted and lost its state.</p>
 <p>Usually, you will not use the <span class="docutils literal">steady_db</span> module directly; it merely serves
-as a basis for the next two modules, <span class="docutils literal">persistent_db</span> and <span class="docutils literal">Pooled_db</span>.</p>
+as a basis for the next two modules, <span class="docutils literal">persistent_db</span> and <span class="docutils literal">pooled_db</span>.</p>
 </section>
 <section id="persistentdb-persistent-db">
 <h3>PersistentDB (persistent_db)</h3>
@@ -210,7 +208,7 @@ connection pool with a positive value of <span class="docutils literal">maxshare
 DB-API 2 is thread-safe at the connection level, but you can also request
 dedicated database connections that will not be shared between threads.
 Besides the pool of shared connections, you can also set up a pool of
-at least <span class="docutils literal">mincached</span> and at the most <span class="docutils literal">maxcached</span> idle connections that
+at least <span class="docutils literal">mincached</span> and at most <span class="docutils literal">maxcached</span> idle connections that
 will be used whenever a thread is requesting a dedicated database connection
 or the pool of shared connections is not yet full. When a thread closes a
 connection that is not shared anymore, it is returned back to the pool of
@@ -225,7 +223,7 @@ spreading over more than one SQL command.</p>
 <h3>Which one to use?</h3>
 <p>Both <span class="docutils literal">persistent_db</span> and <span class="docutils literal">pooled_db</span> serve the same purpose to improve
 the database access performance by recycling database connections, while
-preserving stability even if database connection will be disrupted.</p>
+preserving stability even if the database connection is disrupted.</p>
 <p>So which of these two modules should you use? From the above explanations
 it is clear that <span class="docutils literal">persistent_db</span> will make more sense if your application
 keeps a constant number of threads which frequently use the database. In
@@ -252,7 +250,7 @@ works analogously for the other modules):</p>
 <h3>PersistentDB (persistent_db)</h3>
 <p>In order to make use of the <span class="docutils literal">persistent_db</span> module, you first need to set
 up a generator for your kind of database connections by creating an instance
-of <span class="docutils literal">persistent_db</span>, passing the following parameters:</p>
+of <span class="docutils literal">PersistentDB</span>, passing the following parameters:</p>
 <ul>
 <li><p><span class="docutils literal">creator</span>: either an arbitrary function returning new DB-API 2
 connection objects or a DB-API 2 compliant database module</p></li>
@@ -266,11 +264,19 @@ prepare the session, e.g. <span class="docutils literal">[&quot;set datestyle to
 for which the connection failover mechanism shall be applied,
 if the default (OperationalError, InterfaceError, InternalError)
 is not adequate for the used database module</p></li>
+<li><p><span class="docutils literal">isfatal</span>: an optional callable that is passed the exception which
+has been raised and shall return whether the connection failover mechanism
+shall be applied (must be passed as a keyword argument, see
+<a class="reference internal" href="#controlling-the-failover-mechanism">Controlling the failover mechanism</a>)</p></li>
 <li><p><span class="docutils literal">ping</span>: an optional flag controlling when connections are checked
-with the <span class="docutils literal">ping()</span> method if such a method is available
 (<span class="docutils literal">0</span> = <span class="docutils literal">None</span> = never, <span class="docutils literal">1</span> = default = whenever it is requested,
 <span class="docutils literal">2</span> = when a cursor is created, <span class="docutils literal">4</span> = when a query is executed,
-<span class="docutils literal">7</span> = always, and all other bit combinations of these values)</p></li>
+<span class="docutils literal">7</span> = always, and all other bit combinations of these values)</p>
+<p>By default, connections are checked with the <span class="docutils literal">ping()</span> method if such a
+method is available. You can also pass an SQL statement or a callable that
+shall be used for the check instead, which is then made as with <span class="docutils literal">ping=1</span>,
+or a tuple with the flag and one of the latter (see <a class="reference internal" href="#checking-connections">Checking connections</a>).</p>
+</li>
 <li><p><span class="docutils literal">closeable</span>: if this is set to true, then closing connections will
 be allowed, but by default this will be silently ignored</p></li>
 <li><p><span class="docutils literal">threadlocal</span>: an optional class for representing thread-local data
@@ -313,12 +319,12 @@ since it clears the <span class="docutils literal">threading.local</span> data b
 <section id="pooleddb-pooled-db-1">
 <h3>PooledDB (pooled_db)</h3>
 <p>In order to make use of the <span class="docutils literal">pooled_db</span> module, you first need to set up the
-database connection pool by creating an instance of <span class="docutils literal">pooled_db</span>, passing the
+database connection pool by creating an instance of <span class="docutils literal">PooledDB</span>, passing the
 following parameters:</p>
 <ul>
 <li><p><span class="docutils literal">creator</span>: either an arbitrary function returning new DB-API 2
 connection objects or a DB-API 2 compliant database module</p></li>
-<li><p><span class="docutils literal">mincached</span> : the initial number of idle connections in the pool
+<li><p><span class="docutils literal">mincached</span>: the initial number of idle connections in the pool
 (the default of <span class="docutils literal">0</span> means no connections are made at startup)</p></li>
 <li><p><span class="docutils literal">maxcached</span>: the maximum number of idle connections in the pool
 (the default value of <span class="docutils literal">0</span> or <span class="docutils literal">None</span> means unlimited pool size)</p></li>
@@ -347,11 +353,19 @@ the default value <span class="docutils literal">True</span> always issues a rol
 for which the connection failover mechanism shall be applied,
 if the default (OperationalError, InterfaceError, InternalError)
 is not adequate for the used database module</p></li>
+<li><p><span class="docutils literal">isfatal</span>: an optional callable that is passed the exception which
+has been raised and shall return whether the connection failover mechanism
+shall be applied (must be passed as a keyword argument, see
+<a class="reference internal" href="#controlling-the-failover-mechanism">Controlling the failover mechanism</a>)</p></li>
 <li><p><span class="docutils literal">ping</span>: an optional flag controlling when connections are checked
-with the <span class="docutils literal">ping()</span> method if such a method is available
 (<span class="docutils literal">0</span> = <span class="docutils literal">None</span> = never, <span class="docutils literal">1</span> = default = whenever fetched from the pool,
 <span class="docutils literal">2</span> = when a cursor is created, <span class="docutils literal">4</span> = when a query is executed,
-<span class="docutils literal">7</span> = always, and all other bit combinations of these values)</p></li>
+<span class="docutils literal">7</span> = always, and all other bit combinations of these values)</p>
+<p>By default, connections are checked with the <span class="docutils literal">ping()</span> method if such a
+method is available. You can also pass an SQL statement or a callable that
+shall be used for the check instead, which is then made as with <span class="docutils literal">ping=1</span>,
+or a tuple with the flag and one of the latter (see <a class="reference internal" href="#checking-connections">Checking connections</a>).</p>
+</li>
 <li><p>The creator function or the connect function of the DB-API 2 compliant
 database module specified as the creator will receive any additional
 parameters such as the host, database, user, password etc. You may
@@ -377,7 +391,9 @@ this. If you want to have a dedicated connection, use:</p>
 <pre class="literal-block">db = pool.dedicated_connection()</pre>
 <p>If you don't need it anymore, you should immediately return it to the
 pool with <span class="docutils literal">db.close()</span>. You can get another connection in the same way.</p>
-<p>⚠ Warning: In a threaded environment, never do the following:</p>
+<aside class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>In a threaded environment, never do the following:</p>
 <pre class="literal-block">pool.connection().cursor().execute(...)</pre>
 <p>This would release the connection too early for reuse which may be fatal
 if the connections are not thread-safe. Make sure that the connection
@@ -388,6 +404,7 @@ cur.execute(...)
 res = cur.fetchone()
 cur.close()  # or del cur
 db.close()  # or del db</pre>
+</aside>
 <p>You can also use context managers for simpler code:</p>
 <pre class="literal-block">with pool.connection() as db:
     with db.cursor() as cur:
@@ -411,17 +428,116 @@ For instance, <span class="docutils literal">pyodbc</span> may require to config
 the <span class="docutils literal">setencoding()</span> method of the connection. You can do this by passing
 a modified <span class="docutils literal">connect()</span> function to <span class="docutils literal">PersistentDB</span> or <span class="docutils literal">PooledDB</span> as
 <span class="docutils literal">creator</span> (the first argument), like this:</p>
-<pre class="literal-block">from pyodbc import connect
+<pre class="literal-block">import pyodbc
 from dbutils.pooled_db import PooledDB
 
 def creator():
-    con = connect(...)
-    con.setdecoding(...)
+    con = pyodbc.connect(...)
+    con.setencoding(...)
     return con
 
 creator.dbapi = pyodbc
 
 db_pool = PooledDB(creator, mincached=5)</pre>
+<section id="controlling-the-failover-mechanism">
+<h3>Controlling the failover mechanism</h3>
+<p>When a database operation fails with one of the exception classes listed in
+the <span class="docutils literal">failures</span> parameter, DBUtils assumes that the connection has been lost
+and transparently retries the operation, first with a new cursor, and then
+with a newly opened connection. This is exactly what you want when the
+database server has been restarted, but not when the statement itself failed
+for a reason that has nothing to do with the state of the connection.</p>
+<p>Unfortunately, many database modules report both kinds of problems with the
+same exception class. For instance, when MySQL aborts a statement because it
+exceeded a deliberately requested time limit:</p>
+<pre class="literal-block">cur.execute('SELECT /*+ MAX_EXECUTION_TIME(10000) */ ...')</pre>
+<p>then <span class="docutils literal">pymysql</span> raises an <span class="docutils literal">OperationalError</span>, just as it would when the
+connection has really been lost. Since the <span class="docutils literal">failures</span> parameter can only
+specify exception <em>classes</em>, and Python cannot exclude subclasses from an
+<span class="docutils literal">except</span> clause, you cannot express this distinction by narrowing the
+<span class="docutils literal">failures</span> parameter. In the above example, the statement would be executed
+up to three times, and the query would take up to 30 instead of 10 seconds.</p>
+<p>For such cases you can pass an <span class="docutils literal">isfatal</span> callable, which is asked for every
+error matching <span class="docutils literal">failures</span> whether that error is really fatal for the
+connection:</p>
+<pre class="literal-block">import pymysql
+from dbutils.pooled_db import PooledDB
+
+def no_timeout(error):
+    # 3024 = &quot;max execution time exceeded&quot;, the connection is still fine
+    return not error.args or error.args[0] != 3024
+
+pool = PooledDB(pymysql, 5, database='mydb', isfatal=no_timeout)</pre>
+<p>When the callable returns a false value, the error is not considered fatal,
+so it is raised to the application immediately, and the connection is neither
+replaced nor removed from the pool. Note that <span class="docutils literal">isfatal</span> must be passed as a
+keyword argument, and that it must tolerate arbitrary exception instances of
+the classes given as <span class="docutils literal">failures</span>.</p>
+<p>If you only want to suppress the failover mechanism for a particular
+statement instead of configuring it for the whole pool, you can use the
+<span class="docutils literal">no_failover()</span> context manager of the cursor:</p>
+<pre class="literal-block">with pool.connection() as db:
+    with db.cursor() as cur:
+        with cur.no_failover():
+            cur.execute('SELECT /*+ MAX_EXECUTION_TIME(10000) */ ...')
+        rows = cur.fetchall()</pre>
+<p>Everything else, particularly the ping check and the usage bookkeeping of the
+underlying steady connection, is left untouched inside that context.</p>
+<p>As a last resort, you can also reach through to the underlying DB-API 2
+objects with the <span class="docutils literal">dbapi_connection</span> attribute of a connection and the
+<span class="docutils literal">dbapi_cursor</span> attribute of a cursor. Note that operations executed on
+these objects are not covered by the failover mechanism at all, and that they
+are not counted towards the <span class="docutils literal">maxusage</span> limit either.</p>
+<aside class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Instead of the above, you can also simply start a transaction with the
+<span class="docutils literal">begin()</span> method, since the failover mechanism is always suspended
+during transactions. Keep in mind though that this really starts a
+transaction on the database server, with all its implications.</p>
+</aside>
+</section>
+<section id="checking-connections">
+<h3>Checking connections</h3>
+<p>Connections that are kept in the pool or bound to a thread may become stale
+when the database server is restarted or drops connections that have been
+idle for too long. In order to notice this before the connection is used,
+DBUtils can check it with the <span class="docutils literal">ping()</span> method of the underlying DB-API 2
+connection, and the <span class="docutils literal">ping</span> parameter controls when such a check is made.</p>
+<p>However, <span class="docutils literal">ping()</span> is not part of the DB-API 2 specification, and many
+widely used database modules do not implement it. When DBUtils notices that
+the method is unavailable, it stops checking the connections altogether.
+In this case, you can pass an SQL statement as <span class="docutils literal">ping</span> parameter that shall
+be executed for checking the connection instead:</p>
+<pre class="literal-block">import psycopg2
+from dbutils.pooled_db import PooledDB
+
+pool = PooledDB(psycopg2, 5, database='mydb', ping='select 1')</pre>
+<p>Instead of an SQL statement, you can also pass a callable that is passed the
+underlying DB-API 2 connection and shall return whether it is still alive:</p>
+<pre class="literal-block">def is_healthy(con):
+    # psycopg2 knows whether the connection has been closed already
+    return not con.closed
+
+pool = PooledDB(psycopg2, 5, database='mydb', ping=is_healthy)</pre>
+<p>Returning <span class="docutils literal">None</span> counts as alive and raising an exception counts as not
+alive, so a callable that simply carries out some database operation without
+catching errors can be used as well. When the check reports the connection as
+not alive, it is transparently replaced with a newly opened connection, just
+as if <span class="docutils literal">ping()</span> had reported it as broken.</p>
+<p>Such a check is made whenever a connection is fetched from the pool or
+requested by a thread, i.e. at the time corresponding to <span class="docutils literal">ping=1</span>. If you
+want it to be made at the other times as well, pass a tuple with the usual
+integer value and the SQL statement or the callable:</p>
+<pre class="literal-block">pool = PooledDB(psycopg2, 5, database='mydb', ping=(4, 'select 1'))</pre>
+<aside class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Every check of this kind requires an extra round trip to the database
+server, so you should combine it with <span class="docutils literal">ping=4</span> or <span class="docutils literal">ping=7</span> only when
+you really need it. Also keep in mind that an SQL statement executed for
+checking a connection can start a transaction on the database server
+when the connection does not run in autocommit mode.</p>
+</aside>
+</section>
 </section>
 <section id="notes">
 <h2>Notes</h2>
@@ -433,7 +549,7 @@ from DBUtils to split the pooling out into a separate layer.</p>
 with <a class="reference external" href="http://modpython.org/">mod_python</a> or <a class="reference external" href="https://github.com/GrahamDumpleton/mod_wsgi">mod_wsgi</a>, then your Python code will be usually run
 in the context of the webserver's child processes. So if you are using
 the <span class="docutils literal">pooled_db</span> module, and several of these child processes are running,
-you will have as much database connection pools. If these processes are
+you will have as many database connection pools. If these processes are
 running many threads, this may still be a reasonable approach, but if these
 processes don't spawn more than one worker thread, as in the case of Apache's
 &quot;prefork&quot; multi-processing module, this approach does not make sense.
