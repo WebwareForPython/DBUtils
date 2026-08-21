@@ -13,7 +13,6 @@ Copyright and credit info:
 from queue import Empty, Queue
 from threading import Thread
 
-import pg  # noqa: F401
 import pytest
 
 from dbutils.pooled_pg import (

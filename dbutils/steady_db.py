@@ -94,6 +94,11 @@ from contextlib import contextmanager, suppress
 
 from . import __version__
 
+__all__ = [
+    'connect', 'SteadyDBConnection', 'SteadyDBCursor',
+    'SteadyDBError', 'InvalidCursorError',
+]
+
 
 class SteadyDBError(Exception):
     """General SteadyDB error."""

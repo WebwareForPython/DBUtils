@@ -24,8 +24,6 @@ from dbutils.pooled_db import (
 )
 from dbutils.steady_db import SteadyDBConnection
 
-from .mock_db import dbapi  # noqa: F401
-
 
 def test_version():
     """Check that the module and class versions are in sync."""
@@ -35,7 +33,7 @@ def test_version():
 
 
 @pytest.mark.parametrize("threadsafety", [None, 0])
-def test_no_threadsafety(dbapi, threadsafety):  # noqa: F811
+def test_no_threadsafety(dbapi, threadsafety):
     """Check that a database module that is not thread-safe is rejected."""
     dbapi.threadsafety = threadsafety
     with pytest.raises(NotSupportedError):
@@ -43,7 +41,7 @@ def test_no_threadsafety(dbapi, threadsafety):  # noqa: F811
 
 
 @pytest.mark.parametrize("threadsafety", [1, 2, 3])
-def test_threadsafety(dbapi, threadsafety):  # noqa: F811
+def test_threadsafety(dbapi, threadsafety):
     """Check that connections are only shared when they may be."""
     dbapi.threadsafety = threadsafety
     pool = PooledDB(dbapi, 0, 0, 1)
@@ -57,7 +55,7 @@ def test_threadsafety(dbapi, threadsafety):  # noqa: F811
 
 
 @pytest.mark.parametrize("threadsafety", [1, 2])
-def test_create_connection(dbapi, threadsafety):  # noqa: F811, PLR0915
+def test_create_connection(dbapi, threadsafety):  # noqa: PLR0915
     """Check that the pool creates connections with the given parameters."""
     dbapi.threadsafety = threadsafety
     shareable = threadsafety > 1
@@ -176,7 +174,7 @@ def test_create_connection(dbapi, threadsafety):  # noqa: F811, PLR0915
 
 
 @pytest.mark.parametrize("threadsafety", [1, 2])
-def test_close_connection(dbapi, threadsafety):  # noqa: F811
+def test_close_connection(dbapi, threadsafety):
     """Check that a closed connection is returned to the pool."""
     dbapi.threadsafety = threadsafety
     shareable = threadsafety > 1
@@ -258,7 +256,7 @@ def test_close_connection(dbapi, threadsafety):  # noqa: F811
 
 
 @pytest.mark.parametrize("threadsafety", [1, 2])
-def test_close_all(dbapi, threadsafety):  # noqa: F811
+def test_close_all(dbapi, threadsafety):
     """Check that closing the pool closes all cached connections."""
     dbapi.threadsafety = threadsafety
     shareable = threadsafety > 1
@@ -317,7 +315,7 @@ def test_close_all(dbapi, threadsafety):  # noqa: F811
 
 
 @pytest.mark.parametrize("threadsafety", [1, 2])
-def test_shareable_connection(dbapi, threadsafety):  # noqa: F811
+def test_shareable_connection(dbapi, threadsafety):
     """Check that connections are shared when the maximum is reached."""
     dbapi.threadsafety = threadsafety
     shareable = threadsafety > 1
@@ -409,7 +407,7 @@ def test_shareable_connection(dbapi, threadsafety):  # noqa: F811
 
 
 @pytest.mark.parametrize("threadsafety", [1, 2])
-def test_min_max_cached(dbapi, threadsafety):  # noqa: F811
+def test_min_max_cached(dbapi, threadsafety):
     """Check that the idle cache is kept between the given bounds."""
     dbapi.threadsafety = threadsafety
     shareable = threadsafety > 1
@@ -504,7 +502,7 @@ def test_min_max_cached(dbapi, threadsafety):  # noqa: F811
 
 
 @pytest.mark.parametrize("threadsafety", [1, 2])
-def test_max_shared(dbapi, threadsafety):  # noqa: F811
+def test_max_shared(dbapi, threadsafety):
     """Check that the maximum number of shared connections is not exceeded."""
     dbapi.threadsafety = threadsafety
     shareable = threadsafety > 1
@@ -544,7 +542,7 @@ def test_max_shared(dbapi, threadsafety):  # noqa: F811
         assert len(pool._shared_cache) == 7
 
 
-def test_sort_shared(dbapi):  # noqa: F811
+def test_sort_shared(dbapi):
     """Check that shared connections are sorted by transaction and shares."""
     pool = PooledDB(dbapi, 0, 4, 4)
     cache = []
@@ -565,7 +563,7 @@ def test_sort_shared(dbapi):  # noqa: F811
 
 
 @pytest.mark.parametrize("threadsafety", [1, 2])
-def test_equally_shared(dbapi, threadsafety):  # noqa: F811
+def test_equally_shared(dbapi, threadsafety):
     """Check that the load is spread equally over the connections."""
     dbapi.threadsafety = threadsafety
     shareable = threadsafety > 1
@@ -602,7 +600,7 @@ def test_equally_shared(dbapi, threadsafety):  # noqa: F811
 
 
 @pytest.mark.parametrize("threadsafety", [1, 2])
-def test_many_shared(dbapi, threadsafety):  # noqa: F811
+def test_many_shared(dbapi, threadsafety):
     """Check that many shared connections are counted correctly."""
     dbapi.threadsafety = threadsafety
     shareable = threadsafety > 1
@@ -655,7 +653,7 @@ def test_many_shared(dbapi, threadsafety):  # noqa: F811
 
 
 @pytest.mark.parametrize("threadsafety", [1, 2])
-def test_rollback(dbapi, threadsafety):  # noqa: F811
+def test_rollback(dbapi, threadsafety):
     """Check that connections are rolled back when returned to the pool."""
     dbapi.threadsafety = threadsafety
     pool = PooledDB(dbapi, 0, 1)
@@ -689,7 +687,7 @@ def test_rollback(dbapi, threadsafety):  # noqa: F811
 
 
 @pytest.mark.parametrize("threadsafety", [1, 2])
-def test_maxconnections(dbapi, threadsafety):  # noqa: F811, PLR0915
+def test_maxconnections(dbapi, threadsafety):  # noqa: PLR0915
     """Check that the maximum number of connections is enforced."""
     dbapi.threadsafety = threadsafety
     shareable = threadsafety > 1
@@ -916,7 +914,7 @@ def test_maxconnections(dbapi, threadsafety):  # noqa: F811, PLR0915
 
 @pytest.mark.parametrize("threadsafety", [1, 2])
 @pytest.mark.parametrize("maxusage", [0, 3, 7])
-def test_maxusage(dbapi, threadsafety, maxusage):  # noqa: F811
+def test_maxusage(dbapi, threadsafety, maxusage):
     """Check that connections are reset when used too often."""
     dbapi.threadsafety = threadsafety
     pool = PooledDB(dbapi, 0, 0, 0, 1, False, maxusage)
@@ -949,7 +947,7 @@ def test_maxusage(dbapi, threadsafety, maxusage):  # noqa: F811
 
 
 @pytest.mark.parametrize("threadsafety", [1, 2])
-def test_setsession(dbapi, threadsafety):  # noqa: F811
+def test_setsession(dbapi, threadsafety):
     """Check that the session is prepared after every reopening."""
     dbapi.threadsafety = threadsafety
     setsession = ('set time zone', 'set datestyle')
@@ -976,7 +974,7 @@ def test_setsession(dbapi, threadsafety):  # noqa: F811
 
 
 @pytest.mark.parametrize("threadsafety", [1, 2])
-def test_one_thread_two_connections(dbapi, threadsafety):  # noqa: F811
+def test_one_thread_two_connections(dbapi, threadsafety):
     """Check that one thread can use two connections at once."""
     dbapi.threadsafety = threadsafety
     shareable = threadsafety > 1
@@ -1035,7 +1033,7 @@ def test_one_thread_two_connections(dbapi, threadsafety):  # noqa: F811
 
 
 @pytest.mark.parametrize("threadsafety", [1, 2])
-def test_three_threads_two_connections(dbapi, threadsafety):  # noqa: F811
+def test_three_threads_two_connections(dbapi, threadsafety):
     """Check that a third thread must wait for a free connection."""
     dbapi.threadsafety = threadsafety
     pool = PooledDB(dbapi, 2, 2, 0, 2, True)
@@ -1076,7 +1074,7 @@ def test_three_threads_two_connections(dbapi, threadsafety):  # noqa: F811
     assert db1._con == db1_con
 
 
-def test_ping_check(dbapi):  # noqa: F811
+def test_ping_check(dbapi):
     """Check that connections are pinged as configured."""
     con_cls = dbapi.Connection
     con_cls.has_ping = True
@@ -1145,7 +1143,7 @@ def test_ping_check(dbapi):  # noqa: F811
     con_cls.num_pings = 0
 
 
-def test_failed_transaction(dbapi):  # noqa: F811
+def test_failed_transaction(dbapi):
     """Check that a failed transaction is reported and recovered from."""
     pool = PooledDB(dbapi, 0, 1, 1)
     db = pool.connection()
@@ -1177,7 +1175,7 @@ def test_failed_transaction(dbapi):  # noqa: F811
     cursor.execute('select test')
 
 
-def test_shared_in_transaction(dbapi):  # noqa: F811
+def test_shared_in_transaction(dbapi):
     """Check that connections in a transaction are not shared."""
     pool = PooledDB(dbapi, 0, 1, 1)
     db = pool.connection()
@@ -1208,7 +1206,7 @@ def test_shared_in_transaction(dbapi):  # noqa: F811
     assert db._con is db1._con
 
 
-def test_reset_transaction(dbapi):  # noqa: F811
+def test_reset_transaction(dbapi):
     """Check how connections are reset when returned to the pool."""
     pool = PooledDB(dbapi, 1, 1, 0)
     db = pool.connection()
@@ -1232,7 +1230,7 @@ def test_reset_transaction(dbapi):  # noqa: F811
     assert con._con.session == ['rollback']
 
 
-def test_context_manager(dbapi):  # noqa: F811
+def test_context_manager(dbapi):
     """Check that connection and cursor can be used as context managers."""
     pool = PooledDB(dbapi, 1, 1, 1)
     con = pool._idle_cache[0]._con
@@ -1261,7 +1259,7 @@ def test_context_manager(dbapi):  # noqa: F811
     assert pool._idle_cache
 
 
-def test_shared_db_connection_create(dbapi):  # noqa: F811
+def test_shared_db_connection_create(dbapi):
     """Check that a shared connection starts with one share."""
     db_con = dbapi.connect()
     con = SharedDBConnection(db_con)
@@ -1269,7 +1267,7 @@ def test_shared_db_connection_create(dbapi):  # noqa: F811
     assert con.shared == 1
 
 
-def test_shared_db_connection_share_and_unshare(dbapi):  # noqa: F811
+def test_shared_db_connection_share_and_unshare(dbapi):
     """Check that the number of shares is counted correctly."""
     con = SharedDBConnection(dbapi.connect())
     assert con.shared == 1
@@ -1283,7 +1281,7 @@ def test_shared_db_connection_share_and_unshare(dbapi):  # noqa: F811
     assert con.shared == 1
 
 
-def test_shared_db_connection_compare(dbapi):  # noqa: F811
+def test_shared_db_connection_compare(dbapi):
     """Check that shared connections are ordered by transaction and shares."""
     con1 = SharedDBConnection(dbapi.connect())
     con1.con._transaction = False
@@ -1316,7 +1314,7 @@ def timeout_is_not_fatal(error):
     return not error.args or error.args[0] != 3024
 
 
-def test_isfatal_default(dbapi):  # noqa: F811
+def test_isfatal_default(dbapi):
     """Check that no error check is configured by default."""
     pool = PooledDB(dbapi, 1)
     assert pool._isfatal is None
@@ -1324,7 +1322,7 @@ def test_isfatal_default(dbapi):  # noqa: F811
     assert db._con._isfatal is None
 
 
-def test_isfatal(dbapi):  # noqa: F811
+def test_isfatal(dbapi):
     """Check that isfatal is passed on and can veto the failover."""
     pool = PooledDB(dbapi, 1, isfatal=timeout_is_not_fatal)
     assert pool._isfatal is timeout_is_not_fatal
@@ -1341,7 +1339,7 @@ def test_isfatal(dbapi):  # noqa: F811
     assert cursor.fetchone() == 'test'
 
 
-def test_no_failover(dbapi):  # noqa: F811
+def test_no_failover(dbapi):
     """Check that no_failover() suspends the failover mechanism."""
     pool = PooledDB(dbapi, 1)
     dbapi.Connection.num_timeouts = 0
@@ -1353,7 +1351,7 @@ def test_no_failover(dbapi):  # noqa: F811
         assert cursor.fetchone() == 'test'
 
 
-def test_dbapi_connection(dbapi):  # noqa: F811
+def test_dbapi_connection(dbapi):
     """Check that the underlying DB-API 2 objects are accessible."""
     pool = PooledDB(dbapi, 1)
     db = pool.connection()

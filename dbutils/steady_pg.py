@@ -75,6 +75,10 @@ from pg import DB as PgConnection  # noqa: N811
 
 from . import __version__
 
+__all__ = [
+    'SteadyPgConnection', 'SteadyPgError', 'InvalidConnectionError',
+]
+
 
 class SteadyPgError(Exception):
     """General SteadyPg error."""

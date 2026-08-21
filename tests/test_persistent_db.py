@@ -17,8 +17,6 @@ import pytest
 
 from dbutils.persistent_db import NotSupportedError, PersistentDB, local
 
-from .mock_db import dbapi  # noqa: F401
-
 
 def test_version():
     """Check that the module and class versions are in sync."""
@@ -28,7 +26,7 @@ def test_version():
 
 
 @pytest.mark.parametrize("threadsafety", [None, 0])
-def test_no_threadsafety(dbapi, threadsafety):  # noqa: F811
+def test_no_threadsafety(dbapi, threadsafety):
     """Check that a database module that is not thread-safe is rejected."""
     dbapi.threadsafety = threadsafety
     with pytest.raises(NotSupportedError):
@@ -36,7 +34,7 @@ def test_no_threadsafety(dbapi, threadsafety):  # noqa: F811
 
 
 @pytest.mark.parametrize("closeable", [False, True])
-def test_close(dbapi, closeable):  # noqa: F811
+def test_close(dbapi, closeable):
     """Check that closing is only allowed when the connection is closeable."""
     persist = PersistentDB(dbapi, closeable=closeable)
     db = persist.connection()
@@ -51,7 +49,7 @@ def test_close(dbapi, closeable):  # noqa: F811
     assert db._con.valid is False
 
 
-def test_connection(dbapi):  # noqa: F811
+def test_connection(dbapi):
     """Check that the same thread always gets the same connection."""
     persist = PersistentDB(dbapi)
     db = persist.connection()
@@ -67,7 +65,7 @@ def test_connection(dbapi):  # noqa: F811
     db.close()
 
 
-def test_threads(dbapi):  # noqa: F811
+def test_threads(dbapi):
     """Check that every thread keeps its own persistent connection."""
     num_threads = 3
     persist = PersistentDB(dbapi, closeable=True)
@@ -141,7 +139,7 @@ def test_threads(dbapi):  # noqa: F811
         query_queue[i].put(None, timeout=1)
 
 
-def test_maxusage(dbapi):  # noqa: F811
+def test_maxusage(dbapi):
     """Check that the connection is reset when used too often."""
     persist = PersistentDB(dbapi, 20)
     db = persist.connection()
@@ -159,7 +157,7 @@ def test_maxusage(dbapi):  # noqa: F811
         assert db._con.num_queries == j
 
 
-def test_setsession(dbapi):  # noqa: F811
+def test_setsession(dbapi):
     """Check that the session is prepared after every reopening."""
     persist = PersistentDB(dbapi, 3, ('set datestyle',))
     db = persist.connection()
@@ -179,7 +177,7 @@ def test_setsession(dbapi):  # noqa: F811
     assert db._con.session == ['datestyle']
 
 
-def test_threadlocal(dbapi):  # noqa: F811
+def test_threadlocal(dbapi):
     """Check that the class for thread-local data can be replaced."""
     persist = PersistentDB(dbapi)
     assert isinstance(persist.thread, local)
@@ -191,7 +189,7 @@ def test_threadlocal(dbapi):  # noqa: F811
     assert isinstance(persist.thread, Threadlocal)
 
 
-def test_ping_check(dbapi):  # noqa: F811
+def test_ping_check(dbapi):
     """Check that connections are pinged as configured."""
     con_cls = dbapi.Connection
     con_cls.has_ping = True
@@ -245,7 +243,7 @@ def test_ping_check(dbapi):  # noqa: F811
     con_cls.num_pings = 0
 
 
-def test_failed_transaction(dbapi):  # noqa: F811
+def test_failed_transaction(dbapi):
     """Check that a failed transaction is reported and recovered from."""
     persist = PersistentDB(dbapi)
     db = persist.connection()
@@ -263,7 +261,7 @@ def test_failed_transaction(dbapi):  # noqa: F811
     cursor.execute('select test')
 
 
-def test_context_manager(dbapi):  # noqa: F811
+def test_context_manager(dbapi):
     """Check that connection and cursor can be used as context managers."""
     persist = PersistentDB(dbapi)
     with persist.connection() as db:
@@ -278,7 +276,7 @@ def timeout_is_not_fatal(error):
     return not error.args or error.args[0] != 3024
 
 
-def test_isfatal_default(dbapi):  # noqa: F811
+def test_isfatal_default(dbapi):
     """Check that no error check is configured by default."""
     persist = PersistentDB(dbapi)
     assert persist._isfatal is None
@@ -286,7 +284,7 @@ def test_isfatal_default(dbapi):  # noqa: F811
     assert db._isfatal is None
 
 
-def test_isfatal(dbapi):  # noqa: F811
+def test_isfatal(dbapi):
     """Check that isfatal is passed on and can veto the failover."""
     persist = PersistentDB(dbapi, isfatal=timeout_is_not_fatal)
     assert persist._isfatal is timeout_is_not_fatal
@@ -303,7 +301,7 @@ def test_isfatal(dbapi):  # noqa: F811
     assert cursor.fetchone() == 'test'
 
 
-def test_no_failover(dbapi):  # noqa: F811
+def test_no_failover(dbapi):
     """Check that no_failover() suspends the failover mechanism."""
     persist = PersistentDB(dbapi)
     db = persist.connection()
@@ -316,7 +314,7 @@ def test_no_failover(dbapi):  # noqa: F811
         assert cursor.fetchone() == 'test'
 
 
-def test_dbapi_connection(dbapi):  # noqa: F811
+def test_dbapi_connection(dbapi):
     """Check that the underlying DB-API 2 objects are accessible."""
     persist = PersistentDB(dbapi)
     db = persist.connection()

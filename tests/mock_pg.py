@@ -1,9 +1,5 @@
 """Mock object for the pg API module."""
 
-import sys
-
-sys.modules['pg'] = sys.modules[__name__]
-
 
 class Error(Exception):
     pass
