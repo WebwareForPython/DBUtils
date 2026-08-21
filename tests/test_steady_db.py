@@ -11,7 +11,11 @@ Copyright and credit info:
 
 import pytest
 
-from dbutils.steady_db import SteadyDBConnection, SteadyDBCursor
+from dbutils.steady_db import (
+    InvalidCursorError,
+    SteadyDBConnection,
+    SteadyDBCursor,
+)
 from dbutils.steady_db import connect as steady_db_connect
 
 from . import mock_db as dbapi
@@ -140,7 +144,7 @@ def test_close(closeable):
 
 def test_connection():  # noqa: PLR0915
     db = steady_db_connect(
-        dbapi, 0, None, None, None, True,
+        dbapi, 0, None, None, None, True, None,
         'SteadyDBTestDB', user='SteadyDBTestUser')
     assert isinstance(db, SteadyDBConnection)
     assert hasattr(db, '_con')
@@ -260,7 +264,7 @@ def test_connection():  # noqa: PLR0915
 
 def test_connection_context_handler():
     db = steady_db_connect(
-        dbapi, 0, None, None, None, True,
+        dbapi, 0, None, None, None, True, None,
         'SteadyDBTestDB', user='SteadyDBTestUser')
     assert db._con.session == []
     with db as con:
@@ -279,7 +283,7 @@ def test_connection_context_handler():
 
 def test_cursor_context_handler():
     db = steady_db_connect(
-        dbapi, 0, None, None, None, True,
+        dbapi, 0, None, None, None, True, None,
         'SteadyDBTestDB', user='SteadyDBTestUser')
     assert db._con.open_cursors == 0
     with db.cursor() as cursor:
@@ -291,7 +295,7 @@ def test_cursor_context_handler():
 
 def test_cursor_as_iterator_provided():
     db = steady_db_connect(
-        dbapi, 0, None, None, None, True,
+        dbapi, 0, None, None, None, True, None,
         'SteadyDBTestDB', user='SteadyDBTestUser')
     assert db._con.open_cursors == 0
     cursor = db.cursor()
@@ -310,7 +314,7 @@ def test_cursor_as_iterator_provided():
 
 def test_cursor_as_iterator_created():
     db = steady_db_connect(
-        dbapi, 0, None, None, None, True,
+        dbapi, 0, None, None, None, True, None,
         'SteadyDBTestDB', user='SteadyDBTestUser')
     assert db._con.open_cursors == 0
     cursor = db.cursor()
@@ -323,10 +327,10 @@ def test_cursor_as_iterator_created():
 
 def test_connection_creator_function():
     db1 = steady_db_connect(
-        dbapi, 0, None, None, None, True,
+        dbapi, 0, None, None, None, True, None,
         'SteadyDBTestDB', user='SteadyDBTestUser')
     db2 = steady_db_connect(
-        dbapi.connect, 0, None, None, None, True,
+        dbapi.connect, 0, None, None, None, True, None,
         'SteadyDBTestDB', user='SteadyDBTestUser')
     assert db1.dbapi() == db2.dbapi()
     assert db1.threadsafety() == db2.threadsafety()
@@ -724,3 +728,201 @@ def test_rollback_error():
     db.rollback()
     assert db._con.session == ['rollback']
     assert db._con.valid
+
+
+def timeout_is_not_fatal(error):
+    """A deliberate server side timeout does not break the connection."""
+    return not error.args or error.args[0] != 3024
+
+
+def always_fatal(error):  # noqa: ARG001
+    return True
+
+
+def never_fatal(error):  # noqa: ARG001
+    return False
+
+
+def test_connection_isfatal_must_be_callable():
+    steady_db_connect(dbapi, isfatal=None)
+    steady_db_connect(dbapi, isfatal=always_fatal)
+    with pytest.raises(TypeError):
+        steady_db_connect(dbapi, isfatal='always')
+    with pytest.raises(TypeError):
+        steady_db_connect(dbapi, isfatal=42)
+
+
+def test_connection_isfatal_is_asked():
+    errors = []
+
+    def record_and_veto(error):
+        errors.append(error)
+        return False
+
+    db = steady_db_connect(dbapi, isfatal=record_and_veto)
+    cursor = db.cursor()
+    cursor.execute('select test')
+    assert cursor.fetchone() == 'test'
+    assert not errors  # not asked as long as nothing fails
+    con = db._con
+    db.close()
+    with pytest.raises(dbapi.InternalError):
+        cursor.execute('select test')
+    assert len(errors) == 1
+    assert isinstance(errors[0], dbapi.InternalError)
+    # the connection has not been replaced since the failover was vetoed
+    assert db._con is con
+
+
+def test_connection_isfatal_false_and_true():
+    db = steady_db_connect(dbapi, isfatal=never_fatal)
+    cursor = db.cursor()
+    db.close()
+    with pytest.raises(dbapi.InternalError):
+        cursor.execute('select test')
+    db = steady_db_connect(dbapi, isfatal=always_fatal)
+    cursor = db.cursor()
+    db.close()
+    cursor.execute('select test')  # transparently reopened as usual
+    assert cursor.fetchone() == 'test'
+
+
+def test_connection_isfatal_selectively():
+    """Statement timeouts shall not be retried (see issue #58)."""
+    dbapi.Connection.num_timeouts = 0
+    db = steady_db_connect(dbapi)
+    cursor = db.cursor()
+    with pytest.raises(dbapi.OperationalError):
+        cursor.execute('timeout')
+    # by default the statement is executed three times in total:
+    # once directly, once with a new cursor, once with a new connection
+    assert dbapi.Connection.num_timeouts == 3
+    dbapi.Connection.num_timeouts = 0
+    db = steady_db_connect(dbapi, isfatal=timeout_is_not_fatal)
+    cursor = db.cursor()
+    with pytest.raises(dbapi.OperationalError):
+        cursor.execute('timeout')
+    assert dbapi.Connection.num_timeouts == 1
+    # the connection is still usable and the failed statement was not counted
+    assert db._usage == 0
+    cursor.execute('select test')
+    assert cursor.fetchone() == 'test'
+    assert db._usage == 1
+    # other failures are still handled by the failover mechanism
+    db.close()
+    cursor.execute('select test')
+    assert cursor.fetchone() == 'test'
+
+
+def test_connection_isfatal_cursor_creation():
+    db = steady_db_connect(dbapi, isfatal=never_fatal)
+    con = db._con
+    db.close()
+    with pytest.raises(dbapi.InternalError):
+        db.cursor()
+    assert db._con is con
+    db = steady_db_connect(dbapi, isfatal=always_fatal)
+    con = db._con
+    db.close()
+    db.cursor()  # transparently reopened as usual
+    assert db._con is not con
+
+
+def test_connection_isfatal_ignored_when_overused():
+    """The reset triggered by maxusage must not be vetoed."""
+    db = steady_db_connect(dbapi, 3, isfatal=never_fatal)
+    cursor = db.cursor()
+    for i in range(10):
+        cursor.execute(f'select test{i}')
+        assert cursor.fetchone() == f'test{i}'
+        assert db._con.valid
+        assert db._usage == i % 3 + 1
+        assert db._con.num_uses == i % 3 + 1
+
+
+def test_cursor_no_failover():
+    dbapi.Connection.num_timeouts = 0
+    db = steady_db_connect(dbapi)
+    cursor = db.cursor()
+    with cursor.no_failover(), pytest.raises(dbapi.OperationalError):
+        cursor.execute('timeout')
+    assert dbapi.Connection.num_timeouts == 1
+    assert cursor._no_failover == 0
+    # outside of the context, the failover mechanism is active again
+    dbapi.Connection.num_timeouts = 0
+    with pytest.raises(dbapi.OperationalError):
+        cursor.execute('timeout')
+    assert dbapi.Connection.num_timeouts == 3
+
+
+def test_cursor_no_failover_keeps_bookkeeping():
+    db = steady_db_connect(dbapi)
+    cursor = db.cursor()
+    with cursor.no_failover():
+        cursor.execute('select test')
+    assert cursor.fetchone() == 'test'
+    # in contrast to using the raw cursor, the usage is still counted
+    assert db._usage == 1
+    assert db._con.num_uses == 1
+
+
+def test_cursor_no_failover_broken_connection():
+    db = steady_db_connect(dbapi)
+    cursor = db.cursor()
+    con = db._con
+    db.close()
+    with cursor.no_failover(), pytest.raises(dbapi.InternalError):
+        cursor.execute('select test')
+    assert db._con is con  # not replaced inside the context
+    # afterwards the failover mechanism works again
+    cursor.execute('select test')
+    assert cursor.fetchone() == 'test'
+    assert db._con is not con
+
+
+def test_cursor_no_failover_nested():
+    db = steady_db_connect(dbapi)
+    cursor = db.cursor()
+    assert cursor._no_failover == 0
+    with cursor.no_failover() as cur:
+        assert cur is cursor
+        assert cursor._no_failover == 1
+        with cursor.no_failover():
+            assert cursor._no_failover == 2
+        assert cursor._no_failover == 1
+    assert cursor._no_failover == 0
+    # the counter is also restored when the statement fails
+    with pytest.raises(dbapi.OperationalError), cursor.no_failover():
+        cursor.execute('timeout')
+    assert cursor._no_failover == 0
+
+
+def test_dbapi_connection():
+    db = steady_db_connect(dbapi)
+    con = db.dbapi_connection
+    assert isinstance(con, dbapi.Connection)
+    assert con is db._con
+    db.close()
+    db.cursor()  # transparently reopened
+    assert db.dbapi_connection is db._con
+    assert db.dbapi_connection is not con
+
+
+def test_dbapi_cursor():
+    db = steady_db_connect(dbapi)
+    cursor = db.cursor()
+    raw_cursor = cursor.dbapi_cursor
+    assert isinstance(raw_cursor, dbapi.Cursor)
+    assert raw_cursor is cursor._cursor
+    # the raw cursor bypasses the failover mechanism and the bookkeeping
+    dbapi.Connection.num_timeouts = 0
+    with pytest.raises(dbapi.OperationalError):
+        raw_cursor.execute('timeout')
+    assert dbapi.Connection.num_timeouts == 1
+    raw_cursor.execute('select test')
+    assert raw_cursor.fetchone() == 'test'
+    assert db._con.num_uses == 2  # both statements reached the server
+    assert db._usage == 0  # but they were not counted by the steady connection
+    cursor._cursor = None
+    with pytest.raises(InvalidCursorError):
+        cursor.dbapi_cursor  # noqa: B018

@@ -59,6 +59,9 @@ an instance of PooledDB, passing the following parameters:
         for which the connection failover mechanism shall be applied,
         if the default (OperationalError, InterfaceError, InternalError)
         is not adequate for the used database module
+    isfatal: an optional callable deciding whether a given exception is
+        really fatal for the connection and the failover mechanism shall
+        be applied (see the steady_db module for details)
     ping: an optional flag controlling when connections are checked
         with the ping() method if such a method is available
         (0 = None = never, 1 = default = whenever fetched from the pool,
@@ -195,7 +198,7 @@ class PooledDB:
             self, creator, mincached=0, maxcached=0,
             maxshared=0, maxconnections=0, blocking=False,
             maxusage=None, setsession=None, reset=True,
-            failures=None, ping=1,
+            failures=None, ping=1, isfatal=None,
             *args, **kwargs):
         """Set up the DB-API 2 connection pool.
 
@@ -227,6 +230,15 @@ class PooledDB:
             for which the connection failover mechanism shall be applied,
             if the default (OperationalError, InterfaceError, InternalError)
             is not adequate for the used database module
+        isfatal: an optional callable that is passed an exception matching
+            the failures and shall return whether that error is really fatal
+            for the connection, i.e. whether the failover mechanism shall be
+            applied.  Use this to distinguish errors that merely report a
+            failed statement (such as a deliberate server side statement
+            timeout) from errors that report a broken connection, when the
+            database module maps both onto the same exception class.  The
+            callable must tolerate arbitrary exception instances, including
+            instances without args.
         ping: determines when the connection should be checked with ping()
             (0 = None = never, 1 = default = whenever fetched from the pool,
             2 = when a cursor is created, 4 = when a query is executed,
@@ -256,6 +268,7 @@ class PooledDB:
         self._setsession = setsession
         self._reset = reset
         self._failures = failures
+        self._isfatal = isfatal
         self._ping = ping
         if mincached is None:
             mincached = 0
@@ -291,7 +304,8 @@ class PooledDB:
         """Get a steady, unpooled DB-API 2 connection."""
         return connect(
             self._creator, self._maxusage, self._setsession,
-            self._failures, self._ping, True, *self._args, **self._kwargs)
+            self._failures, self._ping, True, self._isfatal,
+            *self._args, **self._kwargs)
 
     def connection(self, shareable=True):
         """Get a steady, cached DB-API 2 connection from the pool.

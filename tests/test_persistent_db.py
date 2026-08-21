@@ -260,3 +260,53 @@ def test_context_manager(dbapi):  # noqa: F811
             cursor.execute('select test')
             r = cursor.fetchone()
         assert r == 'test'
+
+
+def timeout_is_not_fatal(error):
+    """A deliberate server side timeout does not break the connection."""
+    return not error.args or error.args[0] != 3024
+
+
+def test_isfatal_default(dbapi):  # noqa: F811
+    persist = PersistentDB(dbapi)
+    assert persist._isfatal is None
+    db = persist.connection()
+    assert db._isfatal is None
+
+
+def test_isfatal(dbapi):  # noqa: F811
+    persist = PersistentDB(dbapi, isfatal=timeout_is_not_fatal)
+    assert persist._isfatal is timeout_is_not_fatal
+    db = persist.connection()
+    assert db._isfatal is timeout_is_not_fatal
+    dbapi.Connection.num_timeouts = 0
+    cursor = db.cursor()
+    with pytest.raises(dbapi.OperationalError):
+        cursor.execute('timeout')
+    assert dbapi.Connection.num_timeouts == 1
+    # the failover mechanism still applies to other failures
+    db._con.close()
+    cursor.execute('select test')
+    assert cursor.fetchone() == 'test'
+
+
+def test_no_failover(dbapi):  # noqa: F811
+    persist = PersistentDB(dbapi)
+    db = persist.connection()
+    dbapi.Connection.num_timeouts = 0
+    with db.cursor() as cursor:
+        with cursor.no_failover(), pytest.raises(dbapi.OperationalError):
+            cursor.execute('timeout')
+        assert dbapi.Connection.num_timeouts == 1
+        cursor.execute('select test')  # connection is still usable
+        assert cursor.fetchone() == 'test'
+
+
+def test_dbapi_connection(dbapi):  # noqa: F811
+    persist = PersistentDB(dbapi)
+    db = persist.connection()
+    con = db.dbapi_connection
+    assert isinstance(con, dbapi.Connection)
+    assert con is db._con
+    cursor = db.cursor()
+    assert cursor.dbapi_cursor is cursor._cursor

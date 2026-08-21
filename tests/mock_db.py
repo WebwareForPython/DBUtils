@@ -50,6 +50,9 @@ class Connection:
 
     has_ping = False
     num_pings = 0
+    # number of statements that ran into a deliberate server side timeout,
+    # counted on the class since the failover may use a new connection
+    num_timeouts = 0
 
     def __init__(self, database=None, user=None):
         self.database = database
@@ -126,6 +129,12 @@ class Cursor:
         elif operation.startswith('set '):
             self.con.session.append(operation[4:])
             self.result = None
+        elif operation == 'timeout':
+            # simulate a statement that has been aborted by the server
+            # because it exceeded a deliberately requested time limit;
+            # the connection itself stays perfectly usable
+            type(self.con).num_timeouts += 1
+            raise OperationalError(3024, 'max execution time exceeded')
         elif operation == 'get sizes':
             self.result = (self.inputsizes, self.outputsizes)
             self.inputsizes = []

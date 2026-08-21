@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" lang="de">
 <head>
 <meta charset="utf-8" />
-<meta name="generator" content="Docutils 0.22.3: https://docutils.sourceforge.io/" />
+<meta name="generator" content="Docutils 0.23: https://docutils.sourceforge.io/" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Benutzeranleitung für DBUtils</title>
 <link rel="stylesheet" href="doc.css" type="text/css" />
@@ -12,7 +12,7 @@
 <h1 class="title">Benutzeranleitung für DBUtils</h1>
 <dl class="docinfo simple">
 <dt class="version">Version<span class="colon">:</span></dt>
-<dd class="version">3.1.2</dd>
+<dd class="version">3.2.0</dd>
 <dt class="translations">Translations<span class="colon">:</span></dt>
 <dd class="translations"><p><a class="reference external" href="main.html">English</a> | German</p>
 </dd>
@@ -44,13 +44,17 @@
 <li><p><a class="reference internal" href="#pooleddb-pooled-db-1" id="toc-entry-15">PooledDB (pooled_db)</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#besonderheiten-bei-der-benutzung" id="toc-entry-16">Besonderheiten bei der Benutzung</a></p></li>
-<li><p><a class="reference internal" href="#anmerkungen" id="toc-entry-17">Anmerkungen</a></p></li>
-<li><p><a class="reference internal" href="#zukunft" id="toc-entry-18">Zukunft</a></p></li>
-<li><p><a class="reference internal" href="#fehlermeldungen-und-feedback" id="toc-entry-19">Fehlermeldungen und Feedback</a></p></li>
-<li><p><a class="reference internal" href="#links" id="toc-entry-20">Links</a></p></li>
-<li><p><a class="reference internal" href="#autoren" id="toc-entry-21">Autoren</a></p></li>
-<li><p><a class="reference internal" href="#copyright-und-lizenz" id="toc-entry-22">Copyright und Lizenz</a></p></li>
+<li><p><a class="reference internal" href="#besonderheiten-bei-der-benutzung" id="toc-entry-16">Besonderheiten bei der Benutzung</a></p>
+<ul>
+<li><p><a class="reference internal" href="#steuerung-der-ausfallsicherung" id="toc-entry-17">Steuerung der Ausfallsicherung</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#anmerkungen" id="toc-entry-18">Anmerkungen</a></p></li>
+<li><p><a class="reference internal" href="#zukunft" id="toc-entry-19">Zukunft</a></p></li>
+<li><p><a class="reference internal" href="#fehlermeldungen-und-feedback" id="toc-entry-20">Fehlermeldungen und Feedback</a></p></li>
+<li><p><a class="reference internal" href="#links" id="toc-entry-21">Links</a></p></li>
+<li><p><a class="reference internal" href="#autoren" id="toc-entry-22">Autoren</a></p></li>
+<li><p><a class="reference internal" href="#copyright-und-lizenz" id="toc-entry-23">Copyright und Lizenz</a></p></li>
 </ul>
 </nav>
 <section id="zusammenfassung">
@@ -137,7 +141,7 @@ herunterzuladen und zu installieren:</p>
 </section>
 <section id="anforderungen">
 <h2>Anforderungen</h2>
-<p>DBUtils unterstützt die <a class="reference external" href="https://www.python.org">Python</a> Versionen 3.7 bis 3.3.</p>
+<p>DBUtils unterstützt die <a class="reference external" href="https://www.python.org">Python</a> Versionen 3.7 bis 3.14.</p>
 <p>Die Module in der Variante für klassisches PyGreSQL benötigen <a class="reference external" href="https://www.pygresql.org/">PyGreSQL</a>
 Version 4.0 oder höher, während die Module in der allgemeinen Variante
 für DB-API 2 mit jedem beliebigen Python-Datenbankadapter-Modul zusammenarbeiten,
@@ -287,6 +291,10 @@ der Datenbanksitzung, z.B. <span class="docutils literal">[&quot;set datestyle t
 bei denen die Ausfallsicherung zum Tragen kommen soll, falls die Vorgabe
 (OperationalError, InterfaceError, InternalError) für das verwendete
 Datenbankadapter-Modul nicht geeignet sein sollte</p></li>
+<li><p><span class="docutils literal">isfatal</span>: eine optionale Funktion, der die aufgetretene Exception
+übergeben wird und die zurückgibt, ob die Ausfallsicherung zum Tragen
+kommen soll (muss als Schlüsselwort-Argument übergeben werden, siehe
+<a class="reference internal" href="#steuerung-der-ausfallsicherung">Steuerung der Ausfallsicherung</a>)</p></li>
 <li><p><span class="docutils literal">ping</span>: mit diesem Parameter kann eingestellt werden, wann Verbindungen
 mit der <span class="docutils literal">ping()</span>-Methode geprüft werden, falls eine solche vorhanden ist
 (<span class="docutils literal">0</span> = <span class="docutils literal">None</span> = nie, <span class="docutils literal">1</span> = Standardwert = immer wenn neu angefragt,
@@ -380,6 +388,10 @@ um mit <span class="docutils literal">begin()</span> gestartete Transaktionen zu
 bei denen die Ausfallsicherung zum Tragen kommen soll, falls die Vorgabe
 (OperationalError, InterfaceError, InternalError) für das verwendete
 Datenbankadapter-Modul nicht geeignet sein sollte</p></li>
+<li><p><span class="docutils literal">isfatal</span>: eine optionale Funktion, der die aufgetretene Exception
+übergeben wird und die zurückgibt, ob die Ausfallsicherung zum Tragen
+kommen soll (muss als Schlüsselwort-Argument übergeben werden, siehe
+<a class="reference internal" href="#steuerung-der-ausfallsicherung">Steuerung der Ausfallsicherung</a>)</p></li>
 <li><p><span class="docutils literal">ping</span>: mit diesem Parameter kann eingestellt werden, wann Verbindungen
 mit der <span class="docutils literal">ping()</span>-Methode geprüft werden, falls eine solche vorhanden ist
 (<span class="docutils literal">0</span> = <span class="docutils literal">None</span> = nie, <span class="docutils literal">1</span> = Standardwert = immer wenn neu angefragt,
@@ -462,6 +474,68 @@ def creator():
 creator.dbapi = pyodbc
 
 db_pool = PooledDB(creator, mincached=5)</pre>
+<section id="steuerung-der-ausfallsicherung">
+<h3>Steuerung der Ausfallsicherung</h3>
+<p>Wenn eine Datenbankoperation mit einer der im Parameter <span class="docutils literal">failures</span>
+angegebenen Exception-Klassen fehlschlägt, dann nimmt DBUtils an, dass die
+Verbindung verloren gegangen ist, und wiederholt die Operation transparent,
+zunächst mit einem neuen Cursor und danach mit einer neu geöffneten
+Verbindung. Genau das möchte man, wenn der Datenbankserver neu gestartet
+wurde, aber nicht, wenn die Anweisung selbst aus einem Grund fehlgeschlagen
+ist, der nichts mit dem Zustand der Verbindung zu tun hat.</p>
+<p>Leider melden viele Datenbankadapter-Module beide Arten von Problemen mit
+derselben Exception-Klasse. Wenn zum Beispiel MySQL eine Anweisung abbricht,
+weil diese eine absichtlich angeforderte Zeitbegrenzung überschritten hat:</p>
+<pre class="literal-block">cur.execute('SELECT /*+ MAX_EXECUTION_TIME(10000) */ ...')</pre>
+<p>dann löst <span class="docutils literal">pymysql</span> einen <span class="docutils literal">OperationalError</span> aus, genau wie beim
+tatsächlichen Verlust der Verbindung. Da der Parameter <span class="docutils literal">failures</span> nur
+Exception-<em>Klassen</em> angeben kann und Python Unterklassen nicht von einer
+<span class="docutils literal">except</span>-Klausel ausschließen kann, lässt sich diese Unterscheidung nicht
+durch eine Einschränkung des Parameters <span class="docutils literal">failures</span> ausdrücken. Im obigen
+Beispiel würde die Anweisung bis zu dreimal ausgeführt, und die Abfrage
+würde bis zu 30 statt 10 Sekunden dauern.</p>
+<p>Für solche Fälle können Sie eine Funktion als <span class="docutils literal">isfatal</span> übergeben, die für
+jeden zu <span class="docutils literal">failures</span> passenden Fehler gefragt wird, ob dieser für die
+Verbindung wirklich fatal ist:</p>
+<pre class="literal-block">import pymysql
+from dbutils.pooled_db import PooledDB
+
+def no_timeout(error):
+    # 3024 = Zeitbegrenzung überschritten, die Verbindung ist noch intakt
+    return not error.args or error.args[0] != 3024
+
+pool = PooledDB(pymysql, 5, database='mydb', isfatal=no_timeout)</pre>
+<p>Wenn die Funktion einen falschen Wert zurückgibt, dann gilt der Fehler als
+nicht fatal, wird also sofort an die Anwendung weitergegeben, und die
+Verbindung wird weder ersetzt noch aus dem Verbindungspool entfernt. Beachten
+Sie, dass <span class="docutils literal">isfatal</span> als Schlüsselwort-Argument übergeben werden muss und mit
+beliebigen Exceptions der als <span class="docutils literal">failures</span> angegebenen Klassen umgehen können
+muss.</p>
+<p>Wenn Sie die Ausfallsicherung nur für eine bestimmte Anweisung abschalten
+möchten, statt sie für den gesamten Verbindungspool zu konfigurieren, dann
+können Sie den Kontextmanager <span class="docutils literal">no_failover()</span> des Cursors verwenden:</p>
+<pre class="literal-block">with pool.connection() as db:
+    with db.cursor() as cur:
+        with cur.no_failover():
+            cur.execute('SELECT /*+ MAX_EXECUTION_TIME(10000) */ ...')
+        rows = cur.fetchall()</pre>
+<p>Alles Übrige, insbesondere die <span class="docutils literal">ping()</span>-Prüfung und die Zählung der
+Verwendungen der zugrunde liegenden Verbindung, bleibt innerhalb dieses
+Kontexts unverändert.</p>
+<p>Als letztes Mittel können Sie über das Attribut <span class="docutils literal">dbapi_connection</span> einer
+Verbindung und das Attribut <span class="docutils literal">dbapi_cursor</span> eines Cursors auch direkt auf
+die zugrunde liegenden DB-API-2-Objekte zugreifen. Beachten Sie, dass
+Operationen auf diesen Objekten überhaupt nicht von der Ausfallsicherung
+erfasst und auch nicht auf die Begrenzung <span class="docutils literal">maxusage</span> angerechnet werden.</p>
+<aside class="admonition warning">
+<p class="admonition-title">Warnung</p>
+<p>Statt der obigen Möglichkeiten können Sie auch einfach mit der Methode
+<span class="docutils literal">begin()</span> eine Transaktion starten, da die Ausfallsicherung während
+einer Transaktion stets ausgesetzt wird. Bedenken Sie aber, dass dadurch
+tatsächlich eine Transaktion auf dem Datenbankserver gestartet wird,
+mit allen sich daraus ergebenden Folgen.</p>
+</aside>
+</section>
 </section>
 <section id="anmerkungen">
 <h2>Anmerkungen</h2>

@@ -58,7 +58,7 @@ def test_create_connection(dbapi, threadsafety):  # noqa: F811, PLR0915
     dbapi.threadsafety = threadsafety
     shareable = threadsafety > 1
     pool = PooledDB(
-        dbapi, 1, 1, 1, 0, False, None, None, True, None, None,
+        dbapi, 1, 1, 1, 0, False, None, None, True, None, None, None,
         'PooledDBTestDB', user='PooledDBTestUser')
     assert hasattr(pool, '_idle_cache')
     assert len(pool._idle_cache) == 1
@@ -176,7 +176,7 @@ def test_close_connection(dbapi, threadsafety):  # noqa: F811
     dbapi.threadsafety = threadsafety
     shareable = threadsafety > 1
     pool = PooledDB(
-        dbapi, 0, 1, 1, 0, False, None, None, True, None, None,
+        dbapi, 0, 1, 1, 0, False, None, None, True, None, None, None,
         'PooledDBTestDB', user='PooledDBTestUser')
     assert hasattr(pool, '_idle_cache')
     assert len(pool._idle_cache) == 0
@@ -1283,3 +1283,52 @@ def test_shared_db_connection_compare(dbapi):  # noqa: F811
     assert con1 != con2
     assert not con1 < con2
     assert con1 > con2
+
+
+def timeout_is_not_fatal(error):
+    """A deliberate server side timeout does not break the connection."""
+    return not error.args or error.args[0] != 3024
+
+
+def test_isfatal_default(dbapi):  # noqa: F811
+    pool = PooledDB(dbapi, 1)
+    assert pool._isfatal is None
+    db = pool.connection()
+    assert db._con._isfatal is None
+
+
+def test_isfatal(dbapi):  # noqa: F811
+    pool = PooledDB(dbapi, 1, isfatal=timeout_is_not_fatal)
+    assert pool._isfatal is timeout_is_not_fatal
+    db = pool.connection()
+    assert db._con._isfatal is timeout_is_not_fatal
+    dbapi.Connection.num_timeouts = 0
+    cursor = db.cursor()
+    with pytest.raises(dbapi.OperationalError):
+        cursor.execute('timeout')
+    assert dbapi.Connection.num_timeouts == 1
+    # the failover mechanism still applies to other failures
+    db._con._con.close()
+    cursor.execute('select test')
+    assert cursor.fetchone() == 'test'
+
+
+def test_no_failover(dbapi):  # noqa: F811
+    pool = PooledDB(dbapi, 1)
+    dbapi.Connection.num_timeouts = 0
+    with pool.connection() as db, db.cursor() as cursor:
+        with cursor.no_failover(), pytest.raises(dbapi.OperationalError):
+            cursor.execute('timeout')
+        assert dbapi.Connection.num_timeouts == 1
+        cursor.execute('select test')  # connection is still usable
+        assert cursor.fetchone() == 'test'
+
+
+def test_dbapi_connection(dbapi):  # noqa: F811
+    pool = PooledDB(dbapi, 1)
+    db = pool.connection()
+    con = db.dbapi_connection
+    assert isinstance(con, dbapi.Connection)
+    assert con is db._con._con
+    cursor = db.cursor()
+    assert cursor.dbapi_cursor is cursor._cursor

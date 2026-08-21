@@ -1,7 +1,7 @@
 DBUtils User's Guide
 ++++++++++++++++++++
 
-:Version: 3.1.2
+:Version: 3.2.0
 :Translations: English | German_
 
 .. _German: main.de.html
@@ -95,7 +95,7 @@ It is even easier to download and install the package in one go using `pip`_::
 Requirements
 ============
 
-DBUtils supports Python_ versions 3.7 to 3.13.
+DBUtils supports Python_ versions 3.7 to 3.14.
 
 The modules in the classic PyGreSQL variant need PyGreSQL_ version 4.0
 or above, while the modules in the universal DB-API 2 variant run with
@@ -253,6 +253,11 @@ of ``persistent_db``, passing the following parameters:
   if the default (OperationalError, InterfaceError, InternalError)
   is not adequate for the used database module
 
+* ``isfatal``: an optional callable that is passed the exception which
+  has been raised and shall return whether the connection failover mechanism
+  shall be applied (must be passed as a keyword argument, see
+  `Controlling the failover mechanism`_)
+
 * ``ping``: an optional flag controlling when connections are checked
   with the ``ping()`` method if such a method is available
   (``0`` = ``None`` = never, ``1`` = default = whenever it is requested,
@@ -352,6 +357,11 @@ following parameters:
   if the default (OperationalError, InterfaceError, InternalError)
   is not adequate for the used database module
 
+* ``isfatal``: an optional callable that is passed the exception which
+  has been raised and shall return whether the connection failover mechanism
+  shall be applied (must be passed as a keyword argument, see
+  `Controlling the failover mechanism`_)
+
 * ``ping``: an optional flag controlling when connections are checked
   with the ``ping()`` method if such a method is available
   (``0`` = ``None`` = never, ``1`` = default = whenever fetched from the pool,
@@ -443,6 +453,72 @@ a modified ``connect()`` function to ``PersistentDB`` or ``PooledDB`` as
     creator.dbapi = pyodbc
 
     db_pool = PooledDB(creator, mincached=5)
+
+Controlling the failover mechanism
+----------------------------------
+When a database operation fails with one of the exception classes listed in
+the ``failures`` parameter, DBUtils assumes that the connection has been lost
+and transparently retries the operation, first with a new cursor, and then
+with a newly opened connection. This is exactly what you want when the
+database server has been restarted, but not when the statement itself failed
+for a reason that has nothing to do with the state of the connection.
+
+Unfortunately, many database modules report both kinds of problems with the
+same exception class. For instance, when MySQL aborts a statement because it
+exceeded a deliberately requested time limit::
+
+    cur.execute('SELECT /*+ MAX_EXECUTION_TIME(10000) */ ...')
+
+then ``pymysql`` raises an ``OperationalError``, just as it would when the
+connection has really been lost. Since the ``failures`` parameter can only
+specify exception *classes*, and Python cannot exclude subclasses from an
+``except`` clause, you cannot express this distinction by narrowing the
+``failures`` parameter. In the above example, the statement would be executed
+up to three times, and the query would take up to 30 instead of 10 seconds.
+
+For such cases you can pass an ``isfatal`` callable, which is asked for every
+error matching ``failures`` whether that error is really fatal for the
+connection::
+
+    import pymysql
+    from dbutils.pooled_db import PooledDB
+
+    def no_timeout(error):
+        # 3024 = "max execution time exceeded", the connection is still fine
+        return not error.args or error.args[0] != 3024
+
+    pool = PooledDB(pymysql, 5, database='mydb', isfatal=no_timeout)
+
+When the callable returns a false value, the error is not considered fatal,
+so it is raised to the application immediately, and the connection is neither
+replaced nor removed from the pool. Note that ``isfatal`` must be passed as a
+keyword argument, and that it must tolerate arbitrary exception instances of
+the classes given as ``failures``.
+
+If you only want to suppress the failover mechanism for a particular
+statement instead of configuring it for the whole pool, you can use the
+``no_failover()`` context manager of the cursor::
+
+    with pool.connection() as db:
+        with db.cursor() as cur:
+            with cur.no_failover():
+                cur.execute('SELECT /*+ MAX_EXECUTION_TIME(10000) */ ...')
+            rows = cur.fetchall()
+
+Everything else, particularly the ping check and the usage bookkeeping of the
+underlying steady connection, is left untouched inside that context.
+
+As a last resort, you can also reach through to the underlying DB-API 2
+objects with the ``dbapi_connection`` attribute of a connection and the
+``dbapi_cursor`` attribute of a cursor. Note that operations executed on
+these objects are not covered by the failover mechanism at all, and that they
+are not counted towards the ``maxusage`` limit either.
+
+.. warning::
+    Instead of the above, you can also simply start a transaction with the
+    ``begin()`` method, since the failover mechanism is always suspended
+    during transactions. Keep in mind though that this really starts a
+    transaction on the database server, with all its implications.
 
 
 Notes

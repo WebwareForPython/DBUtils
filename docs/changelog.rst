@@ -1,6 +1,25 @@
 Changelog for DBUtils
 +++++++++++++++++++++
 
+3.2.0
+=====
+
+DBUtils 3.2.0 was released on August 21, 2026.
+
+Changes:
+
+* Added an ``isfatal`` parameter to ``PersistentDB``, ``PooledDB`` and
+  ``steady_db.connect()``, an optional callable that decides whether a given
+  exception is really fatal for the connection and the failover mechanism
+  shall be applied. This allows distinguishing errors that merely report a
+  failed statement, such as a deliberate server side statement timeout, from
+  errors that report a broken connection, when the database module maps both
+  onto the same exception class.
+* Added a ``no_failover()`` context manager to steady cursors that suspends
+  the failover mechanism for individual statements.
+* Added ``dbapi_connection`` and ``dbapi_cursor`` attributes providing
+  supported access to the underlying DB-API 2 objects.
+
 3.1.2
 =====
 

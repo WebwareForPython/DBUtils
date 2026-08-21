@@ -44,6 +44,9 @@ by creating an instance of PersistentDB, passing the following parameters:
         for which the connection failover mechanism shall be applied,
         if the default (OperationalError, InterfaceError, InternalError)
         is not adequate for the used database module
+    isfatal: an optional callable deciding whether a given exception is
+        really fatal for the connection and the failover mechanism shall
+        be applied (see the steady_db module for details)
     ping: an optional flag controlling when connections are checked
         with the ping() method if such a method is available
         (0 = None = never, 1 = default = whenever it is requested,
@@ -146,7 +149,8 @@ class PersistentDB:
     def __init__(
             self, creator,
             maxusage=None, setsession=None, failures=None, ping=1,
-            closeable=False, threadlocal=None, *args, **kwargs):
+            closeable=False, threadlocal=None, isfatal=None,
+            *args, **kwargs):
         """Set up the persistent DB-API 2 connection generator.
 
         creator: either an arbitrary function returning new DB-API 2
@@ -160,6 +164,15 @@ class PersistentDB:
             for which the connection failover mechanism shall be applied,
             if the default (OperationalError, InterfaceError, InternalError)
             is not adequate for the used database module
+        isfatal: an optional callable that is passed an exception matching
+            the failures and shall return whether that error is really fatal
+            for the connection, i.e. whether the failover mechanism shall be
+            applied.  Use this to distinguish errors that merely report a
+            failed statement (such as a deliberate server side statement
+            timeout) from errors that report a broken connection, when the
+            database module maps both onto the same exception class.  The
+            callable must tolerate arbitrary exception instances, including
+            instances without args.
         ping: determines when the connection should be checked with ping()
             (0 = None = never, 1 = default = whenever it is requested,
             2 = when a cursor is created, 4 = when a query is executed,
@@ -191,6 +204,7 @@ class PersistentDB:
         self._maxusage = maxusage
         self._setsession = setsession
         self._failures = failures
+        self._isfatal = isfatal
         self._ping = ping
         self._closeable = closeable
         self._args, self._kwargs = args, kwargs
@@ -201,7 +215,7 @@ class PersistentDB:
         return connect(
             self._creator, self._maxusage, self._setsession,
             self._failures, self._ping, self._closeable,
-            *self._args, **self._kwargs)
+            self._isfatal, *self._args, **self._kwargs)
 
     def connection(self, shareable=False):  # noqa: ARG002
         """Get a steady, persistent DB-API 2 connection.

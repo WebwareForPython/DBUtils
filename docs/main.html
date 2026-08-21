@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta charset="utf-8" />
-<meta name="generator" content="Docutils 0.22.3: https://docutils.sourceforge.io/" />
+<meta name="generator" content="Docutils 0.23: https://docutils.sourceforge.io/" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>DBUtils User's Guide</title>
 <link rel="stylesheet" href="doc.css" type="text/css" />
@@ -12,7 +12,7 @@
 <h1 class="title">DBUtils User's Guide</h1>
 <dl class="docinfo simple">
 <dt class="version">Version<span class="colon">:</span></dt>
-<dd class="version">3.1.2</dd>
+<dd class="version">3.2.0</dd>
 <dt class="translations">Translations<span class="colon">:</span></dt>
 <dd class="translations"><p>English | <a class="reference external" href="main.de.html">German</a></p>
 </dd>
@@ -44,13 +44,17 @@
 <li><p><a class="reference internal" href="#pooleddb-pooled-db-1" id="toc-entry-15">PooledDB (pooled_db)</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#advanced-usage" id="toc-entry-16">Advanced Usage</a></p></li>
-<li><p><a class="reference internal" href="#notes" id="toc-entry-17">Notes</a></p></li>
-<li><p><a class="reference internal" href="#future" id="toc-entry-18">Future</a></p></li>
-<li><p><a class="reference internal" href="#bug-reports-and-feedback" id="toc-entry-19">Bug reports and feedback</a></p></li>
-<li><p><a class="reference internal" href="#links" id="toc-entry-20">Links</a></p></li>
-<li><p><a class="reference internal" href="#credits" id="toc-entry-21">Credits</a></p></li>
-<li><p><a class="reference internal" href="#copyright-and-license" id="toc-entry-22">Copyright and License</a></p></li>
+<li><p><a class="reference internal" href="#advanced-usage" id="toc-entry-16">Advanced Usage</a></p>
+<ul>
+<li><p><a class="reference internal" href="#controlling-the-failover-mechanism" id="toc-entry-17">Controlling the failover mechanism</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#notes" id="toc-entry-18">Notes</a></p></li>
+<li><p><a class="reference internal" href="#future" id="toc-entry-19">Future</a></p></li>
+<li><p><a class="reference internal" href="#bug-reports-and-feedback" id="toc-entry-20">Bug reports and feedback</a></p></li>
+<li><p><a class="reference internal" href="#links" id="toc-entry-21">Links</a></p></li>
+<li><p><a class="reference internal" href="#credits" id="toc-entry-22">Credits</a></p></li>
+<li><p><a class="reference internal" href="#copyright-and-license" id="toc-entry-23">Copyright and License</a></p></li>
 </ul>
 </nav>
 <section id="synopsis">
@@ -134,7 +138,7 @@ the Python Package Index at:</p>
 </section>
 <section id="requirements">
 <h2>Requirements</h2>
-<p>DBUtils supports <a class="reference external" href="https://www.python.org">Python</a> versions 3.7 to 3.13.</p>
+<p>DBUtils supports <a class="reference external" href="https://www.python.org">Python</a> versions 3.7 to 3.14.</p>
 <p>The modules in the classic PyGreSQL variant need <a class="reference external" href="https://www.pygresql.org/">PyGreSQL</a> version 4.0
 or above, while the modules in the universal DB-API 2 variant run with
 any Python <a class="reference external" href="https://www.python.org/dev/peps/pep-0249/">DB-API 2</a> compliant database interface module.</p>
@@ -266,6 +270,10 @@ prepare the session, e.g. <span class="docutils literal">[&quot;set datestyle to
 for which the connection failover mechanism shall be applied,
 if the default (OperationalError, InterfaceError, InternalError)
 is not adequate for the used database module</p></li>
+<li><p><span class="docutils literal">isfatal</span>: an optional callable that is passed the exception which
+has been raised and shall return whether the connection failover mechanism
+shall be applied (must be passed as a keyword argument, see
+<a class="reference internal" href="#controlling-the-failover-mechanism">Controlling the failover mechanism</a>)</p></li>
 <li><p><span class="docutils literal">ping</span>: an optional flag controlling when connections are checked
 with the <span class="docutils literal">ping()</span> method if such a method is available
 (<span class="docutils literal">0</span> = <span class="docutils literal">None</span> = never, <span class="docutils literal">1</span> = default = whenever it is requested,
@@ -347,6 +355,10 @@ the default value <span class="docutils literal">True</span> always issues a rol
 for which the connection failover mechanism shall be applied,
 if the default (OperationalError, InterfaceError, InternalError)
 is not adequate for the used database module</p></li>
+<li><p><span class="docutils literal">isfatal</span>: an optional callable that is passed the exception which
+has been raised and shall return whether the connection failover mechanism
+shall be applied (must be passed as a keyword argument, see
+<a class="reference internal" href="#controlling-the-failover-mechanism">Controlling the failover mechanism</a>)</p></li>
 <li><p><span class="docutils literal">ping</span>: an optional flag controlling when connections are checked
 with the <span class="docutils literal">ping()</span> method if such a method is available
 (<span class="docutils literal">0</span> = <span class="docutils literal">None</span> = never, <span class="docutils literal">1</span> = default = whenever fetched from the pool,
@@ -422,6 +434,63 @@ def creator():
 creator.dbapi = pyodbc
 
 db_pool = PooledDB(creator, mincached=5)</pre>
+<section id="controlling-the-failover-mechanism">
+<h3>Controlling the failover mechanism</h3>
+<p>When a database operation fails with one of the exception classes listed in
+the <span class="docutils literal">failures</span> parameter, DBUtils assumes that the connection has been lost
+and transparently retries the operation, first with a new cursor, and then
+with a newly opened connection. This is exactly what you want when the
+database server has been restarted, but not when the statement itself failed
+for a reason that has nothing to do with the state of the connection.</p>
+<p>Unfortunately, many database modules report both kinds of problems with the
+same exception class. For instance, when MySQL aborts a statement because it
+exceeded a deliberately requested time limit:</p>
+<pre class="literal-block">cur.execute('SELECT /*+ MAX_EXECUTION_TIME(10000) */ ...')</pre>
+<p>then <span class="docutils literal">pymysql</span> raises an <span class="docutils literal">OperationalError</span>, just as it would when the
+connection has really been lost. Since the <span class="docutils literal">failures</span> parameter can only
+specify exception <em>classes</em>, and Python cannot exclude subclasses from an
+<span class="docutils literal">except</span> clause, you cannot express this distinction by narrowing the
+<span class="docutils literal">failures</span> parameter. In the above example, the statement would be executed
+up to three times, and the query would take up to 30 instead of 10 seconds.</p>
+<p>For such cases you can pass an <span class="docutils literal">isfatal</span> callable, which is asked for every
+error matching <span class="docutils literal">failures</span> whether that error is really fatal for the
+connection:</p>
+<pre class="literal-block">import pymysql
+from dbutils.pooled_db import PooledDB
+
+def no_timeout(error):
+    # 3024 = &quot;max execution time exceeded&quot;, the connection is still fine
+    return not error.args or error.args[0] != 3024
+
+pool = PooledDB(pymysql, 5, database='mydb', isfatal=no_timeout)</pre>
+<p>When the callable returns a false value, the error is not considered fatal,
+so it is raised to the application immediately, and the connection is neither
+replaced nor removed from the pool. Note that <span class="docutils literal">isfatal</span> must be passed as a
+keyword argument, and that it must tolerate arbitrary exception instances of
+the classes given as <span class="docutils literal">failures</span>.</p>
+<p>If you only want to suppress the failover mechanism for a particular
+statement instead of configuring it for the whole pool, you can use the
+<span class="docutils literal">no_failover()</span> context manager of the cursor:</p>
+<pre class="literal-block">with pool.connection() as db:
+    with db.cursor() as cur:
+        with cur.no_failover():
+            cur.execute('SELECT /*+ MAX_EXECUTION_TIME(10000) */ ...')
+        rows = cur.fetchall()</pre>
+<p>Everything else, particularly the ping check and the usage bookkeeping of the
+underlying steady connection, is left untouched inside that context.</p>
+<p>As a last resort, you can also reach through to the underlying DB-API 2
+objects with the <span class="docutils literal">dbapi_connection</span> attribute of a connection and the
+<span class="docutils literal">dbapi_cursor</span> attribute of a cursor. Note that operations executed on
+these objects are not covered by the failover mechanism at all, and that they
+are not counted towards the <span class="docutils literal">maxusage</span> limit either.</p>
+<aside class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Instead of the above, you can also simply start a transaction with the
+<span class="docutils literal">begin()</span> method, since the failover mechanism is always suspended
+during transactions. Keep in mind though that this really starts a
+transaction on the database server, with all its implications.</p>
+</aside>
+</section>
 </section>
 <section id="notes">
 <h2>Notes</h2>

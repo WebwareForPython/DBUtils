@@ -1,7 +1,7 @@
 Benutzeranleitung für DBUtils
 +++++++++++++++++++++++++++++
 
-:Version: 3.1.2
+:Version: 3.2.0
 :Translations: English_ | German
 
 .. _English: main.html
@@ -98,7 +98,7 @@ herunterzuladen und zu installieren::
 Anforderungen
 =============
 
-DBUtils unterstützt die Python_ Versionen 3.7 bis 3.3.
+DBUtils unterstützt die Python_ Versionen 3.7 bis 3.14.
 
 Die Module in der Variante für klassisches PyGreSQL benötigen PyGreSQL_
 Version 4.0 oder höher, während die Module in der allgemeinen Variante
@@ -274,6 +274,11 @@ Parameter angeben müssen:
   (OperationalError, InterfaceError, InternalError) für das verwendete
   Datenbankadapter-Modul nicht geeignet sein sollte
 
+* ``isfatal``: eine optionale Funktion, der die aufgetretene Exception
+  übergeben wird und die zurückgibt, ob die Ausfallsicherung zum Tragen
+  kommen soll (muss als Schlüsselwort-Argument übergeben werden, siehe
+  `Steuerung der Ausfallsicherung`_)
+
 * ``ping``: mit diesem Parameter kann eingestellt werden, wann Verbindungen
   mit der ``ping()``-Methode geprüft werden, falls eine solche vorhanden ist
   (``0`` = ``None`` = nie, ``1`` = Standardwert = immer wenn neu angefragt,
@@ -385,6 +390,11 @@ Parameter angeben müssen:
   (OperationalError, InterfaceError, InternalError) für das verwendete
   Datenbankadapter-Modul nicht geeignet sein sollte
 
+* ``isfatal``: eine optionale Funktion, der die aufgetretene Exception
+  übergeben wird und die zurückgibt, ob die Ausfallsicherung zum Tragen
+  kommen soll (muss als Schlüsselwort-Argument übergeben werden, siehe
+  `Steuerung der Ausfallsicherung`_)
+
 * ``ping``: mit diesem Parameter kann eingestellt werden, wann Verbindungen
   mit der ``ping()``-Methode geprüft werden, falls eine solche vorhanden ist
   (``0`` = ``None`` = nie, ``1`` = Standardwert = immer wenn neu angefragt,
@@ -483,6 +493,77 @@ Argument) an ``PersistentDB`` oder ``PooledDB`` übergeben, etwa so::
     creator.dbapi = pyodbc
 
     db_pool = PooledDB(creator, mincached=5)
+
+Steuerung der Ausfallsicherung
+------------------------------
+Wenn eine Datenbankoperation mit einer der im Parameter ``failures``
+angegebenen Exception-Klassen fehlschlägt, dann nimmt DBUtils an, dass die
+Verbindung verloren gegangen ist, und wiederholt die Operation transparent,
+zunächst mit einem neuen Cursor und danach mit einer neu geöffneten
+Verbindung. Genau das möchte man, wenn der Datenbankserver neu gestartet
+wurde, aber nicht, wenn die Anweisung selbst aus einem Grund fehlgeschlagen
+ist, der nichts mit dem Zustand der Verbindung zu tun hat.
+
+Leider melden viele Datenbankadapter-Module beide Arten von Problemen mit
+derselben Exception-Klasse. Wenn zum Beispiel MySQL eine Anweisung abbricht,
+weil diese eine absichtlich angeforderte Zeitbegrenzung überschritten hat::
+
+    cur.execute('SELECT /*+ MAX_EXECUTION_TIME(10000) */ ...')
+
+dann löst ``pymysql`` einen ``OperationalError`` aus, genau wie beim
+tatsächlichen Verlust der Verbindung. Da der Parameter ``failures`` nur
+Exception-*Klassen* angeben kann und Python Unterklassen nicht von einer
+``except``-Klausel ausschließen kann, lässt sich diese Unterscheidung nicht
+durch eine Einschränkung des Parameters ``failures`` ausdrücken. Im obigen
+Beispiel würde die Anweisung bis zu dreimal ausgeführt, und die Abfrage
+würde bis zu 30 statt 10 Sekunden dauern.
+
+Für solche Fälle können Sie eine Funktion als ``isfatal`` übergeben, die für
+jeden zu ``failures`` passenden Fehler gefragt wird, ob dieser für die
+Verbindung wirklich fatal ist::
+
+    import pymysql
+    from dbutils.pooled_db import PooledDB
+
+    def no_timeout(error):
+        # 3024 = Zeitbegrenzung überschritten, die Verbindung ist noch intakt
+        return not error.args or error.args[0] != 3024
+
+    pool = PooledDB(pymysql, 5, database='mydb', isfatal=no_timeout)
+
+Wenn die Funktion einen falschen Wert zurückgibt, dann gilt der Fehler als
+nicht fatal, wird also sofort an die Anwendung weitergegeben, und die
+Verbindung wird weder ersetzt noch aus dem Verbindungspool entfernt. Beachten
+Sie, dass ``isfatal`` als Schlüsselwort-Argument übergeben werden muss und mit
+beliebigen Exceptions der als ``failures`` angegebenen Klassen umgehen können
+muss.
+
+Wenn Sie die Ausfallsicherung nur für eine bestimmte Anweisung abschalten
+möchten, statt sie für den gesamten Verbindungspool zu konfigurieren, dann
+können Sie den Kontextmanager ``no_failover()`` des Cursors verwenden::
+
+    with pool.connection() as db:
+        with db.cursor() as cur:
+            with cur.no_failover():
+                cur.execute('SELECT /*+ MAX_EXECUTION_TIME(10000) */ ...')
+            rows = cur.fetchall()
+
+Alles Übrige, insbesondere die ``ping()``-Prüfung und die Zählung der
+Verwendungen der zugrunde liegenden Verbindung, bleibt innerhalb dieses
+Kontexts unverändert.
+
+Als letztes Mittel können Sie über das Attribut ``dbapi_connection`` einer
+Verbindung und das Attribut ``dbapi_cursor`` eines Cursors auch direkt auf
+die zugrunde liegenden DB-API-2-Objekte zugreifen. Beachten Sie, dass
+Operationen auf diesen Objekten überhaupt nicht von der Ausfallsicherung
+erfasst und auch nicht auf die Begrenzung ``maxusage`` angerechnet werden.
+
+.. warning::
+    Statt der obigen Möglichkeiten können Sie auch einfach mit der Methode
+    ``begin()`` eine Transaktion starten, da die Ausfallsicherung während
+    einer Transaktion stets ausgesetzt wird. Bedenken Sie aber, dass dadurch
+    tatsächlich eine Transaktion auf dem Datenbankserver gestartet wird,
+    mit allen sich daraus ergebenden Folgen.
 
 
 Anmerkungen
