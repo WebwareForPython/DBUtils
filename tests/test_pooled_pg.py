@@ -13,6 +13,7 @@ Copyright and credit info:
 from queue import Empty, Queue
 from threading import Thread
 
+import pg
 import pytest
 
 from dbutils.pooled_pg import (
@@ -120,6 +121,62 @@ def test_close_connection():
     assert pool._cache.get(0) == db_con
     assert db
     del db
+
+
+def test_close_all():
+    """Check that closing the pool keeps the connections accounted for."""
+    pool = PooledPg(0, 1, 1, False, None, None, False, 'PooledPgTestDB')
+    assert pool._cache.qsize() == 0
+    assert pool._connections._value == 1
+    db = pool.connection()
+    db_con = db._con
+    db.close()
+    # the cached connection has already given back its share of the
+    # generally allowed connections when it was returned to the pool
+    assert pool._cache.qsize() == 1
+    assert pool._connections._value == 1
+    pool.close()
+    # closing the pool discards the cached connection,
+    # but it must not give back its share a second time
+    assert pool._cache.qsize() == 0
+    assert pool._connections._value == 1
+    assert db_con._closed
+    # so the pool still hands out only one connection at a time
+    db = pool.connection()
+    assert db._con is not db_con
+    assert pool._connections._value == 0
+    with pytest.raises(TooManyConnectionsError):
+        pool.connection()
+    # closing the pool again (this also happens when it is deleted)
+    # must not change the accounting while a connection is still in use
+    pool.close()
+    assert pool._connections._value == 0
+    # the connection in use gives back its share when it is returned
+    db.close()
+    assert pool._cache.qsize() == 1
+    assert pool._connections._value == 1
+
+
+def test_connection_error_does_not_use_up_a_connection():
+    """Check that a failing connection attempt is properly accounted for."""
+    pool = PooledPg(0, 0, 1, False, None, None, False, dbname='ok')
+    assert pool._cache.qsize() == 0
+    assert pool._connections._value == 1
+    # the mock database raises an error when the database is named 'error'
+    pool._kwargs['dbname'] = 'error'
+    with pytest.raises(pg.InternalError):
+        pool.connection()
+    pool._kwargs['dbname'] = 'ok'
+    # the failed attempt must not have used up the allowed connection
+    assert pool._connections._value == 1
+    db = pool.connection()
+    assert db.dbname == 'ok'
+    assert pool._connections._value == 0
+    # but the connection that could be established still counts
+    with pytest.raises(TooManyConnectionsError):
+        pool.connection()
+    db.close()
+    assert pool._connections._value == 1
 
 
 @pytest.mark.parametrize(("mincached", "maxcached", "cached", "rounds"), [

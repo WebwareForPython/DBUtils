@@ -224,9 +224,17 @@ class PooledPg:
         if self._connections and not self._connections.acquire(self._blocking):
             raise TooManyConnectionsError
         try:
-            return self._cache.get_nowait()
-        except Empty:
-            return self.steady_connection()
+            try:
+                return self._cache.get_nowait()
+            except Empty:
+                return self.steady_connection()
+        except Exception:
+            # the connection could not be established, so give back the
+            # reservation that has been made above (note that this must
+            # not happen when the reservation itself has already failed)
+            if self._connections:
+                self._connections.release()
+            raise
 
     def connection(self):
         """Get a steady, cached PostgreSQL connection from the pool."""
@@ -248,13 +256,16 @@ class PooledPg:
 
     def close(self):
         """Close all connections in the pool."""
+        # Note that the connections in the cache have already given back
+        # their share of the generally allowed connections when they were
+        # returned to the pool, so the semaphore must not be released here.
+        # Connections that are still in use are not closed here, and they
+        # will release their share as usual by calling the cache() method.
         while 1:
             try:
                 con = self._cache.get_nowait()
                 with suppress(Exception):
                     con.close()
-                if self._connections:
-                    self._connections.release()
             except Empty:
                 break
 

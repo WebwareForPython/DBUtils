@@ -41,6 +41,13 @@ instead of the underlying steady connection when it was called after the
 connection had already been returned to the pool.</p></li>
 <li><p>Fixed <span class="docutils literal">pooled_db.SharedDBConnection</span> violating the contract between
 <span class="docutils literal">__eq__</span> and <span class="docutils literal">__hash__</span>; shared connections now compare by identity.</p></li>
+<li><p>Fixed <span class="docutils literal">PooledPg.close()</span> releasing the semaphore for the connections in
+the pool cache, which had already released it when they were returned to
+the pool, so that the pool handed out more connections at the same time
+than allowed by <span class="docutils literal">maxconnections</span> after it had been closed.</p></li>
+<li><p>Fixed <span class="docutils literal">PooledPg</span> not releasing the semaphore when a connection could not
+be established, so that every failed attempt permanently reduced the number
+of connections the pool was willing to hand out.</p></li>
 </ul>
 </section>
 <section id="section-2">

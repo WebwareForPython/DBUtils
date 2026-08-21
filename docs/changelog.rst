@@ -33,6 +33,13 @@ Bugfixes:
   connection had already been returned to the pool.
 * Fixed ``pooled_db.SharedDBConnection`` violating the contract between
   ``__eq__`` and ``__hash__``; shared connections now compare by identity.
+* Fixed ``PooledPg.close()`` releasing the semaphore for the connections in
+  the pool cache, which had already released it when they were returned to
+  the pool, so that the pool handed out more connections at the same time
+  than allowed by ``maxconnections`` after it had been closed.
+* Fixed ``PooledPg`` not releasing the semaphore when a connection could not
+  be established, so that every failed attempt permanently reduced the number
+  of connections the pool was willing to hand out.
 
 3.1.2
 =====
