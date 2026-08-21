@@ -1379,6 +1379,40 @@ def test_shared_in_transaction_blocking(dbapi):
     assert shared[0]._con is con
 
 
+def test_shared_in_transaction_becoming_idle(dbapi):
+    """Check that a thread waiting for a shared connection survives unshare."""
+    pool = PooledDB(dbapi, 0, 0, 1, 0, True)
+    db = pool.connection()
+    con = db._con
+    db.begin()
+    # the only connection that may be shared is in a transaction now
+    shared = []
+    errors = []
+
+    def connection():
+        try:
+            shared.append(pool.connection())
+        except Exception as error:
+            errors.append(error)
+
+    thread = Thread(target=connection)
+    thread.start()
+    thread.join(0.1)
+    # the thread cannot share that connection and blocks instead of failing
+    assert thread.is_alive()
+    assert not shared
+    # closing the connection takes it out of the shared cache completely,
+    # so the waiting thread is woken up to find an empty shared cache;
+    # it must then get the connection from the idle cache instead of
+    # trying to share a connection that is no longer there
+    db.close()
+    thread.join(0.1)
+    assert not thread.is_alive()
+    assert not errors
+    assert len(shared) == 1
+    assert shared[0]._con is con
+
+
 def test_shared_in_transaction_with_two_connections(dbapi):
     """Check that sharing prefers connections without a transaction."""
     pool = PooledDB(dbapi, 0, 2, 2)
@@ -1490,26 +1524,45 @@ def test_shared_db_connection_compare(dbapi):
     con1.con._transaction = False
     con2 = SharedDBConnection(dbapi.connect())
     con2.con._transaction = False
-    assert con1 == con2
-    assert con1 <= con2
-    assert con1 >= con2
-    assert not con1 != con2  # noqa: SIM202
+    # connections with the same number of shares are ranked equally
     assert not con1 < con2
-    assert not con1 > con2
+    assert not con2 < con1
+    # the connection with fewer shares is preferred
     con2.share()
-    assert not con1 == con2  # noqa: SIM201
+    assert con1 < con2
+    assert not con2 < con1
     assert con1 <= con2
     assert not con1 >= con2
-    assert con1 != con2
-    assert con1 < con2
-    assert not con1 > con2
+    # but connections in a transaction always come last
     con1.con._transaction = True
-    assert not con1 == con2  # noqa: SIM201
-    assert not con1 <= con2
-    assert con1 >= con2
-    assert con1 != con2
     assert not con1 < con2
+    assert con2 < con1
     assert con1 > con2
+    assert not con1 <= con2
+
+
+def test_shared_db_connection_equality(dbapi):
+    """Check that shared connections are only equal to themselves."""
+    con1 = SharedDBConnection(dbapi.connect())
+    con1.con._transaction = False
+    con2 = SharedDBConnection(dbapi.connect())
+    con2.con._transaction = False
+    same_as_con1 = con1
+    # the ordering only serves to pick the least shared connection,
+    # it does not make equally ranked connections interchangeable
+    assert con1 == same_as_con1
+    assert con1 != con2
+    # equal connections must therefore also have equal hash values
+    # (this used to be violated, since the equality was based on the
+    # values while the hash value was based on the identity)
+    assert hash(con1) == hash(same_as_con1)
+    assert len({con1, con2, same_as_con1}) == 2
+    # and removing one connection from a list of connections
+    # must not remove another connection that is ranked the same
+    cache = [con1, con2]
+    cache.remove(con2)
+    assert len(cache) == 1
+    assert cache[0] is con1
 
 
 def test_shared_db_connection_hash(dbapi):
@@ -1518,9 +1571,10 @@ def test_shared_db_connection_hash(dbapi):
     con = SharedDBConnection(dbapi.connect())
     hashed = hash(con)
     assert hash(con) == hashed
-    # the hash is derived from the underlying connection and the shares
+    # the hash is based on the identity, so it does not change
+    # when the number of shares of the connection changes
     con.share()
-    assert hash(con) != hashed
+    assert hash(con) == hashed
     con.unshare()
     assert hash(con) == hashed
 

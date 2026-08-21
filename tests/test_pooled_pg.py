@@ -370,6 +370,30 @@ def test_reopen_connection_after_closing():
     assert con.num_queries == 1
 
 
+def test_reopen_connection_does_not_nest_the_proxy():
+    """Check that reopening does not wrap another pooled connection."""
+    pool = PooledPg(1, 2, 3)
+    db = pool.connection()
+    con = db._con
+    db.close()
+    db.reopen()
+    # the proxy must wrap the steady connection itself, not another proxy,
+    # since otherwise the pool cache would fill up with nested proxies
+    assert db._con is con
+    assert isinstance(db._con, SteadyPgConnection)
+    db.close()
+    cached = pool._cache.get_nowait()
+    assert cached is con
+    assert isinstance(cached, SteadyPgConnection)
+    pool._cache.put_nowait(cached)
+    # reopening must not disturb the accounting of the allowed connections
+    dbs = [pool.connection() for _ in range(3)]
+    with pytest.raises(TooManyConnectionsError):
+        pool.connection()
+    while dbs:
+        dbs.pop().close()
+
+
 def test_context_manager():
     """Check that the connection can be used as a context manager."""
     pool = PooledPg(1, 1, 1)

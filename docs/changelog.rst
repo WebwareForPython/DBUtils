@@ -25,6 +25,14 @@ Bugfixes:
 * Fixed the transaction flag being reset on the cursor instead of the
   connection when a connection could not be reopened during a transaction,
   which kept the failover mechanism suspended.
+* Fixed an ``IndexError`` in ``PooledDB.connection()`` when a thread waiting
+  for a shared connection that was in a transaction got woken up after that
+  connection had become idle and left the shared cache.
+* Fixed ``PooledPgConnection.reopen()`` wrapping another pooled connection
+  instead of the underlying steady connection when it was called after the
+  connection had already been returned to the pool.
+* Fixed ``pooled_db.SharedDBConnection`` violating the contract between
+  ``__eq__`` and ``__hash__``; shared connections now compare by identity.
 
 3.1.2
 =====

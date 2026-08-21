@@ -33,6 +33,14 @@ supported access to the underlying DB-API 2 objects.</p></li>
 <li><p>Fixed the transaction flag being reset on the cursor instead of the
 connection when a connection could not be reopened during a transaction,
 which kept the failover mechanism suspended.</p></li>
+<li><p>Fixed an <span class="docutils literal">IndexError</span> in <span class="docutils literal">PooledDB.connection()</span> when a thread waiting
+for a shared connection that was in a transaction got woken up after that
+connection had become idle and left the shared cache.</p></li>
+<li><p>Fixed <span class="docutils literal">PooledPgConnection.reopen()</span> wrapping another pooled connection
+instead of the underlying steady connection when it was called after the
+connection had already been returned to the pool.</p></li>
+<li><p>Fixed <span class="docutils literal">pooled_db.SharedDBConnection</span> violating the contract between
+<span class="docutils literal">__eq__</span> and <span class="docutils literal">__hash__</span>; shared connections now compare by identity.</p></li>
 </ul>
 </section>
 <section id="section-2">

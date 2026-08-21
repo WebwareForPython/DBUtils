@@ -315,30 +315,37 @@ class PooledDB:
         """
         if shareable and self._maxshared:
             with self._lock:
-                while (not self._shared_cache and self._maxconnections
-                        and self._connections >= self._maxconnections):
-                    self._wait_lock()
-                if len(self._shared_cache) < self._maxshared:
-                    # shared cache is not full, get a dedicated connection
-                    try:  # first try to get it from the idle cache
-                        con = self._idle_cache.pop(0)
-                    except IndexError:  # else get a fresh connection
-                        con = self.steady_connection()
-                    else:
-                        con._ping_check()  # check this connection
-                    con = SharedDBConnection(con)
-                    self._connections += 1
-                else:  # shared cache full or no more connections allowed
-                    self._shared_cache.sort()  # least shared connection first
-                    con = self._shared_cache.pop(0)  # get it
-                    while con.con._transaction:
-                        # do not share connections which are in a transaction
-                        self._shared_cache.insert(0, con)
+                while True:
+                    while (not self._shared_cache and self._maxconnections
+                            and self._connections >= self._maxconnections):
                         self._wait_lock()
-                        self._shared_cache.sort()
-                        con = self._shared_cache.pop(0)
+                    if len(self._shared_cache) < self._maxshared:
+                        # shared cache is not full, get a dedicated connection
+                        try:  # first try to get it from the idle cache
+                            con = self._idle_cache.pop(0)
+                        except IndexError:  # else get a fresh connection
+                            con = self.steady_connection()
+                        else:
+                            con._ping_check()  # check this connection
+                        con = SharedDBConnection(con)
+                        self._connections += 1
+                        break
+                    # shared cache full or no more connections allowed
+                    self._shared_cache.sort()  # least shared connection first
+                    # only look at it, but leave it in the shared cache
+                    # as long as we may still have to wait for it
+                    con = self._shared_cache[0]
+                    if con.con._transaction:
+                        # do not share connections which are in a transaction,
+                        # wait until the situation has changed and start over,
+                        # since by then the connection may have become idle
+                        # and been removed from the shared cache altogether
+                        self._wait_lock()
+                        continue
+                    del self._shared_cache[0]  # get it
                     con.con._ping_check()  # check the underlying connection
                     con.share()  # increase share of this connection
+                    break
                 # put the connection (back) into the shared cache
                 self._shared_cache.append(con)
                 self._lock.notify()
@@ -487,12 +494,17 @@ class SharedDBConnection:
 
     def __eq__(self, other):
         """Check whether this connection is the same as the other one."""
-        return (self.con._transaction == other.con._transaction
-                and self.shared == other.shared)
+        # The ordering above only serves to pick the least shared connection,
+        # it does not make different connections interchangeable.  Therefore
+        # equality is identity, so that the shared cache can be searched for
+        # one particular connection (see the unshare method of the pool).
+        return self is other
 
     def __hash__(self):
         """Get hash value of this connection."""
-        return hash((self.con, self.shared))
+        # must be based on identity as well, and must stay constant even
+        # though the number of shares of the connection can change
+        return id(self)
 
     def share(self):
         """Increase the share of this connection."""
